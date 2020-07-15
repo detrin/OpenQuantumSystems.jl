@@ -1,4 +1,4 @@
-module Example
+module OpenQuantumSystems
 export hello, domath
 
 """
