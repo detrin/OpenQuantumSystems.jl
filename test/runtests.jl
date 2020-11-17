@@ -10,7 +10,7 @@ names = [
     "test_sparsematrix.jl",
     "test_operators_sparse.jl",
 
-    
+
     "test_fock.jl",
     "test_spin.jl",
     "test_nlevel.jl",
@@ -20,7 +20,7 @@ names = [
 
     "test_superoperators.jl",
 
-    "test_pauli.jl"     
+    "test_pauli.jl"
 ]
 
 detected_tests = filter(
