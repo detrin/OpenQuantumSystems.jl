@@ -1,3 +1,21 @@
+
+@generated function getproperties(obj::T) where T
+    if fieldcount(T) > 0
+        return :(getproperty.((obj,), propertynames(obj)))
+    else
+        return :nothing
+    end
+end
+
+@generated function Base.isapprox(first::T1, second::T2) where {T1, T2}
+    firstfieldcount = fieldcount(T1)
+    if firstfieldcount == fieldcount(T2) && firstfieldcount > 0
+        return :(reduce(&, isapprox.(getproperties(first), getproperties(second))))
+    else
+        return :(first == second)
+    end
+end
+
 names = [
     "test_sortedindices.jl",
 
