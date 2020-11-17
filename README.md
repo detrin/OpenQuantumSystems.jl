@@ -2,7 +2,7 @@
 
 | Service  | Master  | Develop  |
 | :------- | :------ | :------- |
-| TravisCI | [![Build Status](https://travis-ci.org/detrin/OpenQuantumSystems.jl.svg?branch=master)](https://travis-ci.org/detrin/OpenQuantumSystems.jl) | [![Build Status](https://travis-ci.org/detrin/OpenQuantumSystems.jl.svg?branch=devel)](https://travis-ci.org/detrin/OpenQuantumSystems.jl) |
+| Github Actions | [![Actions Status](https://github.com/detrin/OpenQuantumSystems.jl/workflows/CI/badge.svg?branch=master)](https://github.com/detrin/OpenQuantumSystems.jl/actions) | [![Actions Status](https://github.com/detrin/OpenQuantumSystems.jl/workflows/CI/badge.svg?branch=devel)](https://github.com/detrin/OpenQuantumSystems.jl/actions) |
 | coveralls | [![Coverage Status](https://coveralls.io/repos/JuliaLang/Example.jl/badge.svg?branch=master)](https://coveralls.io/r/detrin/OpenQuantumSystems.jl?branch=master) | [![Coverage Status](https://coveralls.io/repos/github/detrin/OpenQuantumSystems.jl/badge.svg?branch=devel)](https://coveralls.io/github/detrin/OpenQuantumSystems.jl?branch=devel) |
 | codecov | [![codecov](https://codecov.io/gh/detrin/OpenQuantumSystems.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/detrin/OpenQuantumSystems.jl) | [![codecov](https://codecov.io/gh/detrin/OpenQuantumSystems.jl/branch/devel/graph/badge.svg)](https://codecov.io/gh/detrin/OpenQuantumSystems.jl) |
 
