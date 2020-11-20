@@ -41,8 +41,10 @@ jobs:
       - uses: codecov/codecov-action@v1
         with:
           file: lcov.info
+        continue-on-error: true
       - uses: julia-actions/julia-uploadcoveralls@v1
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+        continue-on-error: true
 
 
