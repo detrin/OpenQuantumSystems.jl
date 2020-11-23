@@ -13,4 +13,4 @@ clear and has sufficient instructions to be able to reproduce the issue.
 ## Coding Style  
 * 4 spaces for indentation rather than tabs
 * 80 character line length up to 120 when needed, but try to keep it down to 80 chars per line
-
+* Use JuliaFormatter.jl to format your files

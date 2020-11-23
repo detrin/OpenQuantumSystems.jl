@@ -15,7 +15,7 @@ Depending if `rho` is hermitian either [`tracenorm_h`](@ref) or
 function tracenorm(rho::DenseOpType)
     ishermitian(rho) ? tracenorm_h(rho) : tracenorm_nh(rho)
 end
-function tracenorm(rho::T) where T<:AbstractOperator
+function tracenorm(rho::T) where {T<:AbstractOperator}
     throw(ArgumentError("tracenorm not implemented for $(typeof(rho)). Use dense operators instead."))
 end
 
@@ -32,11 +32,11 @@ T(ρ) = Tr\\{\\sqrt{ρ^† ρ}\\} = \\sum_i |λ_i|
 
 where ``λ_i`` are the eigenvalues of `rho`.
 """
-function tracenorm_h(rho::DenseOpType{B,B}) where B<:Basis
+function tracenorm_h(rho::DenseOpType{B,B}) where {B<:Basis}
     s = eigvals(Hermitian(rho.data))
     sum(abs.(s))
 end
-function tracenorm_h(rho::T) where T<:AbstractOperator
+function tracenorm_h(rho::T) where {T<:AbstractOperator}
     throw(ArgumentError("tracenorm_h not implemented for $(typeof(rho)). Use dense operators instead."))
 end
 
@@ -77,7 +77,8 @@ T(ρ,σ) = \\frac{1}{2} Tr\\{\\sqrt{(ρ - σ)^† (ρ - σ)}\\}.
 It calls [`tracenorm`](@ref) which in turn either uses [`tracenorm_h`](@ref)
 or [`tracenorm_nh`](@ref) depending if ``ρ-σ`` is hermitian or not.
 """
-tracedistance(rho::DenseOpType{B,B}, sigma::DenseOpType{B,B}) where {B<:Basis} = 0.5*tracenorm(rho - sigma)
+tracedistance(rho::DenseOpType{B,B}, sigma::DenseOpType{B,B}) where {B<:Basis} =
+    0.5 * tracenorm(rho - sigma)
 function tracedistance(rho::AbstractOperator, sigma::AbstractOperator)
     throw(ArgumentError("tracedistance not implemented for $(typeof(rho)) and $(typeof(sigma)). Use dense operators instead."))
 end
@@ -95,7 +96,8 @@ T(ρ,σ) = \\frac{1}{2} Tr\\{\\sqrt{(ρ - σ)^† (ρ - σ)}\\} = \\frac{1}{2} \
 
 where ``λ_i`` are the eigenvalues of `rho` - `sigma`.
 """
-tracedistance_h(rho::DenseOpType{B,B}, sigma::DenseOpType{B,B}) where {B<:Basis}= 0.5*tracenorm_h(rho - sigma)
+tracedistance_h(rho::DenseOpType{B,B}, sigma::DenseOpType{B,B}) where {B<:Basis} =
+    0.5 * tracenorm_h(rho - sigma)
 function tracedistance_h(rho::AbstractOperator, sigma::AbstractOperator)
     throw(ArgumentError("tracedistance_h not implemented for $(typeof(rho)) and $(typeof(sigma)). Use dense operators instead."))
 end
@@ -117,7 +119,10 @@ It uses the identity
 
 where ``σ_i`` are the singular values of `rho` - `sigma`.
 """
-tracedistance_nh(rho::DenseOpType{B1,B2}, sigma::DenseOpType{B1,B2}) where {B1<:Basis,B2<:Basis} = 0.5*tracenorm_nh(rho - sigma)
+tracedistance_nh(
+    rho::DenseOpType{B1,B2},
+    sigma::DenseOpType{B1,B2},
+) where {B1<:Basis,B2<:Basis} = 0.5 * tracenorm_nh(rho - sigma)
 function tracedistance_nh(rho::AbstractOperator, sigma::AbstractOperator)
     throw(ArgumentError("tracedistance_nh not implemented for $(typeof(rho)) and $(typeof(sigma)). Use dense operators instead."))
 end
@@ -141,10 +146,10 @@ natural logarithm and ``0\\log(0) ≡ 0``.
 * `rho`: Density operator of which to calculate Von Neumann entropy.
 * `tol=1e-15`: Tolerance for rounding errors in the computed eigenvalues.
 """
-function entropy_vn(rho::DenseOpType{B,B}; tol::Float64=1e-15) where B<:Basis
+function entropy_vn(rho::DenseOpType{B,B}; tol::Float64 = 1e-15) where {B<:Basis}
     evals::Vector{ComplexF64} = eigvals(rho.data)
-    evals[abs.(evals) .< tol] .= 0.0im
-    sum([d == 0.0im ? 0.0im : -d*log(d) for d=evals])
+    evals[abs.(evals).<tol] .= 0.0im
+    sum([d == 0.0im ? 0.0im : -d * log(d) for d in evals])
 end
 entropy_vn(psi::StateVector; kwargs...) = entropy_vn(dm(psi); kwargs...)
 
@@ -159,11 +164,11 @@ The Renyi α-entropy of a density operator is defined as
 S_α(ρ) = 1/(1-α) \\log(Tr(ρ^α))
 ```
 """
-function entropy_renyi(rho::DenseOpType{B,B}, α::Integer=2) where B<:Basis
-    α <  0 && throw(ArgumentError("α-Renyi entropy is defined for α≥0, α≂̸1"))
+function entropy_renyi(rho::DenseOpType{B,B}, α::Integer = 2) where {B<:Basis}
+    α < 0 && throw(ArgumentError("α-Renyi entropy is defined for α≥0, α≂̸1"))
     α == 1 && throw(ArgumentError("α-Renyi entropy is defined for α≥0, α≂̸1"))
 
-    return 1/(1-α) * log(tr(rho^α))
+    return 1 / (1 - α) * log(tr(rho^α))
 end
 
 entropy_renyi(psi::StateVector, args...) = entropy_renyi(dm(psi), args...)
@@ -181,7 +186,8 @@ F(ρ, σ) = Tr\\left(\\sqrt{\\sqrt{ρ}σ\\sqrt{ρ}}\\right),
 
 where ``\\sqrt{ρ}=\\sum_n\\sqrt{λ_n}|ψ⟩⟨ψ|``.
 """
-fidelity(rho::DenseOpType{B,B}, sigma::DenseOpType{B,B}) where {B<:Basis} = tr(sqrt(sqrt(rho.data)*sigma.data*sqrt(rho.data)))
+fidelity(rho::DenseOpType{B,B}, sigma::DenseOpType{B,B}) where {B<:Basis} =
+    tr(sqrt(sqrt(rho.data) * sigma.data * sqrt(rho.data)))
 
 
 """
@@ -189,7 +195,7 @@ fidelity(rho::DenseOpType{B,B}, sigma::DenseOpType{B,B}) where {B<:Basis} = tr(s
 
 Partial transpose of rho with respect to subspace specified by index.
 """
-function ptranspose(rho::DenseOpType{B,B}, index::Int=1) where B<:CompositeBasis
+function ptranspose(rho::DenseOpType{B,B}, index::Int = 1) where {B<:CompositeBasis}
 
     # Define permutation
     N = length(rho.basis_l.bases)
@@ -203,8 +209,9 @@ function ptranspose(rho::DenseOpType{B,B}, index::Int=1) where B<:CompositeBasis
     # Transpose corresponding blocks
     m = Int(prod(rho_perm.basis_l.shape[1:N-1]))
     n = rho_perm.basis_l.shape[N]
-    for i=1:n, j=1:n
-        rho_perm.data[m*(i-1)+1:m*i, m*(j-1)+1:m*j] = permutedims(rho_perm.data[m*(i-1)+1:m*i, m*(j-1)+1:m*j])
+    for i = 1:n, j = 1:n
+        rho_perm.data[m*(i-1)+1:m*i, m*(j-1)+1:m*j] =
+            permutedims(rho_perm.data[m*(i-1)+1:m*i, m*(j-1)+1:m*j])
     end
 
     return permutesystems(rho_perm, perm)
@@ -216,7 +223,8 @@ end
 
 Peres-Horodecki criterion of partial transpose.
 """
-PPT(rho::DenseOpType{B,B}, index::Int) where B<:CompositeBasis = all(real.(eigvals(ptranspose(rho, index).data)) .>= 0.0)
+PPT(rho::DenseOpType{B,B}, index::Int) where {B<:CompositeBasis} =
+    all(real.(eigvals(ptranspose(rho, index).data)) .>= 0.0)
 
 
 """
@@ -231,7 +239,8 @@ N(ρ) = \\|ρᵀ\\|,
 ```
 where `ρᵀ` is the partial transpose.
 """
-negativity(rho::DenseOpType{B,B}, index::Int) where B<:CompositeBasis = 0.5*(tracenorm(ptranspose(rho, index)) - 1.0)
+negativity(rho::DenseOpType{B,B}, index::Int) where {B<:CompositeBasis} =
+    0.5 * (tracenorm(ptranspose(rho, index)) - 1.0)
 
 
 """
@@ -244,7 +253,8 @@ N(ρ) = \\log₂\\|ρᵀ\\|,
 ```
 where `ρᵀ` is the partial transpose.
 """
-logarithmic_negativity(rho::DenseOpType{B,B}, index::Int) where B<:CompositeBasis = log(2, tracenorm(ptranspose(rho, index)))
+logarithmic_negativity(rho::DenseOpType{B,B}, index::Int) where {B<:CompositeBasis} =
+    log(2, tracenorm(ptranspose(rho, index)))
 
 
 """
@@ -252,8 +262,15 @@ logarithmic_negativity(rho::DenseOpType{B,B}, index::Int) where B<:CompositeBasi
 
 The average gate fidelity between two superoperators x and y.
 """
-function avg_gate_fidelity(x::T, y::T) where T <: Union{PauliTransferMatrix{B, B} where B, SuperOperator{B, B} where B, ChiMatrix{B, B} where B}
-    dim = 2 ^ length(x.basis_l)
+function avg_gate_fidelity(
+    x::T,
+    y::T,
+) where {T<:Union{
+    PauliTransferMatrix{B,B} where B,
+    SuperOperator{B,B} where B,
+    ChiMatrix{B,B} where B,
+}}
+    dim = 2^length(x.basis_l)
     return (tr(transpose(x.data) * y.data) + dim) / (dim^2 + dim)
 end
 
@@ -272,7 +289,11 @@ entanglement_entropy(dm(ket)) = 2 * entanglement_entropy(ket)
 By default the computed entropy is the Von-Neumann entropy, but a different
 function can be provided (for example to compute the entanglement-renyi entropy).
 """
-function entanglement_entropy(psi::Ket{B}, partition::Vector{Int}, entropy_fun=entropy_vn) where B<:CompositeBasis
+function entanglement_entropy(
+    psi::Ket{B},
+    partition::Vector{Int},
+    entropy_fun = entropy_vn,
+) where {B<:CompositeBasis}
     # check that sites are within the range
     @assert all(partition .<= length(psi.basis.bases))
 
@@ -280,19 +301,27 @@ function entanglement_entropy(psi::Ket{B}, partition::Vector{Int}, entropy_fun=e
     return entropy_fun(rho)
 end
 
-function entanglement_entropy(rho::DenseOpType{B,B}, partition::Vector{Int}, args...) where {B<:CompositeBasis}
+function entanglement_entropy(
+    rho::DenseOpType{B,B},
+    partition::Vector{Int},
+    args...,
+) where {B<:CompositeBasis}
     # check that sites is within the range
     hilb = rho.basis_l
-    all(partition .<= length(hilb.bases)) || throw(ArgumentError("Indices in partition must be within the bounds of the composite basis."))
-    length(partition) <= length(hilb.bases) || throw(ArgumentError("Partition cannot include the whole system."))
+    all(partition .<= length(hilb.bases)) ||
+        throw(ArgumentError("Indices in partition must be within the bounds of the composite basis."))
+    length(partition) <= length(hilb.bases) ||
+        throw(ArgumentError("Partition cannot include the whole system."))
 
     # build the doubled hilbert space for the vectorised dm, normalized like a Ket.
     b_doubled = hilb^2
     rho_vec = normalize!(Ket(b_doubled, vec(rho.data)))
 
-    return entanglement_entropy(rho_vec,
-                                vcat(partition, partition.+length(hilb.bases)),
-                                args...)
+    return entanglement_entropy(
+        rho_vec,
+        vcat(partition, partition .+ length(hilb.bases)),
+        args...,
+    )
 end
 
 entanglement_entropy(state, partition::Number, args...) =

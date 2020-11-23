@@ -6,7 +6,7 @@ Basis for a system consisting of N states.
 struct NLevelBasis{T} <: Basis
     shape::Vector{T}
     N::T
-    function NLevelBasis(N::T) where T<:Int
+    function NLevelBasis(N::T) where {T<:Int}
         if N < 1
             throw(DimensionMismatch())
         end
@@ -30,7 +30,7 @@ function transition(b::NLevelBasis, to::Int, from::Int)
         throw(BoundsError("'from' index has to be between 1 and b.N"))
     end
     op = SparseOperator(b)
-    op.data[to, from] = 1.
+    op.data[to, from] = 1.0
     op
 end
 

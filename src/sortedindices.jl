@@ -6,8 +6,8 @@ function complement(N::Int, indices::Vector{Int})
     x = Vector{Int}(undef, N - L)
     i_ = 1 # Position in the x vector
     j = 1 # Position in indices vector
-    for i=1:N
-        if j > L || indices[j]!=i
+    for i = 1:N
+        if j > L || indices[j] != i
             x[i_] = i
             i_ += 1
         else
@@ -46,7 +46,7 @@ function shiftremove(ind1::Vector{Int}, ind2::Vector{Int})
                     break
                 end
             end
-            push!(x, i-counter)
+            push!(x, i - counter)
         end
     end
     x
@@ -55,14 +55,14 @@ end
 function reducedindices(I_::Vector{Int}, I::Vector{Int})
     N = length(I_)
     x = Vector{Int}(undef, N)
-    for n in 1:N
+    for n = 1:N
         x[n] = findfirst(isequal(I_[n]), I)
     end
     x
 end
 
 function reducedindices!(I_::Vector{Int}, I::Vector{Int})
-    for n in 1:length(I_)
+    for n = 1:length(I_)
         I_[n] = findfirst(isequal(I_[n]), I)
     end
 end
@@ -72,10 +72,10 @@ Check if all indices are unique and smaller than or equal to imax.
 """
 function check_indices(imax::Int, indices::Vector{Int})
     N = length(indices)
-    for n=1:N
+    for n = 1:N
         i = indices[n]
         @assert 0 < i <= imax
-        for m in n+1:N
+        for m = n+1:N
             @assert i != indices[m]
         end
     end
@@ -112,6 +112,7 @@ function check_embed_indices(indices::Array)
 
     # flatten the indices and check for uniqueness
     # use a custom flatten because it's ≈ 4x  faster than Base.Iterators.flatten
-    flatten(arr::Vector) = mapreduce(x -> x isa Vector ? flatten(x) : x, append!, arr, init=[])
+    flatten(arr::Vector) =
+        mapreduce(x -> x isa Vector ? flatten(x) : x, append!, arr, init = [])
     allunique(flatten(indices))
 end
