@@ -47,7 +47,7 @@ The preferred way is to specify special bases for different systems.
 """
 struct GenericBasis{S} <: Basis
     shape::S
-    function GenericBasis(shape::S) where S<:Vector{<:Int}
+    function GenericBasis(shape::S) where {S<:Vector{<:Int}}
         new{S}(shape)
     end
 end
@@ -69,17 +69,20 @@ directly `tensor(b1, b2...)` or `b1 ⊗ b2 ⊗ …` can be used.
 struct CompositeBasis{S,B<:Tuple{Vararg{Basis}}} <: Basis
     shape::S
     bases::B
-    function CompositeBasis{B}(shape::S,bases::B) where {S,B}
-        new{S,B}(shape,bases)
+    function CompositeBasis{B}(shape::S, bases::B) where {S,B}
+        new{S,B}(shape, bases)
     end
 end
-CompositeBasis(shape::Vector{<:Int}, bases::B) where B<:Tuple{Vararg{Basis}} = CompositeBasis{B}(shape, bases)
-CompositeBasis(bases::B) where B<:Tuple{Vararg{Basis}} = CompositeBasis{B}(Int[length(b) for b in bases], bases)
-CompositeBasis(shape::Vector{Int}, bases::Vector{B}) where B<:Basis = (tmp = (bases...,); CompositeBasis{typeof(tmp)}(shape, tmp))
-CompositeBasis(bases::Vector{B}) where B<:Basis = CompositeBasis((bases...,))
+CompositeBasis(shape::Vector{<:Int}, bases::B) where {B<:Tuple{Vararg{Basis}}} =
+    CompositeBasis{B}(shape, bases)
+CompositeBasis(bases::B) where {B<:Tuple{Vararg{Basis}}} =
+    CompositeBasis{B}(Int[length(b) for b in bases], bases)
+CompositeBasis(shape::Vector{Int}, bases::Vector{B}) where {B<:Basis} =
+    (tmp = (bases...,); CompositeBasis{typeof(tmp)}(shape, tmp))
+CompositeBasis(bases::Vector{B}) where {B<:Basis} = CompositeBasis((bases...,))
 CompositeBasis(bases::Basis...) = CompositeBasis((bases...,))
 
-==(b1::T, b2::T) where T<:CompositeBasis = equal_shape(b1.shape, b2.shape)
+==(b1::T, b2::T) where {T<:CompositeBasis} = equal_shape(b1.shape, b2.shape)
 ==(b1::CompositeBasis, b2::CompositeBasis) = false
 
 """
@@ -100,12 +103,13 @@ Any given CompositeBasis is expanded so that the resulting CompositeBasis never
 contains another CompositeBasis.
 """
 tensor(b1::Basis, b2::Basis) = CompositeBasis(Int[length(b1); length(b2)], (b1, b2))
-tensor(b1::CompositeBasis, b2::CompositeBasis) = CompositeBasis(Int[b1.shape; b2.shape], (b1.bases..., b2.bases...))
+tensor(b1::CompositeBasis, b2::CompositeBasis) =
+    CompositeBasis(Int[b1.shape; b2.shape], (b1.bases..., b2.bases...))
 function tensor(b1::CompositeBasis, b2::Basis)
     N = length(b1.bases)
-    shape = Vector{Int}(undef, N+1)
-    bases = Vector{Basis}(undef, N+1)
-    for i=1:N
+    shape = Vector{Int}(undef, N + 1)
+    bases = Vector{Basis}(undef, N + 1)
+    for i = 1:N
         shape[i] = b1.shape[i]
         bases[i] = b1.bases[i]
     end
@@ -115,9 +119,9 @@ function tensor(b1::CompositeBasis, b2::Basis)
 end
 function tensor(b1::Basis, b2::CompositeBasis)
     N = length(b2.bases)
-    shape = Vector{Int}(undef, N+1)
-    bases = Vector{Basis}(undef, N+1)
-    for i=1:N
+    shape = Vector{Int}(undef, N + 1)
+    bases = Vector{Basis}(undef, N + 1)
+    for i = 1:N
         shape[i+1] = b2.shape[i]
         bases[i+1] = b2.bases[i]
     end
@@ -132,7 +136,7 @@ function ^(b::Basis, N::Int)
     if N < 1
         throw(ArgumentError("Power of a basis is only defined for positive integers."))
     end
-    tensor([b for i=1:N]...)
+    tensor([b for i = 1:N]...)
 end
 
 """
@@ -147,8 +151,8 @@ function equal_shape(a::Vector{Int}, b::Vector{Int})
     if length(a) != length(b)
         return false
     end
-    for i=1:length(a)
-        if a[i]!=b[i]
+    for i = 1:length(a)
+        if a[i] != b[i]
             return false
         end
     end
@@ -160,12 +164,12 @@ end
 
 Check if two subbases vectors are identical.
 """
-function equal_bases(a::Vector{T}, b::Vector{T}) where T <: Basis
-    if a===b
+function equal_bases(a::Vector{T}, b::Vector{T}) where {T<:Basis}
+    if a === b
         return true
     end
-    for i=1:length(a)
-        if a[i]!=b[i]
+    for i = 1:length(a)
+        if a[i] != b[i]
             return false
         end
     end
@@ -198,7 +202,7 @@ end
 
 Test if two objects have the same bases.
 """
-samebases(b1::Basis, b2::Basis) = b1==b2
+samebases(b1::Basis, b2::Basis) = b1 == b2
 
 """
     check_samebases(a, b)
@@ -218,13 +222,13 @@ end
 
 Check if two objects are multiplicable.
 """
-multiplicable(b1::Basis, b2::Basis) = b1==b2
+multiplicable(b1::Basis, b2::Basis) = b1 == b2
 
 function multiplicable(b1::CompositeBasis, b2::CompositeBasis)
-    if !equal_shape(b1.shape,b2.shape)
+    if !equal_shape(b1.shape, b2.shape)
         return false
     end
-    for i=1:length(b1.shape)
+    for i = 1:length(b1.shape)
         if !multiplicable(b1.bases[i], b2.bases[i])
             return false
         end
@@ -257,9 +261,9 @@ full trace.
 """
 function ptrace(b::CompositeBasis, indices::Vector{Int})
     J = [i for i in 1:length(b.bases) if i ∉ indices]
-    if length(J)==0
+    if length(J) == 0
         throw(ArgumentError("Tracing over all indices is not allowed in ptrace."))
-    elseif length(J)==1
+    elseif length(J) == 1
         return b.bases[J[1]]
     else
         return CompositeBasis(b.shape[J], b.bases[J])
