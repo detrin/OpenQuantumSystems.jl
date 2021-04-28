@@ -60,15 +60,6 @@ export bases,
     coherentstate,
     coherentstate!,
     displace,
-    spin,
-    SpinBasis,
-    sigmax,
-    sigmay,
-    sigmaz,
-    sigmap,
-    sigmam,
-    spinup,
-    spindown,
     randstate,
     randoperator,
     thermalstate,
@@ -94,9 +85,6 @@ export bases,
     negativity,
     logarithmic_negativity,
     entanglement_entropy,
-    PauliBasis,
-    PauliTransferMatrix,
-    DensePauliTransferMatrix,
     ChiMatrix,
     DenseChiMatrix,
     avg_gate_fidelity
@@ -111,10 +99,8 @@ include("operators_dense.jl")
 include("sparsematrix.jl")
 include("operators_sparse.jl")
 include("superoperators.jl")
-include("spin.jl")
 include("fock.jl")
 include("state_definitions.jl")
-include("pauli.jl")
 include("metrics.jl")
 include("nlevel.jl")
 
