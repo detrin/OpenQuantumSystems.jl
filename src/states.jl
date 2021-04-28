@@ -121,6 +121,25 @@ Norm of the given bra or ket state.
 norm(x::StateVector) = norm(x.data)
 
 """
+    norm(op::DenseOpType{B,B}) where {B<:Basis}
+
+Norm of the given operator.
+"""
+# function norm(op::DenseOpType{B,B}) where {B<:Basis}
+#     return tr(op.data)
+# end
+
+"""
+    norm(A::Matrix{T,2}) where {T<:ComputableType}
+
+Norm of the given operator.
+"""
+# function norm(A::Matrix{T,2}) where {T<:ComputableType}
+#     return tr(A)
+# end
+
+
+"""
     normalize(x::StateVector)
 
 Return the normalized state so that `norm(x)` is one.
@@ -128,11 +147,49 @@ Return the normalized state so that `norm(x)` is one.
 normalize(x::StateVector) = x / norm(x)
 
 """
+    normalize(x::DenseOpType{B,B}) where {B<:Basis}
+
+Return the normalized operator so that `norm(x)` is one.
+"""
+# function normalize(op::DenseOpType{B,B}) where {B<:Basis}
+#     op.data /= tr(op.data)
+#     return op
+# end
+
+"""
+    normalize(A::Matrix{T,2}) where {T<:ComputableType}
+
+Return the normalized matrix so that `norm(A)` is one.
+"""
+# function normalize(A::Matrix{T,2}) where {T<:ComputableType}
+#     return A / tr(A)
+# end
+
+"""
     normalize!(x::StateVector)
 
 In-place normalization of the given bra or ket so that `norm(x)` is one.
 """
 normalize!(x::StateVector) = (normalize!(x.data); x)
+
+"""
+    normalize!(op::DenseOpType{B,B}) where {B<:Basis}
+
+In-place normalization of the given operator so that `norm(op)` is one.
+"""
+function normalize!(op::DenseOpType{B,B}) where {B<:Basis}
+    op.data[:, :] /= tr(op.data)
+    return op
+end
+
+"""
+    normalize!(A::Matrix{T,2}) where {T<:ComputableType}
+
+In-place normalization of the given matrix so that `norm(A)` is one.
+"""
+function normalize!(op::DenseOpType{B,B}) where {B<:Basis}
+    A[:, :] / tr(A)
+end
 
 function permutesystems(state::T, perm::Vector{Int}) where {T<:Ket}
     @assert length(state.basis.bases) == length(perm)
