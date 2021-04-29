@@ -8,10 +8,12 @@ names = [
     "test_sparsematrix.jl",
     "test_operators_sparse.jl",
     "test_fock.jl",
+    "test_spin.jl",
     "test_nlevel.jl",
     "test_state_definitions.jl",
     "test_metrics.jl",
     "test_superoperators.jl",
+    "test_pauli.jl",
 ]
 
 detected_tests =

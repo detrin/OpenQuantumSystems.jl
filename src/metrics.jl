@@ -258,6 +258,23 @@ logarithmic_negativity(rho::DenseOpType{B,B}, index::Int) where {B<:CompositeBas
 
 
 """
+    avg_gate_fidelity(x, y)
+
+The average gate fidelity between two superoperators x and y.
+"""
+function avg_gate_fidelity(
+    x::T,
+    y::T,
+) where {T<:Union{
+    PauliTransferMatrix{B,B} where B,
+    SuperOperator{B,B} where B,
+    ChiMatrix{B,B} where B,
+}}
+    dim = 2^length(x.basis_l)
+    return (tr(transpose(x.data) * y.data) + dim) / (dim^2 + dim)
+end
+
+"""
     entanglement_entropy(state, partition, [entropy_fun=entropy_vn])
 
 Computes the entanglement entropy of `state` between the list of sites `partition`
