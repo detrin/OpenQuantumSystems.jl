@@ -120,6 +120,7 @@ Norm of the given bra or ket state.
 """
 norm(x::StateVector) = norm(x.data)
 
+
 """
     normalize(x::StateVector)
 
@@ -127,12 +128,14 @@ Return the normalized state so that `norm(x)` is one.
 """
 normalize(x::StateVector) = x / norm(x)
 
+
 """
     normalize!(x::StateVector)
 
 In-place normalization of the given bra or ket so that `norm(x)` is one.
 """
 normalize!(x::StateVector) = (normalize!(x.data); x)
+
 
 function permutesystems(state::T, perm::Vector{Int}) where {T<:Ket}
     @assert length(state.basis.bases) == length(perm)

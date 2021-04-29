@@ -1,12 +1,7 @@
 # OpenQuantumSystems.jl
 
-| Service       | Master                                                                                                                                                                           | Develop                                                                                                                                                                            |
-| :------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Stable        | [![Actions Status](https://github.com/detrin/OpenQuantumSystems.jl/workflows/CI/badge.svg?branch=master)](https://github.com/detrin/OpenQuantumSystems.jl/actions)               | [![Actions Status](https://github.com/detrin/OpenQuantumSystems.jl/workflows/CI/badge.svg?branch=devel)](https://github.com/detrin/OpenQuantumSystems.jl/actions)                  |
-| Nightly Julia | [![Actions Status](https://github.com/detrin/OpenQuantumSystems.jl/workflows/CI-nightly-julia/badge.svg?branch=master)](https://github.com/detrin/OpenQuantumSystems.jl/actions) | [![Actions Status](https://github.com/detrin/OpenQuantumSystems.jl/workflows/CI-nightly-julia/badge.svg?branch=devel)](https://github.com/detrin/OpenQuantumSystems.jl/actions)    |
-| Nigtly deploy | [![Actions Status](https://github.com/detrin/OpenQuantumSystems.jl/workflows/Deploy%20Nightly/badge.svg?branch=master)](https://github.com/detrin/OpenQuantumSystems.jl/actions) | [![Actions Status](https://github.com/detrin/OpenQuantumSystems.jl/workflows/Deploy%20Nightly/badge.svg?branch=devel)](https://github.com/detrin/OpenQuantumSystems.jl/actions)    |
-| coveralls     | [![Coverage Status](https://coveralls.io/repos/detrin/OpenQuantumSystems.jl/badge.svg?branch=master)](https://coveralls.io/r/detrin/OpenQuantumSystems.jl?branch=master)         | [![Coverage Status](https://coveralls.io/repos/github/detrin/OpenQuantumSystems.jl/badge.svg?branch=devel)](https://coveralls.io/github/detrin/OpenQuantumSystems.jl?branch=devel) |
-| codecov       | [![codecov](https://codecov.io/gh/detrin/OpenQuantumSystems.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/detrin/OpenQuantumSystems.jl)                               | [![codecov](https://codecov.io/gh/detrin/OpenQuantumSystems.jl/branch/devel/graph/badge.svg)](https://codecov.io/gh/detrin/OpenQuantumSystems.jl)                                  |
+[![Actions Status](https://github.com/detrin/OpenQuantumSystems.jl/workflows/CI/badge.svg?branch=master)](https://github.com/detrin/OpenQuantumSystems.jl/actions)
+[![codecov](https://codecov.io/gh/detrin/OpenQuantumSystems.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/detrin/OpenQuantumSystems.jl)
 
 **OpenQuantumSystems.jl** is a numerical framework written in [Julia] that makes
 it easy to simulate various kinds of quantum systems. It is inspired by the
@@ -40,3 +35,16 @@ or create a pull request.
 4. - GPU support for Schrodinger equation and possibly state decomposition.
    - Anharmonic oscillators.
    - Double excited states.
+
+### Branches status
+
+Master
+
+[![Actions Status](https://github.com/detrin/OpenQuantumSystems.jl/workflows/CI-nightly-julia/badge.svg?branch=master)](https://github.com/detrin/OpenQuantumSystems.jl/actions)
+[![Actions Status](https://github.com/detrin/OpenQuantumSystems.jl/workflows/Deploy%20Nightly/badge.svg?branch=master)](https://github.com/detrin/OpenQuantumSystems.jl/actions)
+
+Develop
+
+[![Actions Status](https://github.com/detrin/OpenQuantumSystems.jl/workflows/CI/badge.svg?branch=devel)](https://github.com/detrin/OpenQuantumSystems.jl/actions)
+[![Actions Status](https://github.com/detrin/OpenQuantumSystems.jl/workflows/CI-nightly-julia/badge.svg?branch=devel)](https://github.com/detrin/OpenQuantumSystems.jl/actions)
+[![codecov](https://codecov.io/gh/detrin/OpenQuantumSystems.jl/branch/devel/graph/badge.svg)](https://codecov.io/gh/detrin/OpenQuantumSystems.jl)
