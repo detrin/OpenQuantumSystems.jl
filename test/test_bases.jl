@@ -27,6 +27,7 @@ using OpenQuantumSystems
 
     @test b1^3 == CompositeBasis(b1, b1, b1)
     @test (b1 ⊗ b2)^2 == CompositeBasis(b1, b2, b1, b2)
+    @test b1 ⊗ b2 == CompositeBasis([b1, b2])
     @test_throws ArgumentError b1^(0)
 
     comp_b1_b2 = tensor(comp_b1, comp_b2)
@@ -47,10 +48,19 @@ using OpenQuantumSystems
     comp2 = tensor(b2, b1, b3)
     @test permutesystems(comp1, [2, 1, 3]) == comp2
 
+    @test OpenQuantumSystems.OpenQuantumSystems.equal_bases([b1, b2], [b1, b2])
     @test !OpenQuantumSystems.OpenQuantumSystems.equal_bases([b1, b2], [b1, b3])
+    @test !OpenQuantumSystems.OpenQuantumSystems.multiplicable(
+        tensor(b1, b2),
+        tensor(b1, b3),
+    )
     @test !OpenQuantumSystems.OpenQuantumSystems.multiplicable(
         comp1,
         b1 ⊗ b2 ⊗ NLevelBasis(prod(b3.shape)),
+    )
+    @test OpenQuantumSystems.OpenQuantumSystems.multiplicable(
+        tensor(b1, b2),
+        tensor(b1, b2),
     )
 
 end # testset
