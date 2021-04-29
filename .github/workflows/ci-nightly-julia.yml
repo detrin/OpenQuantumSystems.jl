@@ -1,6 +1,6 @@
 name: CI-nightly-julia
 on:
-  - push
+  - merge
   - pull_request
 jobs:
   test:

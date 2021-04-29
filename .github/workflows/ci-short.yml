@@ -1,7 +1,6 @@
-name: CI
+name: CI-short
 on:
-  - merge
-  - pull_request
+  - push
 jobs:
   test:
     name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
@@ -10,13 +9,9 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '1.4'
-          - '1.5'
           - '1.6'
         os:
           - ubuntu-latest
-          - macOS-latest
-          - windows-latest
         arch:
           - x64
     steps:
@@ -42,9 +37,4 @@ jobs:
         with:
           file: lcov.info
         continue-on-error: true
-      - uses: julia-actions/julia-uploadcoveralls@v1
-        env:
-          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
-        continue-on-error: true
-
 
