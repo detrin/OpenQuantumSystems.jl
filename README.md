@@ -48,3 +48,4 @@ Develop
 [![Actions Status](https://github.com/detrin/OpenQuantumSystems.jl/workflows/CI/badge.svg?branch=devel)](https://github.com/detrin/OpenQuantumSystems.jl/actions)
 [![Actions Status](https://github.com/detrin/OpenQuantumSystems.jl/workflows/CI-nightly-julia/badge.svg?branch=devel)](https://github.com/detrin/OpenQuantumSystems.jl/actions)
 [![codecov](https://codecov.io/gh/detrin/OpenQuantumSystems.jl/branch/devel/graph/badge.svg)](https://codecov.io/gh/detrin/OpenQuantumSystems.jl)
+
