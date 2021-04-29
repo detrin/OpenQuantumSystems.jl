@@ -4,7 +4,7 @@ using Random, SparseArrays, LinearAlgebra
 
 @testset "embed" begin
 
-Random.seed!(0)
+    Random.seed!(0)
 
     # Set up operators
     spinbasis = SpinBasis(1//2)
