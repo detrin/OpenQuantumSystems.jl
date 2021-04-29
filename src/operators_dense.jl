@@ -20,6 +20,10 @@ end
 Operator{BL,BR}(basis_l::BL,basis_r::BR,data::T) where {BL,BR,T} = Operator{BL,BR,T}(basis_l,basis_r,data)
 Operator(basis_l::BL,basis_r::BR,data::T) where {BL,BR,T} = Operator{BL,BR,T}(basis_l,basis_r,data)
 Operator(b::Basis,data) = Operator(b,b,data)
+Operator(b1::Basis, b2::Basis) = Operator(b1, b2, zeros(ComplexF64, length(b1), length(b2)))
+Operator(b::Basis) = Operator(b, b)
+DenseOperator(b::Basis) = DenseOperator(b, b)
+DenseOperator(op::DataOperator) = DenseOperator(op.basis_l, op.basis_r, Matrix(op.data))
 
 Base.zero(op::Operator) = Operator(op.basis_l,op.basis_r,zero(op.data))
 Base.eltype(op::Operator) = eltype(op.data)
@@ -62,18 +66,18 @@ Base.isapprox(x::DataOperator, y::DataOperator; kwargs...) = false
 
 # Arithmetic operations
 +(a::Operator{BL,BR}, b::Operator{BL,BR}) where {BL<:Basis,BR<:Basis} = Operator(a.basis_l, a.basis_r, a.data+b.data)
-+(a::Operator, b::Operator) = throw(IncompatibleBases())
+# +(a::Operator, b::Operator) = throw(IncompatibleBases())
 
 -(a::Operator) = Operator(a.basis_l, a.basis_r, -a.data)
 -(a::Operator{BL,BR}, b::Operator{BL,BR}) where {BL<:Basis,BR<:Basis} = Operator(a.basis_l, a.basis_r, a.data-b.data)
--(a::Operator, b::Operator) = throw(IncompatibleBases())
+# -(a::Operator, b::Operator) = throw(IncompatibleBases())
 
 *(a::Operator{BL,BR}, b::Ket{BR}) where {BL<:Basis,BR<:Basis} = Ket{BL}(a.basis_l, a.data*b.data)
-*(a::DataOperator, b::Ket) = throw(IncompatibleBases())
+# *(a::DataOperator, b::Ket) = throw(IncompatibleBases())
 *(a::Bra{BL}, b::Operator{BL,BR}) where {BL<:Basis,BR<:Basis} = Bra{BR}(b.basis_r, transpose(b.data)*a.data)
-*(a::Bra, b::DataOperator) = throw(IncompatibleBases())
+# *(a::Bra, b::DataOperator) = throw(IncompatibleBases())
 *(a::Operator{B1,B2}, b::Operator{B2,B3}) where {B1<:Basis,B2<:Basis,B3<:Basis} = Operator(a.basis_l, b.basis_r, a.data*b.data)
-*(a::DataOperator, b::DataOperator) = throw(IncompatibleBases())
+# *(a::DataOperator, b::DataOperator) = throw(IncompatibleBases())
 *(a::Operator, b::Number) = Operator(a.basis_l, a.basis_r, b*a.data)
 *(a::Number, b::Operator) = Operator(b.basis_l, b.basis_r, a*b.data)
 function *(op1::AbstractOperator{B1,B2}, op2::Operator{B2,B3,T}) where {B1<:Basis,B2<:Basis,B3<:Basis,T}
