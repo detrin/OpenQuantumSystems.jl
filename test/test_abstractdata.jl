@@ -342,4 +342,71 @@ D(a::AbstractOperator,b::AbstractOperator,tol=1e-12) = (tol > abs(tracedistance_
     @test_throws OpenQuantumSystems.IncompatibleBases op1 .+ op3
     @test_throws ErrorException cos.(op1)
 
+    ####################
+
+    # Test gemv
+    op1 = randtestoperator(b_l, b_r)
+    op2 = randtestoperator(b_r, b_l)
+    op3 = randtestoperator(b_l, b_r)
+    op = op1 * sparse(op2) * op3 * 0.2
+    op_ = 0.2*op1*op2*op3
+    tmp = 0.2*prod(dense.([op1*op2*op3]))
+
+    state = Ket(b_r, rand(ComplexF64, length(b_r)))
+    result_ = Ket(b_l, rand(ComplexF64, length(b_l)))
+    result = copy(result_)
+    OpenQuantumSystems.mul!(result,op,state,complex(1.),complex(0.))
+    @test D(result, op_*state, 1e-10)
+
+    result = copy(result_)
+    alpha = complex(1.5)
+    beta = complex(2.1)
+    OpenQuantumSystems.mul!(result,op,state,alpha,beta)
+    @test D(result, alpha*op_*state + beta*result_, 1e-9)
+
+    state = Bra(b_l, rand(ComplexF64, length(b_l)))
+    result_ = Bra(b_r, rand(ComplexF64, length(b_r)))
+    result = copy(result_)
+    OpenQuantumSystems.mul!(result,state,op,complex(1.),complex(0.))
+    @test D(result, state*op_, 1e-9)
+
+    result = copy(result_)
+    alpha = complex(1.5)
+    beta = complex(2.1)
+    OpenQuantumSystems.mul!(result,state,op,alpha,beta)
+    @test D(result, alpha*state*op_ + beta*result_, 1e-9)
+
+    # Test gemm
+    op1 = randtestoperator(b_l, b_r)
+    op2 = randtestoperator(b_r, b_l)
+    op3 = randtestoperator(b_l, b_r)
+    op = op1 * sparse(op2) * op3 * 0.2
+    op_ = 0.2*op1*op2*op3
+
+    state = randtestoperator(b_r, b_r)
+    result_ = randtestoperator(b_l, b_r)
+    result = copy(result_)
+    result.data[1] = 1
+    result.data[1] != result_.data[1] || error("")
+    OpenQuantumSystems.mul!(result,op,state,complex(1.),complex(0.))
+    @test D(result, op_*state, 1e-9)
+
+    result = copy(result_)
+    alpha = complex(1.5)
+    beta = complex(2.1)
+    OpenQuantumSystems.mul!(result,op,state,alpha,beta)
+    @test D(result, alpha*op_*state + beta*result_, 1e-9)
+
+    state = randtestoperator(b_l, b_l)
+    result_ = randtestoperator(b_l, b_r)
+    result = copy(result_)
+    OpenQuantumSystems.mul!(result,state,op,complex(1.),complex(0.))
+    @test D(result, state*op_, 1e-9)
+
+    result = copy(result_)
+    alpha = complex(1.5)
+    beta = complex(2.1)
+    OpenQuantumSystems.mul!(result,state,op,alpha,beta)
+    @test D(result, alpha*state*op_ + beta*result_, 1e-8)
+
 end # testset
