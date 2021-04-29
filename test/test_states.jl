@@ -8,6 +8,7 @@ using LinearAlgebra, Random
 
     D(x1::Number, x2::Number) = abs(x2 - x1)
     D(x1::StateVector, x2::StateVector) = norm(x2 - x1)
+    D(op1::AbstractOperator, op2::AbstractOperator) = abs(tracedistance_nh(dense(op1), dense(op2)))
 
     b1 = GenericBasis(3)
     b2 = GenericBasis(5)
@@ -20,6 +21,8 @@ using LinearAlgebra, Random
     # Test creation
     @test_throws DimensionMismatch Bra(b, [1, 2])
     @test_throws DimensionMismatch Ket(b, [1, 2])
+    @test bra == Bra(b, zeros(ComplexF64, length(b)))
+    @test ket == Ket(b, zeros(ComplexF64, length(b)))
     @test 0 ≈ norm(bra)
     @test 0 ≈ norm(ket)
     @test_throws OpenQuantumSystems.IncompatibleBases bra * Ket(b1)
@@ -29,6 +32,12 @@ using LinearAlgebra, Random
     @test OpenQuantumSystems.basis(ket) == b
     @test OpenQuantumSystems.basis(bra) == b
     @test bra != basisstate(b, 1)
+    @test isapprox(bra, bra)
+    @test isapprox(ket, ket)
+
+    @test size(bra) == 15
+    @test ndims(bra) == 1
+
 
     # Test copy
     psi1 = randstate(b1)
@@ -71,7 +80,9 @@ using LinearAlgebra, Random
           D((bra_b1 ⊗ bra_b2) * (ket_b1 ⊗ ket_b2), (bra_b1 * ket_b1) * (bra_b2 * ket_b2))
 
     # Tensor product
-    @test tensor(ket_b1) == ket_b1
+    @test 1e-14 > D(tensor(ket_b1), ket_b1)
+    @test 1e-14 > D(tensor(bra_b1), bra_b1)
+    @test 1e-14 > D(tensor([ket_b1, bra_b1]), tensor(ket_b1, bra_b1))
     @test 1e-14 > D((ket_b1 ⊗ ket_b2) ⊗ ket_b3, ket_b1 ⊗ (ket_b2 ⊗ ket_b3))
     @test 1e-14 > D((bra_b1 ⊗ bra_b2) ⊗ bra_b3, bra_b1 ⊗ (bra_b2 ⊗ bra_b3))
 
@@ -119,6 +130,18 @@ using LinearAlgebra, Random
     @test norm(x1) == 1
     @test x1.data[2] == 1
     @test basisstate(b, [2, 1]) == x1 ⊗ x2
+
+    x1 = basisstate(b1, 2; sparse=true)
+    x2 = basisstate(b2, 1; sparse=true)
+
+    @test norm(x1) == 1
+    @test x1.data[2] == 1
+    @test basisstate(b, [2, 1]; sparse=true) == x1 ⊗ x2
+
+    # Check multiplicable
+    bra = Bra(b1)
+    ket = Ket(b2)
+    @test_throws OpenQuantumSystems.IncompatibleBases OpenQuantumSystems.check_multiplicable(bra, ket)
 
     # Test permutating systems
     b1 = GenericBasis(2)

@@ -58,26 +58,26 @@ basis(a::StateVector) = a.basis
 
 ==(x::Ket{B}, y::Ket{B}) where {B<:Basis} = (samebases(x, y) && x.data == y.data)
 ==(x::Bra{B}, y::Bra{B}) where {B<:Basis} = (samebases(x, y) && x.data == y.data)
-==(x::Ket, y::Ket) = false
-==(x::Bra, y::Bra) = false
+# ==(x::Ket, y::Ket) = false
+# ==(x::Bra, y::Bra) = false
 
 Base.isapprox(x::Ket{B}, y::Ket{B}; kwargs...) where {B<:Basis} =
     (samebases(x, y) && isapprox(x.data, y.data; kwargs...))
 Base.isapprox(x::Bra{B}, y::Bra{B}; kwargs...) where {B<:Basis} =
     (samebases(x, y) && isapprox(x.data, y.data; kwargs...))
-Base.isapprox(x::Ket, y::Ket; kwargs...) = false
-Base.isapprox(x::Bra, y::Bra; kwargs...) = false
+# Base.isapprox(x::Ket, y::Ket; kwargs...) = false
+# Base.isapprox(x::Bra, y::Bra; kwargs...) = false
 
 # Arithmetic operations
 +(a::Ket{B}, b::Ket{B}) where {B<:Basis} = Ket(a.basis, a.data + b.data)
 +(a::Bra{B}, b::Bra{B}) where {B<:Basis} = Bra(a.basis, a.data + b.data)
-+(a::Ket, b::Ket) = throw(IncompatibleBases())
-+(a::Bra, b::Bra) = throw(IncompatibleBases())
+# +(a::Ket, b::Ket) = throw(IncompatibleBases())
+# +(a::Bra, b::Bra) = throw(IncompatibleBases())
 
 -(a::Ket{B}, b::Ket{B}) where {B<:Basis} = Ket(a.basis, a.data - b.data)
 -(a::Bra{B}, b::Bra{B}) where {B<:Basis} = Bra(a.basis, a.data - b.data)
--(a::Ket, b::Ket) = throw(IncompatibleBases())
--(a::Bra, b::Bra) = throw(IncompatibleBases())
+# -(a::Ket, b::Ket) = throw(IncompatibleBases())
+# -(a::Bra, b::Bra) = throw(IncompatibleBases())
 
 -(a::T) where {T<:StateVector} = T(a.basis, -a.data)
 
@@ -107,7 +107,7 @@ Tensor product ``|x⟩⊗|y⟩⊗|z⟩⊗…`` of the given states.
 """
 tensor(a::Ket, b::Ket) = Ket(tensor(a.basis, b.basis), kron(b.data, a.data))
 tensor(a::Bra, b::Bra) = Bra(tensor(a.basis, b.basis), kron(b.data, a.data))
-tensor(state::StateVector) = state
+# tensor(state::StateVector) = state
 tensor(states::Ket...) = reduce(tensor, states)
 tensor(states::Bra...) = reduce(tensor, states)
 tensor(states::Vector{T}) where {T<:StateVector} = reduce(tensor, states)
@@ -196,10 +196,10 @@ samebases(a::Ket{B}, b::Ket{B}) where {B} = samebases(a.basis, b.basis)::Bool
 samebases(a::Bra{B}, b::Bra{B}) where {B} = samebases(a.basis, b.basis)::Bool
 
 # Array-like functions
-Base.size(x::StateVector) = size(x.data)
+Base.size(x::StateVector) = size(x.data, 1)
 @inline Base.axes(x::StateVector) = axes(x.data)
 Base.ndims(x::StateVector) = 1
-Base.ndims(::Type{<:StateVector}) = 1
+# Base.ndims(::Type{<:StateVector}) = 1
 Base.eltype(x::StateVector) = eltype(x.data)
 
 # Broadcasting
@@ -218,42 +218,8 @@ Broadcast.BroadcastStyle(::KetStyle{B1}, ::KetStyle{B2}) where {B1<:Basis,B2<:Ba
 Broadcast.BroadcastStyle(::BraStyle{B1}, ::BraStyle{B2}) where {B1<:Basis,B2<:Basis} =
     throw(IncompatibleBases())
 
-# Out-of-place broadcasting
-@inline function Base.copy(
-    bc::Broadcast.Broadcasted{Style,Axes,F,Args},
-) where {B<:Basis,Style<:KetStyle{B},Axes,F,Args<:Tuple}
-    bcf = Broadcast.flatten(bc)
-    bc_ = Broadcasted_restrict_f(bcf.f, bcf.args, axes(bcf))
-    b = find_basis(bcf)
-    return Ket{B}(b, copy(bc_))
-end
-@inline function Base.copy(
-    bc::Broadcast.Broadcasted{Style,Axes,F,Args},
-) where {B<:Basis,Style<:BraStyle{B},Axes,F,Args<:Tuple}
-    bcf = Broadcast.flatten(bc)
-    bc_ = Broadcasted_restrict_f(bcf.f, bcf.args, axes(bcf))
-    b = find_basis(bcf)
-    return Bra{B}(b, copy(bc_))
-end
-find_basis(bc::Broadcast.Broadcasted) = find_basis(bc.args)
 find_basis(args::Tuple) = find_basis(find_basis(args[1]), Base.tail(args))
 find_basis(x) = x
-find_basis(a::StateVector, rest) = a.basis
-find_basis(::Any, rest) = find_basis(rest)
-
-const BasicMathFunc = Union{typeof(+),typeof(-),typeof(*)}
-function Broadcasted_restrict_f(
-    f::BasicMathFunc,
-    args::Tuple{Vararg{<:T}},
-    axes,
-) where {T<:StateVector}
-    args_ = Tuple(a.data for a in args)
-    return Broadcast.Broadcasted(f, args_, axes)
-end
-function Broadcasted_restrict_f(f, args::Tuple{Vararg{<:T}}, axes) where {T<:StateVector}
-    throw(error("Cannot broadcast function `$f` on type `$T`"))
-end
-
 
 # In-place broadcasting for Kets
 @inline function Base.copyto!(
