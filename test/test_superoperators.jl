@@ -16,12 +16,24 @@ using SparseArrays, LinearAlgebra
         (b, b),
         spzeros(ComplexF64, 3, 3),
     )
+    # Superoperator definition
+    b = GenericBasis(2)
+    data = [1 1 1 1; 1 1 1 1; 1 1 1 1; 1 1 1 1]
+    s1 = SuperOperator((b, b), data)
+    s2 = SuperOperator((b, b), (b, b), data)
+    @test s1 == s2
 
     # Test copy, sparse and dense
     b1 = GenericBasis(2)
     b2 = GenericBasis(7)
     b3 = GenericBasis(5)
     b4 = GenericBasis(3)
+
+    s1 = DenseSuperOperator((b, b))
+    s2 = DenseSuperOperator((b, b), (b, b))
+    @test s1 == s2
+
+    @test OpenQuantumSystems.multiplicable(s1, s2)
 
     s = DenseSuperOperator((b1, b2), (b3, b4))
     s_ = dense(s)
@@ -205,5 +217,16 @@ using SparseArrays, LinearAlgebra
     @test isapprox(Ldense.data, 5 * Ldense_.data)
     @test_throws ErrorException cos.(Ldense)
     @test_throws ErrorException cos.(L)
+
+    # Exponential
+    b = GenericBasis(2)
+    data = [1im*pi 0 0 0; 0 2im*pi 0 0; 0 0 3im*pi 0; 0 0 0 4im*pi]
+    s1 = SuperOperator((b, b), (b, b), exp(data))
+    s2 = SuperOperator((b, b), (b, b), data)
+    s2 = exp(s2)
+    @test isapprox(s1.data, s2.data)
+
+    @test size(s1) == (4, 4)
+    @test ndims(s1) == 2
 
 end # testset

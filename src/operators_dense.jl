@@ -22,8 +22,7 @@ Operator(basis_l::BL,basis_r::BR,data::T) where {BL,BR,T} = Operator{BL,BR,T}(ba
 Operator(b::Basis,data) = Operator(b,b,data)
 Operator(b1::Basis, b2::Basis) = Operator(b1, b2, zeros(ComplexF64, length(b1), length(b2)))
 Operator(b::Basis) = Operator(b, b)
-DenseOperator(b::Basis) = DenseOperator(b, b)
-DenseOperator(op::DataOperator) = DenseOperator(op.basis_l, op.basis_r, Matrix(op.data))
+Operator(op::DataOperator) = Operator(op.basis_l, op.basis_r, Matrix(op.data))
 
 Base.zero(op::Operator) = Operator(op.basis_l,op.basis_r,zero(op.data))
 Base.eltype(op::Operator) = eltype(op.data)
@@ -36,7 +35,7 @@ Adapt.adapt_structure(to, x::Operator) = Operator(x.basis_l, x.basis_r, Adapt.ad
 const DenseOpPureType{BL<:Basis,BR<:Basis} = Operator{BL,BR,<:Matrix}
 const DenseOpAdjType{BL<:Basis,BR<:Basis} = Operator{BL,BR,<:Adjoint{<:Number,<:Matrix}}
 const DenseOpType{BL<:Basis,BR<:Basis} = Union{DenseOpPureType{BL,BR},DenseOpAdjType{BL,BR}}
-const AdjointOperator{BL<:Basis,BR<:Basis} = Operator{BL,BR,<:Adjoint}
+# const AdjointOperator{BL<:Basis,BR<:Basis} = Operator{BL,BR,<:Adjoint}
 
 """
     DenseOperator(b1[, b2, data])
@@ -60,9 +59,9 @@ Convert an arbitrary Operator into a [`DenseOperator`](@ref).
 dense(x::AbstractOperator) = DenseOperator(x)
 
 ==(x::DataOperator{BL,BR}, y::DataOperator{BL,BR}) where {BL<:Basis,BR<:Basis} = (samebases(x,y) && x.data==y.data)
-==(x::DataOperator, y::DataOperator) = false
+# ==(x::DataOperator, y::DataOperator) = false
 Base.isapprox(x::DataOperator{BL,BR}, y::DataOperator{BL,BR}; kwargs...) where {BL<:Basis,BR<:Basis} = (samebases(x,y) && isapprox(x.data, y.data; kwargs...))
-Base.isapprox(x::DataOperator, y::DataOperator; kwargs...) = false
+# Base.isapprox(x::DataOperator, y::DataOperator; kwargs...) = false
 
 # Arithmetic operations
 +(a::Operator{BL,BR}, b::Operator{BL,BR}) where {BL<:Basis,BR<:Basis} = Operator(a.basis_l, a.basis_r, a.data+b.data)
@@ -80,6 +79,7 @@ Base.isapprox(x::DataOperator, y::DataOperator; kwargs...) = false
 # *(a::DataOperator, b::DataOperator) = throw(IncompatibleBases())
 *(a::Operator, b::Number) = Operator(a.basis_l, a.basis_r, b*a.data)
 *(a::Number, b::Operator) = Operator(b.basis_l, b.basis_r, a*b.data)
+"""
 function *(op1::AbstractOperator{B1,B2}, op2::Operator{B2,B3,T}) where {B1<:Basis,B2<:Basis,B3<:Basis,T}
     result = Operator{B1,B3,T}(op1.basis_l, op2.basis_r, similar(op2.data,length(op1.basis_l),length(op2.basis_r)))
     mul!(result,op1,op2)
@@ -100,6 +100,7 @@ function *(psi::Bra{BL,T}, op::AbstractOperator{BL,BR}) where {BL<:Basis,BR<:Bas
     mul!(result,psi,op)
     return result
 end
+"""
 
 /(a::Operator, b::Number) = Operator(a.basis_l, a.basis_r, a.data ./ b)
 
@@ -130,7 +131,7 @@ function ptrace(a::DataOperator, indices::Vector{Int})
     result = _ptrace(Val{rank}, a.data, a.basis_l.shape, a.basis_r.shape, indices)
     return Operator(ptrace(a.basis_l, indices), ptrace(a.basis_r, indices), result)
 end
-ptrace(op::AdjointOperator, indices::Vector{Int}) = dagger(ptrace(op, indices))
+# ptrace(op::AdjointOperator, indices::Vector{Int}) = dagger(ptrace(op, indices))
 
 function ptrace(psi::Ket, indices::Vector{Int})
     check_ptrace_arguments(psi, indices)
@@ -176,7 +177,7 @@ function permutesystems(a::Operator{B1,B2}, perm::Vector{Int}) where {B1<:Compos
     data = reshape(data, length(a.basis_l), length(a.basis_r))
     return Operator(permutesystems(a.basis_l, perm), permutesystems(a.basis_r, perm), data)
 end
-permutesystems(a::AdjointOperator{B1,B2}, perm::Vector{Int}) where {B1<:CompositeBasis,B2<:CompositeBasis} = dagger(permutesystems(dagger(a),perm))
+# permutesystems(a::AdjointOperator{B1,B2}, perm::Vector{Int}) where {B1<:CompositeBasis,B2<:CompositeBasis} = dagger(permutesystems(dagger(a),perm))
 
 identityoperator(::Type{T}, b1::Basis, b2::Basis) where {BL,BR,dType,T<:DenseOpType} = Operator(b1, b2, Matrix{ComplexF64}(I, length(b1), length(b2)))
 
@@ -298,9 +299,10 @@ See also [`LinearAlgebra.mul!`](@ref).
 mul!(result::Operator{B1,B3},a::Operator{B1,B2},b::Operator{B2,B3},alpha,beta) where {B1<:Basis,B2<:Basis,B3<:Basis} = (LinearAlgebra.mul!(result.data,a.data,b.data,alpha,beta); result)
 mul!(result::Ket{B1},a::Operator{B1,B2},b::Ket{B2},alpha,beta) where {B1<:Basis,B2<:Basis} = (LinearAlgebra.mul!(result.data,a.data,b.data,alpha,beta); result)
 mul!(result::Bra{B2},a::Bra{B1},b::Operator{B1,B2},alpha,beta) where {B1<:Basis,B2<:Basis} = (LinearAlgebra.mul!(result.data,transpose(b.data),a.data,alpha,beta); result)
-rmul!(op::Operator, x) = (rmul!(op.data, x); op)
+rmul!(op::Operator, x) = (op.data = op.data * x; op)
 
 # Multiplication for Operators in terms of their gemv! implementation
+"""
 function mul!(result::Operator{B1,B3},M::AbstractOperator{B1,B2},b::Operator{B2,B3},alpha,beta) where {B1<:Basis,B2<:Basis,B3<:Basis}
     for i=1:size(b.data, 2)
         bket = Ket(b.basis_l, b.data[:,i])
@@ -320,6 +322,7 @@ function mul!(result::Operator{B1,B3},b::Operator{B1,B2},M::AbstractOperator{B2,
     end
     return result
 end
+"""
 
 # Broadcasting
 Base.size(A::DataOperator) = size(A.data)
@@ -370,5 +373,5 @@ end
     return dest
 end
 @inline Base.copyto!(A::DataOperator{BL,BR},B::DataOperator{BL,BR}) where {BL<:Basis,BR<:Basis} = (copyto!(A.data,B.data); A)
-@inline Base.copyto!(dest::DataOperator{BL,BR}, bc::Broadcast.Broadcasted{Style,Axes,F,Args}) where {BL<:Basis,BR<:Basis,Style<:DataOperatorStyle,Axes,F,Args} =
-    throw(IncompatibleBases())
+# @inline Base.copyto!(dest::DataOperator{BL,BR}, bc::Broadcast.Broadcasted{Style,Axes,F,Args}) where {BL<:Basis,BR<:Basis,Style<:DataOperatorStyle,Axes,F,Args} =
+#     throw(IncompatibleBases())
