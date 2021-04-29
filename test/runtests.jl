@@ -14,6 +14,7 @@ names = [
     "test_metrics.jl",
     "test_embed.jl",
     "test_superoperators.jl",
+    "test_abstractdata.jl",
     "test_pauli.jl",
 ]
 
