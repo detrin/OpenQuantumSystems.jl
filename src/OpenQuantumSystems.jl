@@ -138,7 +138,9 @@ export bases,
     getIndices,
     getFranckCondonFactors,
     getAggStateEnergy,
-    getAggHamiltonian
+    getAggHamiltonian,
+    getFranckCondonFactorsSparse,
+    getAggHamiltonianSparse
 
 include("core.jl")
 include("sortedindices.jl")

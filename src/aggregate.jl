@@ -165,7 +165,8 @@ function getAggHamiltonian(
     for I in 1:aggIndLen
         Ham[I, I] -= E0
     end
-    return Ham
+    b = GenericBasis([aggIndLen])
+    return DenseOperator(b, b, Ham)
 end
 
 getAggHamiltonian(
@@ -180,6 +181,49 @@ getAggHamiltonian(
     groundState::Bool=true
     ) where {T<:Integer, C1<:ComputableType, C2<:ComputableType
     } = getAggHamiltonian(agg::Aggregate{T, C1, C2}, aggIndices, nothing; groundState=groundState)
+
+
+### Sparse versions
+
+function getFranckCondonFactorsSparse(
+        agg::Aggregate{T, C1, C2},
+        aggIndices::Any; 
+        groundState::Bool=true, 
+    ) where {T<:Integer, C1<:ComputableType, C2<:ComputableType}
+    if aggIndices === nothing
+        aggIndices = getIndices(agg; groundState=groundState)
+    end
+    aggIndLen = length(aggIndices)
+    molLen = length(agg.molecules)
+    FC = spzeros(C2, aggIndLen, aggIndLen)
+    for I in 1:aggIndLen
+        elind1, vibind1 = aggIndices[I]
+        for J in 1:aggIndLen
+            elind2, vibind2 = aggIndices[J]
+            if elind1 == elind2 
+                if vibind1 == vibind2
+                    FC[I, J] = 1.
+                end
+            else
+                fc = 1.::C2
+                for mi in 1:molLen
+                    mol = agg.molecules[mi]
+                    fc *= getMolStateFC(mol, elind1[mi], vibind1[mi], elind2[mi], vibind2[mi])
+                end
+                if fc != 0.
+                    FC[I, J] = fc
+                end
+            end
+        end
+    end
+    return FC
+end
+
+getFranckCondonFactorsSparse(
+    agg::Aggregate{T, C1, C2};
+    groundState::Bool=true
+    ) where {T<:Integer, C1<:ComputableType, C2<:ComputableType
+    } = getFranckCondonFactorsSparse(agg::Aggregate{T, C1, C2}, nothing; groundState=groundState)
 
 function getAggHamiltonianSparse(
         agg::Aggregate{T, C1, C2},
@@ -195,7 +239,7 @@ function getAggHamiltonianSparse(
     if franckCondonFactors === nothing
         franckCondonFactors = getFranckCondonFactors(agg, aggIndices)
     end
-    Ham = zeros(C2, (aggIndLen, aggIndLen))
+    Ham = spzeros(C2, aggIndLen, aggIndLen)
     for I in 1:aggIndLen
         elind1, vibind1 = aggIndices[I]
         elOrder1 = elIndOrder(elind1)
@@ -203,10 +247,16 @@ function getAggHamiltonianSparse(
             elind2, vibind2 = aggIndices[J]
             elOrder2 = elIndOrder(elind2)
             if I == J
-                Ham[I, J] = getAggStateEnergy(agg, elind1, vibind1)
+                val = getAggStateEnergy(agg, elind1, vibind1)
+                if val != 0.
+                    Ham[I, J] = val
+                end
             else
                 if elind1 != elind2
-                    Ham[I, J] = agg.coupling[elOrder1, elOrder2] * franckCondonFactors[I, J]
+                    val = agg.coupling[elOrder1, elOrder2] * franckCondonFactors[I, J]
+                    if val != 0.
+                        Ham[I, J] = val
+                    end
                 end
             end
         end
@@ -215,18 +265,19 @@ function getAggHamiltonianSparse(
     for I in 1:aggIndLen
         Ham[I, I] -= E0
     end
-    return Ham
+    b = GenericBasis([aggIndLen])
+    return SparseOperator(b, b, Ham)
 end
 
 getAggHamiltonianSparse(
     agg::Aggregate{T, C1, C2};
     groundState::Bool=true
     ) where {T<:Integer, C1<:ComputableType, C2<:ComputableType
-    } = getAggHamiltonian(agg::Aggregate{T, C1, C2}, nothing, nothing; groundState=groundState)
+    } = getAggHamiltonianSparse(agg::Aggregate{T, C1, C2}, nothing, nothing; groundState=groundState)
 
 getAggHamiltonianSparse(
     agg::Aggregate{T, C1, C2},
     aggIndices::Any;
     groundState::Bool=true
     ) where {T<:Integer, C1<:ComputableType, C2<:ComputableType
-    } = getAggHamiltonian(agg::Aggregate{T, C1, C2}, aggIndices, nothing; groundState=groundState)
+    } = getAggHamiltonianSparse(agg::Aggregate{T, C1, C2}, aggIndices, nothing; groundState=groundState)

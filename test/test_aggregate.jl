@@ -1,6 +1,7 @@
 using Test
 using OpenQuantumSystems
 using LinearAlgebra
+using SparseArrays
 
 @testset "aggregate" begin
 
@@ -174,8 +175,22 @@ using LinearAlgebra
     Ham2 = getAggHamiltonian(agg, aggInds; groundState=false)
     Ham3 = getAggHamiltonian(agg; groundState=false)
 
-    @test 1e-12 > D(Ham_ref, Ham1)
-    @test 1e-12 > D(Ham_ref, Ham2)
-    @test 1e-12 > D(Ham_ref, Ham3)
+    @test 1e-12 > D(Ham_ref, Ham1.data)
+    @test 1e-12 > D(Ham_ref, Ham2.data)
+    @test 1e-12 > D(Ham_ref, Ham3.data)
+
+    FCSparse = getFranckCondonFactorsSparse(agg, aggInds; groundState=false)
+    @test 1e-12 > D(FC, Matrix(FCSparse))
+
+    FCSparse = getFranckCondonFactorsSparse(agg; groundState=false)
+    @test 1e-12 > D(FC, Matrix(FCSparse))
+
+    HamSparse1 = getAggHamiltonianSparse(agg, aggInds, FCSparse; groundState=false)
+    HamSparse2 = getAggHamiltonianSparse(agg, aggInds; groundState=false)
+    HamSparse3 = getAggHamiltonianSparse(agg; groundState=false)
+    @test 1e-12 > D(Ham_ref, Matrix(HamSparse1.data))
+    @test 1e-12 > D(Ham_ref, Matrix(HamSparse2.data))
+    @test 1e-12 > D(Ham_ref, Matrix(HamSparse3.data))
+
 
 end
