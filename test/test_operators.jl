@@ -3,12 +3,10 @@ using OpenQuantumSystems
 using LinearAlgebra, SparseArrays, Random
 
 mutable struct test_operators{BL<:Basis,BR<:Basis} <: AbstractOperator{BL,BR}
-    basis_l::BL
-    basis_r::BR
-    data::Matrix{ComplexF64}
-    test_operators(b1::Basis, b2::Basis, data) =
-        length(b1) == size(data, 1) && length(b2) == size(data, 2) ?
-        new{typeof(b1),typeof(b2)}(b1, b2, data) : throw(DimensionMismatch())
+  basis_l::BL
+  basis_r::BR
+  data::Matrix{ComplexF64}
+  test_operators(b1::Basis, b2::Basis, data) = length(b1) == size(data, 1) && length(b2) == size(data, 2) ? new{typeof(b1),typeof(b2)}(b1, b2, data) : throw(DimensionMismatch())
 end
 
 @testset "operators" begin
@@ -30,7 +28,7 @@ end
     @test basis(op1) == b1
     @test length(op1) == length(op1.data) == length(b1)^2
 
-    @test_throws ArgumentError op_test * op_test
+    @test_throws ArgumentError op_test*op_test
     @test_throws ArgumentError -op_test
 
     @test_throws ArgumentError 1 + op_test
@@ -50,27 +48,27 @@ end
 
     @test expect(1, op1, ρ) ≈ expect(embed(b, 1, op1), ρ)
     @test expect(1, op1, ψ) ≈ expect(embed(b, 1, op1), ψ)
-    @test expect(op, [ρ, ρ]) == [expect(op, ρ) for i = 1:2]
+    @test expect(op, [ρ, ρ]) == [expect(op, ρ) for i=1:2]
     @test expect(1, op1, [ρ, ψ]) == [expect(1, op1, ρ), expect(1, op1, ψ)]
 
     @test variance(1, op1, ρ) ≈ variance(embed(b, 1, op1), ρ)
     @test variance(1, op1, ψ) ≈ variance(embed(b, 1, op1), ψ)
-    @test variance(op, [ρ, ρ]) == [variance(op, ρ) for i = 1:2]
+    @test variance(op, [ρ, ρ]) == [variance(op, ρ) for i=1:2]
     @test variance(1, op1, [ρ, ψ]) == [variance(1, op1, ρ), variance(1, op1, ψ)]
 
     @test tensor(op_test) === op_test
     @test_throws ArgumentError tensor(op_test, op_test)
     @test_throws ArgumentError permutesystems(op_test, [1, 2])
 
-    @test embed(b, b, [1, 2], op) == embed(b, [1, 2], op)
-    @test embed(b, Dict{Vector{Int},SparseOpType}()) == identityoperator(b)
-    @test_throws OpenQuantumSystems.IncompatibleBases embed(b1 ⊗ b2, [2], [op1])
+    @test embed(b, b, [1,2], op) == embed(b, [1,2], op)
+    @test embed(b, Dict{Vector{Int}, SparseOpType}()) == identityoperator(b)
+    @test_throws OpenQuantumSystems.IncompatibleBases embed(b1⊗b2, [2], [op1])
 
-    b_comp = b ⊗ b
-    @test isapprox(embed(b_comp, [1, [3, 4]], [op1, op]), dense(op1 ⊗ one(b2) ⊗ op))
-    @test isapprox(embed(b_comp, [[1, 2], 4], [op, op2]), dense(op ⊗ one(b1) ⊗ op2))
-    @test_throws OpenQuantumSystems.IncompatibleBases embed(b_comp, [[1, 2], 3], [op, op2])
-    @test_throws OpenQuantumSystems.IncompatibleBases embed(b_comp, [[1, 3], 4], [op, op2])
+    b_comp = b⊗b
+    @test isapprox(embed(b_comp, [1,[3,4]], [op1,op]), dense(op1 ⊗ one(b2) ⊗ op))
+    @test isapprox(embed(b_comp, [[1,2],4], [op,op2]), dense(op ⊗ one(b1) ⊗ op2))
+    @test_throws OpenQuantumSystems.IncompatibleBases embed(b_comp, [[1,2],3], [op,op2])
+    @test_throws OpenQuantumSystems.IncompatibleBases embed(b_comp, [[1,3],4], [op,op2])
 
     function basis_vec(n, N)
         x = zeros(Complex{Float64}, N)
@@ -84,49 +82,34 @@ end
         end
     end
 
-    embed_op = embed(b_comp, [1, 4], op)
-    bv = basis_maker(3, 2, 3, 2)
+    embed_op = embed(b_comp, [1,4], op)
+    bv = basis_maker(3,2,3,2)
     all_idxs = [(idx, jdx) for (idx, jdx) in [Iterators.product(0:1, 0:2)...]]
 
-    m11 = reshape(
-        [
-            Bra(b_comp, bv(0, idx, jdx, 0)) * embed_op * Ket(b_comp, bv(0, kdx, ldx, 0))
-            for ((idx, jdx), (kdx, ldx)) in Iterators.product(all_idxs, all_idxs)
-        ],
-        (6, 6),
-    )
-    @test isapprox(m11 / op.data[1, 1], diagm(0 => ones(Complex{Float64}, 6)))
+    m11 = reshape([Bra(b_comp, bv(0,idx,jdx,0)) * embed_op * Ket(b_comp, bv(0,kdx,ldx,0))
+                for ((idx, jdx), (kdx, ldx)) in Iterators.product(all_idxs, all_idxs)], (6,6))
+    @test isapprox(m11 / op.data[1, 1], diagm(0=>ones(Complex{Float64}, 6)))
 
-    m21 = reshape(
-        [
-            Bra(b_comp, bv(1, idx, jdx, 0)) * embed_op * Ket(b_comp, bv(0, kdx, ldx, 0))
-            for ((idx, jdx), (kdx, ldx)) in Iterators.product(all_idxs, all_idxs)
-        ],
-        (6, 6),
-    )
-    @test isapprox(m21 / op.data[2, 1], diagm(0 => ones(Complex{Float64}, 6)))
+    m21 = reshape([Bra(b_comp, bv(1,idx,jdx,0)) * embed_op * Ket(b_comp, bv(0,kdx,ldx,0))
+                for ((idx, jdx), (kdx, ldx)) in Iterators.product(all_idxs, all_idxs)], (6,6))
+    @test isapprox(m21 / op.data[2,1], diagm(0=>ones(Complex{Float64}, 6)))
 
-    m12 = reshape(
-        [
-            Bra(b_comp, bv(0, idx, jdx, 0)) * embed_op * Ket(b_comp, bv(1, kdx, ldx, 0))
-            for ((idx, jdx), (kdx, ldx)) in Iterators.product(all_idxs, all_idxs)
-        ],
-        (6, 6),
-    )
-    @test isapprox(m12 / op.data[1, 2], diagm(0 => ones(Complex{Float64}, 6)))
+    m12 = reshape([Bra(b_comp, bv(0,idx,jdx,0)) * embed_op * Ket(b_comp, bv(1,kdx,ldx,0))
+                for ((idx, jdx), (kdx, ldx)) in Iterators.product(all_idxs, all_idxs)], (6,6))
+    @test isapprox(m12 / op.data[1,2], diagm(0=>ones(Complex{Float64}, 6)))
 
 
-    b_comp = b_comp ⊗ b_comp
-    OP_test1 = dense(tensor([op1, one(b2), op, one(b1), one(b2), op1, one(b2)]...))
-    OP_test2 = embed(b_comp, [1, [3, 4], 7], [op1, op, op1])
-    @test isapprox(OP_test1.data, OP_test2.data)
+    b_comp = b_comp⊗b_comp
+    OP_test1 = dense(tensor([op1,one(b2),op,one(b1),one(b2),op1,one(b2)]...))
+    OP_test2 = embed(b_comp, [1,[3,4],7], [op1,op,op1])
+    @test isapprox(OP_test1, OP_test2)
 
-    b8 = b2 ⊗ b2 ⊗ b2
+    b8 = b2⊗b2⊗b2
     cnot = [1 0 0 0; 0 1 0 0; 0 0 0 1; 0 0 1 0]
-    op_cnot = DenseOperator(b2 ⊗ b2, cnot)
-    OP_cnot = embed(b8, [1, 3], op_cnot)
-    @test ptrace(OP_cnot, [2]) / 2.0 == op_cnot
-    @test_throws AssertionError embed(b2 ⊗ b2, [1, 1], op_cnot)
+    op_cnot = DenseOperator(b2⊗b2, cnot)
+    OP_cnot = embed(b8, [1,3], op_cnot)
+    @test ptrace(OP_cnot, [2])/2. == op_cnot
+    @test_throws AssertionError embed(b2⊗b2, [1,1], op_cnot)
 
     @test_throws ArgumentError exp(sparse(op1))
 
