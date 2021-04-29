@@ -12,6 +12,8 @@ export bases,
     ⊗,
     permutesystems,
     @samebases,
+
+    # states.jl
     states,
     StateVector,
     Bra,
@@ -21,6 +23,8 @@ export bases,
     dagger,
     normalize,
     normalize!,
+
+    # operators.jl
     operators,
     AbstractOperator,
     DataOperator,
@@ -32,16 +36,22 @@ export bases,
     dense,
     tr,
     sparse,
+
+    # operators_dense.jl
     operators_dense,
     Operator,
     DenseOperator,
     DenseOpType,
     projector,
     dm,
+
+    # operators_sparse.jl
     operators_sparse,
     SparseOperator,
     diagonaloperator,
     SparseOpType,
+
+    # superoperators.jl
     superoperators,
     SuperOperator,
     DenseSuperOperator,
@@ -51,6 +61,8 @@ export bases,
     spre,
     spost,
     liouvillian,
+
+    # fock.jl
     fock,
     FockBasis,
     number,
@@ -60,6 +72,8 @@ export bases,
     coherentstate,
     coherentstate!,
     displace,
+
+    # spin.jl
     spin,
     SpinBasis,
     sigmax,
@@ -69,16 +83,22 @@ export bases,
     sigmam,
     spinup,
     spindown,
+
+    # state_definitions.jl
     randstate,
     randoperator,
     thermalstate,
     coherentthermalstate,
     phase_average,
     passive_state,
+
+    # nlevel.jl
     nlevel,
     NLevelBasis,
     transition,
     nlevelstate,
+
+    # metrics.jl
     metrics,
     tracenorm,
     tracenorm_h,
@@ -99,8 +119,26 @@ export bases,
     DensePauliTransferMatrix,
     ChiMatrix,
     DenseChiMatrix,
-    avg_gate_fidelity
+    avg_gate_fidelity,
 
+    # molecules.jl
+    Mode,
+    franckCondonFactors,
+    vibrationalIndices,
+    electronicIndices,
+    Molecule,
+    getMolStateEnergy,
+    getMolStateFC,
+
+    # aggregate.jl
+    Aggregate,
+    getNvib,
+    vibrationalIndices,
+    electronicIndices,
+    getIndices,
+    getFranckCondonFactors,
+    getAggStateEnergy,
+    getAggHamiltonian
 
 include("core.jl")
 include("sortedindices.jl")
@@ -117,5 +155,7 @@ include("state_definitions.jl")
 include("pauli.jl")
 include("metrics.jl")
 include("nlevel.jl")
+include("molecules.jl")
+include("aggregate.jl")
 
 end
