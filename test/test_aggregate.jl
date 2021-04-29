@@ -147,7 +147,7 @@ using LinearAlgebra
         -0.42888194248035333 0.30326532985631666 0.30326532985631666 -0.21444097124017664 0.0 0.0 1.0 0.0; 
         -0.3032653298563167 -0.21444097124017664 0.2144409712401767 0.15163266492815833 0.0 0.0 0.0 1.0
     ]
-    @test 1e-13 > D(FC_part, FC)
+    @test 1e-12 > D(FC_part, FC)
 
     @test getAggStateEnergy(agg, [1, 1], [[1], [2]]) == 0.4
 
@@ -173,9 +173,9 @@ using LinearAlgebra
     Ham1 = getAggHamiltonian(agg, aggInds, FC_part; groundState=false)
     Ham2 = getAggHamiltonian(agg, aggInds; groundState=false)
     Ham3 = getAggHamiltonian(agg; groundState=false)
-    
-    @test 1e-13 > D(Ham_ref, Ham1)
-    @test 1e-13 > D(Ham_ref, Ham2)
-    @test 1e-13 > D(Ham_ref, Ham3)
+
+    @test 1e-12 > D(Ham_ref, Ham1)
+    @test 1e-12 > D(Ham_ref, Ham2)
+    @test 1e-12 > D(Ham_ref, Ham3)
 
 end
