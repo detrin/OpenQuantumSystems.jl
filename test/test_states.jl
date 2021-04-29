@@ -185,7 +185,7 @@ using LinearAlgebra, Random
     bra_ = copy(bra123)
     bra_ .= 3 * bra123
     @test bra_ == 3 * dagger(psi123)
-    @test_throws ErrorException cos.(psi_)
-    @test_throws ErrorException cos.(bra_)
+    @test_throws MethodError cos.(psi_)
+    @test_throws MethodError cos.(bra_)
 
 end # testset
