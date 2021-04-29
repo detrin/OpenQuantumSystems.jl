@@ -128,8 +128,17 @@ export bases,
     electronicIndices,
     Molecule,
     getMolStateEnergy,
-    getMolStateFC
+    getMolStateFC,
 
+    # aggregate.jl
+    Aggregate,
+    getNvib,
+    vibrationalIndices,
+    electronicIndices,
+    getIndices,
+    getFranckCondonFactors,
+    getAggStateEnergy,
+    getAggHamiltonian
 
 include("core.jl")
 include("sortedindices.jl")
@@ -147,5 +156,6 @@ include("pauli.jl")
 include("metrics.jl")
 include("nlevel.jl")
 include("molecules.jl")
+include("aggregate.jl")
 
 end
