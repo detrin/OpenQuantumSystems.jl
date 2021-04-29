@@ -66,18 +66,18 @@ Base.isapprox(x::DataOperator, y::DataOperator; kwargs...) = false
 
 # Arithmetic operations
 +(a::Operator{BL,BR}, b::Operator{BL,BR}) where {BL<:Basis,BR<:Basis} = Operator(a.basis_l, a.basis_r, a.data+b.data)
-+(a::Operator, b::Operator) = throw(IncompatibleBases())
+# +(a::Operator, b::Operator) = throw(IncompatibleBases())
 
 -(a::Operator) = Operator(a.basis_l, a.basis_r, -a.data)
 -(a::Operator{BL,BR}, b::Operator{BL,BR}) where {BL<:Basis,BR<:Basis} = Operator(a.basis_l, a.basis_r, a.data-b.data)
--(a::Operator, b::Operator) = throw(IncompatibleBases())
+# -(a::Operator, b::Operator) = throw(IncompatibleBases())
 
 *(a::Operator{BL,BR}, b::Ket{BR}) where {BL<:Basis,BR<:Basis} = Ket{BL}(a.basis_l, a.data*b.data)
-*(a::DataOperator, b::Ket) = throw(IncompatibleBases())
+# *(a::DataOperator, b::Ket) = throw(IncompatibleBases())
 *(a::Bra{BL}, b::Operator{BL,BR}) where {BL<:Basis,BR<:Basis} = Bra{BR}(b.basis_r, transpose(b.data)*a.data)
-*(a::Bra, b::DataOperator) = throw(IncompatibleBases())
+# *(a::Bra, b::DataOperator) = throw(IncompatibleBases())
 *(a::Operator{B1,B2}, b::Operator{B2,B3}) where {B1<:Basis,B2<:Basis,B3<:Basis} = Operator(a.basis_l, b.basis_r, a.data*b.data)
-*(a::DataOperator, b::DataOperator) = throw(IncompatibleBases())
+# *(a::DataOperator, b::DataOperator) = throw(IncompatibleBases())
 *(a::Operator, b::Number) = Operator(a.basis_l, a.basis_r, b*a.data)
 *(a::Number, b::Operator) = Operator(b.basis_l, b.basis_r, a*b.data)
 function *(op1::AbstractOperator{B1,B2}, op2::Operator{B2,B3,T}) where {B1<:Basis,B2<:Basis,B3<:Basis,T}

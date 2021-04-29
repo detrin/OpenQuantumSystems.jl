@@ -55,6 +55,7 @@ using Random, SparseArrays, LinearAlgebra
     op1 = Operator(bl, br1)
     op2 = Operator(bl, br2)
     @test op1 != op2
+    @test !isapprox(op1, op2)
 
     # Test ' shorthand
     @test dagger(op2) == op2'
