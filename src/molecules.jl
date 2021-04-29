@@ -1,6 +1,4 @@
 
-import Base: ==
-
 include("core.jl")
 
 struct Mode{T} 
