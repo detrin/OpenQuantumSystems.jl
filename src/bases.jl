@@ -83,7 +83,7 @@ CompositeBasis(bases::Vector{B}) where {B<:Basis} = CompositeBasis((bases...,))
 CompositeBasis(bases::Basis...) = CompositeBasis((bases...,))
 
 ==(b1::T, b2::T) where {T<:CompositeBasis} = equal_shape(b1.shape, b2.shape)
-==(b1::CompositeBasis, b2::CompositeBasis) = false
+# ==(b1::CompositeBasis, b2::CompositeBasis) = false
 
 """
     tensor(x, y, z...)
@@ -234,18 +234,6 @@ function multiplicable(b1::CompositeBasis, b2::CompositeBasis)
         end
     end
     return true
-end
-
-"""
-    check_multiplicable(a, b)
-
-Throw an [`IncompatibleBases`](@ref) error if the objects are
-not multiplicable.
-"""
-function check_multiplicable(b1, b2)
-    if BASES_CHECK[] && !multiplicable(b1, b2)
-        throw(IncompatibleBases())
-    end
 end
 
 

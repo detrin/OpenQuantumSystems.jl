@@ -108,6 +108,10 @@ using Random, SparseArrays, LinearAlgebra
     @test 1e-12 > D((op1 + op2)*dagger(0.3*op3), 0.3*op1*dagger(op3) + 0.3*op2*dagger(op3))
     @test 1e-12 > D(0.3*(op1*dagger(op2)), op1*(0.3*dagger(op2)))
 
+    op3 = copy(op1)
+    op3.data = collect(op3.data)
+    @test collect(op1) == op3
+
     tmp = copy(op1)
     conj!(tmp)
     @test tmp == conj(op1) && conj(tmp.data) == op1.data
@@ -282,6 +286,12 @@ using Random, SparseArrays, LinearAlgebra
 
     @test_throws OpenQuantumSystems.IncompatibleBases expect(op2, op1)
 
+    # Exponential 
+    b = GenericBasis(2)
+    op1 = DenseOperator(b, b, [1im*pi 0; 0 2im*pi])
+    op2 = DenseOperator(b, b, [-1 0; 0 1])
+    @test 1e-13 > D(exp(op1), op2)
+
     # Permute systems
     op1 = randoperator(b1a, b1b)
     op2 = randoperator(b2a, b2b)
@@ -368,6 +378,10 @@ using Random, SparseArrays, LinearAlgebra
     OpenQuantumSystems.mul!(r_,op1,op2,alpha,beta)
     @test 1e-10 > D(r_, alpha*op1*op2 + beta*r)
 
+    @test size(op) == (3, 5)
+    @test size(op, 1) == 3
+    @test size(op, 2) == 5
+
     dat = rand(prod(b_r.shape))
     x = Ket(b_r, dat)
     y = Bra(b_r, dat)
@@ -392,5 +406,10 @@ using Random, SparseArrays, LinearAlgebra
     op3 = randoperator(bf)
     @test_throws OpenQuantumSystems.IncompatibleBases op1 .+ op3
     @test_throws ErrorException cos.(op1)
+
+    op1 = randoperator(b1, b1)
+    op2 = randoperator(b1, b1)
+    op3 = op1 * op2
+    @test 1e-12 > D(op3, rmul!(op1, op2.data))
 
 end # testset

@@ -88,7 +88,7 @@ sparse(a::SuperOperator) = SuperOperator(a.basis_l, a.basis_r, sparse(a.data))
     b::SuperOperator{B1,B2},
 ) where {B1<:Tuple{Basis,Basis},B2<:Tuple{Basis,Basis}} =
     (samebases(a, b) && a.data == b.data)
-==(a::SuperOperator, b::SuperOperator) = false
+# ==(a::SuperOperator, b::SuperOperator) = false
 
 Base.length(a::SuperOperator) =
     length(a.basis_l[1]) *
@@ -102,8 +102,8 @@ samebases(a::SuperOperator, b::SuperOperator) =
     samebases(a.basis_r[2], b.basis_r[2])
 multiplicable(a::SuperOperator, b::SuperOperator) =
     multiplicable(a.basis_r[1], b.basis_l[1]) && multiplicable(a.basis_r[2], b.basis_l[2])
-multiplicable(a::SuperOperator, b::AbstractOperator) =
-    multiplicable(a.basis_r[1], b.basis_l) && multiplicable(a.basis_r[2], b.basis_r)
+# multiplicable(a::SuperOperator, b::AbstractOperator) =
+#     multiplicable(a.basis_r[1], b.basis_l) && multiplicable(a.basis_r[2], b.basis_r)
 
 
 # Arithmetic operations
@@ -136,7 +136,7 @@ end
     b::SuperOperator{B1,B2},
 ) where {B1<:Tuple{Basis,Basis},B2<:Tuple{Basis,Basis}} =
     SuperOperator{B1,B2}(a.basis_l, a.basis_r, a.data + b.data)
-+(a::SuperOperator, b::SuperOperator) = throw(IncompatibleBases())
+# +(a::SuperOperator, b::SuperOperator) = throw(IncompatibleBases())
 
 -(
     a::SuperOperator{B1,B2},
@@ -144,7 +144,7 @@ end
 ) where {B1<:Tuple{Basis,Basis},B2<:Tuple{Basis,Basis}} =
     SuperOperator{B1,B2}(a.basis_l, a.basis_r, a.data - b.data)
 -(a::SuperOperator) = SuperOperator(a.basis_l, a.basis_r, -a.data)
--(a::SuperOperator, b::SuperOperator) = throw(IncompatibleBases())
+# -(a::SuperOperator, b::SuperOperator) = throw(IncompatibleBases())
 
 """
     spre(op)
