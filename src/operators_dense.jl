@@ -20,6 +20,10 @@ end
 Operator{BL,BR}(basis_l::BL,basis_r::BR,data::T) where {BL,BR,T} = Operator{BL,BR,T}(basis_l,basis_r,data)
 Operator(basis_l::BL,basis_r::BR,data::T) where {BL,BR,T} = Operator{BL,BR,T}(basis_l,basis_r,data)
 Operator(b::Basis,data) = Operator(b,b,data)
+Operator(b1::Basis, b2::Basis) = Operator(b1, b2, zeros(ComplexF64, length(b1), length(b2)))
+Operator(b::Basis) = Operator(b, b)
+DenseOperator(b::Basis) = DenseOperator(b, b)
+DenseOperator(op::DataOperator) = DenseOperator(op.basis_l, op.basis_r, Matrix(op.data))
 
 Base.zero(op::Operator) = Operator(op.basis_l,op.basis_r,zero(op.data))
 Base.eltype(op::Operator) = eltype(op.data)

@@ -26,6 +26,36 @@ using Random, SparseArrays, LinearAlgebra
     op2 = DenseOperator(b1b, b1a, [1 1; 1 1; 1 1])
     @test op1 == dagger(op2)
 
+    # Test Base Operator
+    op1 = Operator(b1a, b1b, [1 1 1; 1 1 1])
+    op2 = zero(op1)
+    op1.data = zero(op1.data)
+    @test op1 == op2
+    @test size(op1) == (2, 3)
+    @test size(op1, 1) == 2
+    @test size(op1, 2) == 3
+
+    # Test DenseOperator definition
+    b = GenericBasis(2)
+    data = [1 1; 1 1]
+    op1 = DenseOperator(b, b)
+    op2 = DenseOperator(b)
+    @test op1 == op2
+
+    op1 = DenseOperator(b, b, data)
+    op2 = DenseOperator(b, data)
+    op3 = DenseOperator(op1)
+    @test op1 == op2
+    @test op1 == op3
+
+    # Test DataOperaor equality
+    bl = GenericBasis(2)
+    br1 = GenericBasis(2)
+    br2 = GenericBasis(3)
+    op1 = Operator(bl, br1)
+    op2 = Operator(bl, br2)
+    @test op1 != op2
+
     # Test ' shorthand
     @test dagger(op2) == op2'
     @test transpose(op2) == conj(op2')
