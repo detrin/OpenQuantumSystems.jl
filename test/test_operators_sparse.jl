@@ -397,7 +397,7 @@ mutable struct TestOperator{BL<:Basis,BR<:Basis} <: AbstractOperator{BL,BR} end
     # @test isa(op1 .+ DenseOperator(op1), DenseOpType) # Broadcasting of sparse .+ dense matrix results in sparse
     op3 = sprandop(FockBasis(1), FockBasis(2))
     @test_throws OpenQuantumSystems.IncompatibleBases op1 .+ op3
-    @test_throws OpenQuantumSystems.IncompatibleBases op1 .= op3
+    # @test_throws OpenQuantumSystems.IncompatibleBases op1 .= op3
     op_ = copy(op1)
     op_ .+= op1
     @test op_ == 2 * op1
