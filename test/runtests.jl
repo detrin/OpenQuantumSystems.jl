@@ -12,6 +12,7 @@ names = [
     "test_nlevel.jl",
     "test_state_definitions.jl",
     "test_metrics.jl",
+    "test_embed.jl",
     "test_superoperators.jl",
     "test_pauli.jl",
 ]
