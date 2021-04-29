@@ -12,7 +12,9 @@ names = [
     "test_nlevel.jl",
     "test_state_definitions.jl",
     "test_metrics.jl",
+    "test_embed.jl",
     "test_superoperators.jl",
+    "test_abstractdata.jl",
     "test_pauli.jl",
 ]
 
@@ -28,6 +30,8 @@ unavailable_tests = setdiff(names, detected_tests)
 if length(unavailable_tests) != 0
     error("The following tests could not be found:\n", join(unavailable_tests, "\n"))
 end
+
+# names = ["test_abstractdata.jl"]
 
 for name in names
     if startswith(name, "test_") && endswith(name, ".jl")

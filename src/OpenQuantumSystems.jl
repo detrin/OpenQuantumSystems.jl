@@ -102,6 +102,7 @@ export bases,
     avg_gate_fidelity
 
 
+include("core.jl")
 include("sortedindices.jl")
 include("bases.jl")
 include("states.jl")

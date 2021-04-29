@@ -6,9 +6,8 @@ using Random, SparseArrays, LinearAlgebra
 
     Random.seed!(0)
 
-    D(op1::AbstractOperator, op2::AbstractOperator) =
-        abs(tracedistance_nh(dense(op1), dense(op2)))
-    D(x1::StateVector, x2::StateVector) = norm(x2 - x1)
+    D(op1::AbstractOperator, op2::AbstractOperator) = abs(tracedistance_nh(dense(op1), dense(op2)))
+    D(x1::StateVector, x2::StateVector) = norm(x2-x1)
 
     b1a = GenericBasis(2)
     b1b = GenericBasis(3)
@@ -17,8 +16,8 @@ using Random, SparseArrays, LinearAlgebra
     b3a = GenericBasis(1)
     b3b = GenericBasis(5)
 
-    b_l = b1a ⊗ b2a ⊗ b3a
-    b_r = b1b ⊗ b2b ⊗ b3b
+    b_l = b1a⊗b2a⊗b3a
+    b_r = b1b⊗b2b⊗b3b
 
     # Test creation
     @test_throws DimensionMismatch DenseOperator(b1a, [1 1 1; 1 1 1])
@@ -36,8 +35,8 @@ using Random, SparseArrays, LinearAlgebra
     op2 = copy(op1)
     @test op1.data == op2.data
     @test !(op1.data === op2.data)
-    op2.data[1, 1] = complex(10.0)
-    @test op1.data[1, 1] != op2.data[1, 1]
+    op2.data[1,1] = complex(10.)
+    @test op1.data[1,1] != op2.data[1,1]
 
 
     # Arithmetic operations
@@ -61,31 +60,22 @@ using Random, SparseArrays, LinearAlgebra
 
     # Subtraction
     @test_throws DimensionMismatch op1 - dagger(op2)
-    @test 1e-14 > D(op1 - op_zero, op1)
-    @test 1e-14 > D(op1 - op2, op1 + (-op2))
-    @test 1e-14 > D(op1 - op2, op1 + (-1 * op2))
-    @test 1e-14 > D(op1 - op2 - op3, op1 - (op2 + op3))
+    @test 1e-14 > D(op1-op_zero, op1)
+    @test 1e-14 > D(op1-op2, op1 + (-op2))
+    @test 1e-14 > D(op1-op2, op1 + (-1*op2))
+    @test 1e-14 > D(op1-op2-op3, op1-(op2+op3))
 
     # Test multiplication
-    @test_throws DimensionMismatch op1 * op2
-    @test 1e-11 > D(op1 * (x1 + 0.3 * x2), op1 * x1 + 0.3 * op1 * x2)
-    @test 1e-11 > D(
-        (op1 + op2) * (x1 + 0.3 * x2),
-        op1 * x1 + 0.3 * op1 * x2 + op2 * x1 + 0.3 * op2 * x2,
-    )
+    @test_throws DimensionMismatch op1*op2
+    @test 1e-11 > D(op1*(x1 + 0.3*x2), op1*x1 + 0.3*op1*x2)
+    @test 1e-11 > D((op1+op2)*(x1+0.3*x2), op1*x1 + 0.3*op1*x2 + op2*x1 + 0.3*op2*x2)
 
-    @test 1e-11 > D((xbra1 + 0.3 * xbra2) * op1, xbra1 * op1 + 0.3 * xbra2 * op1)
-    @test 1e-11 > D(
-        (xbra1 + 0.3 * xbra2) * (op1 + op2),
-        xbra1 * op1 + 0.3 * xbra2 * op1 + xbra1 * op2 + 0.3 * xbra2 * op2,
-    )
+    @test 1e-11 > D((xbra1+0.3*xbra2)*op1, xbra1*op1 + 0.3*xbra2*op1)
+    @test 1e-11 > D((xbra1+0.3*xbra2)*(op1+op2), xbra1*op1 + 0.3*xbra2*op1 + xbra1*op2 + 0.3*xbra2*op2)
 
-    @test 1e-12 > D(op1 * dagger(0.3 * op2), 0.3 * dagger(op2 * dagger(op1)))
-    @test 1e-12 > D(
-        (op1 + op2) * dagger(0.3 * op3),
-        0.3 * op1 * dagger(op3) + 0.3 * op2 * dagger(op3),
-    )
-    @test 1e-12 > D(0.3 * (op1 * dagger(op2)), op1 * (0.3 * dagger(op2)))
+    @test 1e-12 > D(op1*dagger(0.3*op2), 0.3*dagger(op2*dagger(op1)))
+    @test 1e-12 > D((op1 + op2)*dagger(0.3*op3), 0.3*op1*dagger(op3) + 0.3*op2*dagger(op3))
+    @test 1e-12 > D(0.3*(op1*dagger(op2)), op1*(0.3*dagger(op2)))
 
     tmp = copy(op1)
     conj!(tmp)
@@ -101,15 +91,11 @@ using Random, SparseArrays, LinearAlgebra
     d1 = op1.data
     d2 = op2.data
     v = x1.data
-    @test (op1 * x1).data ≈ [
-        d1[1, 1] * v[1] + d1[1, 2] * v[2] + d1[1, 3] * v[3],
-        d1[2, 1] * v[1] + d1[2, 2] * v[2] + d1[2, 3] * v[3],
-    ]
-    @test (op1*op2).data[2, 3] ≈
-          d1[2, 1] * d2[1, 3] + d1[2, 2] * d2[2, 3] + d1[2, 3] * d2[3, 3]
+    @test (op1*x1).data ≈ [d1[1,1]*v[1] + d1[1,2]*v[2] + d1[1,3]*v[3], d1[2,1]*v[1] + d1[2,2]*v[2] + d1[2,3]*v[3]]
+    @test (op1*op2).data[2,3] ≈ d1[2,1]*d2[1,3] + d1[2,2]*d2[2,3] + d1[2,3]*d2[3,3]
 
     # Test division
-    @test 1e-14 > D(op1 / 7, (1 / 7) * op1)
+    @test 1e-14 > D(op1/7, (1/7)*op1)
 
     # Tensor product
     # ==============
@@ -126,18 +112,15 @@ using Random, SparseArrays, LinearAlgebra
     @test 1e-13 > D((op1a ⊗ op2a) ⊗ op3a, op1a ⊗ (op2a ⊗ op3a))
 
     # Linearity
-    @test 1e-13 > D(op1a ⊗ (0.3 * op2a), 0.3 * (op1a ⊗ op2a))
-    @test 1e-13 > D((0.3 * op1a) ⊗ op2a, 0.3 * (op1a ⊗ op2a))
+    @test 1e-13 > D(op1a ⊗ (0.3*op2a), 0.3*(op1a ⊗ op2a))
+    @test 1e-13 > D((0.3*op1a) ⊗ op2a, 0.3*(op1a ⊗ op2a))
 
     # Distributivity
     @test 1e-13 > D(op1a ⊗ (op2a + op2b), op1a ⊗ op2a + op1a ⊗ op2b)
     @test 1e-13 > D((op2a + op2b) ⊗ op3a, op2a ⊗ op3a + op2b ⊗ op3a)
 
     # Mixed-product property
-    @test 1e-13 > D(
-        (op1a ⊗ op2a) * dagger(op1b ⊗ op2b),
-        (op1a * dagger(op1b)) ⊗ (op2a * dagger(op2b)),
-    )
+    @test 1e-13 > D((op1a ⊗ op2a) * dagger(op1b ⊗ op2b), (op1a*dagger(op1b)) ⊗ (op2a*dagger(op2b)))
 
     # Transpose
     @test 1e-13 > D(dagger(op1a ⊗ op2a), dagger(op1a) ⊗ dagger(op2a))
@@ -147,19 +130,17 @@ using Random, SparseArrays, LinearAlgebra
     a = Ket(b1a, rand(ComplexF64, length(b1a)))
     b = Ket(b2b, rand(ComplexF64, length(b2b)))
     ab = a ⊗ dagger(b)
-    @test ab.data[2, 3] == a.data[2] * conj(b.data[3])
-    @test ab.data[2, 1] == a.data[2] * conj(b.data[1])
+    @test ab.data[2,3] == a.data[2]*conj(b.data[3])
+    @test ab.data[2,1] == a.data[2]*conj(b.data[1])
 
     shape = tuple(op123.basis_l.shape..., op123.basis_r.shape...)
     idx = LinearIndices(shape)[2, 1, 1, 3, 4, 5]
-    @test op123.data[idx] == op1a.data[2, 3] * op2a.data[1, 4] * op3a.data[1, 5]
-    @test reshape(op123.data, shape...)[2, 1, 1, 3, 4, 5] ==
-          op1a.data[2, 3] * op2a.data[1, 4] * op3a.data[1, 5]
+    @test op123.data[idx] == op1a.data[2,3]*op2a.data[1,4]*op3a.data[1,5]
+    @test reshape(op123.data, shape...)[2, 1, 1, 3, 4, 5] == op1a.data[2,3]*op2a.data[1,4]*op3a.data[1,5]
 
     idx = LinearIndices(shape)[2, 1, 1, 1, 3, 4]
-    @test op123.data[idx] == op1a.data[2, 1] * op2a.data[1, 3] * op3a.data[1, 4]
-    @test reshape(op123.data, shape...)[2, 1, 1, 1, 3, 4] ==
-          op1a.data[2, 1] * op2a.data[1, 3] * op3a.data[1, 4]
+    @test op123.data[idx] == op1a.data[2,1]*op2a.data[1,3]*op3a.data[1,4]
+    @test reshape(op123.data, shape...)[2, 1, 1, 1, 3, 4] == op1a.data[2,1]*op2a.data[1,3]*op3a.data[1,4]
 
 
     # Test identityoperator
@@ -171,21 +152,17 @@ using Random, SparseArrays, LinearAlgebra
     I = identityoperator(DenseOpType, b_r)
     @test isa(I, DenseOpType)
     @test identityoperator(SparseOpType, b_r) == sparse(I)
-    @test 1e-11 > D(I * x1, x1)
-    @test I ==
-          identityoperator(DenseOpType, b1b) ⊗ identityoperator(DenseOpType, b2b) ⊗
-          identityoperator(DenseOpType, b3b)
+    @test 1e-11 > D(I*x1, x1)
+    @test I == identityoperator(DenseOpType, b1b) ⊗ identityoperator(DenseOpType, b2b) ⊗ identityoperator(DenseOpType, b3b)
 
     I = identityoperator(DenseOpType, b_l)
     @test isa(I, DenseOpType)
     @test identityoperator(SparseOpType, b_l) == sparse(I)
-    @test 1e-11 > D(xbra1 * I, xbra1)
-    @test I ==
-          identityoperator(DenseOpType, b1a) ⊗ identityoperator(DenseOpType, b2a) ⊗
-          identityoperator(DenseOpType, b3a)
+    @test 1e-11 > D(xbra1*I, xbra1)
+    @test I == identityoperator(DenseOpType, b1a) ⊗ identityoperator(DenseOpType, b2a) ⊗ identityoperator(DenseOpType, b3a)
 
     # Test tr and normalize
-    op = DenseOperator(GenericBasis(3), [1 3 2; 5 2 2; -1 2 5])
+    op = DenseOperator(GenericBasis(3), float.([1 3 2;5 2 2;-1 2 5]))
     @test 8 == tr(op)
     op_normalized = normalize(op)
     @test 8 == tr(op)
@@ -197,21 +174,21 @@ using Random, SparseArrays, LinearAlgebra
     @test op === normalize!(op)
 
     # Test partial tr of state vectors
-    psi1 = 0.1 * randstate(b1a)
-    psi2 = 0.3 * randstate(b2a)
-    psi3 = 0.7 * randstate(b3a)
+    psi1 = 0.1*randstate(b1a)
+    psi2 = 0.3*randstate(b2a)
+    psi3 = 0.7*randstate(b3a)
     psi12 = psi1 ⊗ psi2
     psi13 = psi1 ⊗ psi3
     psi23 = psi2 ⊗ psi3
     psi123 = psi1 ⊗ psi2 ⊗ psi3
 
-    @test 1e-13 > D(0.1^2 * 0.3^2 * psi3 ⊗ dagger(psi3), ptrace(psi123, [1, 2]))
-    @test 1e-13 > D(0.1^2 * 0.7^2 * psi2 ⊗ dagger(psi2), ptrace(psi123, [1, 3]))
-    @test 1e-13 > D(0.3^2 * 0.7^2 * psi1 ⊗ dagger(psi1), ptrace(psi123, [2, 3]))
+    @test 1e-13 > D(0.1^2*0.3^2*psi3 ⊗ dagger(psi3), ptrace(psi123, [1, 2]))
+    @test 1e-13 > D(0.1^2*0.7^2*psi2 ⊗ dagger(psi2), ptrace(psi123, [1, 3]))
+    @test 1e-13 > D(0.3^2*0.7^2*psi1 ⊗ dagger(psi1), ptrace(psi123, [2, 3]))
 
-    @test 1e-13 > D(0.1^2 * psi23 ⊗ dagger(psi23), ptrace(psi123, 1))
-    @test 1e-13 > D(0.3^2 * psi13 ⊗ dagger(psi13), ptrace(psi123, 2))
-    @test 1e-13 > D(0.7^2 * psi12 ⊗ dagger(psi12), ptrace(psi123, 3))
+    @test 1e-13 > D(0.1^2*psi23 ⊗ dagger(psi23), ptrace(psi123, 1))
+    @test 1e-13 > D(0.3^2*psi13 ⊗ dagger(psi13), ptrace(psi123, 2))
+    @test 1e-13 > D(0.7^2*psi12 ⊗ dagger(psi12), ptrace(psi123, 3))
 
     @test 1e-13 > D(ptrace(psi123, [1, 2]), dagger(ptrace(dagger(psi123), [1, 2])))
     @test 1e-13 > D(ptrace(psi123, 3), dagger(ptrace(dagger(psi123), 3)))
@@ -227,28 +204,28 @@ using Random, SparseArrays, LinearAlgebra
     op3 = randoperator(b3)
     op123 = op1 ⊗ op2 ⊗ op3
 
-    @test 1e-13 > D(op1 ⊗ op2 * tr(op3), ptrace(op123, 3))
-    @test 1e-13 > D(op1 ⊗ op3 * tr(op2), ptrace(op123, 2))
-    @test 1e-13 > D(op2 ⊗ op3 * tr(op1), ptrace(op123, 1))
+    @test 1e-13 > D(op1⊗op2*tr(op3), ptrace(op123, 3))
+    @test 1e-13 > D(op1⊗op3*tr(op2), ptrace(op123, 2))
+    @test 1e-13 > D(op2⊗op3*tr(op1), ptrace(op123, 1))
 
-    @test 1e-13 > D(op1 * tr(op2) * tr(op3), ptrace(op123, [2, 3]))
-    @test 1e-13 > D(op2 * tr(op1) * tr(op3), ptrace(op123, [1, 3]))
-    @test 1e-13 > D(op3 * tr(op1) * tr(op2), ptrace(op123, [1, 2]))
+    @test 1e-13 > D(op1*tr(op2)*tr(op3), ptrace(op123, [2,3]))
+    @test 1e-13 > D(op2*tr(op1)*tr(op3), ptrace(op123, [1,3]))
+    @test 1e-13 > D(op3*tr(op1)*tr(op2), ptrace(op123, [1,2]))
 
-    @test_throws ArgumentError ptrace(op123, [1, 2, 3])
-    x = randoperator(b1, b1 ⊗ b2)
+    @test_throws ArgumentError ptrace(op123, [1,2,3])
+    x = randoperator(b1, b1⊗b2)
     @test_throws ArgumentError ptrace(x, [1])
-    x = randoperator(b1 ⊗ b1 ⊗ b2, b1 ⊗ b2)
+    x = randoperator(b1⊗b1⊗b2, b1⊗b2)
     @test_throws ArgumentError ptrace(x, [1, 2])
-    x = randoperator(b1 ⊗ b2)
+    x = randoperator(b1⊗b2)
     @test_throws ArgumentError ptrace(x, [1, 2])
-    x = randoperator(b1 ⊗ b2, b2 ⊗ b1)
+    x = randoperator(b1⊗b2, b2⊗b1)
     @test_throws ArgumentError ptrace(x, [1])
 
     op1 = randoperator(b1, b2)
     op2 = randoperator(b3)
 
-    @test 1e-13 > D(op1 * tr(op2), ptrace(op1 ⊗ op2, 2))
+    @test 1e-13 > D(op1*tr(op2), ptrace(op1⊗op2, 2))
 
     # Test expect
     b1 = GenericBasis(3)
@@ -261,36 +238,38 @@ using Random, SparseArrays, LinearAlgebra
     b_l = b1 ⊗ b2 ⊗ b3
 
     state = randstate(b_l)
-    @test expect(op123, state) ≈ dagger(state) * op123 * state
+    @test expect(op123, state) ≈ dagger(state)*op123*state
     @test expect(1, op1, state) ≈ expect(op1, ptrace(state, [2, 3]))
     @test expect(2, op2, state) ≈ expect(op2, ptrace(state, [1, 3]))
     @test expect(3, op3, state) ≈ expect(op3, ptrace(state, [1, 2]))
 
     state = randoperator(b_l)
-    @test expect(op123, state) ≈ tr(op123 * state)
+    @test expect(op123, state) ≈ tr(op123*state)
     @test expect(1, op1, state) ≈ expect(op1, ptrace(state, [2, 3]))
     @test expect(2, op2, state) ≈ expect(op2, ptrace(state, [1, 3]))
     @test expect(3, op3, state) ≈ expect(op3, ptrace(state, [1, 2]))
+
+    @test_throws OpenQuantumSystems.IncompatibleBases expect(op2, op1)
 
     # Permute systems
     op1 = randoperator(b1a, b1b)
     op2 = randoperator(b2a, b2b)
     op3 = randoperator(b3a, b3b)
-    op123 = op1 ⊗ op2 ⊗ op3
+    op123 = op1⊗op2⊗op3
 
-    op132 = op1 ⊗ op3 ⊗ op2
+    op132 = op1⊗op3⊗op2
     @test 1e-14 > D(permutesystems(op123, [1, 3, 2]), op132)
 
-    op213 = op2 ⊗ op1 ⊗ op3
+    op213 = op2⊗op1⊗op3
     @test 1e-14 > D(permutesystems(op123, [2, 1, 3]), op213)
 
-    op231 = op2 ⊗ op3 ⊗ op1
+    op231 = op2⊗op3⊗op1
     @test 1e-14 > D(permutesystems(op123, [2, 3, 1]), op231)
 
-    op312 = op3 ⊗ op1 ⊗ op2
+    op312 = op3⊗op1⊗op2
     @test 1e-14 > D(permutesystems(op123, [3, 1, 2]), op312)
 
-    op321 = op3 ⊗ op2 ⊗ op1
+    op321 = op3⊗op2⊗op1
     @test 1e-14 > D(permutesystems(op123, [3, 2, 1]), op321)
 
 
@@ -300,18 +279,18 @@ using Random, SparseArrays, LinearAlgebra
     xbra = dagger(xket)
     ybra = dagger(yket)
 
-    @test 1e-13 > D(projector(xket) * xket, xket)
-    @test 1e-13 > D(xbra * projector(xket), xbra)
-    @test 1e-13 > D(projector(xbra) * xket, xket)
-    @test 1e-13 > D(xbra * projector(xbra), xbra)
-    @test 1e-13 > D(ybra * projector(yket, xbra), xbra)
-    @test 1e-13 > D(projector(yket, xbra) * xket, yket)
+    @test 1e-13 > D(projector(xket)*xket, xket)
+    @test 1e-13 > D(xbra*projector(xket), xbra)
+    @test 1e-13 > D(projector(xbra)*xket, xket)
+    @test 1e-13 > D(xbra*projector(xbra), xbra)
+    @test 1e-13 > D(ybra*projector(yket, xbra), xbra)
+    @test 1e-13 > D(projector(yket, xbra)*xket, yket)
 
     # Test operator exponential
     op = randoperator(b1a)
-    @test 1e-13 > D(op^2, op * op)
-    @test 1e-13 > D(op^3, op * op * op)
-    @test 1e-13 > D(op^4, op * op * op * op)
+    @test 1e-13 > D(op^2, op*op)
+    @test 1e-13 > D(op^3, op*op*op)
+    @test 1e-13 > D(op^4, op*op*op*op)
 
     # Test gemv
     b1 = GenericBasis(3)
@@ -325,20 +304,20 @@ using Random, SparseArrays, LinearAlgebra
     beta = complex(0.3, 2.1)
 
     rket_ = deepcopy(rket)
-    OpenQuantumSystems.mul!(rket_, op, xket, complex(1.0), complex(0.0))
-    @test 0 ≈ D(rket_, op * xket)
+    OpenQuantumSystems.mul!(rket_,op,xket,complex(1.0),complex(0.))
+    @test 0 ≈ D(rket_, op*xket)
 
     rket_ = deepcopy(rket)
-    OpenQuantumSystems.mul!(rket_, op, xket, alpha, beta)
-    @test 1e-13 > D(rket_, alpha * op * xket + beta * rket)
+    OpenQuantumSystems.mul!(rket_,op,xket,alpha,beta)
+    @test 1e-13 > D(rket_, alpha*op*xket + beta*rket)
 
     rbra_ = deepcopy(rbra)
-    OpenQuantumSystems.mul!(rbra_, xbra, op, complex(1.0), complex(0.0))
-    @test 0 ≈ D(rbra_, xbra * op)
+    OpenQuantumSystems.mul!(rbra_,xbra,op,complex(1.0),complex(0.))
+    @test 0 ≈ D(rbra_, xbra*op)
 
     rbra_ = deepcopy(rbra)
-    OpenQuantumSystems.mul!(rbra_, xbra, op, alpha, beta)
-    @test 1e-13 > D(rbra_, alpha * xbra * op + beta * rbra)
+    OpenQuantumSystems.mul!(rbra_,xbra,op,alpha,beta)
+    @test 1e-13 > D(rbra_, alpha*xbra*op + beta*rbra)
 
     # # Test gemm
     b1 = GenericBasis(37)
@@ -351,12 +330,12 @@ using Random, SparseArrays, LinearAlgebra
     beta = complex(0.3, 2.1)
 
     r_ = deepcopy(r)
-    OpenQuantumSystems.mul!(r_, op1, op2, complex(1.0), complex(0.0))
-    @test 1e-13 > D(r_, op1 * op2)
+    OpenQuantumSystems.mul!(r_,op1,op2,complex(1.0),complex(0.))
+    @test 1e-13 > D(r_, op1*op2)
 
     r_ = deepcopy(r)
-    OpenQuantumSystems.mul!(r_, op1, op2, alpha, beta)
-    @test 1e-10 > D(r_, alpha * op1 * op2 + beta * r)
+    OpenQuantumSystems.mul!(r_,op1,op2,alpha,beta)
+    @test 1e-10 > D(r_, alpha*op1*op2 + beta*r)
 
     dat = rand(prod(b_r.shape))
     x = Ket(b_r, dat)
@@ -364,19 +343,19 @@ using Random, SparseArrays, LinearAlgebra
     @test dm(x) == dm(y)
 
     # Test Hermitian
-    bspin = SpinBasis(1 // 2)
+    bspin = SpinBasis(1//2)
     bnlevel = NLevelBasis(2)
     @test ishermitian(DenseOperator(bspin, bspin, [1.0 im; -im 2.0])) == true
     @test ishermitian(DenseOperator(bspin, bnlevel, [1.0 im; -im 2.0])) == false
 
     # Test broadcasting
     op1_ = copy(op1)
-    op1 .= 2 * op1
+    op1 .= 2*op1
     @test op1 == op1_ .+ op1_
     op1 .= op1_
     @test op1 == op1_
     op1 .= op1_ .+ 3 * op1_
-    @test op1 == 4 * op1_
+    @test op1 == 4*op1_
     @test_throws DimensionMismatch op1 .= op2
     bf = FockBasis(3)
     op3 = randoperator(bf)
