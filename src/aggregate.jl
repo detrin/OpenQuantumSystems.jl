@@ -180,3 +180,53 @@ getAggHamiltonian(
     groundState::Bool=true
     ) where {T<:Integer, C1<:ComputableType, C2<:ComputableType
     } = getAggHamiltonian(agg::Aggregate{T, C1, C2}, aggIndices, nothing; groundState=groundState)
+
+function getAggHamiltonianSparse(
+        agg::Aggregate{T, C1, C2},
+        aggIndices::Any,
+        franckCondonFactors::Any; 
+        groundState::Bool=false
+    ) where {T<:Integer, C1<:ComputableType, C2<:ComputableType}
+    if aggIndices === nothing
+        aggIndices = getIndices(agg; groundState=groundState)
+    end
+    aggIndLen = length(aggIndices)
+    molLen = length(agg.molecules)
+    if franckCondonFactors === nothing
+        franckCondonFactors = getFranckCondonFactors(agg, aggIndices)
+    end
+    Ham = zeros(C2, (aggIndLen, aggIndLen))
+    for I in 1:aggIndLen
+        elind1, vibind1 = aggIndices[I]
+        elOrder1 = elIndOrder(elind1)
+        for J in 1:aggIndLen
+            elind2, vibind2 = aggIndices[J]
+            elOrder2 = elIndOrder(elind2)
+            if I == J
+                Ham[I, J] = getAggStateEnergy(agg, elind1, vibind1)
+            else
+                if elind1 != elind2
+                    Ham[I, J] = agg.coupling[elOrder1, elOrder2] * franckCondonFactors[I, J]
+                end
+            end
+        end
+    end
+    E0 = Ham[1, 1]
+    for I in 1:aggIndLen
+        Ham[I, I] -= E0
+    end
+    return Ham
+end
+
+getAggHamiltonianSparse(
+    agg::Aggregate{T, C1, C2};
+    groundState::Bool=true
+    ) where {T<:Integer, C1<:ComputableType, C2<:ComputableType
+    } = getAggHamiltonian(agg::Aggregate{T, C1, C2}, nothing, nothing; groundState=groundState)
+
+getAggHamiltonianSparse(
+    agg::Aggregate{T, C1, C2},
+    aggIndices::Any;
+    groundState::Bool=true
+    ) where {T<:Integer, C1<:ComputableType, C2<:ComputableType
+    } = getAggHamiltonian(agg::Aggregate{T, C1, C2}, aggIndices, nothing; groundState=groundState)
