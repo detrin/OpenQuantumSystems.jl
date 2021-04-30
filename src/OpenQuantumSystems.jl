@@ -60,7 +60,8 @@ export bases,
     SparseSuperOpType,
     spre,
     spost,
-    liouvillian,
+    Liouvillian,
+    Commutator,
 
     # fock.jl
     fock,
