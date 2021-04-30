@@ -7,6 +7,7 @@ using LinearAlgebra, Random
     Random.seed!(0)
 
     D(x1::Number, x2::Number) = abs(x2 - x1)
+    D(A::Array, B::Array) = norm(A - B)
     D(x1::StateVector, x2::StateVector) = norm(x2 - x1)
     D(op1::AbstractOperator, op2::AbstractOperator) = abs(tracedistance_nh(dense(op1), dense(op2)))
 
@@ -187,5 +188,23 @@ using LinearAlgebra, Random
     @test bra_ == 3 * dagger(psi123)
     @test_throws MethodError cos.(psi_)
     @test_throws MethodError cos.(bra_)
+
+    Ham = rand(5, 5)
+    b = GenericBasis([5])
+    Ham_lambda, Ham_S = eigen(Ham)
+    Ham_Sinv = inv(Ham_S)
+    ket1 = Ket(b, Ham_lambda)
+    """
+    println(Ham_lambda)
+    println(Ham_S)
+    println(excitonToLocalBasis(ket1, Ham_S, Ham_Sinv))
+    println(localToExcitonBasis(ket1, Ham_S, Ham_Sinv))
+    ket2 = excitonToLocalBasis(ket1, Ham_S, Ham_Sinv)
+    ket3 = localToExcitonBasis(ket2, Ham_S, Ham_Sinv)
+    println(D(ket3, ket1))
+    println(excitonToLocalBasis(ket, Ham_S, Ham_Sinv))
+    """
+    
+    
 
 end # testset

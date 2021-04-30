@@ -23,6 +23,8 @@ export bases,
     dagger,
     normalize,
     normalize!,
+    localToExcitonBasis,
+    excitonToLocalBasis,
 
     # operators.jl
     operators,
