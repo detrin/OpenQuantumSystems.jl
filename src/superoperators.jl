@@ -205,7 +205,7 @@ end
 
 
 """
-    liouvillian(H, J; rates, Jdagger)
+    Liouvillian(H, J; rates, Jdagger)
 
 Create a super-operator equivalent to the master equation so that ``\\dot ρ = S ρ``.
 
@@ -222,7 +222,7 @@ S ρ = -\\frac{i}{ħ} [H, ρ] + \\sum_i J_i ρ J_i^† - \\frac{1}{2} J_i^† J_
 * `Jdagger`: Vector containing the hermitian conjugates of the jump operators. If they
              are not given they are calculated automatically.
 """
-function liouvillian(
+function Liouvillian(
     H::AbstractOperator,
     J::Vector;
     rates::Union{Vector{<:Number},Matrix{<:Number}} = ones(Float64, length(J)),
@@ -359,4 +359,8 @@ end
     Args,
 }
     throw(IncompatibleBases())
+end
+
+function Commutator(A::Operator)::SuperOperator
+    return spre(A) - spost(A)
 end
