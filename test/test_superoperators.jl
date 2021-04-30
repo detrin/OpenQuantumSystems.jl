@@ -180,7 +180,7 @@ using SparseArrays, LinearAlgebra
     @test spre(sparse(op1)) * sparse(op2) == sparse(op1 * op2)
     @test spost(sparse(op1)) * sparse(op2) == sparse(op2 * op1)
 
-    L = liouvillian(H, J)
+    L = Liouvillian(H, J)
     ρ = -1im * (H * ρ₀ - ρ₀ * H)
     for j in J
         ρ .+= j * ρ₀ * dagger(j) - 0.5 * dagger(j) * j * ρ₀ - 0.5 * ρ₀ * dagger(j) * j
@@ -195,10 +195,10 @@ using SparseArrays, LinearAlgebra
     @test L / 2.0 == 0.5 * L == L * 0.5
     @test -L == SparseSuperOperator(L.basis_l, L.basis_r, -L.data)
 
-    @test_throws AssertionError liouvillian(H, J; rates = zeros(4, 4))
+    @test_throws AssertionError Liouvillian(H, J; rates = zeros(4, 4))
 
     rates = diagm(0 => [1.0, 1.0])
-    @test liouvillian(H, J; rates = rates) == L
+    @test Liouvillian(H, J; rates = rates) == L
 
     # Test broadcasting
     @test L .+ L == L + L
@@ -228,5 +228,18 @@ using SparseArrays, LinearAlgebra
 
     @test size(s1) == (4, 4)
     @test ndims(s1) == 2
+
+    b = GenericBasis([2])
+    A = DenseOperator(b, b, [1 2; 3 4])
+    B = DenseOperator(b, b, [5 6; 7 8]) 
+    C = Commutator(A)
+    C_ref = DenseSuperOperator((b, b), (b, b), [
+        0.0 + 0.0im 2.0 + 0.0im -3.0 + 0.0im 0.0 + 0.0im; 
+        3.0 + 0.0im 3.0 + 0.0im 0.0 + 0.0im -3.0 + 0.0im; 
+        -2.0 + 0.0im 0.0 + 0.0im -3.0 + 0.0im 2.0 + 0.0im;
+        0.0 + 0.0im -2.0 + 0.0im 3.0 + 0.0im 0.0 + 0.0im
+    ])
+    @test Commutator(A) == C_ref
+    @test Commutator(A) * B == A*B - B*A
 
 end # testset
