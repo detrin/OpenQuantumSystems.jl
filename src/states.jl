@@ -271,3 +271,11 @@ end
 ) where {B1<:Basis,B2<:Basis,Style<:BraStyle{B2},Axes,F,Args} = throw(IncompatibleBases())
 
 @inline Base.copyto!(A::T, B::T) where {T<:StateVector} = (copyto!(A.data, B.data); A)
+
+function localToExcitonBasis(state::StateVector, H_S, H_Sinv)
+    return Ket(state.basis, transpose(H_Sinv * state.data) .* H_S)
+end
+
+function excitonToLocalBasis(state::StateVector, H_S, H_Sinv)
+    return Ket(state.basis, transpose(H_Sinv * state.data) .* H_Sinv)
+end
