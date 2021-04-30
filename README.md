@@ -1,10 +1,11 @@
 # OpenQuantumSystems.jl
 
+[![Join the chat at https://gitter.im/OpenQuantumSystems-jl/community](https://badges.gitter.im/OpenQuantumSystems-jl/community.svg)](https://gitter.im/OpenQuantumSystems-jl/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Actions Status](https://github.com/detrin/OpenQuantumSystems.jl/workflows/CI/badge.svg?branch=master)](https://github.com/detrin/OpenQuantumSystems.jl/actions)
 [![codecov](https://codecov.io/gh/detrin/OpenQuantumSystems.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/detrin/OpenQuantumSystems.jl)
 
 **OpenQuantumSystems.jl** is a numerical framework written in [Julia] that makes
-it easy to simulate various kinds of quantum systems. It is inspired by the
+it easy to simulate various kinds of open quantum systems. It is inspired by the
 [quantarhei](https://github.com/tmancal74/quantarhei) and
 [QuantumOptics.jl](https://github.com/qojulia/QuantumOptics.jl).
 
@@ -47,5 +48,5 @@ Develop
 
 [![Actions Status](https://github.com/detrin/OpenQuantumSystems.jl/workflows/CI/badge.svg?branch=devel)](https://github.com/detrin/OpenQuantumSystems.jl/actions)
 [![Actions Status](https://github.com/detrin/OpenQuantumSystems.jl/workflows/CI-nightly-julia/badge.svg?branch=devel)](https://github.com/detrin/OpenQuantumSystems.jl/actions)
-[![codecov](https://codecov.io/gh/detrin/OpenQuantumSystems.jl/branch/devel/graph/badge.svg)](https://codecov.io/gh/detrin/OpenQuantumSystems.jl)
+[![codecov](https://codecov.io/gh/detrin/OpenQuantumSystems.jl/branch/devel/graph/badge.svg)](https://app.codecov.io/gh/detrin/OpenQuantumSystems.jl/branch/devel)
 
