@@ -15,6 +15,9 @@ Depending if `rho` is hermitian either [`tracenorm_h`](@ref) or
 function tracenorm(rho::DenseOpType)
     ishermitian(rho) ? tracenorm_h(rho) : tracenorm_nh(rho)
 end
+function tracenorm(rho::SuperOperator{B,B,T}) where {B<:Tuple{Basis,Basis},T}
+    ishermitian(rho) ? tracenorm_h(rho) : tracenorm_nh(rho)
+end
 function tracenorm(rho::T) where {T<:AbstractOperator}
     throw(ArgumentError("tracenorm not implemented for $(typeof(rho)). Use dense operators instead."))
 end
@@ -33,6 +36,10 @@ T(ρ) = Tr\\{\\sqrt{ρ^† ρ}\\} = \\sum_i |λ_i|
 where ``λ_i`` are the eigenvalues of `rho`.
 """
 function tracenorm_h(rho::DenseOpType{B,B}) where {B<:Basis}
+    s = eigvals(Hermitian(rho.data))
+    sum(abs.(s))
+end
+function tracenorm_h(rho::SuperOperator{B,B,T}) where {B<:Tuple{Basis,Basis},T}
     s = eigvals(Hermitian(rho.data))
     sum(abs.(s))
 end
@@ -58,6 +65,7 @@ It uses the identity
 where ``σ_i`` are the singular values of `rho`.
 """
 tracenorm_nh(rho::DenseOpType) = sum(svdvals(rho.data))
+tracenorm_nh(rho::SuperOperator{B,B,T}) where {B<:Tuple{Basis,Basis},T} = sum(svdvals(rho.data))
 function tracenorm_nh(rho::AbstractOperator)
     throw(ArgumentError("tracenorm_nh not implemented for $(typeof(rho)). Use dense operators instead."))
 end
@@ -79,6 +87,8 @@ or [`tracenorm_nh`](@ref) depending if ``ρ-σ`` is hermitian or not.
 """
 tracedistance(rho::DenseOpType{B,B}, sigma::DenseOpType{B,B}) where {B<:Basis} =
     0.5 * tracenorm(rho - sigma)
+racedistance(rho::SuperOperator{B,B,T}, sigma::SuperOperator{B,B,T}) where {B<:Tuple{Basis,Basis},T} =
+    0.5 * tracenorm(rho - sigma)
 function tracedistance(rho::AbstractOperator, sigma::AbstractOperator)
     throw(ArgumentError("tracedistance not implemented for $(typeof(rho)) and $(typeof(sigma)). Use dense operators instead."))
 end
@@ -97,6 +107,8 @@ T(ρ,σ) = \\frac{1}{2} Tr\\{\\sqrt{(ρ - σ)^† (ρ - σ)}\\} = \\frac{1}{2} \
 where ``λ_i`` are the eigenvalues of `rho` - `sigma`.
 """
 tracedistance_h(rho::DenseOpType{B,B}, sigma::DenseOpType{B,B}) where {B<:Basis} =
+    0.5 * tracenorm_h(rho - sigma)
+tracedistance_h(rho::SuperOperator{B,B,T}, sigma::SuperOperator{B,B,T}) where {B<:Tuple{Basis,Basis},T} =
     0.5 * tracenorm_h(rho - sigma)
 function tracedistance_h(rho::AbstractOperator, sigma::AbstractOperator)
     throw(ArgumentError("tracedistance_h not implemented for $(typeof(rho)) and $(typeof(sigma)). Use dense operators instead."))
@@ -123,6 +135,10 @@ tracedistance_nh(
     rho::DenseOpType{B1,B2},
     sigma::DenseOpType{B1,B2},
 ) where {B1<:Basis,B2<:Basis} = 0.5 * tracenorm_nh(rho - sigma)
+tracedistance_nh(
+    rho::SuperOperator{B1,B2,T},
+    sigma::SuperOperator{B1,B2,T},
+) where {B1<:Tuple{Basis,Basis},B2<:Tuple{Basis,Basis},T} = 0.5 * tracenorm_nh(rho - sigma)
 function tracedistance_nh(rho::AbstractOperator, sigma::AbstractOperator)
     throw(ArgumentError("tracedistance_nh not implemented for $(typeof(rho)) and $(typeof(sigma)). Use dense operators instead."))
 end
