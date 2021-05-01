@@ -272,10 +272,15 @@ end
 
 @inline Base.copyto!(A::T, B::T) where {T<:StateVector} = (copyto!(A.data, B.data); A)
 
+# TODO: finish exciton - local basis transformation
+"""
 function localToExcitonBasis(state::StateVector, H_S, H_Sinv)
-    return Ket(state.basis, transpose(H_Sinv * state.data) .* H_S)
+    data = transpose(H_S * state.data) .* H_Sinv
+    return Ket(state.basis, data[1, :])
 end
 
 function excitonToLocalBasis(state::StateVector, H_S, H_Sinv)
-    return Ket(state.basis, transpose(H_Sinv * state.data) .* H_Sinv)
+    data = transpose(H_Sinv * state.data) .* H_S
+    return Ket(state.basis, data[1, :])
 end
+"""

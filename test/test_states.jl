@@ -194,17 +194,5 @@ using LinearAlgebra, Random
     Ham_lambda, Ham_S = eigen(Ham)
     Ham_Sinv = inv(Ham_S)
     ket1 = Ket(b, Ham_lambda)
-    """
-    println(Ham_lambda)
-    println(Ham_S)
-    println(excitonToLocalBasis(ket1, Ham_S, Ham_Sinv))
-    println(localToExcitonBasis(ket1, Ham_S, Ham_Sinv))
-    ket2 = excitonToLocalBasis(ket1, Ham_S, Ham_Sinv)
-    ket3 = localToExcitonBasis(ket2, Ham_S, Ham_Sinv)
-    println(D(ket3, ket1))
-    println(excitonToLocalBasis(ket, Ham_S, Ham_Sinv))
-    """
-    
-    
 
 end # testset
