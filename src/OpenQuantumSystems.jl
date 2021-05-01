@@ -55,6 +55,7 @@ export bases,
 
     # superoperators.jl
     superoperators,
+    AbstractSuperOperator,
     SuperOperator,
     DenseSuperOperator,
     DenseSuperOpType,
@@ -143,7 +144,15 @@ export bases,
     getAggStateEnergy,
     getAggHamiltonian,
     getFranckCondonFactorsSparse,
-    getAggHamiltonianSparse
+    getAggHamiltonianSparse,
+
+    # evolution.jl
+    EvolutionOperator,
+    EvolutionSuperOperator,
+    EvolutionOperatorArray,
+    EvolutionSuperOperatorArray,
+    EvolutionOperatorIterator,
+    EvolutionSuperOperatorIterator
 
 include("core.jl")
 include("sortedindices.jl")
@@ -162,5 +171,6 @@ include("metrics.jl")
 include("nlevel.jl")
 include("molecules.jl")
 include("aggregate.jl")
+include("evolution.jl")
 
 end
