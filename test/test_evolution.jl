@@ -36,4 +36,34 @@ using SparseArrays
     U_sop_ref = spre(U_op') * spost(U_op)
     @test 1e-12 > D(U_sop, U_sop_ref)
 
+    U_op_array = EvolutionOperatorArray(Ham, 0.0, 1.0, 3)
+    U_op1 = EvolutionOperator(Ham, 0.0)
+    U_op2 = EvolutionOperator(Ham, 0.5)
+    U_op3 = EvolutionOperator(Ham, 1.0)
+    @test 1e-12 > D(U_op_array[1], U_op1)
+    @test 1e-12 > D(U_op_array[2], U_op2)
+    @test 1e-12 > D(U_op_array[3], U_op3)
+
+    U_sop_array = EvolutionOperatorArray(Ham, 0.0, 1.0, 3)
+    U_sop1 = EvolutionSuperOperator(Ham, 0.0)
+    U_sop2 = EvolutionSuperOperator(Ham, 0.5)
+    U_sop3 = EvolutionSuperOperator(Ham, 1.0)
+    @test 1e-12 > D(U_op_array[1], U_op1)
+    @test 1e-12 > D(U_op_array[2], U_op2)
+    @test 1e-12 > D(U_op_array[3], U_op3)
+
+    t = 0.
+    foreach(EvolutionOperatorIterator(Ham, 0.0, 1.0, 3)) do U_op
+        U_op_ref = EvolutionOperator(Ham, t)
+        @test 1e-12 > D(U_op, U_op_ref)
+        t += 0.5
+    end
+
+    t = 0.
+    foreach(EvolutionSuperOperatorIterator(Ham, 0.0, 1.0, 3)) do U_sop
+        U_sop_ref = EvolutionSuperOperator(Ham, t)
+        @test 1e-12 > D(U_sop, U_sop_ref)
+        t += 0.5
+    end
+
 end
