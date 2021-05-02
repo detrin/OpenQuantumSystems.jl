@@ -182,6 +182,40 @@ getAggHamiltonian(
     ) where {T<:Integer, C1<:ComputableType, C2<:ComputableType
     } = getAggHamiltonian(agg::Aggregate{T, C1, C2}, aggIndices, nothing; groundState=groundState)
 
+function getAggHamiltonianSystem(
+        agg::Aggregate{T, C1, C2};
+        groundState::Bool=false
+    ) where {T<:Integer, C1<:ComputableType, C2<:ComputableType}
+    molLen = length(agg.molecules)
+    if groundState
+        Ham_sys = zeros(C2, (molLen+1, molLen+1))
+    else
+        Ham_sys = zeros(C2, (molLen, molLen))
+    end
+    elInds = electronicIndices(agg; groundState=groundState)
+    E_agg = zeros(C1, (2, molLen))
+    E_agg[1, :] = map(mol -> mol.E[1], agg.molecules)
+    E_agg[2, :] = map(mol -> mol.E[2], agg.molecules)
+    for elInd in elInds
+        ind = OpenQuantumSystems.elIndOrder(elInd)
+        if !groundState
+            ind -= 1
+        end
+        E_state = 0
+        for mol_i in 1:molLen
+            E_state += E_agg[elInd[mol_i], mol_i]
+        end
+        Ham_sys[ind, ind] = E_state
+    end
+    
+    if groundState
+        Ham_sys[:, :] += agg.coupling[:, :]
+    else
+        Ham_sys[:, :] += agg.coupling[2:molLen+1, 2:molLen+1]
+    end
+    b = GenericBasis([size(Ham_sys, 1)])
+    return DenseOperator(b, b, Ham_sys)
+end
 
 ### Sparse versions
 
