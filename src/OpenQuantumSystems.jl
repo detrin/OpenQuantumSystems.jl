@@ -46,6 +46,7 @@ export bases,
     DenseOpType,
     projector,
     dm,
+    OneDenseOperator,
 
     # operators_sparse.jl
     operators_sparse,
@@ -118,6 +119,8 @@ export bases,
     negativity,
     logarithmic_negativity,
     entanglement_entropy,
+
+    # pauli.jl
     PauliBasis,
     PauliTransferMatrix,
     DensePauliTransferMatrix,
@@ -143,6 +146,9 @@ export bases,
     getFranckCondonFactors,
     getAggStateEnergy,
     getAggHamiltonian,
+    getAggHamiltonianSystem,
+    getAggHamiltonianBath,
+    getAggHamiltonianInteraction,
     getFranckCondonFactorsSparse,
     getAggHamiltonianSparse,
 
@@ -152,7 +158,9 @@ export bases,
     EvolutionOperatorArray,
     EvolutionSuperOperatorArray,
     EvolutionOperatorIterator,
-    EvolutionSuperOperatorIterator
+    EvolutionSuperOperatorIterator,
+    EvolutionExact,
+    EvolutionApproximate
 
 include("core.jl")
 include("sortedindices.jl")
