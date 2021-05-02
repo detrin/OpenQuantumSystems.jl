@@ -135,7 +135,8 @@ function getAggHamiltonian(
         agg::Aggregate{T, C1, C2},
         aggIndices::Any,
         franckCondonFactors::Any; 
-        groundState::Bool=false
+        groundState::Bool=false,
+        groundEnergy::Bool=false
     ) where {T<:Integer, C1<:ComputableType, C2<:ComputableType}
     if aggIndices === nothing
         aggIndices = getIndices(agg; groundState=groundState)
@@ -161,9 +162,11 @@ function getAggHamiltonian(
             end
         end
     end
-    E0 = Ham[1, 1]
-    for I in 1:aggIndLen
-        Ham[I, I] -= E0
+    if !groundEnergy
+        E0 = Ham[1, 1]
+        for I in 1:aggIndLen
+            Ham[I, I] -= E0
+        end
     end
     b = GenericBasis([aggIndLen])
     return DenseOperator(b, b, Ham)
