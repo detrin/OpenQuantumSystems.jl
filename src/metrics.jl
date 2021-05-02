@@ -15,7 +15,7 @@ Depending if `rho` is hermitian either [`tracenorm_h`](@ref) or
 function tracenorm(rho::DenseOpType)
     ishermitian(rho) ? tracenorm_h(rho) : tracenorm_nh(rho)
 end
-function tracenorm(rho::SuperOperator{B,B,T}) where {B<:Tuple{Basis,Basis},T}
+function tracenorm(rho::DenseSuperOpType)
     ishermitian(rho) ? tracenorm_h(rho) : tracenorm_nh(rho)
 end
 function tracenorm(rho::T) where {T<:AbstractOperator}
@@ -45,7 +45,7 @@ end
 function tracenorm_h(rho::T) where {T<:AbstractOperator}
     throw(ArgumentError("tracenorm_h not implemented for $(typeof(rho)). Use dense operators instead."))
 end
-function tracenorm_h(rho::SuperOperator{B,B,T}) where {B<:Tuple{Basis,Basis},T}
+function tracenorm_h(rho::DenseSuperOpType{B,B,T}) where {B<:Tuple{Basis,Basis},T}
     s = eigvals(Hermitian(rho.data))
     sum(abs.(s))
 end
@@ -73,7 +73,7 @@ tracenorm_nh(rho::DenseOpType) = sum(svdvals(rho.data))
 function tracenorm_nh(rho::AbstractOperator)
     throw(ArgumentError("tracenorm_nh not implemented for $(typeof(rho)). Use dense operators instead."))
 end
-# tracenorm_nh(rho::SuperOperator{B,B,T}) where {B<:Tuple{Basis,Basis},T} = sum(svdvals(rho.data))
+tracenorm_nh(rho::SuperOperator{B,B,T}) where {B<:Tuple{Basis,Basis},T} = sum(svdvals(rho.data))
 # function tracenorm_nh(rho::AbstractSuperOperator, sigma::AbstractSuperOperator)
 #     throw(ArgumentError("tracenorm_nh not implemented for $(typeof(rho)). Use dense superoperators instead."))
 # end
