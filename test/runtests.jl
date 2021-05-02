@@ -7,13 +7,13 @@ names = [
     "test_operators_dense.jl",
     "test_sparsematrix.jl",
     "test_operators_sparse.jl",
+    "test_superoperators.jl",
     "test_fock.jl",
     "test_spin.jl",
-    "test_nlevel.jl",
     "test_state_definitions.jl",
+    "test_nlevel.jl",
     "test_metrics.jl",
     "test_embed.jl",
-    "test_superoperators.jl",
     "test_abstractdata.jl",
     "test_pauli.jl",
     "test_molecules.jl",
@@ -34,7 +34,7 @@ if length(unavailable_tests) != 0
     error("The following tests could not be found:\n", join(unavailable_tests, "\n"))
 end
 
-# names = ["test_aggregate.jl"]
+# names = ["test_metrics.jl"]
 
 for name in names
     if startswith(name, "test_") && endswith(name, ".jl")
