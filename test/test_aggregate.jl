@@ -155,8 +155,8 @@ using SparseArrays
     @test getAggStateEnergy(agg, [1, 1], [[1], [2]]) == 0.4
 
     @test OpenQuantumSystems.elIndOrder([1, 1, 1]) == 1
-    @test OpenQuantumSystems.elIndOrder([1, 1, 2]) == 2
-    @test OpenQuantumSystems.elIndOrder([2, 1, 1]) == 4
+    @test OpenQuantumSystems.elIndOrder([1, 1, 2]) == 4
+    @test OpenQuantumSystems.elIndOrder([2, 1, 1]) == 2
 
     aggInds = getIndices(agg; groundState=false)
     agg.coupling[2, 3] = 200
@@ -179,6 +179,19 @@ using SparseArrays
     @test 1e-12 > D(Ham_ref, Ham2.data)
     @test 1e-12 > D(Ham_ref, Ham3.data)
 
+    Ham_ref2 = [
+        200.2 0.0 0.0 0.0 121.30613194252669 85.7763884960707 -85.77638849607067 -60.653065971263345; 
+        0.0 200.4 0.0 0.0 -85.77638849607067 60.65306597126333 60.65306597126333 -42.888194248035326; 
+        0.0 0.0 200.4 0.0 85.7763884960707 60.65306597126335 60.65306597126333 42.88819424803534; 
+        0.0 0.0 0.0 200.60000000000002 -60.653065971263345 42.88819424803534 -42.888194248035326 30.326532985631665; 
+        121.30613194252669 -85.77638849607067 85.7763884960707 -60.653065971263345 200.2 0.0 0.0 0.0; 
+        85.7763884960707 60.65306597126333 60.65306597126335 42.88819424803534 0.0 200.4 0.0 0.0; 
+        -85.77638849607067 60.65306597126333 60.65306597126333 -42.888194248035326 0.0 0.0 200.4 0.0; 
+        -60.653065971263345 -42.888194248035326 42.88819424803534 30.326532985631665 0.0 0.0 0.0 200.60000000000002
+    ]
+    Ham4 = getAggHamiltonian(agg, aggInds, FC_part; groundEnergy=true)
+    @test 1e-12 > D(Ham_ref2, Ham4.data)
+
     FCSparse = getFranckCondonFactorsSparse(agg, aggInds; groundState=false)
     @test 1e-12 > D(FC, Matrix(FCSparse))
 
@@ -192,5 +205,54 @@ using SparseArrays
     @test 1e-12 > D(Ham_ref, Matrix(HamSparse2.data))
     @test 1e-12 > D(Ham_ref, Matrix(HamSparse3.data))
 
+    agg = Aggregate([mol1, mol2])
+    agg.coupling[2, 3] = 200
+    agg.coupling[3, 2] = 200  
+    agg2 = Aggregate([mol1, mol2], [0.0 0.0 0.0; 0.0 0.0 200.0; 0.0 200.0 0.0])
+    @test agg2.coupling == agg.coupling
+
+    modes = [Mode(2., 2.), Mode(2., 2.)]
+    mols = [
+        Molecule(modes, 2, [0., 200.]),
+        Molecule(modes, 2, [0., 300.]),
+        Molecule(modes, 2, [0., 400.])
+        ]
+
+    agg = Aggregate(mols)
+    agg.coupling[2, 3] = 100
+    agg.coupling[3, 2] = 100
+    agg.coupling[3, 4] = 100
+    agg.coupling[4, 3] = 100
+
+    Ham_sys = getAggHamiltonianSystem(agg)
+    Ham_sys_ref = [200.0 100.0 0.0; 100.0 300.0 100.0; 0.0 100.0 400.0]
+    @test 1e12 > D(Ham_sys.data, Ham_sys_ref)
+
+    Ham_sys_ref = [0.0 0.0 0.0 0.0; 0.0 200.0 100.0 0.0; 0.0 100.0 300.0 100.0; 0.0 0.0 100.0 400.0]
+    Ham_sys = getAggHamiltonianSystem(agg; groundState=true)
+    @test 1e12 > D(Ham_sys.data, Ham_sys_ref)
+
+    modes = [Mode(2., 2.)]
+    mols = [
+        Molecule(modes, 2, [0., 200.]),
+        Molecule(modes, 2, [0., 300.])
+        ]
+
+    agg = Aggregate(mols)
+    agg.coupling[2, 3] = 100
+    agg.coupling[3, 2] = 100
+
+    Ham_bath_ref = [2.0 0.0 0.0 0.0; 0.0 4.0 0.0 0.0; 0.0 0.0 4.0 0.0; 0.0 0.0 0.0 6.0]
+    Ham_bath = getAggHamiltonianBath(agg)
+    @test 1e12 > D(Ham_bath.data, Ham_bath_ref)
+
+    Ham_bath = getAggHamiltonianBath(agg)
+    Ham_sys = getAggHamiltonianSystem(agg)
+    b_sys = GenericBasis([size(Ham_sys, 1)])
+    b_bath = GenericBasis([size(Ham_bath, 1)])
+
+    Ham_S = tensor(OneDenseOperator(b_bath), Ham_sys) + tensor(Ham_bath, OneDenseOperator(b_sys))
+    Ham_int = getAggHamiltonianInteraction(agg)
+    @test 1e12 > D(Ham_ref, Ham_int.data + Ham_S.data)
 
 end
