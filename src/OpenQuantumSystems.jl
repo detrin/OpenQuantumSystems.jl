@@ -158,7 +158,9 @@ export bases,
     EvolutionOperatorArray,
     EvolutionSuperOperatorArray,
     EvolutionOperatorIterator,
-    EvolutionSuperOperatorIterator
+    EvolutionSuperOperatorIterator,
+    EvolutionExact,
+    EvolutionApproximate
 
 include("core.jl")
 include("sortedindices.jl")
