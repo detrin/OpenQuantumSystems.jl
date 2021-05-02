@@ -192,5 +192,10 @@ using SparseArrays
     @test 1e-12 > D(Ham_ref, Matrix(HamSparse2.data))
     @test 1e-12 > D(Ham_ref, Matrix(HamSparse3.data))
 
+    agg = Aggregate([mol1, mol2])
+    agg.coupling[2, 3] = 200
+    agg.coupling[3, 2] = 200  
+    agg2 = Aggregate([mol1, mol2], [0.0 0.0 0.0; 0.0 0.0 200.0; 0.0 200.0 0.0])
+    @test agg2.coupling == agg.coupling
 
 end

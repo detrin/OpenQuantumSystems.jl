@@ -44,13 +44,13 @@ using SparseArrays
     @test 1e-12 > D(U_op_array[2], U_op2)
     @test 1e-12 > D(U_op_array[3], U_op3)
 
-    U_sop_array = EvolutionOperatorArray(Ham, 0.0, 1.0, 3)
+    U_sop_array = EvolutionSuperOperatorArray(Ham, 0.0, 1.0, 3)
     U_sop1 = EvolutionSuperOperator(Ham, 0.0)
     U_sop2 = EvolutionSuperOperator(Ham, 0.5)
     U_sop3 = EvolutionSuperOperator(Ham, 1.0)
-    @test 1e-12 > D(U_op_array[1], U_op1)
-    @test 1e-12 > D(U_op_array[2], U_op2)
-    @test 1e-12 > D(U_op_array[3], U_op3)
+    @test 1e-12 > D(U_sop_array[1], U_sop1)
+    @test 1e-12 > D(U_sop_array[2], U_sop2)
+    @test 1e-12 > D(U_sop_array[3], U_sop3)
 
     t = 0.
     foreach(EvolutionOperatorIterator(Ham, 0.0, 1.0, 3)) do U_op
