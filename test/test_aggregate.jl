@@ -155,8 +155,8 @@ using SparseArrays
     @test getAggStateEnergy(agg, [1, 1], [[1], [2]]) == 0.4
 
     @test OpenQuantumSystems.elIndOrder([1, 1, 1]) == 1
-    @test OpenQuantumSystems.elIndOrder([1, 1, 2]) == 2
-    @test OpenQuantumSystems.elIndOrder([2, 1, 1]) == 4
+    @test OpenQuantumSystems.elIndOrder([1, 1, 2]) == 4
+    @test OpenQuantumSystems.elIndOrder([2, 1, 1]) == 2
 
     aggInds = getIndices(agg; groundState=false)
     agg.coupling[2, 3] = 200
