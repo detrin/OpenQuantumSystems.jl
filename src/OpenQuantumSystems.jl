@@ -145,6 +145,7 @@ export bases,
     getFranckCondonFactors,
     getAggStateEnergy,
     getAggHamiltonian,
+    getAggHamiltonianSystem,
     getFranckCondonFactorsSparse,
     getAggHamiltonianSparse,
 

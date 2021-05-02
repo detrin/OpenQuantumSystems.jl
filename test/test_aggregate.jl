@@ -198,4 +198,26 @@ using SparseArrays
     agg2 = Aggregate([mol1, mol2], [0.0 0.0 0.0; 0.0 0.0 200.0; 0.0 200.0 0.0])
     @test agg2.coupling == agg.coupling
 
+    modes = [Mode(2., 2.), Mode(2., 2.)]
+    mols = [
+        Molecule(modes, 2, [0., 200.]),
+        Molecule(modes, 2, [0., 300.]),
+        Molecule(modes, 2, [0., 400.])
+        ]
+
+    agg = Aggregate(mols)
+    agg.coupling[2, 3] = 100
+    agg.coupling[3, 2] = 100
+    agg.coupling[3, 4] = 100
+    agg.coupling[4, 3] = 100
+
+    Ham_sys = getAggHamiltonianSystem(agg)
+    Ham_sys_ref = [200.0 100.0 0.0; 100.0 300.0 100.0; 0.0 100.0 400.0]
+    @test 1e12 > D(Ham_sys.data, Ham_sys_ref)
+
+    Ham_sys_ref = [0.0 0.0 0.0 0.0; 0.0 200.0 100.0 0.0; 0.0 100.0 300.0 100.0; 0.0 0.0 100.0 400.0]
+    Ham_sys = getAggHamiltonianSystem(agg; groundState=true)
+    @test 1e12 > D(Ham_sys.data, Ham_sys_ref)
+
+
 end
