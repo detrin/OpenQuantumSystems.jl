@@ -174,7 +174,7 @@ end
 
 getAggHamiltonian(
     agg::Aggregate{T, C1, C2};
-    groundState::Bool=true,
+    groundState::Bool=false,
     groundEnergy::Bool=false
     ) where {T<:Integer, C1<:ComputableType, C2<:ComputableType
     } = getAggHamiltonian(agg::Aggregate{T, C1, C2}, nothing, nothing; groundState=groundState, groundEnergy=groundEnergy)
@@ -182,7 +182,7 @@ getAggHamiltonian(
 getAggHamiltonian(
     agg::Aggregate{T, C1, C2},
     aggIndices::Any;
-    groundState::Bool=true,
+    groundState::Bool=false,
     groundEnergy::Bool=false
     ) where {T<:Integer, C1<:ComputableType, C2<:ComputableType
     } = getAggHamiltonian(agg::Aggregate{T, C1, C2}, aggIndices, nothing; groundState=groundState, groundEnergy=groundEnergy)
@@ -268,6 +268,19 @@ function getAggHamiltonianInteraction(
     H_int = Ham.data - Ham_S.data
     return DenseOperator(b, b, H_int)
 end
+
+getAggHamiltonianInteraction(
+    agg::Aggregate{T, C1, C2};
+    groundState::Bool=false
+    ) where {T<:Integer, C1<:ComputableType, C2<:ComputableType
+    } = getAggHamiltonianInteraction(agg::Aggregate{T, C1, C2}, nothing, nothing; groundState=groundState)
+
+getAggHamiltonianInteraction(
+    agg::Aggregate{T, C1, C2},
+    aggIndices::Any;
+    groundState::Bool=false
+    ) where {T<:Integer, C1<:ComputableType, C2<:ComputableType
+    } = getAggHamiltonianInteraction(agg::Aggregate{T, C1, C2}, aggIndices, nothing; groundState=groundState)
 
 ### Sparse versions
 
