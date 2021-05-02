@@ -445,3 +445,13 @@ end
 ShiftOperator(bl::BL, br::BR, shift::T) where {BL, BR, T} = ShiftOperator{BL, BR, T}(bl, br, shift)
 ShiftOperator(b::Basis, shift::ComputableType) = ShiftOperator(b, b, shift)
 
+function OneDenseOperator(bl::BL, br::BR) where {BL<:Basis,BR<:Basis}
+    op = DenseOperator(bl, br)
+    opLen = size(op.data, 1)
+    for i in 1:opLen
+        op.data[i, i] = 1.0
+    end
+    return op
+end
+
+OneDenseOperator(b::B) where {B<:Basis} = OneDenseOperator(b, b)

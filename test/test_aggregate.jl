@@ -232,5 +232,27 @@ using SparseArrays
     Ham_sys = getAggHamiltonianSystem(agg; groundState=true)
     @test 1e12 > D(Ham_sys.data, Ham_sys_ref)
 
+    modes = [Mode(2., 2.)]
+    mols = [
+        Molecule(modes, 2, [0., 200.]),
+        Molecule(modes, 2, [0., 300.])
+        ]
+
+    agg = Aggregate(mols)
+    agg.coupling[2, 3] = 100
+    agg.coupling[3, 2] = 100
+
+    Ham_bath_ref = [2.0 0.0 0.0 0.0; 0.0 4.0 0.0 0.0; 0.0 0.0 4.0 0.0; 0.0 0.0 0.0 6.0]
+    Ham_bath = getAggHamiltonianBath(agg)
+    @test 1e12 > D(Ham_bath.data, Ham_bath_ref)
+
+    Ham_bath = getAggHamiltonianBath(agg)
+    Ham_sys = getAggHamiltonianSystem(agg; groundState=groundState)
+    b_sys = GenericBasis([size(Ham_sys, 1)])
+    b_bath = GenericBasis([size(Ham_bath, 1)])
+
+    Ham_S = tensor(OneDenseOperator(b_bath), Ham_sys) + tensor(Ham_bath, OneDenseOperator(b_sys))
+    Ham_int = getAggHamiltonianBath(agg)
+    @test 1e12 > D(Ham_ref, Ham_int.data + Ham_S.data)
 
 end
