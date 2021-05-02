@@ -126,7 +126,7 @@ function elIndOrder(elInd::Vector{T}) where T<:Integer
     len = length(elInd)
     ind = 1::T
     for i in 1:len
-        ind += (elInd[i] - 1) * (len - i + 1)
+        ind += (elInd[i] - 1) * i
     end
     return ind
 end
