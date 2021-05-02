@@ -46,6 +46,7 @@ export bases,
     DenseOpType,
     projector,
     dm,
+    OneDenseOperator,
 
     # operators_sparse.jl
     operators_sparse,
@@ -146,6 +147,7 @@ export bases,
     getAggStateEnergy,
     getAggHamiltonian,
     getAggHamiltonianSystem,
+    getAggHamiltonianBath,
     getFranckCondonFactorsSparse,
     getAggHamiltonianSparse,
 

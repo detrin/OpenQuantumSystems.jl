@@ -174,16 +174,18 @@ end
 
 getAggHamiltonian(
     agg::Aggregate{T, C1, C2};
-    groundState::Bool=true
+    groundState::Bool=true,
+    groundEnergy::Bool=false
     ) where {T<:Integer, C1<:ComputableType, C2<:ComputableType
-    } = getAggHamiltonian(agg::Aggregate{T, C1, C2}, nothing, nothing; groundState=groundState)
+    } = getAggHamiltonian(agg::Aggregate{T, C1, C2}, nothing, nothing; groundState=groundState, groundEnergy=groundEnergy)
 
 getAggHamiltonian(
     agg::Aggregate{T, C1, C2},
     aggIndices::Any;
-    groundState::Bool=true
+    groundState::Bool=true,
+    groundEnergy::Bool=false
     ) where {T<:Integer, C1<:ComputableType, C2<:ComputableType
-    } = getAggHamiltonian(agg::Aggregate{T, C1, C2}, aggIndices, nothing; groundState=groundState)
+    } = getAggHamiltonian(agg::Aggregate{T, C1, C2}, aggIndices, nothing; groundState=groundState, groundEnergy=groundEnergy)
 
 function getAggHamiltonianSystem(
         agg::Aggregate{T, C1, C2};
@@ -218,6 +220,53 @@ function getAggHamiltonianSystem(
     end
     b = GenericBasis([size(Ham_sys, 1)])
     return DenseOperator(b, b, Ham_sys)
+end
+
+function getAggHamiltonianBath(
+        agg::Aggregate{T, C1, C2}
+    ) where {T<:Integer, C1<:ComputableType, C2<:ComputableType}
+    molLen = length(agg.molecules)
+    vibInds = vibrationalIndices(agg)
+    vibIndsLen = length(vibInds)
+    Ham_bath = zeros(C2, (vibIndsLen, vibIndsLen))
+
+    agg2 = deepcopy(agg)
+    for mol_i in molLen
+        agg2.molecules[mol_i].E[1] = 0.
+    end
+    elind = fill(1, (molLen+1))
+    for I in 1:vibIndsLen
+        vibind = vibInds[I]
+        Ham_bath[I, I] = getAggStateEnergy(agg, elind, vibind)
+    end
+    b = GenericBasis([vibIndsLen])
+    return DenseOperator(b, b, Ham_bath)
+end
+
+function getAggHamiltonianInteraction(
+        agg::Aggregate{T, C1, C2},
+        aggIndices::Any,
+        franckCondonFactors::Any; 
+        groundState::Bool=false
+    ) where {T<:Integer, C1<:ComputableType, C2<:ComputableType}
+    if aggIndices === nothing
+        aggIndices = getIndices(agg; groundState=groundState)
+    end
+    aggIndLen = length(aggIndices)
+    molLen = length(agg.molecules)
+    if franckCondonFactors === nothing
+        franckCondonFactors = getFranckCondonFactors(agg, aggIndices)
+    end
+    Ham = getAggHamiltonian(agg, aggIndices, franckCondonFactors; groundState=groundState, groundEnergy=true)
+    Ham_bath = getAggHamiltonianBath(agg)
+    Ham_sys = getAggHamiltonianSystem(agg; groundState=groundState)
+    b = GenericBasis([aggIndLen])
+    b_sys = GenericBasis([size(Ham_sys, 1)])
+    b_bath = GenericBasis([size(Ham_bath, 1)])
+
+    Ham_S = tensor(OneDenseOperator(b_bath), Ham_sys) + tensor(Ham_bath, OneDenseOperator(b_sys))
+    H_int = Ham.data - Ham_S.data
+    return DenseOperator(b, b, H_int)
 end
 
 ### Sparse versions
