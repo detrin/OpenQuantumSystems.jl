@@ -126,7 +126,7 @@ function elIndOrder(elInd::Vector{T}) where T<:Integer
     len = length(elInd)
     ind = 1::T
     for i in 1:len
-        ind += (elInd[i] - 1) * (len - i + 1)
+        ind += (elInd[i] - 1) * i
     end
     return ind
 end
@@ -135,7 +135,8 @@ function getAggHamiltonian(
         agg::Aggregate{T, C1, C2},
         aggIndices::Any,
         franckCondonFactors::Any; 
-        groundState::Bool=false
+        groundState::Bool=false,
+        groundEnergy::Bool=false
     ) where {T<:Integer, C1<:ComputableType, C2<:ComputableType}
     if aggIndices === nothing
         aggIndices = getIndices(agg; groundState=groundState)
@@ -161,9 +162,11 @@ function getAggHamiltonian(
             end
         end
     end
-    E0 = Ham[1, 1]
-    for I in 1:aggIndLen
-        Ham[I, I] -= E0
+    if !groundEnergy
+        E0 = Ham[1, 1]
+        for I in 1:aggIndLen
+            Ham[I, I] -= E0
+        end
     end
     b = GenericBasis([aggIndLen])
     return DenseOperator(b, b, Ham)
@@ -171,17 +174,113 @@ end
 
 getAggHamiltonian(
     agg::Aggregate{T, C1, C2};
-    groundState::Bool=true
+    groundState::Bool=false,
+    groundEnergy::Bool=false
     ) where {T<:Integer, C1<:ComputableType, C2<:ComputableType
-    } = getAggHamiltonian(agg::Aggregate{T, C1, C2}, nothing, nothing; groundState=groundState)
+    } = getAggHamiltonian(agg::Aggregate{T, C1, C2}, nothing, nothing; groundState=groundState, groundEnergy=groundEnergy)
 
 getAggHamiltonian(
     agg::Aggregate{T, C1, C2},
     aggIndices::Any;
-    groundState::Bool=true
+    groundState::Bool=false,
+    groundEnergy::Bool=false
     ) where {T<:Integer, C1<:ComputableType, C2<:ComputableType
-    } = getAggHamiltonian(agg::Aggregate{T, C1, C2}, aggIndices, nothing; groundState=groundState)
+    } = getAggHamiltonian(agg::Aggregate{T, C1, C2}, aggIndices, nothing; groundState=groundState, groundEnergy=groundEnergy)
 
+function getAggHamiltonianSystem(
+        agg::Aggregate{T, C1, C2};
+        groundState::Bool=false
+    ) where {T<:Integer, C1<:ComputableType, C2<:ComputableType}
+    molLen = length(agg.molecules)
+    if groundState
+        Ham_sys = zeros(C2, (molLen+1, molLen+1))
+    else
+        Ham_sys = zeros(C2, (molLen, molLen))
+    end
+    elInds = electronicIndices(agg; groundState=groundState)
+    E_agg = zeros(C1, (2, molLen))
+    E_agg[1, :] = map(mol -> mol.E[1], agg.molecules)
+    E_agg[2, :] = map(mol -> mol.E[2], agg.molecules)
+    for elInd in elInds
+        ind = OpenQuantumSystems.elIndOrder(elInd)
+        if !groundState
+            ind -= 1
+        end
+        E_state = 0
+        for mol_i in 1:molLen
+            E_state += E_agg[elInd[mol_i], mol_i]
+        end
+        Ham_sys[ind, ind] = E_state
+    end
+    
+    if groundState
+        Ham_sys[:, :] += agg.coupling[:, :]
+    else
+        Ham_sys[:, :] += agg.coupling[2:molLen+1, 2:molLen+1]
+    end
+    b = GenericBasis([size(Ham_sys, 1)])
+    return DenseOperator(b, b, Ham_sys)
+end
+
+function getAggHamiltonianBath(
+        agg::Aggregate{T, C1, C2}
+    ) where {T<:Integer, C1<:ComputableType, C2<:ComputableType}
+    molLen = length(agg.molecules)
+    vibInds = vibrationalIndices(agg)
+    vibIndsLen = length(vibInds)
+    Ham_bath = zeros(C2, (vibIndsLen, vibIndsLen))
+
+    agg2 = deepcopy(agg)
+    for mol_i in molLen
+        agg2.molecules[mol_i].E[1] = 0.
+    end
+    elind = fill(1, (molLen+1))
+    for I in 1:vibIndsLen
+        vibind = vibInds[I]
+        Ham_bath[I, I] = getAggStateEnergy(agg, elind, vibind)
+    end
+    b = GenericBasis([vibIndsLen])
+    return DenseOperator(b, b, Ham_bath)
+end
+
+function getAggHamiltonianInteraction(
+        agg::Aggregate{T, C1, C2},
+        aggIndices::Any,
+        franckCondonFactors::Any; 
+        groundState::Bool=false
+    ) where {T<:Integer, C1<:ComputableType, C2<:ComputableType}
+    if aggIndices === nothing
+        aggIndices = getIndices(agg; groundState=groundState)
+    end
+    aggIndLen = length(aggIndices)
+    molLen = length(agg.molecules)
+    if franckCondonFactors === nothing
+        franckCondonFactors = getFranckCondonFactors(agg, aggIndices)
+    end
+    Ham = getAggHamiltonian(agg, aggIndices, franckCondonFactors; groundState=groundState, groundEnergy=true)
+    Ham_bath = getAggHamiltonianBath(agg)
+    Ham_sys = getAggHamiltonianSystem(agg; groundState=groundState)
+    b = GenericBasis([aggIndLen])
+    b_sys = GenericBasis([size(Ham_sys, 1)])
+    b_bath = GenericBasis([size(Ham_bath, 1)])
+
+    Ham_S = tensor(OneDenseOperator(b_bath), Ham_sys) + tensor(Ham_bath, OneDenseOperator(b_sys))
+    H_int = Ham.data - Ham_S.data
+    return DenseOperator(b, b, H_int)
+end
+
+getAggHamiltonianInteraction(
+    agg::Aggregate{T, C1, C2};
+    groundState::Bool=false
+    ) where {T<:Integer, C1<:ComputableType, C2<:ComputableType
+    } = getAggHamiltonianInteraction(agg::Aggregate{T, C1, C2}, nothing, nothing; groundState=groundState)
+
+getAggHamiltonianInteraction(
+    agg::Aggregate{T, C1, C2},
+    aggIndices::Any;
+    groundState::Bool=false
+    ) where {T<:Integer, C1<:ComputableType, C2<:ComputableType
+    } = getAggHamiltonianInteraction(agg::Aggregate{T, C1, C2}, aggIndices, nothing; groundState=groundState)
 
 ### Sparse versions
 
