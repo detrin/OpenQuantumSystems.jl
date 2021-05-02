@@ -146,6 +146,9 @@ end
 -(a::SuperOperator) = SuperOperator(a.basis_l, a.basis_r, -a.data)
 # -(a::SuperOperator, b::SuperOperator) = throw(IncompatibleBases())
 
+ishermitian(A::SuperOperator) = false
+ishermitian(A::SuperOperator{B1,B2}) where {B1<:Tuple{Basis,Basis},B2<:Tuple{Basis,Basis}} = ishermitian(A.data)
+
 """
     spre(op)
 

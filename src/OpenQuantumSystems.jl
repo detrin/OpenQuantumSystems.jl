@@ -118,6 +118,8 @@ export bases,
     negativity,
     logarithmic_negativity,
     entanglement_entropy,
+
+    # pauli.jl
     PauliBasis,
     PauliTransferMatrix,
     DensePauliTransferMatrix,
