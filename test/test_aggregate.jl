@@ -247,12 +247,12 @@ using SparseArrays
     @test 1e12 > D(Ham_bath.data, Ham_bath_ref)
 
     Ham_bath = getAggHamiltonianBath(agg)
-    Ham_sys = getAggHamiltonianSystem(agg; groundState=groundState)
+    Ham_sys = getAggHamiltonianSystem(agg)
     b_sys = GenericBasis([size(Ham_sys, 1)])
     b_bath = GenericBasis([size(Ham_bath, 1)])
 
     Ham_S = tensor(OneDenseOperator(b_bath), Ham_sys) + tensor(Ham_bath, OneDenseOperator(b_sys))
-    Ham_int = getAggHamiltonianBath(agg)
+    Ham_int = getAggHamiltonianInteraction(agg)
     @test 1e12 > D(Ham_ref, Ham_int.data + Ham_S.data)
 
 end
