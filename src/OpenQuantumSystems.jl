@@ -148,6 +148,7 @@ export bases,
     getAggHamiltonian,
     getAggHamiltonianSystem,
     getAggHamiltonianBath,
+    getAggHamiltonianInteraction,
     getFranckCondonFactorsSparse,
     getAggHamiltonianSparse,
 
