@@ -27,7 +27,7 @@ using Random, SparseArrays, LinearAlgebra
     @test 1e-12 > D(U_op, U_op_ref)
 
     U_sop = evolutionSuperOperator(Ham, t)
-    U_sop_ref = spre(U_op') * spost(U_op)
+    U_sop_ref = spre(U_op) * spost(U_op')
     @test 1e-12 > D(U_sop, U_sop_ref)
 
     t = 1.
@@ -36,7 +36,7 @@ using Random, SparseArrays, LinearAlgebra
     @test 1e-12 > D(U_op, U_op_ref)
 
     U_sop = evolutionSuperOperator(Ham, t)
-    U_sop_ref = spre(U_op') * spost(U_op)
+    U_sop_ref = spre(U_op) * spost(U_op')
     @test 1e-12 > D(U_sop, U_sop_ref)
 
     tspan = [0.:0.5:1.;]

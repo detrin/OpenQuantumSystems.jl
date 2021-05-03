@@ -7,7 +7,7 @@ end
 
 function evolutionSuperOperator(Hamiltonian::Operator, t::AbstractFloat)::SuperOperator
     U = evolutionOperator(Hamiltonian, t)
-    return spre(U') * spost(U)
+    return spre(U) * spost(U')
 end
 
 function evolutionOperatorArray(Hamiltonian::Operator, tspan::Array)::Array
@@ -47,8 +47,7 @@ function evolutionSuperOperatorArray(Hamiltonian::Operator, tspan::Array)::Array
         U_diagonal .= map(lambda -> exp(-1im * lambda * tspan[t_i]), Ham_lambda)
         U = Ham_S * diagm(U_diagonal) * inv(Ham_S)
         U_op = DenseOperator(base, base, U)
-        U_supop = spre(U_op') * spost(U_op)
-        U_supop_array[t_i] = spre(U_op') * spost(U_op)
+        U_supop_array[t_i] = spre(U_op) * spost(U_op')
     end
     return U_supop_array 
 end
@@ -82,13 +81,13 @@ evolutionSuperOperatorIterator(Hamiltonian::Operator, tspan::Array) = @cont begi
     U_diagonal = map(lambda -> exp(-1im * lambda * tspan[1]), Ham_lambda)
     U = Ham_S * diagm(U_diagonal) * inv(Ham_S)
     U_op = DenseOperator(base, base, U)
-    U_supop = spre(U_op') * spost(U_op)
+    U_supop = spre(U_op) * spost(U_op')
     cont(U_supop)
 
     for t_i in 2:N
         U_diagonal .= map(lambda -> exp(-1im * lambda * tspan[t_i]), Ham_lambda)
         U_op.data .= Ham_S * diagm(U_diagonal) * inv(Ham_S)
-        U_supop.data .= (spre(U_op')).data * (spost(U_op)).data
+        U_supop.data .= (spre(U_op)).data * (spost(U_op')).data
         cont(U_supop)
     end
 end
@@ -131,7 +130,7 @@ function evolutionExact(op0::Operator, Hamiltonian::Operator, tspan::Array)
     t_i = 0
     foreach(evolutionOperatorIterator(Hamiltonian, tspan)) do U_op
         t_i += 1
-        op_array[t_i] = U_op' * op0 * U_op
+        op_array[t_i] = U_op * op0 * U_op'
     end
     return op_array
 end
@@ -145,7 +144,7 @@ function evolutionExact!(op_array::Array{Array{C,2},1}, op0::Operator, Hamiltoni
     t_i = 0
     foreach(evolutionOperatorIterator(Hamiltonian, tspan)) do U_op
         t_i += 1
-        buffer[:,:] .= convert(Array{C,2}, (U_op' * op0 * U_op).data)
+        buffer[:,:] .= convert(Array{C,2}, (U_op * op0 * U_op').data)
         op_array[t_i] = deepcopy(buffer)
         push!(op_array, )
     end
@@ -197,7 +196,7 @@ function evolutionApproximate(op0::Operator, Hamiltonian::Operator, tspan::Array
     U_op_step_d = U_op_step'
     op = deepcopy(op0)
     for t_i in 2:N
-        op = U_op_step_d * op * U_op_step
+        op = U_op_step * op * U_op_step_d
         op_array[t_i] = deepcopy(op)
     end
     return op_array
@@ -215,7 +214,7 @@ function evolutionApproximate!(op_array::Array{Array{C,2},1}, op0::Operator, Ham
     U_op_step_d = U_op_step'
     op = deepcopy(op0)
     for t_i in 2:N
-        op = U_op_step_d * op * U_op_step
+        op = U_op_step * op * U_op_step_d
         buffer[:,:] .= convert(Array{C,2}, op.data)
         op_array[t_i] = deepcopy(buffer)
     end
