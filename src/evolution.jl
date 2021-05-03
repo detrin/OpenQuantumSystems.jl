@@ -104,54 +104,78 @@ end
 
 function EvolutionExact(ket0::Ket, Hamiltonian::Operator, t0::AbstractFloat, t1::AbstractFloat, N::Integer)
     ket_array = Array{Ket, 1}(undef, 0)
+    for t_i in 1:N
+        push!(ket_array, deepcopy(ket0))
+    end
+    t_i = 0
     foreach(EvolutionOperatorIterator(
         Hamiltonian::Operator, t0::AbstractFloat, t1::AbstractFloat, N::Integer
         )) do U_op
-        push!(ket_array, U_op * ket0)
+        t_i += 1
+        ket_array[t_i] = U_op * ket0
     end
     return ket_array
 end
 
 function EvolutionExact!(ket_array::Array{Array{C,1},1}, ket0::Ket, Hamiltonian::Operator, t0::AbstractFloat, t1::AbstractFloat, N::Integer) where C<:ComputableType
     buffer = zeros(C, size(ket0.data))
+    for t_i in 1:N
+        push!(ket_array, deepcopy(ket0.data))
+    end
+    t_i = 0
     foreach(EvolutionOperatorIterator(
         Hamiltonian::Operator, t0::AbstractFloat, t1::AbstractFloat, N::Integer
         )) do U_op
+        t_i += 1
         buffer[:] .= convert(Array{C,1}, (U_op * ket0).data)
-        push!(ket_array, deepcopy(buffer))
+        ket_array[t_i] = deepcopy(buffer)
     end
     return ket_array
 end
 
 function EvolutionExact(op0::Operator, Hamiltonian::Operator, t0::AbstractFloat, t1::AbstractFloat, N::Integer)
     op_array = Array{typeof(op0), 1}(undef, 0)
+    for t_i in 1:N
+        push!(op_array, deepcopy(op0))
+    end
+    t_i = 0
     foreach(EvolutionOperatorIterator(
         Hamiltonian::Operator, t0::AbstractFloat, t1::AbstractFloat, N::Integer
         )) do U_op
-        push!(op_array, U_op' * op0 * U_op)
+        t_i += 1
+        op_array[t_i] = U_op' * op0 * U_op
     end
     return op_array
 end
 
 function EvolutionExact!(op_array::Array{Array{C,2},1}, op0::Operator, Hamiltonian::Operator, t0::AbstractFloat, t1::AbstractFloat, N::Integer) where C<:ComputableType
     buffer = zeros(C, size(op0.data))
+    for t_i in 1:N
+        push!(op_array, deepcopy(op0.data))
+    end
+    t_i = 0
     foreach(EvolutionOperatorIterator(
         Hamiltonian::Operator, t0::AbstractFloat, t1::AbstractFloat, N::Integer
         )) do U_op
+        t_i += 1
         buffer[:,:] .= convert(Array{C,2}, (U_op' * op0 * U_op).data)
-        push!(op_array, deepcopy(buffer))
+        op_array[t_i] = deepcopy(buffer)
+        push!(op_array, )
     end
     return op_array
 end
 
 function EvolutionApproximate(ket0::Ket, Hamiltonian::Operator, t0::AbstractFloat, t1::AbstractFloat, N::Integer)
-    ket_array = [deepcopy(ket0)]
+    ket_array = Array{typeof(ket0), 1}(undef, 0)
+    for t_i in 1:N
+        push!(ket_array, deepcopy(ket0))
+    end
     t_step = (t1 - t0) / (N-1)
     U_op_step = EvolutionOperator(Hamiltonian, t_step)
     ket = deepcopy(ket0)
     for t_i in 1:N-1
         ket = U_op_step * ket
-        push!(ket_array, ket)
+        ket_array[t_i+1] = deepcopy(ket)
     end
     return ket_array
 end
@@ -159,27 +183,32 @@ end
 function EvolutionApproximate!(ket_array::Array{Array{C,1},1}, ket0::Ket, Hamiltonian::Operator, t0::AbstractFloat, t1::AbstractFloat, N::Integer) where C<:ComputableType
     buffer = zeros(C, size(ket0.data))
     buffer[:] .= convert(Array{C,1}, ket0.data)
-    push!(ket_array, deepcopy(buffer))
+    for t_i in 1:N
+        push!(ket_array, deepcopy(buffer))
+    end
     t_step = (t1 - t0) / (N-1)
     U_op_step = EvolutionOperator(Hamiltonian, t_step)
     ket = deepcopy(ket0)
     for t_i in 1:N-1
         ket = U_op_step * ket
         buffer[:] .= convert(Array{C,1}, ket.data)
-        push!(ket_array, deepcopy(buffer))
+        ket_array[t_i+1] = deepcopy(buffer)
     end
     return ket_array
 end
 
 function EvolutionApproximate(op0::Operator, Hamiltonian::Operator, t0::AbstractFloat, t1::AbstractFloat, N::Integer)
-    op_array = [deepcopy(op0)]
+    op_array = Array{typeof(op0), 1}(undef, 0)
+    for t_i in 1:N
+        push!(op_array, deepcopy(op0))
+    end
     t_step = (t1 - t0) / (N-1)
     U_op_step = EvolutionOperator(Hamiltonian, t_step)
     U_op_step_d = U_op_step'
     op = deepcopy(op0)
     for t_i in 1:N-1
         op = U_op_step_d * op * U_op_step
-        push!(op_array, op)
+        op_array[t_i+1] = deepcopy(op)
     end
     return op_array
 end
@@ -187,7 +216,9 @@ end
 function EvolutionApproximate!(op_array::Array{Array{C,2},1}, op0::Operator, Hamiltonian::Operator, t0::AbstractFloat, t1::AbstractFloat, N::Integer) where C<:ComputableType
     buffer = zeros(C, size(op0.data))
     buffer[:,:] .= convert(Array{C,2}, op0.data)
-    push!(op_array, deepcopy(buffer))
+    for t_i in 1:N
+        push!(op_array, deepcopy(buffer))
+    end
     t_step = (t1 - t0) / (N-1)
     U_op_step = EvolutionOperator(Hamiltonian, t_step)
     U_op_step_d = U_op_step'
@@ -195,7 +226,7 @@ function EvolutionApproximate!(op_array::Array{Array{C,2},1}, op0::Operator, Ham
     for t_i in 1:N-1
         op = U_op_step_d * op * U_op_step
         buffer[:,:] .= convert(Array{C,2}, op.data)
-        push!(op_array, deepcopy(buffer))
+        op_array[t_i+1] = deepcopy(buffer)
     end
     return op_array
 end
