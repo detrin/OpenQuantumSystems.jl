@@ -166,7 +166,10 @@ export bases,
 
     # schrodinger.jl
     schroedinger,
-    schroedinger_dynamic
+    schroedinger_dynamic,
+
+    # liouville.jl
+    liouvilleVonNeumann
 
 
 include("core.jl")

@@ -20,7 +20,7 @@ function schroedinger(psi0::T, H::AbstractOperator{B,B}, tspan::Array;
     x0 = psi0.data
     state = copy(psi0)
     dstate = copy(psi0)
-    integrate(tspan_, dschroedinger_, x0, state, dstate, fout; kwargs...)
+    OpenQuantumSystems.integrate(tspan_, dschroedinger_, x0, state, dstate, fout; kwargs...)
 end
 
 
@@ -46,7 +46,7 @@ function schroedinger_dynamic(psi0::T, f::Function, tspan::Array;
     x0 = psi0.data
     state = copy(psi0)
     dstate = copy(psi0)
-    integrate(tspan_, dschroedinger_, x0, state, dstate, fout; kwargs...)
+    OpenQuantumSystems.integrate(tspan_, dschroedinger_, x0, state, dstate, fout; kwargs...)
 end
 
 
