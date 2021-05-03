@@ -1,3 +1,5 @@
+import OrdinaryDiffEq
+
 """
     schroedinger(tspan, psi0, H; fout)
 
@@ -13,14 +15,16 @@ Integrate Schroedinger equation to evolve states or compute propagators.
         therefore must not be changed.
 """
 function schroedinger(psi0::T, H::AbstractOperator{B,B}, tspan::Array;
-                fout::Union{Function,Nothing}=nothing,
-                kwargs...) where {B<:Basis,T<:Union{AbstractOperator{B,B},StateVector{B}}}
+        reltol::Float64=1.0e-12, abstol::Float64=1.0e-12,
+        alg::OrdinaryDiffEq.OrdinaryDiffEqAlgorithm = OrdinaryDiffEq.DP5(),
+        fout::Union{Function,Nothing}=nothing,
+        kwargs...) where {B<:Basis,T<:Union{AbstractOperator{B,B},StateVector{B}}}
     tspan_ = convert(Vector{float(eltype(tspan))}, tspan)
     dschroedinger_(t, psi::T, dpsi::T) = dschroedinger(psi, H, dpsi)
     x0 = psi0.data
     state = copy(psi0)
     dstate = copy(psi0)
-    OpenQuantumSystems.integrate(tspan_, dschroedinger_, x0, state, dstate, fout; kwargs...)
+    OpenQuantumSystems.integrate(tspan_, dschroedinger_, x0, state, dstate, fout; reltol=reltol, abstol=abstol, alg=alg, kwargs...)
 end
 
 
@@ -39,14 +43,16 @@ Integrate time-dependent Schroedinger equation to evolve states or compute propa
         therefore must not be changed.
 """
 function schroedinger_dynamic(psi0::T, f::Function, tspan::Array;
-                fout::Union{Function,Nothing}=nothing,
-                kwargs...) where T<:Union{StateVector,AbstractOperator}
+        reltol::Float64=1.0e-6, abstol::Float64=1.0e-8,
+        alg::OrdinaryDiffEq.OrdinaryDiffEqAlgorithm = OrdinaryDiffEq.DP5(),
+        fout::Union{Function,Nothing}=nothing,
+        kwargs...) where T<:Union{StateVector,AbstractOperator}
     tspan_ = convert(Vector{float(eltype(tspan))}, tspan)
     dschroedinger_(t, psi::T, dpsi::T) = dschroedinger_dynamic(t, psi, f, dpsi)
     x0 = psi0.data
     state = copy(psi0)
     dstate = copy(psi0)
-    OpenQuantumSystems.integrate(tspan_, dschroedinger_, x0, state, dstate, fout; kwargs...)
+    OpenQuantumSystems.integrate(tspan_, dschroedinger_, x0, state, dstate, fout; reltol=reltol, abstol=abstol, alg=alg, kwargs...)
 end
 
 

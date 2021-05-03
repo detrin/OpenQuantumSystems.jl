@@ -10,6 +10,7 @@ Integrate using OrdinaryDiffEq
 """
 function integrate(tspan, df::Function, x0::X,
             state::T, dstate::T, fout::Function;
+            reltol::Float64=1.0e-12, abstol::Float64=1.0e-12,
             alg::OrdinaryDiffEq.OrdinaryDiffEqAlgorithm = OrdinaryDiffEq.DP5(),
             steady_state = false, tol = 1e-3, save_everystep = false, saveat=tspan,
             callback = nothing, kwargs...) where {T,X}
@@ -54,8 +55,8 @@ function integrate(tspan, df::Function, x0::X,
     sol = OrdinaryDiffEq.solve(
                 prob,
                 alg;
-                reltol = 1.0e-6,
-                abstol = 1.0e-8,
+                reltol=reltol,
+                abstol=abstol,
                 save_everystep = false, save_start = false,
                 save_end = false,
                 callback=full_cb, kwargs...)
