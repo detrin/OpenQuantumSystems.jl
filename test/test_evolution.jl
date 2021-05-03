@@ -78,10 +78,24 @@ using Random, SparseArrays, LinearAlgebra
     @test 1e-12 > D(ket2, ket_array[2])
     @test 1e-12 > D(ket3, ket_array[3])
 
+    ket_array = Array{Array{ComplexF32,1},1}(undef, 0)
+    EvolutionExact!(ket_array, ket, Ham, 0.0, 1.0, 3)
+    @test 1e-7 > D(ket1.data, ket_array[1])
+    @test 1e-7 > D(ket2.data, ket_array[2])
+    @test 1e-7 > D(ket3.data, ket_array[3])
+
     ket_array = EvolutionApproximate(ket, Ham, 0.0, 1.0, 3)
     @test 1e-12 > D(ket1, ket_array[1])
     @test 1e-12 > D(ket2, ket_array[2])
     @test 1e-12 > D(ket3, ket_array[3])
+
+    ket_array = Array{Array{ComplexF32,1},1}(undef, 0)
+    EvolutionApproximate!(ket_array, ket, Ham, 0.0, 1.0, 3)
+    @test 1e-7 > D(ket1.data, ket_array[1])
+    @test 1e-7 > D(ket2.data, ket_array[2])
+    @test 1e-7 > D(ket3.data, ket_array[3])
+
+    
 
     op = dm(ket)
     op1 = U_sop1 * op
@@ -92,10 +106,21 @@ using Random, SparseArrays, LinearAlgebra
     @test 1e-12 > D(op2, op_array[2])
     @test 1e-12 > D(op3, op_array[3])
 
+    op_array = Array{Array{ComplexF32,2},1}(undef, 0)
+    EvolutionExact!(op_array, op, Ham, 0.0, 1.0, 3)
+    @test 1e-7 > D(op1.data, op_array[1])
+    @test 1e-7 > D(op2.data, op_array[2])
+    @test 1e-7 > D(op3.data, op_array[3])
+
     op_array = EvolutionApproximate(op, Ham, 0.0, 1.0, 3)
     @test 1e-12 > D(op1, op_array[1])
     @test 1e-12 > D(op2, op_array[2])
     @test 1e-12 > D(op3, op_array[3])
-    
 
+    op_array = Array{Array{ComplexF32,2},1}(undef, 0)
+    EvolutionApproximate!(op_array, op, Ham, 0.0, 1.0, 3)
+    @test 1e-7 > D(op1.data, op_array[1])
+    @test 1e-7 > D(op2.data, op_array[2])
+    @test 1e-7 > D(op3.data, op_array[3])
+    
 end
