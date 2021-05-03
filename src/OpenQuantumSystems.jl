@@ -153,16 +153,21 @@ export bases,
     getAggHamiltonianSparse,
 
     # evolution.jl
-    EvolutionOperator,
-    EvolutionSuperOperator,
-    EvolutionOperatorArray,
-    EvolutionSuperOperatorArray,
-    EvolutionOperatorIterator,
-    EvolutionSuperOperatorIterator,
-    EvolutionExact,
-    EvolutionExact!,
-    EvolutionApproximate,
-    EvolutionApproximate!
+    evolutionOperator,
+    evolutionSuperOperator,
+    evolutionOperatorArray,
+    evolutionSuperOperatorArray,
+    evolutionOperatorIterator,
+    evolutionSuperOperatorIterator,
+    evolutionExact,
+    evolutionExact!,
+    evolutionApproximate,
+    evolutionApproximate!,
+
+    # schrodinger.jl
+    schroedinger,
+    schroedinger_dynamic
+
 
 include("core.jl")
 include("sortedindices.jl")
@@ -181,6 +186,9 @@ include("metrics.jl")
 include("nlevel.jl")
 include("molecules.jl")
 include("aggregate.jl")
+include("timeevolution_base.jl")
 include("evolution.jl")
+include("schroedinger.jl")
+
 
 end
