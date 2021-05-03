@@ -17,3 +17,6 @@ git_update_master:
 
 git_add_upstream:
 	git remote add upstream ${REPOSITORY}
+
+benchmark:
+	julia test/benchmark.jl | tee Benchmarks.md
