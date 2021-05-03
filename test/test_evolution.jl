@@ -22,49 +22,50 @@ using Random, SparseArrays, LinearAlgebra
     Ham = getAggHamiltonian(agg, aggInds, FCFact; groundState=false)
 
     t = 0.
-    U_op = EvolutionOperator(Ham, t)
+    U_op = evolutionOperator(Ham, t)
     U_op_ref = exp(-1im * Ham * t)
     @test 1e-12 > D(U_op, U_op_ref)
 
-    U_sop = EvolutionSuperOperator(Ham, t)
-    U_sop_ref = spre(U_op') * spost(U_op)
+    U_sop = evolutionSuperOperator(Ham, t)
+    U_sop_ref = spre(U_op) * spost(U_op')
     @test 1e-12 > D(U_sop, U_sop_ref)
 
     t = 1.
-    U_op = EvolutionOperator(Ham, t)
+    U_op = evolutionOperator(Ham, t)
     U_op_ref = exp(-1im * Ham * t)
     @test 1e-12 > D(U_op, U_op_ref)
 
-    U_sop = EvolutionSuperOperator(Ham, t)
-    U_sop_ref = spre(U_op') * spost(U_op)
+    U_sop = evolutionSuperOperator(Ham, t)
+    U_sop_ref = spre(U_op) * spost(U_op')
     @test 1e-12 > D(U_sop, U_sop_ref)
 
-    U_op_array = EvolutionOperatorArray(Ham, 0.0, 1.0, 3)
-    U_op1 = EvolutionOperator(Ham, 0.0)
-    U_op2 = EvolutionOperator(Ham, 0.5)
-    U_op3 = EvolutionOperator(Ham, 1.0)
+    tspan = [0.:0.5:1.;]
+    U_op_array = evolutionOperatorArray(Ham, tspan)
+    U_op1 = evolutionOperator(Ham, 0.0)
+    U_op2 = evolutionOperator(Ham, 0.5)
+    U_op3 = evolutionOperator(Ham, 1.0)
     @test 1e-12 > D(U_op_array[1], U_op1)
     @test 1e-12 > D(U_op_array[2], U_op2)
     @test 1e-12 > D(U_op_array[3], U_op3)
 
-    U_sop_array = EvolutionSuperOperatorArray(Ham, 0.0, 1.0, 3)
-    U_sop1 = EvolutionSuperOperator(Ham, 0.0)
-    U_sop2 = EvolutionSuperOperator(Ham, 0.5)
-    U_sop3 = EvolutionSuperOperator(Ham, 1.0)
+    U_sop_array = evolutionSuperOperatorArray(Ham, tspan)
+    U_sop1 = evolutionSuperOperator(Ham, 0.0)
+    U_sop2 = evolutionSuperOperator(Ham, 0.5)
+    U_sop3 = evolutionSuperOperator(Ham, 1.0)
     @test 1e-12 > D(U_sop_array[1], U_sop1)
     @test 1e-12 > D(U_sop_array[2], U_sop2)
     @test 1e-12 > D(U_sop_array[3], U_sop3)
 
     t = 0.
-    foreach(EvolutionOperatorIterator(Ham, 0.0, 1.0, 3)) do U_op
-        U_op_ref = EvolutionOperator(Ham, t)
+    foreach(evolutionOperatorIterator(Ham, tspan)) do U_op
+        U_op_ref = evolutionOperator(Ham, t)
         @test 1e-12 > D(U_op, U_op_ref)
         t += 0.5
     end
 
     t = 0.
-    foreach(EvolutionSuperOperatorIterator(Ham, 0.0, 1.0, 3)) do U_sop
-        U_sop_ref = EvolutionSuperOperator(Ham, t)
+    foreach(evolutionSuperOperatorIterator(Ham, tspan)) do U_sop
+        U_sop_ref = evolutionSuperOperator(Ham, t)
         @test 1e-12 > D(U_sop, U_sop_ref)
         t += 0.5
     end
@@ -73,29 +74,52 @@ using Random, SparseArrays, LinearAlgebra
     ket1 = U_op1 * ket
     ket2 = U_op2 * ket
     ket3 = U_op3 * ket
-    ket_array = EvolutionExact(ket, Ham, 0.0, 1.0, 3)
+    ket_array = evolutionExact(ket, Ham, tspan)
     @test 1e-12 > D(ket1, ket_array[1])
     @test 1e-12 > D(ket2, ket_array[2])
     @test 1e-12 > D(ket3, ket_array[3])
 
-    ket_array = EvolutionApproximate(ket, Ham, 0.0, 1.0, 3)
+    ket_array = Array{Array{ComplexF32,1},1}(undef, 0)
+    evolutionExact!(ket_array, ket, Ham, tspan)
+    @test 1e-7 > D(ket1.data, ket_array[1])
+    @test 1e-7 > D(ket2.data, ket_array[2])
+    @test 1e-7 > D(ket3.data, ket_array[3])
+
+    ket_array = evolutionApproximate(ket, Ham, tspan)
     @test 1e-12 > D(ket1, ket_array[1])
     @test 1e-12 > D(ket2, ket_array[2])
     @test 1e-12 > D(ket3, ket_array[3])
+
+    ket_array = Array{Array{ComplexF32,1},1}(undef, 0)
+    evolutionApproximate!(ket_array, ket, Ham, tspan)
+    @test 1e-7 > D(ket1.data, ket_array[1])
+    @test 1e-7 > D(ket2.data, ket_array[2])
+    @test 1e-7 > D(ket3.data, ket_array[3])
 
     op = dm(ket)
     op1 = U_sop1 * op
     op2 = U_sop2 * op
     op3 = U_sop3 * op
-    op_array = EvolutionExact(op, Ham, 0.0, 1.0, 3)
+    op_array = evolutionExact(op, Ham, tspan)
     @test 1e-12 > D(op1, op_array[1])
     @test 1e-12 > D(op2, op_array[2])
     @test 1e-12 > D(op3, op_array[3])
 
-    op_array = EvolutionApproximate(op, Ham, 0.0, 1.0, 3)
+    op_array = Array{Array{ComplexF32,2},1}(undef, 0)
+    evolutionExact!(op_array, op, Ham, tspan)
+    @test 1e-7 > D(op1.data, op_array[1])
+    @test 1e-7 > D(op2.data, op_array[2])
+    @test 1e-7 > D(op3.data, op_array[3])
+
+    op_array = evolutionApproximate(op, Ham, tspan)
     @test 1e-12 > D(op1, op_array[1])
     @test 1e-12 > D(op2, op_array[2])
     @test 1e-12 > D(op3, op_array[3])
+
+    op_array = Array{Array{ComplexF32,2},1}(undef, 0)
+    evolutionApproximate!(op_array, op, Ham, tspan)
+    @test 1e-7 > D(op1.data, op_array[1])
+    @test 1e-7 > D(op2.data, op_array[2])
+    @test 1e-7 > D(op3.data, op_array[3])
     
-
 end

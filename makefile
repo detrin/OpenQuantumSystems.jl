@@ -1,6 +1,12 @@
 
 REPOSITORY=https://github.com/detrin/OpenQuantumSystems.jl
 
+install_from_repo:
+	julia -e 'using Pkg; Pkg.add(path="../OpenQuantumSystems.jl")'
+
+remove:
+	julia -e 'using Pkg; Pkg.rm("OpenQuantumSystems")'
+
 tests:
 	julia --project -e 'using Pkg; Pkg.build(); Pkg.test()'
 
@@ -17,3 +23,7 @@ git_update_master:
 
 git_add_upstream:
 	git remote add upstream ${REPOSITORY}
+
+benchmark:
+	julia test/benchmark.jl | tee Benchmarks.md
+
