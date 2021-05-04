@@ -177,7 +177,6 @@ export
 
 
 include("core.jl")
-include("sortedindices.jl")
 include("operators_dense.jl")
 include("superoperators.jl")
 include("metrics.jl")
