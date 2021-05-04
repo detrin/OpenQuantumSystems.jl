@@ -1,4 +1,5 @@
-include("core.jl")
+
+# include("core.jl")
 
 mutable struct Aggregate{T<:Integer, C1<:ComputableType, C2<:ComputableType}
     molecules::Vector{Molecule{T, C1, C2}}
