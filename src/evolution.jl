@@ -1,5 +1,7 @@
 
-using Continuables
+# using Continuables
+# import ResumableFunctions: @resumable, @yield
+using ResumableFunctions
 
 function evolutionOperator(Hamiltonian::Operator, t::AbstractFloat)::Operator
     return exp(-1im * Hamiltonian * t)
@@ -52,7 +54,7 @@ function evolutionSuperOperatorArray(Hamiltonian::Operator, tspan::Array)::Array
     return U_supop_array 
 end
 
-evolutionOperatorIterator(Hamiltonian::Operator, tspan::Array) = @cont begin
+@resumable function evolutionOperatorIterator(Hamiltonian::Operator, tspan::Array)
     N = length(tspan)
     Ham_lambda, Ham_S = eigen(Hamiltonian.data)
     base = GenericBasis([size(Ham_lambda, 1)])
@@ -62,16 +64,16 @@ evolutionOperatorIterator(Hamiltonian::Operator, tspan::Array) = @cont begin
     U_diagonal = map(lambda -> exp(-1im * lambda * tspan[1]), Ham_lambda)
     U = Ham_S * diagm(U_diagonal) * inv(Ham_S)
     U_op = DenseOperator(base, base, U)
-    cont(U_op) 
+    @yield U_op 
 
     for t_i in 2:N
         U_diagonal .= map(lambda -> exp(-1im * lambda * tspan[t_i]), Ham_lambda)
         U_op.data .= Ham_S * diagm(U_diagonal) * inv(Ham_S)
-        cont(U_op) 
+        @yield U_op 
     end
 end
 
-evolutionSuperOperatorIterator(Hamiltonian::Operator, tspan::Array) = @cont begin
+@resumable function evolutionSuperOperatorIterator(Hamiltonian::Operator, tspan::Array)
     N = length(tspan)
     Ham_lambda, Ham_S = eigen(Hamiltonian.data)
     base = GenericBasis([size(Ham_lambda, 1)])
@@ -82,13 +84,13 @@ evolutionSuperOperatorIterator(Hamiltonian::Operator, tspan::Array) = @cont begi
     U = Ham_S * diagm(U_diagonal) * inv(Ham_S)
     U_op = DenseOperator(base, base, U)
     U_supop = spre(U_op) * spost(U_op')
-    cont(U_supop)
+    @yield U_supop
 
     for t_i in 2:N
         U_diagonal .= map(lambda -> exp(-1im * lambda * tspan[t_i]), Ham_lambda)
         U_op.data .= Ham_S * diagm(U_diagonal) * inv(Ham_S)
         U_supop.data .= (spre(U_op)).data * (spost(U_op')).data
-        cont(U_supop)
+        @yield U_supop
     end
 end
 
@@ -99,7 +101,7 @@ function evolutionExact(ket0::Ket, Hamiltonian::Operator, tspan::Array)
         push!(ket_array, deepcopy(ket0))
     end
     t_i = 0
-    foreach(evolutionOperatorIterator(Hamiltonian, tspan)) do U_op
+    for U_op in evolutionOperatorIterator(Hamiltonian, tspan)
         t_i += 1
         ket_array[t_i] = U_op * ket0
     end
@@ -113,7 +115,7 @@ function evolutionExact!(ket_array::Array{Array{C,1},1}, ket0::Ket, Hamiltonian:
         push!(ket_array, deepcopy(ket0.data))
     end
     t_i = 0
-    foreach(evolutionOperatorIterator(Hamiltonian, tspan)) do U_op
+    for U_op in evolutionOperatorIterator(Hamiltonian, tspan)
         t_i += 1
         buffer[:] .= convert(Array{C,1}, (U_op * ket0).data)
         ket_array[t_i] = deepcopy(buffer)
@@ -128,7 +130,7 @@ function evolutionExact(op0::Operator, Hamiltonian::Operator, tspan::Array)
         push!(op_array, deepcopy(op0))
     end
     t_i = 0
-    foreach(evolutionOperatorIterator(Hamiltonian, tspan)) do U_op
+    for U_op in evolutionOperatorIterator(Hamiltonian, tspan)
         t_i += 1
         op_array[t_i] = U_op * op0 * U_op'
     end
@@ -142,7 +144,7 @@ function evolutionExact!(op_array::Array{Array{C,2},1}, op0::Operator, Hamiltoni
         push!(op_array, deepcopy(op0.data))
     end
     t_i = 0
-    foreach(evolutionOperatorIterator(Hamiltonian, tspan)) do U_op
+    for U_op in evolutionOperatorIterator(Hamiltonian, tspan)
         t_i += 1
         buffer[:,:] .= convert(Array{C,2}, (U_op * op0 * U_op').data)
         op_array[t_i] = deepcopy(buffer)
