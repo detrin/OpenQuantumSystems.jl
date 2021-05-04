@@ -1,9 +1,12 @@
 module OpenQuantumSystems
 
+using Reexport
+# @reexport using QuantumOpticsBase
+
 using SparseArrays, LinearAlgebra
 import LinearAlgebra: mul!, rmul!
 
-using Reexport
+
 @reexport using QuantumOpticsBase: 
     Basis, 
     GenericBasis,
