@@ -19,6 +19,7 @@ Adapt = "1, 2, 3.3"
 Continuables = "1.0"
 DiffEqCallbacks = "2.16"
 OrdinaryDiffEq = "5.53"
+QuantumOpticsBase = "0.2"
 Reexport = "1.0"
 julia = "1.0"
 
