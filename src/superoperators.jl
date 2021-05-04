@@ -366,6 +366,8 @@ end
 end
 =#
 
+import QuantumOpticsBase: Operator, SuperOperator
+
 function Commutator(A::Operator)::SuperOperator
     return spre(A) - spost(A)
 end
