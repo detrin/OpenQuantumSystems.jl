@@ -1,5 +1,5 @@
 
-include("core.jl")
+# include("core.jl")
 
 struct Mode{T} 
     omega::T
