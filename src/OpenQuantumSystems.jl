@@ -3,10 +3,10 @@ module OpenQuantumSystems
 using SparseArrays, LinearAlgebra
 import LinearAlgebra: mul!, rmul!
 
-export bases,
-    Basis,
+using Reexport
+@reexport using QuantumOpticsBase: 
+    Basis, 
     GenericBasis,
-    CompositeBasis,
     basis,
     tensor,
     ⊗,
@@ -14,7 +14,6 @@ export bases,
     @samebases,
 
     # states.jl
-    states,
     StateVector,
     Bra,
     Ket,
@@ -23,11 +22,8 @@ export bases,
     dagger,
     normalize,
     normalize!,
-    localToExcitonBasis,
-    excitonToLocalBasis,
 
     # operators.jl
-    operators,
     AbstractOperator,
     DataOperator,
     expect,
@@ -40,22 +36,18 @@ export bases,
     sparse,
 
     # operators_dense.jl
-    operators_dense,
     Operator,
     DenseOperator,
     DenseOpType,
     projector,
     dm,
-    OneDenseOperator,
-
+    
     # operators_sparse.jl
-    operators_sparse,
     SparseOperator,
     diagonaloperator,
     SparseOpType,
 
     # superoperators.jl
-    superoperators,
     AbstractSuperOperator,
     SuperOperator,
     DenseSuperOperator,
@@ -64,11 +56,8 @@ export bases,
     SparseSuperOpType,
     spre,
     spost,
-    Liouvillian,
-    Commutator,
 
     # fock.jl
-    fock,
     FockBasis,
     number,
     destroy,
@@ -79,7 +68,6 @@ export bases,
     displace,
 
     # spin.jl
-    spin,
     SpinBasis,
     sigmax,
     sigmay,
@@ -98,13 +86,11 @@ export bases,
     passive_state,
 
     # nlevel.jl
-    nlevel,
     NLevelBasis,
     transition,
     nlevelstate,
 
     # metrics.jl
-    metrics,
     tracenorm,
     tracenorm_h,
     tracenorm_nh,
@@ -126,7 +112,22 @@ export bases,
     DensePauliTransferMatrix,
     ChiMatrix,
     DenseChiMatrix,
-    avg_gate_fidelity,
+    avg_gate_fidelity
+
+export 
+    # operators_dense.jl
+    OneDenseOperator,
+
+    # superoperators.jl
+    Commutator,
+
+    # metrics.jl
+    tracenorm,
+    tracenorm_h,
+    tracenorm_nh,
+    tracedistance,
+    tracedistance_h,
+    tracedistance_nh,
 
     # molecules.jl
     Mode,
@@ -174,19 +175,19 @@ export bases,
 
 include("core.jl")
 include("sortedindices.jl")
-include("bases.jl")
-include("states.jl")
-include("operators.jl")
+# include("bases.jl")
+# include("states.jl")
+# include("operators.jl")
 include("operators_dense.jl")
-include("sparsematrix.jl")
-include("operators_sparse.jl")
+# include("sparsematrix.jl")
+# include("operators_sparse.jl")
 include("superoperators.jl")
-include("spin.jl")
-include("fock.jl")
-include("state_definitions.jl")
-include("pauli.jl")
+# include("spin.jl")
+# include("fock.jl")
+# include("state_definitions.jl")
+# include("pauli.jl")
 include("metrics.jl")
-include("nlevel.jl")
+# include("nlevel.jl")
 include("molecules.jl")
 include("aggregate.jl")
 include("timeevolution_base.jl")
