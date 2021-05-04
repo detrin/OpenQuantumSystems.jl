@@ -7,6 +7,8 @@ using OpenQuantumSystems
 using BenchmarkTools
 using Random
 
+import OrdinaryDiffEq
+
 Random.seed!(0)
 
 println("# Benchmarks")
@@ -159,23 +161,75 @@ if true
     println("\n `tspan = [0.0:0.02:1.0;]`\n")
     println("### System 1\n")
     psi0 = randstate(basis1)
-    println("\nschroedinger(psi0, Ham1, tspan)\n")
+    println("\nschroedinger(psi0, Ham1, tspan; reltol=1e-10, abstol=1e-10, alg=OrdinaryDiffEq.Tsit5())\n")
     @btime let
-        t, psi_t = schroedinger(psi0, Ham1, tspan)
+        t, psi_t = schroedinger(psi0, Ham1, tspan; reltol=1e-10, abstol=1e-10, alg=OrdinaryDiffEq.Tsit5())
+    end
+    println("\nschroedinger(psi0, Ham1, tspan; reltol=1e-12, abstol=1e-12, alg=OrdinaryDiffEq.Vern7())\n")
+    @btime let
+        t, psi_t = schroedinger(psi0, Ham1, tspan; reltol=1e-12, abstol=1e-12, alg=OrdinaryDiffEq.Vern7())
     end
 
     println("### System 2\n")
     psi0 = randstate(basis2)
-    println("\nschroedinger(psi0, Ham2, tspan)\n")
+    println("\nschroedinger(psi0, Ham2, tspan; reltol=1e-10, abstol=1e-10, alg=OrdinaryDiffEq.Tsit5())\n")
     @btime let
-        t, psi_t = schroedinger(psi0, Ham2, tspan)
+        t, psi_t = schroedinger(psi0, Ham2, tspan; reltol=1e-10, abstol=1e-10, alg=OrdinaryDiffEq.Tsit5())
+    end
+    println("\nschroedinger(psi0, Ham2, tspan; reltol=1e-12, abstol=1e-12, alg=OrdinaryDiffEq.Vern7()\n")
+    @btime let
+        t, psi_t = schroedinger(psi0, Ham2, tspan; reltol=1e-12, abstol=1e-12, alg=OrdinaryDiffEq.Vern7())
     end
 
     println("### System 3\n")
     psi0 = randstate(basis3)
-    println("\nschroedinger(psi0, Ham3, tspan)\n")
+    println("\nschroedinger(psi0, Ham3, tspan; reltol=1e-10, abstol=1e-10, alg=OrdinaryDiffEq.Tsit5())\n")
     @btime let
-        t, psi_t = schroedinger(psi0, Ham3, tspan)
+        t, psi_t = schroedinger(psi0, Ham3, tspan; reltol=1e-10, abstol=1e-10, alg=OrdinaryDiffEq.Tsit5())
+    end
+    println("\nschroedinger(psi0, Ham2, tspan; reltol=1e-12, abstol=1e-12, alg=OrdinaryDiffEq.Vern7()\n")
+    @btime let
+        t, psi_t = schroedinger(psi0, Ham3, tspan; reltol=1e-12, abstol=1e-12, alg=OrdinaryDiffEq.Vern7())
     end
 end
-# tout, psi_t = schroedinger(psi0, Ham1, tspan)
+
+if true
+    println("## liouville von-Neumann")
+    tspan = [0.0:0.02:1.0;]
+    println("\n `tspan = [0.0:0.02:1.0;]`\n")
+    println("### System 1\n")
+    psi0 = randstate(basis1)
+    rho0 = dm(psi0)
+    println("\nliouvilleVonNeumann(rho0, Ham1, tspan; reltol=1e-10, abstol=1e-10, alg=OrdinaryDiffEq.Tsit5())\n")
+    @btime let
+        t, rho_t = liouvilleVonNeumann(rho0, Ham1, tspan; reltol=1e-10, abstol=1e-10, alg=OrdinaryDiffEq.Tsit5())
+    end
+    println("\nliouvilleVonNeumann(rho0, Ham1, tspan; reltol=1e-12, abstol=1e-12, alg=OrdinaryDiffEq.Vern7())\n")
+    @btime let
+        t, rho_t = liouvilleVonNeumann(rho0, Ham1, tspan; reltol=1e-12, abstol=1e-12, alg=OrdinaryDiffEq.Vern7())
+    end
+
+    println("### System 2\n")
+    psi0 = randstate(basis2)
+    rho0 = dm(psi0)
+    println("\nliouvilleVonNeumann(rho0, Ham2, tspan; reltol=1e-10, abstol=1e-10, alg=OrdinaryDiffEq.Tsit5())\n")
+    @btime let
+        t, rho_t = liouvilleVonNeumann(rho0, Ham2, tspan; reltol=1e-10, abstol=1e-10, alg=OrdinaryDiffEq.Tsit5())
+    end
+    println("\nliouvilleVonNeumann(rho0, Ham2, tspan; reltol=1e-12, abstol=1e-12, alg=OrdinaryDiffEq.Vern7()\n")
+    @btime let
+        t, rho_t = liouvilleVonNeumann(rho0, Ham2, tspan; reltol=1e-12, abstol=1e-12, alg=OrdinaryDiffEq.Vern7())
+    end
+
+    println("### System 3\n")
+    psi0 = randstate(basis3)
+    rho0 = dm(psi0)
+    println("\nliouvilleVonNeumann(rho0, Ham3, tspan; reltol=1e-10, abstol=1e-10, alg=OrdinaryDiffEq.Tsit5())\n")
+    @btime let
+        t, rho_t = liouvilleVonNeumann(rho0, Ham3, tspan; reltol=1e-10, abstol=1e-10, alg=OrdinaryDiffEq.Tsit5())
+    end
+    println("\nliouvilleVonNeumann(rho0, Ham2, tspan; reltol=1e-12, abstol=1e-12, alg=OrdinaryDiffEq.Vern7()\n")
+    @btime let
+        t, rho_t = liouvilleVonNeumann(rho0, Ham3, tspan; reltol=1e-12, abstol=1e-12, alg=OrdinaryDiffEq.Vern7())
+    end
+end
