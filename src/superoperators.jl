@@ -147,7 +147,6 @@ end
 -(a::SuperOperator) = SuperOperator(a.basis_l, a.basis_r, -a.data)
 # -(a::SuperOperator, b::SuperOperator) = throw(IncompatibleBases())
 
-ishermitian(A::SuperOperator{B1,B2}) where {B1<:Tuple{Basis,Basis},B2<:Tuple{Basis,Basis}} = ishermitian(A.data)
 # ishermitian(A::SuperOperator) = false
 
 """
@@ -366,7 +365,11 @@ end
 end
 =#
 
-import QuantumOpticsBase: Operator, SuperOperator
+
+import QuantumOpticsBase: Operator, SuperOperator, Basis
+import LinearAlgebra: ishermitian
+
+ishermitian(A::SuperOperator{B1,B2}) where {B1<:Tuple{Basis,Basis},B2<:Tuple{Basis,Basis}} = ishermitian(A.data)
 
 function Commutator(A::Operator)::SuperOperator
     return spre(A) - spost(A)

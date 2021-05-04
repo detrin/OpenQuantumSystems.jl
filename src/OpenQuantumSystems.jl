@@ -1,12 +1,6 @@
 module OpenQuantumSystems
 
 using Reexport
-# @reexport using QuantumOpticsBase
-
-using SparseArrays, LinearAlgebra
-import LinearAlgebra: mul!, rmul!
-
-
 @reexport using QuantumOpticsBase: 
     Basis, 
     GenericBasis,
@@ -117,6 +111,8 @@ import LinearAlgebra: mul!, rmul!
     DenseChiMatrix,
     avg_gate_fidelity
 
+using SparseArrays, LinearAlgebra
+
 export 
     # operators_dense.jl
     OneDenseOperator,
@@ -174,7 +170,6 @@ export
 
     # liouville.jl
     liouvilleVonNeumann
-
 
 include("core.jl")
 include("operators_dense.jl")
