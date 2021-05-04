@@ -2,6 +2,7 @@ import Base: ==, +, -, *, /, Broadcast
 import Adapt
 using Base.Cartesian
 
+#=
 """
     Operator{BL,BR,T} <: DataOperator{BL,BR}
 
@@ -375,7 +376,7 @@ end
 @inline Base.copyto!(A::DataOperator{BL,BR},B::DataOperator{BL,BR}) where {BL<:Basis,BR<:Basis} = (copyto!(A.data,B.data); A)
 # @inline Base.copyto!(dest::DataOperator{BL,BR}, bc::Broadcast.Broadcasted{Style,Axes,F,Args}) where {BL<:Basis,BR<:Basis,Style<:DataOperatorStyle,Axes,F,Args} =
 #     throw(IncompatibleBases())
-
+=#
 
 mutable struct AnnihilationOperator{BL<:Basis,BR<:Basis} <: DataOperator{BL,BR}
     basis_l::BL
