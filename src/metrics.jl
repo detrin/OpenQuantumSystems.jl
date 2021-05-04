@@ -344,6 +344,8 @@ entanglement_entropy(state, partition, args...) =
 =#
 
 import QuantumOpticsBase: tracenorm, tracenorm_h, tracenorm_nh, tracedistance, tracedistance_h, tracedistance_nh
+import LinearAlgebra: ishermitian
+
 
 function tracenorm(rho::DenseSuperOpType)
     ishermitian(rho) ? tracenorm_h(rho) : tracenorm_nh(rho)
