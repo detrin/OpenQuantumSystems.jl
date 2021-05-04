@@ -16,20 +16,6 @@ using SparseArrays, LinearAlgebra
     rho_s = Commutator(rho)
 
     # tracenorm
-    # Operators
-    @test tracenorm(0 * rho) ≈ 0.0
-    @test tracenorm_h(0 * rho) ≈ 0.0
-    @test tracenorm_nh(0 * rho) ≈ 0.0
-
-    @test tracenorm(rho) ≈ 1.0
-    @test tracenorm_h(rho) ≈ 1.0
-    @test tracenorm_nh(rho) ≈ 1.0
-
-    @test_throws ArgumentError tracenorm(sparse(rho))
-    @test_throws ArgumentError tracenorm_h(sparse(rho))
-    @test_throws ArgumentError tracenorm_nh(sparse(rho))
-
-    # SuperOperators
     @test tracenorm(0 * rho_s) ≈ 0.0
     @test tracenorm_h(0 * rho_s) ≈ 0.0
     @test tracenorm_nh(0 * rho_s) ≈ 0.0
@@ -38,30 +24,7 @@ using SparseArrays, LinearAlgebra
     @test tracenorm_h(rho_s) ≈ 26.0
     @test tracenorm_nh(rho_s) ≈ 26.0
 
-    # TODO: solve argument errors
-    # @test_throws ArgumentError tracenorm(sparse(rho_s))
-    # @test_throws ArgumentError tracenorm_h(sparse(rho_s))
-    # @test_throws ArgumentError tracenorm_nh(sparse(rho_s))
-
     # tracedistance
-    # Operators
-    @test tracedistance(rho, sigma) ≈ 1.0
-    @test tracedistance_h(rho, sigma) ≈ 1.0
-    @test tracedistance_nh(rho, sigma) ≈ 1.0
-
-    @test tracedistance(rho, rho) ≈ 0.0
-    @test tracedistance_h(rho, rho) ≈ 0.0
-    @test tracedistance_nh(rho, rho) ≈ 0.0
-
-    @test tracedistance(sigma, sigma) ≈ 0.0
-    @test tracedistance_h(sigma, sigma) ≈ 0.0
-    @test tracedistance_nh(sigma, sigma) ≈ 0.0
-
-    # @test_throws ArgumentError tracedistance(sparse(rho), sparse(rho))
-    # @test_throws ArgumentError tracedistance_h(sparse(rho), sparse(rho))
-    # @test_throws ArgumentError tracedistance_nh(sparse(rho), sparse(rho))
-
-    # SuperOperators
     @test tracedistance(rho_s, sigma_s) ≈ 26.0
     @test tracedistance_h(rho_s, sigma_s) ≈ 26.0
     @test tracedistance_nh(rho_s, sigma_s) ≈ 26.0
@@ -74,94 +37,11 @@ using SparseArrays, LinearAlgebra
     @test tracedistance_h(sigma_s, sigma_s) ≈ 0.0
     @test tracedistance_nh(sigma_s, sigma_s) ≈ 0.0
 
-    # @test_throws ArgumentError tracedistance(sparse(rho_s), sparse(rho_s))
-    # @test_throws ArgumentError tracedistance_h(sparse(rho_s), sparse(rho_s))
-    # @test_throws ArgumentError tracedistance_nh(sparse(rho_s), sparse(rho_s))
-
     # tracedistance
-    @test tracedistance(rho, sigma) ≈ 1.0
-    @test tracedistance(rho, rho) ≈ 0.0
-    @test tracedistance(sigma, sigma) ≈ 0.0
-
     @test tracedistance(rho_s, sigma_s) ≈ 26.0
     @test tracedistance(rho_s, rho_s) ≈ 0.0
     @test tracedistance(sigma_s, sigma_s) ≈ 0.0
 
-    rho = spinup(b1) ⊗ dagger(coherentstate(b2, 0.1))
-    @test_throws ArgumentError tracedistance(rho, rho)
-    @test_throws ArgumentError tracedistance_h(rho, rho)
-
-    @test tracedistance_nh(rho, rho) ≈ 0.0
-
     @test tracedistance_nh(rho_s, rho_s) ≈ 0.0
-
-    # entropy_vn
-    rho_mix = dense(identityoperator(b1)) / 2.0
-    @test entropy_vn(rho_mix) / log(2) ≈ 1
-    psi = coherentstate(FockBasis(20), 2.0)
-    @test isapprox(entropy_vn(psi), 0.0, atol = 1e-8)
-
-    # entropy_renyi
-    rho_mix = dense(identityoperator(b1)) / 2.0
-    @test entropy_renyi(rho_mix, 2) / log(2) ≈ 1
-    psi = coherentstate(FockBasis(20), 2.0)
-    @test isapprox(entropy_renyi(psi), 0.0, atol = 1e-8)
-    @test_throws ArgumentError entropy_renyi(psi, 1)
-
-    # fidelity
-    rho = tensor(psi1, dagger(psi1))
-    @test fidelity(rho, rho) ≈ 1
-    @test 1e-20 > abs2(fidelity(rho, sigma))
-
-    # ptranspose
-    e = spinup(b1)
-    g = spindown(b1)
-    psi3 = (e ⊗ g - g ⊗ e) / sqrt(2)
-
-    rho = dm(psi3)
-    rho_pT1 = ptranspose(rho, 1)
-    rho_pT1_an =
-        0.5 * (dm(e ⊗ g) + dm(g ⊗ e) - (e ⊗ e) ⊗ dagger(g ⊗ g) - (g ⊗ g) ⊗ dagger(e ⊗ e))
-    rho_pT2 = ptranspose(rho, 2)
-    @test rho_pT1.data ≈ rho_pT1_an.data
-    @test rho_pT2.data ≈ rho_pT1_an.data
-
-    @test_throws MethodError ptranspose(e ⊗ dagger(psi1))
-    @test_throws MethodError ptranspose(dm(e))
-
-    rho = rho ⊗ dm(g)
-    @test PPT(rho, 1) == PPT(rho, 2) == false
-    @test PPT(rho, 3)
-
-    @test negativity(rho, 1) == negativity(rho, 2) ≈ 0.5
-    @test isapprox(negativity(rho, 3), 0.0, atol = 1e-15)
-
-    @test logarithmic_negativity(rho, 1) == logarithmic_negativity(rho, 2) ≈ 1.0
-    @test isapprox(logarithmic_negativity(rho, 3), 0.0, atol = 1e-15)
-
-    # Entanglement Entropy
-    b1 = SpinBasis(1 // 2)
-    psi = 1 / sqrt(2) * (spinup(b1) ⊗ spindown(b1) + spindown(b1) ⊗ spinup(b1))
-    rho_ent = dm(psi)
-    rho_mix = DenseOperator(rho_ent.basis_l, diagm(ComplexF64[1.0, 1.0, 1.0, 1.0]))
-    @test entanglement_entropy(rho_mix, 1) ≈ 0.0
-    @test entanglement_entropy(rho_ent, 1, entropy_vn) ≈ 2 * log(2)
-    @test entanglement_entropy(rho_ent, 1) ≈ 2 * entanglement_entropy(psi, 1)
-    @test_throws ArgumentError entanglement_entropy(rho_mix, (1, 2))
-    @test_throws ArgumentError entanglement_entropy(rho_mix, 3)
-
-    q2 = PauliBasis(2)
-    CNOT = DenseOperator(q2, q2, diagm(0 => [1, 1, 0, 0], 1 => [0, 0, 1], -1 => [0, 0, 1]))
-    CNOT_sop = SuperOperator(CNOT)
-    CNOT_chi = ChiMatrix(CNOT)
-    CNOT_ptm = PauliTransferMatrix(CNOT)
-
-    @test avg_gate_fidelity(CNOT_sop, CNOT_sop) == 1
-    @test avg_gate_fidelity(CNOT_chi, CNOT_chi) == 1
-    @test avg_gate_fidelity(CNOT_ptm, CNOT_ptm) == 1
-
-    @test_throws MethodError avg_gate_fidelity(CNOT_sop, CNOT_chi)
-    @test_throws MethodError avg_gate_fidelity(CNOT_sop, CNOT_ptm)
-    @test_throws MethodError avg_gate_fidelity(CNOT_chi, CNOT_ptm)
 
 end # testset
