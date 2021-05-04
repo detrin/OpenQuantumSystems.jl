@@ -41,7 +41,7 @@ import OrdinaryDiffEq
     for t_i in 1:length(tspan)
         U_op = evolutionOperator(Ham, tspan[t_i])
         rho = U_op * rho0 * U_op'
-        @test 1e-15 > D(rho, rho_t[t_i])
+        @test 1e-14 > D(rho, rho_t[t_i])
         # println(t_i, " ", D(rho.data, rho_t[t_i].data))
     end
     
