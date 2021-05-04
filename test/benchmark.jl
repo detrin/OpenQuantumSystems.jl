@@ -187,7 +187,7 @@ if true
     @btime let
         t, psi_t = schroedinger(psi0, Ham3, tspan; reltol=1e-10, abstol=1e-10, alg=OrdinaryDiffEq.Tsit5())
     end
-    println("\nschroedinger(psi0, Ham2, tspan; reltol=1e-12, abstol=1e-12, alg=OrdinaryDiffEq.Vern7()\n")
+    println("\nschroedinger(psi0, Ham3, tspan; reltol=1e-12, abstol=1e-12, alg=OrdinaryDiffEq.Vern7()\n")
     @btime let
         t, psi_t = schroedinger(psi0, Ham3, tspan; reltol=1e-12, abstol=1e-12, alg=OrdinaryDiffEq.Vern7())
     end
