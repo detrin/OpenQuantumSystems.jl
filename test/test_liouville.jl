@@ -37,6 +37,8 @@ import OrdinaryDiffEq
         # println(t_i, " ", D(rho.data, rho_t[t_i].data))
     end
 
+    # diabled for now for, it takes about 20 s to run this simulation
+    #=
     T, rho_t = liouvilleVonNeumann(rho0, Ham, tspan; reltol=1e-12, abstol=1e-12, alg=OrdinaryDiffEq.Vern7())
     for t_i in 1:length(tspan)
         U_op = evolutionOperator(Ham, tspan[t_i])
@@ -44,6 +46,7 @@ import OrdinaryDiffEq
         @test 1e-14 > D(rho, rho_t[t_i])
         # println(t_i, " ", D(rho.data, rho_t[t_i].data))
     end
+    =#
     
 
 end # testset
