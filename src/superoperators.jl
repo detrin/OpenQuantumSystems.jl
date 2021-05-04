@@ -1,3 +1,4 @@
+#=
 """
 Base class for all super operator classes.
 
@@ -363,6 +364,7 @@ end
 }
     throw(IncompatibleBases())
 end
+=#
 
 function Commutator(A::Operator)::SuperOperator
     return spre(A) - spost(A)
