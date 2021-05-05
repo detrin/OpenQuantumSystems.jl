@@ -18,6 +18,7 @@ DiffEqCallbacks = "2.16"
 OrdinaryDiffEq = "5.53"
 QuantumOpticsBase = "0.2"
 Reexport = "1.0"
+ResumableFunctions = "0.6"
 julia = "1.0"
 
 [extras]
