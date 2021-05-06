@@ -72,6 +72,22 @@ function getIndices(agg::Aggregate{T, C1, C2}; groundState=true) where {T<:Integ
     return indices
 end
 
+function getVibIndices(agg, aggIndices)
+    aggIndLen = length(aggIndices)
+    vibindices = Array{Array{Int, 1}, 1}(undef, 0)
+    elLen = length(agg.molecules)+1
+    for el_i in 1:elLen
+        push!(vibindices, Array{Int, 1}(undef, 0))
+    end
+
+    for I in 1:aggIndLen
+        elind1, vibind1 = aggIndices[I]
+        elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
+        push!(vibindices[elOrder1], I)
+    end
+    return vibindices
+end
+
 function getFranckCondonFactors(
         agg::Aggregate{T, C1, C2},
         aggIndices::Any; 
