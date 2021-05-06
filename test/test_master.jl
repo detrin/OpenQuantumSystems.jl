@@ -37,10 +37,9 @@ import DelayDiffEq
     rho0 = DenseOperator(basis, basis, data)
     normalize!(rho0)
     # tests have to be quick enough
-    tspan = [0.:0.001:0.01;]
-
-    T, rho_t = master_int(Ham_S, Ham_int, rho0, tspan; reltol=1e-6, abstol=1e-6, alg=DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()))#, alg=OrdinaryDiffEq.Vern7())
-
+    tspan = [0.:0.01:0.1;]
+    @time let
+    T, rho_t = master_int(Ham_S, Ham_int, rho0, tspan; reltol=1e-6, abstol=1e-6, alg=DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()))#, alg=OrdinaryDiffEq.Vern7())
     rho_prev = deepcopy(rho0)
     for t_i in 2:length(rho_t)
         t = T[t_i]
@@ -51,6 +50,20 @@ import DelayDiffEq
         rho_ref = U_op * rho0 * U_op'
 
         @test 1e-10 > D(rho_ref, rho)
+    end
+    end
+    
+    @time let
+    T, rho_t = master(Ham, rho0, tspan; reltol=1e-6, abstol=1e-6, alg=DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()))#, alg=OrdinaryDiffEq.Vern7())
+    rho_prev = deepcopy(rho0)
+    for t_i in 2:length(rho_t)
+        t = T[t_i]
+        rho = rho_t[t_i]
+        U_op = evolutionOperator(Ham, t)
+        rho_ref = U_op * rho0 * U_op'
+
+        @test 1e-10 > D(rho_ref, rho)
+    end
     end
     
 
