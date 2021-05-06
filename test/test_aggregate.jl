@@ -255,4 +255,8 @@ using SparseArrays
     Ham_int = getAggHamiltonianInteraction(agg)
     @test 1e12 > D(Ham_ref, Ham_int.data + Ham_S.data)
 
+    aggInds = getIndices(agg)
+    vibIndices = getVibIndices(agg, aggInds)
+    @test vibIndices == [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
+
 end
