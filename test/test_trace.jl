@@ -35,9 +35,9 @@ using Random, SparseArrays, LinearAlgebra
         0.5960193120071318 - 0.31849769746151213im 0.4626332738354356 + 0.0im
     ]
     rho_traced = trace_bath(rho, agg, FCFact, aggInds, vibindices; groundState=false)
-    @test 1e-15 > D(rho_traced.data, rho_traced_ref)
+    @test 1e-14 > D(rho_traced.data, rho_traced_ref)
     rho_traced = trace_bath(rho.data, agg, FCFact, aggInds, vibindices; groundState=false)
-    @test 1e-15 > D(rho_traced, rho_traced_ref)
+    @test 1e-14 > D(rho_traced, rho_traced_ref)
 
     t = 1.0
     U_op = evolutionOperator(Ham, t)
@@ -47,9 +47,9 @@ using Random, SparseArrays, LinearAlgebra
         0.5960193120071318 - 0.31849769746151213im 0.46263327383543557 - 4.716400113933126e-18im
     ]
     rho_traced = trace_bath(rho, agg, FCFact, aggInds, vibindices; groundState=false)
-    @test 1e-15 > D(rho_traced.data, rho_traced_ref)
+    @test 1e-14 > D(rho_traced.data, rho_traced_ref)
     rho_traced = trace_bath(rho.data, agg, FCFact, aggInds, vibindices; groundState=false)
-    @test 1e-15 > D(rho_traced, rho_traced_ref)
+    @test 1e-14 > D(rho_traced, rho_traced_ref)
 
 
     mode1 = Mode(0.2, 1.)
@@ -77,9 +77,9 @@ using Random, SparseArrays, LinearAlgebra
         0.36717929072360034 - 0.48380689550795175im 0.4295074106269881 - 0.3124835865738737im 0.3444095162186903 + 0.0im
     ]
     rho_traced = trace_bath(rho, agg, FCFact, aggInds, vibindices; groundState=true)
-    @test 1e-15 > D(rho_traced.data, rho_traced_ref)
+    @test 1e-14 > D(rho_traced.data, rho_traced_ref)
     rho_traced = trace_bath(rho.data, agg, FCFact, aggInds, vibindices; groundState=true)
-    @test 1e-15 > D(rho_traced, rho_traced_ref)
+    @test 1e-14 > D(rho_traced, rho_traced_ref)
 
     t = 1.0
     U_op = evolutionOperator(Ham, t)
@@ -91,9 +91,9 @@ using Random, SparseArrays, LinearAlgebra
     ]
 
     rho_traced = trace_bath(rho, agg, FCFact, aggInds, vibindices; groundState=true)
-    @test 1e-15 > D(rho_traced.data, rho_traced_ref)
+    @test 1e-14 > D(rho_traced.data, rho_traced_ref)
     rho_traced = trace_bath(rho.data, agg, FCFact, aggInds, vibindices; groundState=true)
-    @test 1e-15 > D(rho_traced, rho_traced_ref)
+    @test 1e-14 > D(rho_traced, rho_traced_ref)
 
 
 end
