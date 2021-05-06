@@ -58,8 +58,8 @@ import OrdinaryDiffEq
         sum(H)
     end
 
-    tout, psi_rot_t = schroedinger(psi0, Hrot, tspan)
-    tout, psi_t = schroedinger_dynamic(psi0, f, tspan)
+    tout, psi_rot_t = schroedinger(psi0, tspan, Hrot)
+    tout, psi_t = schroedinger_dynamic(psi0, tspan, f)
 
     n_op = dense(at*a)
     for (i, t) in enumerate(tout)
@@ -75,7 +75,7 @@ import OrdinaryDiffEq
     function fout(t, psi)
     deepcopy(psi)
     end
-    t_fout, psi_fout = schroedinger(psi0, Hrot, tspan; fout=fout)
+    t_fout, psi_fout = schroedinger(psi0, tspan, Hrot; fout=fout)
     @test t_fout == tout && psi_fout == psi_rot_t
 
     # test integration of propagator using 2 level system
@@ -88,12 +88,12 @@ import OrdinaryDiffEq
     # for the time dependent equation
     f2(t, psi) = sx * π
     tspan = [0:1.0;]
-    t, u = schroedinger(u0, π * sx, tspan)
+    t, u = schroedinger(u0, tspan, π * sx)
 
     # I think the tolerance on the differential equation is 1e-6, we expect the operator to be essentially the identity
     @test abs(expect(sz, u[end] * su)) - abs(expect(sz, u0 * su)) < 1e-6
 
-    t, u = schroedinger_dynamic(u0, f2, tspan)
+    t, u = schroedinger_dynamic(u0, tspan, f2)
     @test abs(expect(sz, u[end] * su)) - abs(expect(sz, u0 * su)) < 1e-6
 
 
@@ -116,7 +116,7 @@ import OrdinaryDiffEq
     rho0 = dm(ket0)
     tspan = [0.:0.1:1.0;]
 
-    T, rho_t = schroedinger(ket0, Ham, tspan; reltol=1e-10, abstol=1e-10, alg=OrdinaryDiffEq.Tsit5())
+    T, rho_t = schroedinger(ket0, tspan, Ham; reltol=1e-10, abstol=1e-10, alg=OrdinaryDiffEq.Tsit5())
     for t_i in 1:length(tspan)
         U_op = evolutionOperator(Ham, tspan[t_i])
         ket = U_op * ket0 

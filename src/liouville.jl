@@ -2,7 +2,7 @@
 import OrdinaryDiffEq
 import QuantumOpticsBase
 
-function liouvilleVonNeumann(rho0::T, H::AbstractOperator{B,B}, tspan;
+function liouvilleVonNeumann(rho0::T, tspan::Array, H::AbstractOperator{B,B};
         reltol::Float64=1.0e-12, abstol::Float64=1.0e-12,
         alg::OrdinaryDiffEq.OrdinaryDiffEqAlgorithm = OrdinaryDiffEq.DP5(),
         fout::Union{Function,Nothing}=nothing,
