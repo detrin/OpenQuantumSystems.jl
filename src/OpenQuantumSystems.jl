@@ -176,7 +176,8 @@ export
     getInteractionHamIPictureA,
 
     # master.jl
-    master_int
+    master_int,
+    master
 
 include("core.jl")
 include("operators_dense.jl")
