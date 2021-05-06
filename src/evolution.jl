@@ -94,7 +94,7 @@ end
     end
 end
 
-function evolutionExact(ket0::Ket, Hamiltonian::Operator, tspan::Array)
+function evolutionExact(ket0::Ket, tspan::Array, Hamiltonian::Operator)
     N = length(tspan)
     ket_array = Array{Ket, 1}(undef, 0)
     for t_i in 1:N
@@ -108,7 +108,7 @@ function evolutionExact(ket0::Ket, Hamiltonian::Operator, tspan::Array)
     return ket_array
 end
 
-function evolutionExact!(ket_array::Array{Array{C,1},1}, ket0::Ket, Hamiltonian::Operator, tspan::Array) where C<:ComputableType
+function evolutionExact!(ket_array::Array{Array{C,1},1}, ket0::Ket, tspan::Array, Hamiltonian::Operator) where C<:ComputableType
     N = length(tspan)
     buffer = zeros(C, size(ket0.data))
     for t_i in 1:N
@@ -123,7 +123,7 @@ function evolutionExact!(ket_array::Array{Array{C,1},1}, ket0::Ket, Hamiltonian:
     return ket_array
 end
 
-function evolutionExact(op0::Operator, Hamiltonian::Operator, tspan::Array)
+function evolutionExact(op0::Operator, tspan::Array, Hamiltonian::Operator)
     N = length(tspan)
     op_array = Array{typeof(op0), 1}(undef, 0)
     for t_i in 1:N
@@ -137,7 +137,7 @@ function evolutionExact(op0::Operator, Hamiltonian::Operator, tspan::Array)
     return op_array
 end
 
-function evolutionExact!(op_array::Array{Array{C,2},1}, op0::Operator, Hamiltonian::Operator, tspan::Array) where C<:ComputableType
+function evolutionExact!(op_array::Array{Array{C,2},1}, op0::Operator, tspan::Array, Hamiltonian::Operator) where C<:ComputableType
     N = length(tspan)
     buffer = zeros(C, size(op0.data))
     for t_i in 1:N
@@ -153,7 +153,7 @@ function evolutionExact!(op_array::Array{Array{C,2},1}, op0::Operator, Hamiltoni
     return op_array
 end
 
-function evolutionApproximate(ket0::Ket, Hamiltonian::Operator, tspan::Array)
+function evolutionApproximate(ket0::Ket, tspan::Array, Hamiltonian::Operator)
     N = length(tspan)
     ket_array = Array{typeof(ket0), 1}(undef, 0)
     for t_i in 1:N
@@ -169,7 +169,7 @@ function evolutionApproximate(ket0::Ket, Hamiltonian::Operator, tspan::Array)
     return ket_array
 end
 
-function evolutionApproximate!(ket_array::Array{Array{C,1},1}, ket0::Ket, Hamiltonian::Operator, tspan::Array) where C<:ComputableType
+function evolutionApproximate!(ket_array::Array{Array{C,1},1}, ket0::Ket, tspan::Array, Hamiltonian::Operator) where C<:ComputableType
     N = length(tspan)
     buffer = zeros(C, size(ket0.data))
     buffer[:] .= convert(Array{C,1}, ket0.data)
@@ -187,7 +187,7 @@ function evolutionApproximate!(ket_array::Array{Array{C,1},1}, ket0::Ket, Hamilt
     return ket_array
 end
 
-function evolutionApproximate(op0::Operator, Hamiltonian::Operator, tspan::Array)
+function evolutionApproximate(op0::Operator, tspan::Array, Hamiltonian::Operator)
     N = length(tspan)
     op_array = Array{typeof(op0), 1}(undef, 0)
     for t_i in 1:N
@@ -204,7 +204,7 @@ function evolutionApproximate(op0::Operator, Hamiltonian::Operator, tspan::Array
     return op_array
 end
 
-function evolutionApproximate!(op_array::Array{Array{C,2},1}, op0::Operator, Hamiltonian::Operator, tspan::Array) where C<:ComputableType
+function evolutionApproximate!(op_array::Array{Array{C,2},1}, op0::Operator, tspan::Array, Hamiltonian::Operator) where C<:ComputableType
     N = length(tspan)
     buffer = zeros(C, size(op0.data))
     buffer[:,:] .= convert(Array{C,2}, op0.data)
@@ -221,4 +221,69 @@ function evolutionApproximate!(op_array::Array{Array{C,2},1}, op0::Operator, Ham
         op_array[t_i] = deepcopy(buffer)
     end
     return op_array
+end
+
+function evolution_exact(rho0::T, tspan::Array, Ham::U; diagonalize=false) where {B<:Basis,T<:Operator{B,B},U<:Operator{B,B}}
+    N = length(tspan)
+
+    rho = deepcopy(rho0)
+    if diagonalize
+        Ham_lambda, Ham_S = eigen(Ham.data)
+        basis = GenericBasis([size(Ham_lambda, 1)])
+        Ham_Sinv = inv(Ham_S)
+        U_diagonal = zero(Ham_lambda)
+        U_diagonal = map(lambda -> exp(-1im * lambda * tspan[1]), Ham_lambda)
+        U_data = Ham_S * diagm(U_diagonal) * inv(Ham_S)
+        U_op = DenseOperator(basis, basis, U_data)
+    else
+        U_op = evolutionOperator(Ham, tspan[1])
+    end
+    rho = U_op * rho0 * U_op'
+    rho_t = [rho]
+
+    for t_i in 2:N
+        t = tspan[t_i]
+        if diagonalize
+            U_diagonal .= map(lambda -> exp(-1im * lambda * t), Ham_lambda)
+            U_op.data .= Ham_S * diagm(U_diagonal) * inv(Ham_S)
+        else
+            U_op = evolutionOperator(Ham, t)
+        end
+        rho = U_op * rho0 * U_op'
+        push!(rho_t, rho)
+    end
+    return tspan, rho_t
+end
+
+function evolution_approximate(rho0::T, tspan::Array, Ham::U; diagonalize=false) where {B<:Basis,T<:Operator{B,B},U<:Operator{B,B}}
+    N = length(tspan)
+    t_step = tspan[2] - tspan[1]
+    for t_i in 1:N-1
+        if ! (tspan[t_i+1] - tspan[t_i] ≈ t_step)
+            throw(ErrorException("Steps must be the same in tspan."))
+        end
+    end
+
+    rho = deepcopy(rho0)
+    if diagonalize
+        Ham_lambda, Ham_S = eigen(Ham.data)
+        basis = GenericBasis([size(Ham_lambda, 1)])
+        Ham_Sinv = inv(Ham_S)
+        U_diagonal = zero(Ham_lambda)
+        U_diagonal = map(lambda -> exp(-1im * lambda * t_step), Ham_lambda)
+        U_data = Ham_S * diagm(U_diagonal) * inv(Ham_S)
+        U_op_step = DenseOperator(basis, basis, U_data)
+    else
+        U_op_step = evolutionOperator(Ham, t_step)
+    end
+    U_op_step_d = U_op_step'
+    # rho = U_op_step * rho0 * U_op_step_d
+    rho_t = [rho0]
+
+    for t_i in 2:N
+        t = tspan[t_i]
+        rho = U_op_step * rho * U_op_step_d
+        push!(rho_t, rho)
+    end
+    return tspan, rho_t
 end
