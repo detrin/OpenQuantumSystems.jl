@@ -10,6 +10,9 @@ remove:
 tests:
 	julia --project -e 'using Pkg; Pkg.build(); Pkg.test()'
 
+tests_dev:
+	julia test/runtests_dev.jl
+
 update_devel:
 	git checkout master
 	git pull
