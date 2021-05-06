@@ -20,11 +20,11 @@ import OrdinaryDiffEq
     agg = Aggregate([mol1, mol2])
     aggInds = getIndices(agg; groundState=false)
     aggIndsLen = length(aggInds)
-    base = GenericBasis([aggIndsLen])
+    basis = GenericBasis([aggIndsLen])
     FCFact = getFranckCondonFactors(agg, aggInds; groundState=false)
     Ham = getAggHamiltonian(agg, aggInds, FCFact; groundState=false)
 
-    ket0 = randstate(base)
+    ket0 = randstate(basis)
     rho0 = dm(ket0)
     # tests have to be quick enough
     tspan = [0.:0.1:1.0;]

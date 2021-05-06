@@ -35,7 +35,7 @@ end
 function evolutionSuperOperatorArray(Hamiltonian::Operator, tspan::Array)::Array
     N = length(tspan)
     Ham_lambda, Ham_S = eigen(Hamiltonian.data)
-    base = GenericBasis([size(Ham_lambda, 1)])
+    basis = GenericBasis([size(Ham_lambda, 1)])
     Ham_Sinv = inv(Ham_S)
     U_diagonal = zeros(ComplexF64, size(Ham_lambda))
 
@@ -48,7 +48,7 @@ function evolutionSuperOperatorArray(Hamiltonian::Operator, tspan::Array)::Array
     for t_i in 1:N
         U_diagonal .= map(lambda -> exp(-1im * lambda * tspan[t_i]), Ham_lambda)
         U = Ham_S * diagm(U_diagonal) * inv(Ham_S)
-        U_op = DenseOperator(base, base, U)
+        U_op = DenseOperator(basis, basis, U)
         U_supop_array[t_i] = spre(U_op) * spost(U_op')
     end
     return U_supop_array 
@@ -57,13 +57,13 @@ end
 @resumable function evolutionOperatorIterator(Hamiltonian::Operator, tspan::Array)
     N = length(tspan)
     Ham_lambda, Ham_S = eigen(Hamiltonian.data)
-    base = GenericBasis([size(Ham_lambda, 1)])
+    basis = GenericBasis([size(Ham_lambda, 1)])
     Ham_Sinv = inv(Ham_S)
     
     U_diagonal = zero(Ham_lambda)
     U_diagonal = map(lambda -> exp(-1im * lambda * tspan[1]), Ham_lambda)
     U = Ham_S * diagm(U_diagonal) * inv(Ham_S)
-    U_op = DenseOperator(base, base, U)
+    U_op = DenseOperator(basis, basis, U)
     @yield U_op 
 
     for t_i in 2:N
@@ -76,13 +76,13 @@ end
 @resumable function evolutionSuperOperatorIterator(Hamiltonian::Operator, tspan::Array)
     N = length(tspan)
     Ham_lambda, Ham_S = eigen(Hamiltonian.data)
-    base = GenericBasis([size(Ham_lambda, 1)])
+    basis = GenericBasis([size(Ham_lambda, 1)])
     Ham_Sinv = inv(Ham_S)
     
     U_diagonal = zero(Ham_lambda)
     U_diagonal = map(lambda -> exp(-1im * lambda * tspan[1]), Ham_lambda)
     U = Ham_S * diagm(U_diagonal) * inv(Ham_S)
-    U_op = DenseOperator(base, base, U)
+    U_op = DenseOperator(basis, basis, U)
     U_supop = spre(U_op) * spost(U_op')
     @yield U_supop
 

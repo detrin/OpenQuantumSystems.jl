@@ -104,12 +104,12 @@ import OrdinaryDiffEq
     agg = Aggregate([mol1, mol2])
     aggInds = getIndices(agg; groundState=false)
     aggIndsLen = length(aggInds)
-    base = GenericBasis([aggIndsLen])
+    basis = GenericBasis([aggIndsLen])
     FCFact = getFranckCondonFactors(agg, aggInds; groundState=false)
     Ham = getAggHamiltonian(agg, aggInds, FCFact; groundState=false)
 
-    ket0 = randstate(base)
-    ket0 = Ket(base)
+    ket0 = randstate(basis)
+    ket0 = Ket(basis)
     for i in 1:aggIndsLen
         ket0.data[i] = (1.0 / aggIndsLen)^0.5
     end
