@@ -143,6 +143,7 @@ export
     vibrationalIndices,
     electronicIndices,
     getIndices,
+    getVibIndices,
     getFranckCondonFactors,
     getAggStateEnergy,
     getAggHamiltonian,
