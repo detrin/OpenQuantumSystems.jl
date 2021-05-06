@@ -178,7 +178,10 @@ export
 
     # master.jl
     master_int,
-    master
+    master,
+
+    # trace.jl
+    trace_bath
 
 include("core.jl")
 include("operators_dense.jl")
@@ -192,5 +195,6 @@ include("schroedinger.jl")
 include("liouville.jl")
 include("interaction_picture.jl")
 include("master.jl")
+include("trace.jl")
 
 end
