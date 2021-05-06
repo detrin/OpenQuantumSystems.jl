@@ -13,9 +13,10 @@ names = [
     "test_evolution.jl",
     "test_schroedinger.jl",
     "test_liouville.jl",
+    "test_master.jl",
 ]
 
-names = ["test_liouville.jl"]
+names = ["test_master.jl"]
 
 while true 
     for name in names

@@ -169,7 +169,14 @@ export
     schroedinger_dynamic,
 
     # liouville.jl
-    liouvilleVonNeumann
+    liouvilleVonNeumann,
+
+    # interaction_picture.jl
+    getInteractionHamIPicture,
+    getInteractionHamIPictureA,
+
+    # master.jl
+    master_int
 
 include("core.jl")
 include("operators_dense.jl")
@@ -181,5 +188,7 @@ include("timeevolution_base.jl")
 include("evolution.jl")
 include("schroedinger.jl")
 include("liouville.jl")
+include("interaction_picture.jl")
+include("master.jl")
 
 end
