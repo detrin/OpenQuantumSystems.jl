@@ -1,4 +1,4 @@
-import OrdinaryDiffEq, DiffEqCallbacks
+import OrdinaryDiffEq, DiffEqCallbacks, DelayDiffEq
 
 function recast! end
 
@@ -69,6 +69,70 @@ function integrate(tspan, df::Function, x0::X,
         copy(state)
     end
     integrate(tspan, df, x0, state, dstate, fout; kwargs...)
+end
+
+
+function integrate_delayed(tspan, df::Function, h::Function, x0::X,
+        state::T, dstate::T, fout::Function;
+        reltol::Float64=1.0e-6, abstol::Float64=1.0e-6,
+        alg::Any = DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()),
+        steady_state = false, tol = 1e-3, save_everystep = false, saveat=tspan,
+        callback = nothing, kwargs...) where {T,X}
+
+    function df_(dx::T, x::T, h, p, t) where T
+        recast!(x, state)
+        recast!(dx, dstate)
+        df(t, state, dstate, h, p)
+        recast!(dstate, dx)
+    end
+    function fout_(x, t, integrator)
+        recast!(x, state)
+        fout(t, state)
+    end
+
+    out_type = pure_inference(fout, Tuple{eltype(tspan),typeof(state)})
+
+    out = DiffEqCallbacks.SavedValues(eltype(tspan),out_type)
+
+    scb = DiffEqCallbacks.SavingCallback(fout_,out,saveat=saveat,
+                                    save_everystep=save_everystep,
+                                    save_start = false)
+
+    prob = DelayDiffEq.DDEProblem{true}(df_, x0, h, (tspan[1],tspan[end]))
+
+    if steady_state
+        affect! = function (integrator)
+            !save_everystep && scb.affect!(integrator,true)
+            DelayDiffEq.terminate!(integrator)
+        end
+        _cb = DelayDiffEq.DiscreteCallback(
+                                SteadyStateCondtion(copy(state),tol,state),
+                                affect!;
+                                save_positions = (false,false))
+        cb = DelayDiffEq.CallbackSet(_cb,scb)
+    else
+        cb = scb
+    end
+
+    full_cb = DelayDiffEq.CallbackSet(callback,cb)
+
+    sol = DelayDiffEq.solve(
+                prob,
+                alg;
+                reltol=reltol,
+                abstol=abstol,
+                save_everystep = false, save_start = false,
+                save_end = false,
+                callback=full_cb, kwargs...)
+    out.t,out.saveval
+end
+
+function integrate_delayed(tspan, df::Function, h::Function, x0::X,
+        state::T, dstate::T, ::Nothing; kwargs...) where {T,X}
+    function fout(t, state::T)
+        copy(state)
+    end
+    integrate_delayed(tspan, df, h::Function, x0, state, dstate, fout; kwargs...)
 end
 
 struct SteadyStateCondtion{T,T2,T3}
