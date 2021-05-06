@@ -39,7 +39,7 @@ import DelayDiffEq
     # tests have to be quick enough
     tspan = [0.:0.01:0.1;]
 
-    T, rho_t = master_int(Ham_S, Ham_int, rho0, tspan; reltol=1e-6, abstol=1e-6, alg=DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()))#, alg=OrdinaryDiffEq.Vern7())
+    T, rho_t = master_int(rho0, tspan, Ham_S, Ham_int; reltol=1e-6, abstol=1e-6, alg=DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()))#, alg=OrdinaryDiffEq.Vern7())
     rho_prev = deepcopy(rho0)
     for t_i in 2:length(rho_t)
         t = T[t_i]
@@ -51,7 +51,7 @@ import DelayDiffEq
         @test 1e-10 > D(rho_ref, rho)
     end
 
-    T, rho_t = master(Ham, rho0, tspan; reltol=1e-6, abstol=1e-6, alg=DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()))#, alg=OrdinaryDiffEq.Vern7())
+    T, rho_t = master(rho0, tspan, Ham; reltol=1e-6, abstol=1e-6, alg=DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()))#, alg=OrdinaryDiffEq.Vern7())
     rho_prev = deepcopy(rho0)
     for t_i in 2:length(rho_t)
         t = T[t_i]

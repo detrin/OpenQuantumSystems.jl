@@ -14,7 +14,7 @@ Integrate Schroedinger equation to evolve states or compute propagators.
         normalized nor permanent! It is still in use by the ode solver and
         therefore must not be changed.
 """
-function schroedinger(psi0::T, H::AbstractOperator{B,B}, tspan::Array;
+function schroedinger(psi0::T, tspan::Array, H::AbstractOperator{B,B};
         reltol::Float64=1.0e-12, abstol::Float64=1.0e-12,
         alg::OrdinaryDiffEq.OrdinaryDiffEqAlgorithm = OrdinaryDiffEq.DP5(),
         fout::Union{Function,Nothing}=nothing,
@@ -42,7 +42,7 @@ Integrate time-dependent Schroedinger equation to evolve states or compute propa
         normalized nor permanent! It is still in use by the ode solver and
         therefore must not be changed.
 """
-function schroedinger_dynamic(psi0::T, f::Function, tspan::Array;
+function schroedinger_dynamic(psi0::T, tspan::Array, f::Function;
         reltol::Float64=1.0e-6, abstol::Float64=1.0e-8,
         alg::OrdinaryDiffEq.OrdinaryDiffEqAlgorithm = OrdinaryDiffEq.DP5(),
         fout::Union{Function,Nothing}=nothing,

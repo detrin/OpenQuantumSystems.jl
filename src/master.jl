@@ -1,7 +1,7 @@
 
 import QuantumOpticsBase, LinearAlgebra, OrdinaryDiffEq, QuadGK, DelayDiffEq
 
-function master_int(Ham_S::U, Ham_int::V, rho0::T, tspan;
+function master_int(rho0::T, tspan::Array, Ham_S::U, Ham_int::V;
         reltol::Float64=1.0e-12, abstol::Float64=1.0e-12,
         alg::Any = DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()),
         fout::Union{Function,Nothing}=nothing,
@@ -46,7 +46,7 @@ function kernel_int(t, s, tmp, h, p, Ham_II_t, Ham_S, Ham_int)
 end
 
 
-function master(Ham::U, rho0::T, tspan;
+function master(rho0::T, tspan, Ham::U;
         reltol::Float64=1.0e-12, abstol::Float64=1.0e-12,
         alg::Any = DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()),
         fout::Union{Function,Nothing}=nothing,

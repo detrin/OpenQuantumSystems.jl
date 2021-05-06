@@ -29,7 +29,7 @@ import OrdinaryDiffEq
     # tests have to be quick enough
     tspan = [0.:0.1:1.0;]
 
-    T, rho_t = liouvilleVonNeumann(rho0, Ham, tspan; reltol=1e-10, abstol=1e-10, alg=OrdinaryDiffEq.Tsit5())
+    T, rho_t = liouvilleVonNeumann(rho0, tspan, Ham; reltol=1e-10, abstol=1e-10, alg=OrdinaryDiffEq.Tsit5())
     for t_i in 1:length(tspan)
         U_op = evolutionOperator(Ham, tspan[t_i])
         rho = U_op * rho0 * U_op'
