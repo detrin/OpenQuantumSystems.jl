@@ -2,6 +2,7 @@ name: CI-short
 on:
   push:
     branches:
+      - master
       - devel
 jobs:
   test:

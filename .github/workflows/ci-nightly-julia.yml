@@ -1,8 +1,5 @@
 name: CI-nightly-julia
 on:
-  push:
-    branches:
-      - master
   pull_request:
     branches:
       - master
