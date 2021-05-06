@@ -86,14 +86,14 @@ import OrdinaryDiffEq
     sz = sigmaz(basis)
 
     # for the time dependent equation
-    f(t, psi) = sx * π
+    f2(t, psi) = sx * π
     tspan = [0:1.0;]
     t, u = schroedinger(u0, π * sx, tspan)
 
     # I think the tolerance on the differential equation is 1e-6, we expect the operator to be essentially the identity
     @test abs(expect(sz, u[end] * su)) - abs(expect(sz, u0 * su)) < 1e-6
 
-    t, u = schroedinger_dynamic(u0, f, tspan)
+    t, u = schroedinger_dynamic(u0, f2, tspan)
     @test abs(expect(sz, u[end] * su)) - abs(expect(sz, u0 * su)) < 1e-6
 
 
