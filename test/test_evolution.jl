@@ -17,7 +17,7 @@ using Random, SparseArrays, LinearAlgebra
     mol2 = Molecule([mode1], 2, Energy)
     agg = Aggregate([mol1, mol2])
     aggInds = getIndices(agg; groundState=false)
-    base = GenericBasis([length(aggInds)])
+    basis = GenericBasis([length(aggInds)])
     FCFact = getFranckCondonFactors(agg, aggInds; groundState=false)
     Ham = getAggHamiltonian(agg, aggInds, FCFact; groundState=false)
 
@@ -70,7 +70,7 @@ using Random, SparseArrays, LinearAlgebra
         t += 0.5
     end
 
-    ket = randstate(base)
+    ket = randstate(basis)
     ket1 = U_op1 * ket
     ket2 = U_op2 * ket
     ket3 = U_op3 * ket
