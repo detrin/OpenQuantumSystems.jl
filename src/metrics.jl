@@ -7,6 +7,13 @@ function tracenorm(rho::DenseSuperOpType)
     ishermitian(rho) ? tracenorm_h(rho) : tracenorm_nh(rho)
 end
 
+function tracenorm!(rho::DenseSuperOpType)
+    if ishermitian(rho) 
+        rho.data ./= tracenorm_h(rho) 
+    else
+        rho.data ./= tracenorm_nh(rho) 
+    end
+end
 
 function tracenorm_h(rho::DenseSuperOpType{B,B,T}) where {B<:Tuple{Basis,Basis},T}
     s = eigvals(Hermitian(rho.data))
