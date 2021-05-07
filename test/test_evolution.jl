@@ -8,21 +8,23 @@ using Random, SparseArrays, LinearAlgebra
 
     D(op1::Array, op2::Array) = abs(norm(op1 - op2))
     D(x1::StateVector, x2::StateVector) = norm(x2 - x1)
-    D(op1::AbstractOperator, op2::AbstractOperator) = abs(tracedistance_nh(dense(op1), dense(op2)))
-    D(op1::AbstractSuperOperator, op2::AbstractSuperOperator) = abs(tracedistance_nh(dense(op1), dense(op2)))
+    D(op1::AbstractOperator, op2::AbstractOperator) =
+        abs(tracedistance_nh(dense(op1), dense(op2)))
+    D(op1::AbstractSuperOperator, op2::AbstractSuperOperator) =
+        abs(tracedistance_nh(dense(op1), dense(op2)))
 
-    mode1 = Mode(0.2, 1.)
-    Energy = [0., 200.]
+    mode1 = Mode(0.2, 1.0)
+    Energy = [0.0, 200.0]
     mol1 = Molecule([mode1], 2, Energy)
     mol2 = Molecule([mode1], 2, Energy)
     agg = Aggregate([mol1, mol2])
-    aggInds = getIndices(agg; groundState=false)
+    aggInds = getIndices(agg; groundState = false)
     aggIndsLen = length(aggInds)
     basis = GenericBasis([aggIndsLen])
-    FCFact = getFranckCondonFactors(agg, aggInds; groundState=false)
-    Ham = getAggHamiltonian(agg, aggInds, FCFact; groundState=false)
+    FCFact = getFranckCondonFactors(agg, aggInds; groundState = false)
+    Ham = getAggHamiltonian(agg, aggInds, FCFact; groundState = false)
 
-    t = 0.
+    t = 0.0
     U_op = evolutionOperator(Ham, t)
     U_op_ref = exp(-1im * Ham * t)
     @test 1e-12 > D(U_op, U_op_ref)
@@ -31,7 +33,7 @@ using Random, SparseArrays, LinearAlgebra
     U_sop_ref = spre(U_op) * spost(U_op')
     @test 1e-12 > D(U_sop, U_sop_ref)
 
-    t = 1.
+    t = 1.0
     U_op = evolutionOperator(Ham, t)
     U_op_ref = exp(-1im * Ham * t)
     @test 1e-12 > D(U_op, U_op_ref)
@@ -40,7 +42,7 @@ using Random, SparseArrays, LinearAlgebra
     U_sop_ref = spre(U_op) * spost(U_op')
     @test 1e-12 > D(U_sop, U_sop_ref)
 
-    tspan = [0.:0.5:1.;]
+    tspan = [0.0:0.5:1.0;]
     U_op_array = evolutionOperatorArray(Ham, tspan)
     U_op1 = evolutionOperator(Ham, 0.0)
     U_op2 = evolutionOperator(Ham, 0.5)
@@ -57,14 +59,14 @@ using Random, SparseArrays, LinearAlgebra
     @test 1e-12 > D(U_sop_array[2], U_sop2)
     @test 1e-12 > D(U_sop_array[3], U_sop3)
 
-    t = 0.
+    t = 0.0
     foreach(evolutionOperatorIterator(Ham, tspan)) do U_op
         U_op_ref = evolutionOperator(Ham, t)
         @test 1e-12 > D(U_op, U_op_ref)
         t += 0.5
     end
 
-    t = 0.
+    t = 0.0
     foreach(evolutionSuperOperatorIterator(Ham, tspan)) do U_sop
         U_sop_ref = evolutionSuperOperator(Ham, t)
         @test 1e-12 > D(U_sop, U_sop_ref)
@@ -131,33 +133,33 @@ using Random, SparseArrays, LinearAlgebra
     tspan = [0.0:0.1:1.0;]
     rho_t_ref = evolutionExact(rho0, tspan, Ham)
 
-    @time T, rho_t = evolution_exact(rho0, tspan, Ham; diagonalize=false)
+    T, rho_t = evolution_exact(rho0, tspan, Ham; diagonalize = false)
     U_op_array = evolutionOperatorArray(Ham, tspan)
-    for t_i in 1:length(tspan)
+    for t_i = 1:length(tspan)
         U_op = U_op_array[t_i]
         rho_ref = U_op * rho0 * U_op'
         1e-12 > D(rho_t_ref[t_i], rho_t[t_i])
     end
 
-    @time T, rho_t = evolution_exact(rho0, tspan, Ham; diagonalize=true)
-    for t_i in 1:length(tspan)
+    T, rho_t = evolution_exact(rho0, tspan, Ham; diagonalize = true)
+    for t_i = 1:length(tspan)
         U_op = U_op_array[t_i]
         rho_ref = U_op * rho0 * U_op'
         1e-12 > D(rho_t_ref[t_i], rho_t[t_i])
     end
 
-    @time T, rho_t = evolution_approximate(rho0, tspan, Ham; diagonalize=false)
-    for t_i in 1:length(tspan)
+    T, rho_t = evolution_approximate(rho0, tspan, Ham; diagonalize = false)
+    for t_i = 1:length(tspan)
         U_op = U_op_array[t_i]
         rho_ref = U_op * rho0 * U_op'
         1e-12 > D(rho_t_ref[t_i], rho_t[t_i])
     end
 
-    @time T, rho_t = evolution_approximate(rho0, tspan, Ham; diagonalize=true)
-    for t_i in 1:length(tspan)
+    T, rho_t = evolution_approximate(rho0, tspan, Ham; diagonalize = true)
+    for t_i = 1:length(tspan)
         U_op = U_op_array[t_i]
         rho_ref = U_op * rho0 * U_op'
         1e-12 > D(rho_t_ref[t_i], rho_t[t_i])
     end
-    
+
 end
