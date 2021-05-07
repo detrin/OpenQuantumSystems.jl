@@ -18,7 +18,7 @@ names = [
 
 names = ["test_master.jl"]
 
-while true 
+while true
     for name in names
         if startswith(name, "test_") && endswith(name, ".jl")
             try

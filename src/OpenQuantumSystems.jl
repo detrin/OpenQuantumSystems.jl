@@ -1,8 +1,8 @@
 module OpenQuantumSystems
 
 using Reexport
-@reexport using QuantumOpticsBase: 
-    Basis, 
+@reexport using QuantumOpticsBase:
+    Basis,
     GenericBasis,
     basis,
     tensor,
@@ -38,7 +38,7 @@ using Reexport
     DenseOpType,
     projector,
     dm,
-    
+
     # operators_sparse.jl
     SparseOperator,
     diagonaloperator,
@@ -113,7 +113,7 @@ using Reexport
 
 using SparseArrays, LinearAlgebra
 
-export 
+export
     # operators_dense.jl
     OneDenseOperator,
 
