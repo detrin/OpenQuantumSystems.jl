@@ -30,3 +30,5 @@ git_add_upstream:
 benchmark:
 	julia test/benchmark.jl | tee Benchmarks.md
 
+format:
+	julia -e 'using JuliaFormatter; format(".")'
