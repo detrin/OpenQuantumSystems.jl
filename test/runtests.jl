@@ -26,7 +26,7 @@ if length(unavailable_tests) != 0
     error("The following tests could not be found:\n", join(unavailable_tests, "\n"))
 end
 
-# names = ["test_evolution.jl"]
+# names = ["test_trace.jl"]
 
 for name in names
     if startswith(name, "test_") && endswith(name, ".jl")

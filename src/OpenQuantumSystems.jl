@@ -183,7 +183,9 @@ export
     master,
 
     # trace.jl
-    trace_bath
+    getFCProd,
+    trace_bath,
+    trace_bath_slow
 
 include("core.jl")
 include("operators_dense.jl")
