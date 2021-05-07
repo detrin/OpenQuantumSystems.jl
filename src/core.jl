@@ -1,2 +1,2 @@
 
-const ComputableType = Union{AbstractFloat, Complex}
+const ComputableType = Union{AbstractFloat,Complex}
