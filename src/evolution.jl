@@ -54,42 +54,74 @@ function evolutionSuperOperatorArray(Hamiltonian::Operator, tspan::Array)::Array
     return U_supop_array
 end
 
-@resumable function evolutionOperatorIterator(Hamiltonian::Operator, tspan::Array)
+@resumable function evolutionOperatorIterator(Hamiltonian::Operator, tspan::Array; diagonalize = true, approximate = false)
     N = length(tspan)
-    Ham_lambda, Ham_S = eigen(Hamiltonian.data)
-    basis = GenericBasis([size(Ham_lambda, 1)])
-    Ham_Sinv = inv(Ham_S)
+    t_step = tspan[2] - tspan[1]
+    if diagonalize
+        Ham_lambda, Ham_S = eigen(Hamiltonian.data)
+        basis = GenericBasis([size(Ham_lambda, 1)])
+        Ham_Sinv = inv(Ham_S)
 
-    U_diagonal = zero(Ham_lambda)
-    U_diagonal = map(lambda -> exp(-1im * lambda * tspan[1]), Ham_lambda)
-    U = Ham_S * diagm(U_diagonal) * inv(Ham_S)
-    U_op = DenseOperator(basis, basis, U)
+        U_diagonal = zero(Ham_lambda)
+        U_diagonal = map(lambda -> exp(-1im * lambda * tspan[1]), Ham_lambda)
+        U = Ham_S * diagm(U_diagonal) * inv(Ham_S)
+        U_op = DenseOperator(basis, basis, U)
+    elseif !approximate
+        U_op = evolutionOperator(Hamiltonian, tspan[1])
+    else
+        U_op = evolutionOperator(Hamiltonian, tspan[1])
+        U_step = evolutionOperator(Hamiltonian, t_step)
+    end
     @yield U_op
 
     for t_i = 2:N
-        U_diagonal .= map(lambda -> exp(-1im * lambda * tspan[t_i]), Ham_lambda)
-        U_op.data .= Ham_S * diagm(U_diagonal) * inv(Ham_S)
+        t = tspan[t_i]
+        if diagonalize
+            U_diagonal .= map(lambda -> exp(-1im * lambda * t), Ham_lambda)
+            U_op.data .= Ham_S * diagm(U_diagonal) * inv(Ham_S)
+        elseif !approximate
+            U_op = evolutionOperator(Hamiltonian, t)
+        else
+            U_op = U_step * U_op
+        end
         @yield U_op
     end
 end
 
-@resumable function evolutionSuperOperatorIterator(Hamiltonian::Operator, tspan::Array)
+@resumable function evolutionSuperOperatorIterator(Hamiltonian::Operator, tspan::Array; diagonalize = true, approximate = false)
     N = length(tspan)
-    Ham_lambda, Ham_S = eigen(Hamiltonian.data)
-    basis = GenericBasis([size(Ham_lambda, 1)])
-    Ham_Sinv = inv(Ham_S)
+    t_step = tspan[2] - tspan[1]
+    if diagonalize
+        Ham_lambda, Ham_S = eigen(Hamiltonian.data)
+        basis = GenericBasis([size(Ham_lambda, 1)])
+        Ham_Sinv = inv(Ham_S)
 
-    U_diagonal = zero(Ham_lambda)
-    U_diagonal = map(lambda -> exp(-1im * lambda * tspan[1]), Ham_lambda)
-    U = Ham_S * diagm(U_diagonal) * inv(Ham_S)
-    U_op = DenseOperator(basis, basis, U)
+        U_diagonal = zero(Ham_lambda)
+        U_diagonal = map(lambda -> exp(-1im * lambda * tspan[1]), Ham_lambda)
+        U = Ham_S * diagm(U_diagonal) * inv(Ham_S)
+        U_op = DenseOperator(basis, basis, U)
+    elseif !approximate
+        U_op = evolutionOperator(Hamiltonian, tspan[1])
+    else
+        U_op = evolutionOperator(Hamiltonian, tspan[1])
+        U_step = evolutionOperator(Hamiltonian, t_step)
+    end
     U_supop = spre(U_op) * spost(U_op')
     @yield U_supop
 
     for t_i = 2:N
-        U_diagonal .= map(lambda -> exp(-1im * lambda * tspan[t_i]), Ham_lambda)
-        U_op.data .= Ham_S * diagm(U_diagonal) * inv(Ham_S)
-        U_supop.data .= (spre(U_op)).data * (spost(U_op')).data
+        t = tspan[t_i]
+        if diagonalize
+            U_diagonal .= map(lambda -> exp(-1im * lambda * tspan[t_i]), Ham_lambda)
+            U_op.data .= Ham_S * diagm(U_diagonal) * inv(Ham_S)
+            U_supop.data .= (spre(U_op)).data * (spost(U_op')).data
+        elseif !approximate
+            U_op = evolutionOperator(Hamiltonian, t)
+            U_supop = spre(U_op) * spost(U_op')
+        else
+            U_op = U_step * U_op
+            U_supop = spre(U_op) * spost(U_op')
+        end
         @yield U_supop
     end
 end
