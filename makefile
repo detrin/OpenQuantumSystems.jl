@@ -1,8 +1,8 @@
 
 REPOSITORY=https://github.com/detrin/OpenQuantumSystems.jl
 
-install_from_repo:
-	julia -e 'using Pkg; Pkg.add(path="../OpenQuantumSystems.jl")'
+install_dev:
+	julia -e 'using Pkg; Pkg.add(path="https://github.com/detrin/OpenQuantumSystems.jl#devel")'
 
 remove:
 	julia -e 'using Pkg; Pkg.rm("OpenQuantumSystems")'
