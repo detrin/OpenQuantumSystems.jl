@@ -67,9 +67,37 @@ using Random, SparseArrays, LinearAlgebra
     end
 
     t = 0.0
+    foreach(evolutionOperatorIterator(Ham, tspan; diagonalize = false, approximate = false)) do U_op
+        U_op_ref = evolutionOperator(Ham, t)
+        @test 1e-12 > D(U_op, U_op_ref)
+        t += 0.5
+    end
+
+    t = 0.0
+    foreach(evolutionOperatorIterator(Ham, tspan; diagonalize = false, approximate = true)) do U_op
+        U_op_ref = evolutionOperator(Ham, t)
+        @test 1e-12 > D(U_op, U_op_ref)
+        t += 0.5
+    end
+
+    t = 0.0
     foreach(evolutionSuperOperatorIterator(Ham, tspan)) do U_sop
         U_sop_ref = evolutionSuperOperator(Ham, t)
         @test 1e-12 > D(U_sop, U_sop_ref)
+        t += 0.5
+    end
+
+    t = 0.0
+    foreach(evolutionSuperOperatorIterator(Ham, tspan; diagonalize = false, approximate = false)) do U_op
+        U_op_ref = evolutionSuperOperator(Ham, t)
+        @test 1e-12 > D(U_op, U_op_ref)
+        t += 0.5
+    end
+
+    t = 0.0
+    foreach(evolutionSuperOperatorIterator(Ham, tspan; diagonalize = false, approximate = true)) do U_op
+        U_op_ref = evolutionSuperOperator(Ham, t)
+        @test 1e-12 > D(U_op, U_op_ref)
         t += 0.5
     end
 
