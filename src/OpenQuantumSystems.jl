@@ -185,7 +185,11 @@ export
     # trace.jl
     getFCProd,
     trace_bath,
-    trace_bath_slow
+    trace_bath_slow,
+
+    # initial_state.jl
+    exp_series,
+    thermal_state
 
 include("core.jl")
 include("operators_dense.jl")
@@ -200,5 +204,6 @@ include("liouville.jl")
 include("interaction_picture.jl")
 include("master.jl")
 include("trace.jl")
+include("initial_state.jl")
 
 end
