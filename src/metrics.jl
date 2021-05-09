@@ -1,5 +1,6 @@
 
-import QuantumOpticsBase: tracenorm, tracenorm_h, tracenorm_nh, tracedistance, tracedistance_h, tracedistance_nh
+import QuantumOpticsBase:
+    tracenorm, tracenorm_h, tracenorm_nh, tracedistance, tracedistance_h, tracedistance_nh
 import LinearAlgebra: ishermitian
 
 
@@ -8,10 +9,10 @@ function tracenorm(rho::DenseSuperOpType)
 end
 
 function tracenorm!(rho::DenseSuperOpType)
-    if ishermitian(rho) 
-        rho.data ./= tracenorm_h(rho) 
+    if ishermitian(rho)
+        rho.data ./= tracenorm_h(rho)
     else
-        rho.data ./= tracenorm_nh(rho) 
+        rho.data ./= tracenorm_nh(rho)
     end
 end
 
@@ -26,13 +27,18 @@ function tracenorm_h(rho::T) where {T<:AbstractOperator}
 end
 =#
 
-tracenorm_nh(rho::SuperOperator{B,B,T}) where {B<:Tuple{Basis,Basis},T} = sum(svdvals(rho.data))
+tracenorm_nh(rho::SuperOperator{B,B,T}) where {B<:Tuple{Basis,Basis},T} =
+    sum(svdvals(rho.data))
 
-tracedistance(rho::SuperOperator{B,B,T}, sigma::SuperOperator{B,B,T}) where {B<:Tuple{Basis,Basis},T} =
-    0.5 * tracenorm(rho - sigma)
+tracedistance(
+    rho::SuperOperator{B,B,T},
+    sigma::SuperOperator{B,B,T},
+) where {B<:Tuple{Basis,Basis},T} = 0.5 * tracenorm(rho - sigma)
 
-tracedistance_h(rho::SuperOperator{B,B,T}, sigma::SuperOperator{B,B,T}) where {B<:Tuple{Basis,Basis},T} =
-    0.5 * tracenorm_h(rho - sigma)
+tracedistance_h(
+    rho::SuperOperator{B,B,T},
+    sigma::SuperOperator{B,B,T},
+) where {B<:Tuple{Basis,Basis},T} = 0.5 * tracenorm_h(rho - sigma)
 
 tracedistance_nh(
     rho::SuperOperator{B1,B2,T},
