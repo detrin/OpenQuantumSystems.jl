@@ -186,6 +186,7 @@ export
     getFCProd,
     trace_bath,
     trace_bath_slow,
+    get_rho_bath,
 
     # initial_state.jl
     exp_series,
