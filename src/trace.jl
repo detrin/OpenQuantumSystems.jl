@@ -215,7 +215,6 @@ function get_rho_bath(rho::Array, agg, FCProd, aggIndices, vibindices; groundSta
             end
         end
     else
-        println(rho_traced)
         el1_p = 0; el2_p = 0
         for el1=1:elLen, el2=1:elLen
             if abs(rho_traced[el1, el2]) != 0
@@ -223,7 +222,7 @@ function get_rho_bath(rho::Array, agg, FCProd, aggIndices, vibindices; groundSta
                 break
             end
         end
-        println(el1_p, el2_p)
+        el1_p += 1; el2_p += 1
         vib11 = vibindices[el1_p][1]; vib12 = vibindices[el1_p][end]
         vib21 = vibindices[el2_p][1]; vib22 = vibindices[el2_p][end]
         for el1=2:elLen+1, el2=2:elLen+1
