@@ -13,10 +13,10 @@ mutable struct AnnihilationOperator{BL<:Basis,BR<:Basis} <: DataOperator{BL,BR}
         basis_r::BR,
     ) where {BL<:Basis,BR<:Basis}
         data = zeros(Float64, length(basis_l), length(basis_r))
-        for i in 1:length(basis_l)
-            for j in 1:length(basis_r)
+        for i = 1:length(basis_l)
+            for j = 1:length(basis_r)
                 if i == j - 1
-                    data[i,j] = Float64(j-1)^0.5
+                    data[i, j] = Float64(j - 1)^0.5
                 end
             end
         end
@@ -24,22 +24,19 @@ mutable struct AnnihilationOperator{BL<:Basis,BR<:Basis} <: DataOperator{BL,BR}
     end
 end
 
-AnnihilationOperator(bl::BL, br::BR) where {BL, BR} = AnnihilationOperator{BL, BR}(bl, br)
+AnnihilationOperator(bl::BL, br::BR) where {BL,BR} = AnnihilationOperator{BL,BR}(bl, br)
 AnnihilationOperator(b::Basis) = AnnihilationOperator(b, b)
 
 mutable struct CreationOperator{BL<:Basis,BR<:Basis} <: DataOperator{BL,BR}
     basis_l::BL
     basis_r::BR
     data::Matrix{Float64}
-    function CreationOperator{BL,BR}(
-        basis_l::BL,
-        basis_r::BR,
-    ) where {BL<:Basis,BR<:Basis}
+    function CreationOperator{BL,BR}(basis_l::BL, basis_r::BR) where {BL<:Basis,BR<:Basis}
         data = zeros(Float64, length(basis_l), length(basis_r))
-        for i in 1:length(basis_l)
-            for j in 1:length(basis_r)
+        for i = 1:length(basis_l)
+            for j = 1:length(basis_r)
                 if i == j + 1
-                    data[i,j] = Float64(j)^0.5
+                    data[i, j] = Float64(j)^0.5
                 end
             end
         end
@@ -47,7 +44,7 @@ mutable struct CreationOperator{BL<:Basis,BR<:Basis} <: DataOperator{BL,BR}
     end
 end
 
-CreationOperator(bl::BL, br::BR) where {BL, BR} = CreationOperator{BL, BR}(bl, br)
+CreationOperator(bl::BL, br::BR) where {BL,BR} = CreationOperator{BL,BR}(bl, br)
 CreationOperator(b::Basis) = CreationOperator(b, b)
 
 mutable struct ShiftOperator{BL<:Basis,BR<:Basis,T<:ComputableType} <: DataOperator{BL,BR}
@@ -69,13 +66,14 @@ mutable struct ShiftOperator{BL<:Basis,BR<:Basis,T<:ComputableType} <: DataOpera
     end
 end
 
-ShiftOperator(bl::BL, br::BR, shift::T) where {BL, BR, T} = ShiftOperator{BL, BR, T}(bl, br, shift)
+ShiftOperator(bl::BL, br::BR, shift::T) where {BL,BR,T} =
+    ShiftOperator{BL,BR,T}(bl, br, shift)
 ShiftOperator(b::Basis, shift::ComputableType) = ShiftOperator(b, b, shift)
 
 function OneDenseOperator(bl::BL, br::BR) where {BL<:Basis,BR<:Basis}
     op = DenseOperator(bl, br)
     opLen = size(op.data, 1)
-    for i in 1:opLen
+    for i = 1:opLen
         op.data[i, i] = 1.0
     end
     return op

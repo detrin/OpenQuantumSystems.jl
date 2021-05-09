@@ -1,8 +1,8 @@
 module OpenQuantumSystems
 
 using Reexport
-@reexport using QuantumOpticsBase: 
-    Basis, 
+@reexport using QuantumOpticsBase:
+    Basis,
     GenericBasis,
     basis,
     tensor,
@@ -38,7 +38,7 @@ using Reexport
     DenseOpType,
     projector,
     dm,
-    
+
     # operators_sparse.jl
     SparseOperator,
     diagonaloperator,
@@ -113,7 +113,7 @@ using Reexport
 
 using SparseArrays, LinearAlgebra
 
-export 
+export
     # operators_dense.jl
     OneDenseOperator,
 
@@ -164,6 +164,8 @@ export
     evolutionExact!,
     evolutionApproximate,
     evolutionApproximate!,
+    evolution_exact,
+    evolution_approximate,
 
     # schrodinger.jl
     schroedinger,
@@ -178,7 +180,17 @@ export
 
     # master.jl
     master_int,
-    master
+    master,
+
+    # trace.jl
+    getFCProd,
+    trace_bath,
+    trace_bath_slow,
+    get_rho_bath,
+
+    # initial_state.jl
+    exp_series,
+    thermal_state
 
 include("core.jl")
 include("operators_dense.jl")
@@ -192,5 +204,7 @@ include("schroedinger.jl")
 include("liouville.jl")
 include("interaction_picture.jl")
 include("master.jl")
+include("trace.jl")
+include("initial_state.jl")
 
 end
