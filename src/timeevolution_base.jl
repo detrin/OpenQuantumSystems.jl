@@ -106,6 +106,7 @@ function integrate_delayed(
     state::T,
     dstate::T,
     fout::Function;
+    p = nothing,
     reltol::Float64 = 1.0e-6,
     abstol::Float64 = 1.0e-6,
     alg::Any = DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()),
