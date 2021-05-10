@@ -106,6 +106,7 @@ function integrate_delayed(
     state::T,
     dstate::T,
     fout::Function;
+    p = nothing,
     reltol::Float64 = 1.0e-6,
     abstol::Float64 = 1.0e-6,
     alg::Any = DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()),
@@ -140,7 +141,7 @@ function integrate_delayed(
         save_start = false,
     )
 
-    prob = DelayDiffEq.DDEProblem{true}(df_, x0, h, (tspan[1], tspan[end]))
+    prob = DelayDiffEq.DDEProblem{true}(df_, x0, h, (tspan[1], tspan[end]), p)
 
     if steady_state
         affect! = function (integrator)
