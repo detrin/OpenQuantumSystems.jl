@@ -38,7 +38,9 @@ import QuantumOpticsBase
         0.0 0.0 0.0 0.0 0.0 0.0 0.24999994249781032 0.0; 
         0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.24976026136035576
     ]
-    W0 = thermal_state(T, mu_array, Ham, aggInds)
+    W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=false)
+    @test 1e-15 > D(W0_ref, W0.data)
+    W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=true)
     @test 1e-15 > D(W0_ref, W0.data)
     # println(W0.data)
 
@@ -53,7 +55,9 @@ import QuantumOpticsBase
         0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 
         0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
     ]
-    W0 = thermal_state(T, mu_array, Ham, aggInds)
+    W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=false)
+    @test 1e-15 > D(W0_ref, W0.data)
+    W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=true)
     @test 1e-15 > D(W0_ref, W0.data)
     # println(W0.data)
 
@@ -69,7 +73,9 @@ import QuantumOpticsBase
         0.0 0.0 0.0 0.0 0.0 0.0 0.12499997124890516 0.0; 
         0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.12488013068017788
     ]
-    W0 = thermal_state(T, mu_array, Ham, aggInds)
+    W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=false)
+    @test 1e-15 > D(W0_ref, W0.data)
+    W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=true)
     @test 1e-15 > D(W0_ref, W0.data)
     # println(W0.data)
     
@@ -92,7 +98,9 @@ import QuantumOpticsBase
         0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 
         0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
     ]
-    W0 = thermal_state(T, mu_array, Ham, aggInds)
+    W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=false)
+    @test 1e-15 > D(W0_ref, W0.data)
+    W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=true)
     @test 1e-15 > D(W0_ref, W0.data)
     # println(W0.data)
 
