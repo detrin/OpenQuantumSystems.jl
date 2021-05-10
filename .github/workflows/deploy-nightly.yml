@@ -2,7 +2,7 @@ name: Deploy Nightly
 on:
   schedule:
     - cron: '0 3 * * *' # run at 3 AM UTC
-
+  workflow_dispatch:
 jobs:
   test:
     name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
