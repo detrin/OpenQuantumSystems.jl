@@ -20,14 +20,14 @@ or create a pull request.
 ### Roadmap
 
 1. - Efficient representation of operators given Hamiltonians in different
-     Hilbert basis.
-   - Vibrational basis, spin basis, exciton basis.
+     Hilbert bases. ✓
+   - Vibrational basis, spin basis, exciton basis. ✓
    - Calculation of Franck-Condon factors for multidimensional linear harmonic
-     oscilators.
-   - Base transformation.
-2. - Schrodinger equation for solving dynamics.
+     oscilators. ✓
+2. - Schrodinger equation for solving dynamics. ✓
    - Solving dynamics for mixed states using exponentials, Liouville equation,
-     QME and their modifications.
+     QME. ✓
+   - Aggregate with yml preferences.
    - Decomposition of mixed states into a linear combination of pure states
      using linear programming.
    - Loading Hamiltonian and data storage.
