@@ -141,7 +141,7 @@ function integrate_delayed(
         save_start = false,
     )
 
-    prob = DelayDiffEq.DDEProblem{true}(df_, x0, h, (tspan[1], tspan[end]))
+    prob = DelayDiffEq.DDEProblem{true}(df_, x0, h, (tspan[1], tspan[end]), p)
 
     if steady_state
         affect! = function (integrator)
