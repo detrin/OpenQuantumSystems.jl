@@ -184,7 +184,7 @@ function trace_bath_slow(
     return DenseOperator(basis, basis, rho_traced)
 end
 
-function get_rho_bath(rho::Array, agg, FCProd, aggIndices, vibindices; groundState=false)
+function get_rho_bath(rho::Array, agg, FCProd, aggIndices, vibindices; groundState=false, justCopy=true)
     rho_traced = trace_bath(rho, agg, FCProd, aggIndices, vibindices; groundState=groundState)
     vibLen = length(vibindices[end])
     aggIndLen = length(aggIndices)
@@ -211,7 +211,11 @@ function get_rho_bath(rho::Array, agg, FCProd, aggIndices, vibindices; groundSta
             if abs(rho_traced[el1, el2]) != 0
                 rho_bath[vib11:vib12, vib21:vib22] = rho[vib11:vib12, vib21:vib22] / rho_traced[el1, el2]
             else
-                rho_bath[vib11:vib12, vib21:vib22] = rho_bath_ref[:, :]
+                if justCopy
+                    rho_bath[vib11:vib12, vib21:vib22] = rho[vib11:vib12, vib21:vib22]
+                else
+                    rho_bath[vib11:vib12, vib21:vib22] = rho_bath_ref[:, :]
+                end
             end
         end
     else
@@ -232,7 +236,11 @@ function get_rho_bath(rho::Array, agg, FCProd, aggIndices, vibindices; groundSta
             if abs(rho_traced[el1-1, el2-1]) != 0
                 rho_bath[vib11:vib12, vib21:vib22] = rho[vib11:vib12, vib21:vib22] / rho_traced[el1-1, el2-1]
             else
-                rho_bath[vib11:vib12, vib21:vib22] = rho_bath_ref[:, :]
+                if justCopy
+                    rho_bath[vib11:vib12, vib21:vib22] = rho[vib11:vib12, vib21:vib22]
+                else
+                    rho_bath[vib11:vib12, vib21:vib22] = rho_bath_ref[:, :]
+                end
             end
         end
     end
