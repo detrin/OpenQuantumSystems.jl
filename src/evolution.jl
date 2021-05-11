@@ -7,6 +7,10 @@ function evolutionOperator(Hamiltonian::Operator, t::AbstractFloat)::Operator
     return exp(-1im * Hamiltonian * t)
 end
 
+function evolutionOperatorA(H_lambda::Array, H_S::Array, H_Sinv::Array, t::AbstractFloat)::Array
+    return H_S * exp(-1im * H_lambda * t) * H_Sinv
+end
+
 function evolutionSuperOperator(Hamiltonian::Operator, t::AbstractFloat)::SuperOperator
     U = evolutionOperator(Hamiltonian, t)
     return spre(U) * spost(U')

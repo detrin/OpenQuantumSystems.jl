@@ -24,22 +24,30 @@ using Random, SparseArrays, LinearAlgebra
     FCFact = getFranckCondonFactors(agg, aggInds; groundState = false)
     Ham = getAggHamiltonian(agg, aggInds, FCFact; groundState = false)
 
+    H_lambda, H_S = eigen(Ham.data)
+    H_Sinv = inv(H_S)
+    H_lambda = diagm(H_lambda)
+
     t = 0.0
-    U_op = evolutionOperator(Ham, t)
     U_op_ref = exp(-1im * Ham * t)
+    U_op = evolutionOperator(Ham, t)
     @test 1e-12 > D(U_op, U_op_ref)
+    U_op = evolutionOperatorA(H_lambda, H_S, H_Sinv, t)
+    @test 1e-12 > D(U_op, U_op_ref.data)
 
     U_sop = evolutionSuperOperator(Ham, t)
-    U_sop_ref = spre(U_op) * spost(U_op')
+    U_sop_ref = spre(U_op_ref) * spost(U_op_ref')
     @test 1e-12 > D(U_sop, U_sop_ref)
 
     t = 1.0
-    U_op = evolutionOperator(Ham, t)
     U_op_ref = exp(-1im * Ham * t)
+    U_op = evolutionOperator(Ham, t)
     @test 1e-12 > D(U_op, U_op_ref)
-
+    U_op = evolutionOperatorA(H_lambda, H_S, H_Sinv, t)
+    @test 1e-12 > D(U_op, U_op_ref.data)
+    
     U_sop = evolutionSuperOperator(Ham, t)
-    U_sop_ref = spre(U_op) * spost(U_op')
+    U_sop_ref = spre(U_op_ref) * spost(U_op_ref')
     @test 1e-12 > D(U_sop, U_sop_ref)
 
     tspan = [0.0:0.5:1.0;]

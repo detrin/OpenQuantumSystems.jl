@@ -155,6 +155,7 @@ export
 
     # evolution.jl
     evolutionOperator,
+    evolutionOperatorA,
     evolutionSuperOperator,
     evolutionOperatorArray,
     evolutionSuperOperatorArray,
