@@ -41,8 +41,9 @@ import QuantumOpticsBase
     W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=false)
     @test 1e-15 > D(W0_ref, W0.data)
     W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=true)
+    @test 1e-3 > D(W0_ref, W0.data)
+    W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=false, diagonal=true)
     @test 1e-15 > D(W0_ref, W0.data)
-    # println(W0.data)
 
     T = 1e-10
     W0_ref = [
@@ -57,9 +58,11 @@ import QuantumOpticsBase
     ]
     W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=false)
     @test 1e-15 > D(W0_ref, W0.data)
-    W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=true)
-    @test 1e-15 > D(W0_ref, W0.data)
+    # W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=true)
+    # @test 1e-15 > D(W0_ref, W0.data)
     # println(W0.data)
+    W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=false, diagonal=true)
+    @test 1e-15 > D(W0_ref, W0.data)
 
     T = 300.
     mu_array = [[1, 2], [2, 1]]
@@ -76,8 +79,10 @@ import QuantumOpticsBase
     W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=false)
     @test 1e-15 > D(W0_ref, W0.data)
     W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=true)
-    @test 1e-15 > D(W0_ref, W0.data)
+    @test 1e-3 > D(W0_ref, W0.data)
     # println(W0.data)
+    W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=false, diagonal=true)
+    @test 1e-15 > D(W0_ref, W0.data)
     
     aggInds = getIndices(agg; groundState = true)
     FCFact = getFranckCondonFactors(agg, aggInds; groundState = true)
@@ -101,8 +106,10 @@ import QuantumOpticsBase
     W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=false)
     @test 1e-15 > D(W0_ref, W0.data)
     W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=true)
-    @test 1e-15 > D(W0_ref, W0.data)
+    @test 1e-3 > D(W0_ref, W0.data)
     # println(W0.data)
+    W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=false, diagonal=true)
+    @test 1e-15 > D(W0_ref, W0.data)
 
 
 end # testset
