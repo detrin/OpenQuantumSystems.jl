@@ -287,3 +287,91 @@ function get_rho_bath(
     rho_data = get_rho_bath(rho.data, agg, FCProd, aggIndices, vibindices; groundState=groundState, justCopy=justCopy)
     return DenseOperator(rho.basis_l, rho.basis_r, rho_data)
 end
+
+function ad(rho_traced::Array, W_bath::Array, agg, FCProd, aggIndices, vibindices; groundState=false)
+    elLen = length(agg.molecules)
+    aggIndLen = length(aggIndices)
+    vibLen = length(vibindices[2])
+    if groundState
+        elLen += 1
+    end
+    W = zero(W_bath)
+
+    if !groundState
+        for I = 1:aggIndLen
+            elind1, vibind1 = aggIndices[I]
+            elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
+            if elOrder1 == 1
+                continue
+            end
+
+            for J = 1:aggIndLen
+                elind2, vibind2 = aggIndices[J]
+                elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
+                if elOrder2 == 1
+                    continue
+                end
+
+                W[I, J] = rho_traced[elOrder1-1, elOrder2-1] * W_bath[I, J]
+            end
+        end
+    else
+        for I = 1:aggIndLen
+            elind1, vibind1 = aggIndices[I]
+            elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
+
+            for J = 1:aggIndLen
+                elind2, vibind2 = aggIndices[J]
+                elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
+
+                W[I, J] = rho_traced[elOrder1, elOrder2] * W_bath[I, J]
+            end
+        end
+    end
+    return W
+end
+
+function ad(
+    rho_traced::T, 
+    W_bath::Array,
+    agg,
+    FCFact,
+    aggIndices,
+    vibindices;
+    groundState = false,
+) where {B<:Basis,T<:Operator{B,B}}
+    W = ad(rho_traced.data, W_bath, agg, FCFact, aggIndices, vibindices; groundState = groundState)
+    basisLen = size(W, 1)
+    basis = GenericBasis([basisLen])
+    return DenseOperator(basis, basis, W)
+end
+
+function ad(
+    rho_traced::Array, 
+    W_bath::T,
+    agg,
+    FCFact,
+    aggIndices,
+    vibindices;
+    groundState = false,
+) where {B<:Basis,T<:Operator{B,B}}
+    W = ad(rho_traced, W_bath.data, agg, FCFact, aggIndices, vibindices; groundState = groundState)
+    basisLen = size(W, 1)
+    basis = GenericBasis([basisLen])
+    return DenseOperator(basis, basis, W)
+end
+
+function ad(
+    rho_traced::T, 
+    W_bath::T,
+    agg,
+    FCFact,
+    aggIndices,
+    vibindices;
+    groundState = false,
+) where {B<:Basis,T<:Operator{B,B}}
+    W = ad(rho_traced.data, W_bath.data, agg, FCFact, aggIndices, vibindices; groundState = groundState)
+    basisLen = size(W, 1)
+    basis = GenericBasis([basisLen])
+    return DenseOperator(basis, basis, W)
+end
