@@ -101,6 +101,21 @@ function trace_bath(rho::Array, agg, FCProd, aggIndices, vibindices; groundState
 end
 
 
+function trace_bath(
+    rho::T,
+    agg,
+    FCFact,
+    aggIndices,
+    vibindices;
+    groundState = false,
+) where {B<:Basis,T<:Operator{B,B}}
+    rho_traced =
+        trace_bath(rho.data, agg, FCFact, aggIndices, vibindices; groundState = groundState)
+    basisLen = size(rho_traced, 1)
+    basis = GenericBasis([basisLen])
+    return DenseOperator(basis, basis, rho_traced)
+end
+
 function trace_bath_slow(rho::Array, agg, FCFact, aggIndices, vibindices; groundState = false)
     elLen = length(agg.molecules)
     aggIndLen = length(aggIndices)
@@ -154,21 +169,6 @@ function trace_bath_slow(rho::Array, agg, FCFact, aggIndices, vibindices; ground
     return rho_traced
 end
 
-function trace_bath(
-    rho::T,
-    agg,
-    FCFact,
-    aggIndices,
-    vibindices;
-    groundState = false,
-) where {B<:Basis,T<:Operator{B,B}}
-    rho_traced =
-        trace_bath(rho.data, agg, FCFact, aggIndices, vibindices; groundState = groundState)
-    basisLen = size(rho_traced, 1)
-    basis = GenericBasis([basisLen])
-    return DenseOperator(basis, basis, rho_traced)
-end
-
 function trace_bath_slow(
     rho::T,
     agg,
@@ -184,7 +184,70 @@ function trace_bath_slow(
     return DenseOperator(basis, basis, rho_traced)
 end
 
-function get_rho_bath(rho::Array, agg, FCProd, aggIndices, vibindices; groundState=false)
+function trace_bath(rho::Array, a, b, agg, FCProd, aggIndices, vibindices)
+    aggIndLen = length(aggIndices)
+    vibLen = length(vibindices[2])
+    rho_traced = eltype(rho)(0)
+
+    a_vibindices = vibindices[a] 
+    b_vibindices = vibindices[b]
+
+    for I in a_vibindices
+        for J in b_vibindices
+            rho_traced += rho[I, J] * FCProd[I, J]
+        end
+    end
+    return rho_traced
+end
+
+function trace_bath(
+    rho::T,
+    a,
+    b,
+    agg,
+    FCFact,
+    aggIndices,
+    vibindices
+) where {B<:Basis,T<:Operator{B,B}}
+    rho_traced =
+        trace_bath(rho.data, a, b, agg, FCFact, aggIndices, vibindices)
+    return rho_traced
+end
+
+function trace_bath_part(rho::Array, a, b, agg, FCProd, aggIndices, vibindices; groundState = false)
+    aggIndLen = length(aggIndices)
+    vibLen = length(vibindices[2])
+    rho_traced = eltype(rho)(0)
+
+    a_vibindices = vibindices[a] 
+    b_vibindices = vibindices[b]
+
+    for a_vib in 1:vibLen
+        I = a_vibindices[a_vib]
+        for b_vib in 1:vibLen
+            J = b_vibindices[b_vib]
+            rho_traced += rho[a_vib, b_vib] * FCProd[I, J]
+        end
+    end
+    return rho_traced
+end
+
+function trace_bath_part(
+    rho::T,
+    a,
+    b,
+    agg,
+    FCFact,
+    aggIndices,
+    vibindices; 
+    groundState = false
+) where {B<:Basis,T<:Operator{B,B}}
+    rho_traced =
+        trace_bath(rho.data, a, b, agg, FCFact, aggIndices, vibindices; groundState = groundState)
+    return rho_traced
+end
+
+function get_rho_bath(rho::Array, agg, FCProd, aggIndices, vibindices; groundState=false, justCopy=true)
     rho_traced = trace_bath(rho, agg, FCProd, aggIndices, vibindices; groundState=groundState)
     vibLen = length(vibindices[end])
     aggIndLen = length(aggIndices)
@@ -211,7 +274,11 @@ function get_rho_bath(rho::Array, agg, FCProd, aggIndices, vibindices; groundSta
             if abs(rho_traced[el1, el2]) != 0
                 rho_bath[vib11:vib12, vib21:vib22] = rho[vib11:vib12, vib21:vib22] / rho_traced[el1, el2]
             else
-                rho_bath[vib11:vib12, vib21:vib22] = rho_bath_ref[:, :]
+                if justCopy
+                    rho_bath[vib11:vib12, vib21:vib22] = rho[vib11:vib12, vib21:vib22]
+                else
+                    rho_bath[vib11:vib12, vib21:vib22] = rho_bath_ref[:, :]
+                end
             end
         end
     else
@@ -232,7 +299,11 @@ function get_rho_bath(rho::Array, agg, FCProd, aggIndices, vibindices; groundSta
             if abs(rho_traced[el1-1, el2-1]) != 0
                 rho_bath[vib11:vib12, vib21:vib22] = rho[vib11:vib12, vib21:vib22] / rho_traced[el1-1, el2-1]
             else
-                rho_bath[vib11:vib12, vib21:vib22] = rho_bath_ref[:, :]
+                if justCopy
+                    rho_bath[vib11:vib12, vib21:vib22] = rho[vib11:vib12, vib21:vib22]
+                else
+                    rho_bath[vib11:vib12, vib21:vib22] = rho_bath_ref[:, :]
+                end
             end
         end
     end
@@ -240,8 +311,96 @@ function get_rho_bath(rho::Array, agg, FCProd, aggIndices, vibindices; groundSta
 end
 
 function get_rho_bath(
-        rho::T, agg, FCProd, aggIndices, vibindices; groundState=false
+        rho::T, agg, FCProd, aggIndices, vibindices; groundState=false, justCopy=true
         ) where {B<:Basis,T<:Operator{B,B}}
-    rho_data = get_rho_bath(rho.data, agg, FCProd, aggIndices, vibindices; groundState=groundState)
+    rho_data = get_rho_bath(rho.data, agg, FCProd, aggIndices, vibindices; groundState=groundState, justCopy=justCopy)
     return DenseOperator(rho.basis_l, rho.basis_r, rho_data)
+end
+
+function ad(rho_traced::Array, W_bath::Array, agg, FCProd, aggIndices, vibindices; groundState=false)
+    elLen = length(agg.molecules)
+    aggIndLen = length(aggIndices)
+    vibLen = length(vibindices[2])
+    if groundState
+        elLen += 1
+    end
+    W = zero(W_bath)
+
+    if !groundState
+        for I = 1:aggIndLen
+            elind1, vibind1 = aggIndices[I]
+            elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
+            if elOrder1 == 1
+                continue
+            end
+
+            for J = 1:aggIndLen
+                elind2, vibind2 = aggIndices[J]
+                elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
+                if elOrder2 == 1
+                    continue
+                end
+
+                W[I, J] = rho_traced[elOrder1-1, elOrder2-1] * W_bath[I, J]
+            end
+        end
+    else
+        for I = 1:aggIndLen
+            elind1, vibind1 = aggIndices[I]
+            elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
+
+            for J = 1:aggIndLen
+                elind2, vibind2 = aggIndices[J]
+                elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
+
+                W[I, J] = rho_traced[elOrder1, elOrder2] * W_bath[I, J]
+            end
+        end
+    end
+    return W
+end
+
+function ad(
+    rho_traced::T, 
+    W_bath::Array,
+    agg,
+    FCFact,
+    aggIndices,
+    vibindices;
+    groundState = false,
+) where {B<:Basis,T<:Operator{B,B}}
+    W = ad(rho_traced.data, W_bath, agg, FCFact, aggIndices, vibindices; groundState = groundState)
+    basisLen = size(W, 1)
+    basis = GenericBasis([basisLen])
+    return DenseOperator(basis, basis, W)
+end
+
+function ad(
+    rho_traced::Array, 
+    W_bath::T,
+    agg,
+    FCFact,
+    aggIndices,
+    vibindices;
+    groundState = false,
+) where {B<:Basis,T<:Operator{B,B}}
+    W = ad(rho_traced, W_bath.data, agg, FCFact, aggIndices, vibindices; groundState = groundState)
+    basisLen = size(W, 1)
+    basis = GenericBasis([basisLen])
+    return DenseOperator(basis, basis, W)
+end
+
+function ad(
+    rho_traced::T, 
+    W_bath::T,
+    agg,
+    FCFact,
+    aggIndices,
+    vibindices;
+    groundState = false,
+) where {B<:Basis,T<:Operator{B,B}}
+    W = ad(rho_traced.data, W_bath.data, agg, FCFact, aggIndices, vibindices; groundState = groundState)
+    basisLen = size(W, 1)
+    basis = GenericBasis([basisLen])
+    return DenseOperator(basis, basis, W)
 end

@@ -155,6 +155,7 @@ export
 
     # evolution.jl
     evolutionOperator,
+    evolutionOperatorA,
     evolutionSuperOperator,
     evolutionOperatorArray,
     evolutionSuperOperatorArray,
@@ -187,10 +188,21 @@ export
     trace_bath,
     trace_bath_slow,
     get_rho_bath,
+    trace_bath_part,
+    ad,
 
     # initial_state.jl
     exp_series,
-    thermal_state
+    thermal_state,
+    thermal_state_composite,
+
+    # memory_kernel.jl
+    take_el_part,
+    MemoryKernel_1_traced,
+    MemoryKernel_2_traced,
+    MemoryKernel_3_traced,
+    MemoryKernel_4_traced,
+    MemoryKernel_traced
 
 include("core.jl")
 include("operators_dense.jl")
@@ -206,5 +218,6 @@ include("interaction_picture.jl")
 include("master.jl")
 include("trace.jl")
 include("initial_state.jl")
+include("memory_kernel.jl")
 
 end
