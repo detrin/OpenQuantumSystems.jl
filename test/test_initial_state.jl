@@ -40,9 +40,30 @@ import QuantumOpticsBase
     ]
     W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=false)
     @test 1e-15 > D(W0_ref, W0.data)
+    W01 = thermal_state(T, [[2, 1]], Ham, aggInds; diagonalize=false)
+    W02 = thermal_state(T, [[1, 2]], Ham, aggInds; diagonalize=false)
+    W0_composite_ref = 0.8 * W01 + 0.2 * W02
+    normalize!(W0_composite_ref)
+    W0 = thermal_state_composite(T, [0.0, 0.8, 0.2], Ham, aggInds; diagonalize=false)
+    @test 1e-15 > D(W0_composite_ref, W0)
+
     W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=true)
+    @test 1e-3 > D(W0_ref, W0.data)
+    W01 = thermal_state(T, [[2, 1]], Ham, aggInds; diagonalize=true)
+    W02 = thermal_state(T, [[1, 2]], Ham, aggInds; diagonalize=true)
+    W0_composite_ref = 0.8 * W01 + 0.2 * W02
+    normalize!(W0_composite_ref)
+    W0 = thermal_state_composite(T, [0.0, 0.8, 0.2], Ham, aggInds; diagonalize=true)
+    @test 1e-15 > D(W0_composite_ref, W0)
+
+    W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=false, diagonal=true)
     @test 1e-15 > D(W0_ref, W0.data)
-    # println(W0.data)
+    W01 = thermal_state(T, [[2, 1]], Ham, aggInds; diagonalize=false, diagonal=true)
+    W02 = thermal_state(T, [[1, 2]], Ham, aggInds; diagonalize=false, diagonal=true)
+    W0_composite_ref = 0.8 * W01 + 0.2 * W02
+    normalize!(W0_composite_ref)
+    W0 = thermal_state_composite(T, [0.0, 0.8, 0.2], Ham, aggInds; diagonalize=false, diagonal=true)
+    @test 1e-15 > D(W0_composite_ref, W0)
 
     T = 1e-10
     W0_ref = [
@@ -57,9 +78,24 @@ import QuantumOpticsBase
     ]
     W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=false)
     @test 1e-15 > D(W0_ref, W0.data)
-    W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=true)
-    @test 1e-15 > D(W0_ref, W0.data)
+    W01 = thermal_state(T, [[2, 1]], Ham, aggInds; diagonalize=false)
+    W02 = thermal_state(T, [[1, 2]], Ham, aggInds; diagonalize=false)
+    W0_composite_ref = 0.8 * W01 + 0.2 * W02
+    normalize!(W0_composite_ref)
+    W0 = thermal_state_composite(T, [0.0, 0.8, 0.2], Ham, aggInds; diagonalize=false)
+    @test 1e-15 > D(W0_composite_ref, W0)
+
+    # W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=true)
+    # @test 1e-15 > D(W0_ref, W0.data)
     # println(W0.data)
+    W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=false, diagonal=true)
+    @test 1e-15 > D(W0_ref, W0.data)
+    W01 = thermal_state(T, [[2, 1]], Ham, aggInds; diagonalize=false, diagonal=true)
+    W02 = thermal_state(T, [[1, 2]], Ham, aggInds; diagonalize=false, diagonal=true)
+    W0_composite_ref = 0.8 * W01 + 0.2 * W02
+    normalize!(W0_composite_ref)
+    W0 = thermal_state_composite(T, [0.0, 0.8, 0.2], Ham, aggInds; diagonalize=false, diagonal=true)
+    @test 1e-15 > D(W0_composite_ref, W0)
 
     T = 300.
     mu_array = [[1, 2], [2, 1]]
@@ -75,9 +111,30 @@ import QuantumOpticsBase
     ]
     W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=false)
     @test 1e-15 > D(W0_ref, W0.data)
+    W01 = thermal_state(T, [[2, 1]], Ham, aggInds; diagonalize=false)
+    W02 = thermal_state(T, [[1, 2]], Ham, aggInds; diagonalize=false)
+    W0_composite_ref = 0.8 * W01 + 0.2 * W02
+    normalize!(W0_composite_ref)
+    W0 = thermal_state_composite(T, [0.0, 0.8, 0.2], Ham, aggInds; diagonalize=false)
+    @test 1e-15 > D(W0_composite_ref, W0)
+
     W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=true)
+    @test 1e-3 > D(W0_ref, W0.data)
+    W01 = thermal_state(T, [[2, 1]], Ham, aggInds; diagonalize=true)
+    W02 = thermal_state(T, [[1, 2]], Ham, aggInds; diagonalize=true)
+    W0_composite_ref = 0.8 * W01 + 0.2 * W02
+    normalize!(W0_composite_ref)
+    W0 = thermal_state_composite(T, [0.0, 0.8, 0.2], Ham, aggInds; diagonalize=true)
+    @test 1e-15 > D(W0_composite_ref, W0)
+
+    W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=false, diagonal=true)
     @test 1e-15 > D(W0_ref, W0.data)
-    # println(W0.data)
+    W01 = thermal_state(T, [[2, 1]], Ham, aggInds; diagonalize=false, diagonal=true)
+    W02 = thermal_state(T, [[1, 2]], Ham, aggInds; diagonalize=false, diagonal=true)
+    W0_composite_ref = 0.8 * W01 + 0.2 * W02
+    normalize!(W0_composite_ref)
+    W0 = thermal_state_composite(T, [0.0, 0.8, 0.2], Ham, aggInds; diagonalize=false, diagonal=true)
+    @test 1e-15 > D(W0_composite_ref, W0)
     
     aggInds = getIndices(agg; groundState = true)
     FCFact = getFranckCondonFactors(agg, aggInds; groundState = true)
@@ -100,9 +157,30 @@ import QuantumOpticsBase
     ]
     W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=false)
     @test 1e-15 > D(W0_ref, W0.data)
+    W01 = thermal_state(T, [[2, 1]], Ham, aggInds; diagonalize=false)
+    W02 = thermal_state(T, [[1, 2]], Ham, aggInds; diagonalize=false)
+    W0_composite_ref = 0.8 * W01 + 0.2 * W02
+    normalize!(W0_composite_ref)
+    W0 = thermal_state_composite(T, [0.0, 0.8, 0.2], Ham, aggInds; diagonalize=false)
+    @test 1e-15 > D(W0_composite_ref, W0)
+
     W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=true)
+    @test 1e-3 > D(W0_ref, W0.data)
+    W01 = thermal_state(T, [[2, 1]], Ham, aggInds; diagonalize=true)
+    W02 = thermal_state(T, [[1, 2]], Ham, aggInds; diagonalize=true)
+    W0_composite_ref = 0.8 * W01 + 0.2 * W02
+    normalize!(W0_composite_ref)
+    W0 = thermal_state_composite(T, [0.0, 0.8, 0.2], Ham, aggInds; diagonalize=true)
+    @test 1e-15 > D(W0_composite_ref, W0)
+
+    W0 = thermal_state(T, mu_array, Ham, aggInds; diagonalize=false, diagonal=true)
     @test 1e-15 > D(W0_ref, W0.data)
-    # println(W0.data)
+    W01 = thermal_state(T, [[2, 1]], Ham, aggInds; diagonalize=false, diagonal=true)
+    W02 = thermal_state(T, [[1, 2]], Ham, aggInds; diagonalize=false, diagonal=true)
+    W0_composite_ref = 0.8 * W01 + 0.2 * W02
+    normalize!(W0_composite_ref)
+    W0 = thermal_state_composite(T, [0.0, 0.8, 0.2], Ham, aggInds; diagonalize=false, diagonal=true)
+    @test 1e-15 > D(W0_composite_ref, W0)
 
 
 end # testset
