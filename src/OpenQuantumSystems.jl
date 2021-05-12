@@ -188,6 +188,7 @@ export
     trace_bath,
     trace_bath_slow,
     get_rho_bath,
+    ad,
 
     # initial_state.jl
     exp_series,
