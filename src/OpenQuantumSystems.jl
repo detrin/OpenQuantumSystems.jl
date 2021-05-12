@@ -193,7 +193,10 @@ export
     # initial_state.jl
     exp_series,
     thermal_state,
-    thermal_state_composite
+    thermal_state_composite,
+
+    # memory_kernel.jl
+    take_el_part
 
 include("core.jl")
 include("operators_dense.jl")
@@ -209,5 +212,6 @@ include("interaction_picture.jl")
 include("master.jl")
 include("trace.jl")
 include("initial_state.jl")
+include("memory_kernel.jl")
 
 end
