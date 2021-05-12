@@ -47,6 +47,11 @@ using Random, SparseArrays, LinearAlgebra
     rho_traced = trace_bath(rho.data, agg, FCProd, aggInds, vibindices; groundState = false)
     @test 1e-14 > D(rho_traced, rho_traced_ref)
 
+    for a=1:2, b=1:2
+        rho_traced_ab = trace_bath(rho, a+1, b+1, agg, FCProd, aggInds, vibindices)
+        @test 1e-14 > abs(rho_traced_ref[a, b] - rho_traced_ab)
+    end
+
     rho = get_rho_bath(rho0, agg, FCProd, aggInds, vibindices; groundState=false)
     rho_traced = trace_bath(rho, agg, FCProd, aggInds, vibindices; groundState = false)
     rho_traced_ref = [1.0 1.0; 1.0 1.0]
@@ -69,6 +74,11 @@ using Random, SparseArrays, LinearAlgebra
     @test 1e-14 > D(rho_traced.data, rho_traced_ref)
     rho_traced = trace_bath(rho.data, agg, FCProd, aggInds, vibindices; groundState = false)
     @test 1e-14 > D(rho_traced, rho_traced_ref)
+
+    for a=1:2, b=1:2
+        rho_traced_ab = trace_bath(rho, a+1, b+1, agg, FCProd, aggInds, vibindices)
+        @test 1e-14 > abs(rho_traced_ref[a, b] - rho_traced_ab)
+    end
 
     rho = get_rho_bath(rho0, agg, FCProd, aggInds, vibindices; groundState=false)
     rho_traced = trace_bath(rho, agg, FCProd, aggInds, vibindices; groundState = false)
@@ -110,6 +120,11 @@ using Random, SparseArrays, LinearAlgebra
     rho_traced = trace_bath(rho.data, agg, FCProd, aggInds, vibindices; groundState = true)
     @test 1e-14 > D(rho_traced, rho_traced_ref)
 
+    for a=1:3, b=1:3
+        rho_traced_ab = trace_bath(rho, a, b, agg, FCProd, aggInds, vibindices)
+        @test 1e-14 > abs(rho_traced_ref[a, b] - rho_traced_ab)
+    end
+
     rho = get_rho_bath(rho0, agg, FCProd, aggInds, vibindices; groundState=true)
     rho_traced = trace_bath(rho, agg, FCProd, aggInds, vibindices; groundState = true)
     rho_traced_ref = [1.0 1.0 1.0; 1.0 1.0 1.0; 1.0 1.0 1.0]
@@ -134,6 +149,11 @@ using Random, SparseArrays, LinearAlgebra
     @test 1e-14 > D(rho_traced.data, rho_traced_ref)
     rho_traced = trace_bath(rho.data, agg, FCProd, aggInds, vibindices; groundState = true)
     @test 1e-14 > D(rho_traced, rho_traced_ref)
+
+    for a=1:3, b=1:3
+        rho_traced_ab = trace_bath(rho, a, b, agg, FCProd, aggInds, vibindices)
+        @test 1e-14 > abs(rho_traced_ref[a, b] - rho_traced_ab)
+    end
 
     rho = get_rho_bath(rho0, agg, FCProd, aggInds, vibindices; groundState=true)
     rho_traced = trace_bath(rho, agg, FCProd, aggInds, vibindices; groundState = true)
