@@ -192,7 +192,8 @@ export
 
     # initial_state.jl
     exp_series,
-    thermal_state
+    thermal_state,
+    thermal_state_composite
 
 include("core.jl")
 include("operators_dense.jl")
