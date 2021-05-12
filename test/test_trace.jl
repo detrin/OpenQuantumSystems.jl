@@ -165,6 +165,10 @@ using Random, SparseArrays, LinearAlgebra
     for a=1:3, b=1:3
         rho_traced_ab = trace_bath(rho, a, b, agg, FCProd, aggInds, vibindices)
         @test 1e-14 > abs(rho_traced_ref[a, b] - rho_traced_ab)
+
+        rho_ab = take_el_part(rho.data, a, b, vibindices)
+        rho_traced_ab = trace_bath_part(rho_ab, a, b, agg, FCProd, aggInds, vibindices; groundState = true)
+        @test 1e-14 > abs(rho_traced_ref[a, b] - rho_traced_ab)
     end
 
     rho_bath = get_rho_bath(rho0, agg, FCProd, aggInds, vibindices; groundState=true)
