@@ -188,6 +188,7 @@ export
     trace_bath,
     trace_bath_slow,
     get_rho_bath,
+    trace_bath_part,
     ad,
 
     # initial_state.jl
@@ -196,7 +197,12 @@ export
     thermal_state_composite,
 
     # memory_kernel.jl
-    take_el_part
+    take_el_part,
+    MemoryKernel_1_traced,
+    MemoryKernel_2_traced,
+    MemoryKernel_3_traced,
+    MemoryKernel_4_traced,
+    MemoryKernel_traced
 
 include("core.jl")
 include("operators_dense.jl")

@@ -193,11 +193,7 @@ function trace_bath(rho::Array, a, b, agg, FCProd, aggIndices, vibindices)
     b_vibindices = vibindices[b]
 
     for I in a_vibindices
-        elind1, vibind1 = aggIndices[I]
-
         for J in b_vibindices
-            elind2, vibind2 = aggIndices[J]
-
             rho_traced += rho[I, J] * FCProd[I, J]
         end
     end
@@ -215,6 +211,39 @@ function trace_bath(
 ) where {B<:Basis,T<:Operator{B,B}}
     rho_traced =
         trace_bath(rho.data, a, b, agg, FCFact, aggIndices, vibindices)
+    return rho_traced
+end
+
+function trace_bath_part(rho::Array, a, b, agg, FCProd, aggIndices, vibindices; groundState = false)
+    aggIndLen = length(aggIndices)
+    vibLen = length(vibindices[2])
+    rho_traced = eltype(rho)(0)
+
+    a_vibindices = vibindices[a] 
+    b_vibindices = vibindices[b]
+
+    for a_vib in 1:vibLen
+        I = a_vibindices[a_vib]
+        for b_vib in 1:vibLen
+            J = b_vibindices[b_vib]
+            rho_traced += rho[a_vib, b_vib] * FCProd[I, J]
+        end
+    end
+    return rho_traced
+end
+
+function trace_bath_part(
+    rho::T,
+    a,
+    b,
+    agg,
+    FCFact,
+    aggIndices,
+    vibindices; 
+    groundState = false
+) where {B<:Basis,T<:Operator{B,B}}
+    rho_traced =
+        trace_bath(rho.data, a, b, agg, FCFact, aggIndices, vibindices; groundState = groundState)
     return rho_traced
 end
 
