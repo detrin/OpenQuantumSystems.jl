@@ -16,6 +16,10 @@ tests:
 tests_dev:
 	julia test/runtests_dev.jl
 
+test_quantarhei:
+	julia test/hamiltonian.jl
+	cd test; docker-compose up --build
+
 update_devel:
 	git checkout master
 	git pull

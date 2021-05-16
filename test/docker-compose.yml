@@ -1,0 +1,8 @@
+version: "3.9"
+services:
+  quantarhei:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ${PWD:-.}:/root/app
