@@ -430,6 +430,7 @@ using SparseArrays
     @test 1e-12 > D(Ham_ref, Matrix(HamSparse2.data))
     @test 1e-12 > D(Ham_ref, Matrix(HamSparse3.data))
 
+
     agg = Aggregate([mol1, mol2])
     agg.coupling[2, 3] = 200
     agg.coupling[3, 2] = 200
@@ -483,5 +484,13 @@ using SparseArrays
     aggInds = getIndices(agg)
     vibIndices = getVibIndices(agg, aggInds)
     @test vibIndices == [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
+
+    aggInds = getIndices(agg; groundState = false)
+    FCfact = getFranckCondonFactors(agg; groundState = false)
+    Ham_S2 = getAggHamSysBath(agg, aggInds; groundState = false, groundEnergy=true)
+    @test 1e12 > D(Ham_S.data, Ham_S2.data)
+
+    Ham_S3 = getAggHamSysBath2(agg, aggInds; groundState = false, groundEnergy=true)
+    @test 1e12 > D(Ham_S.data, Ham_S3.data)
 
 end

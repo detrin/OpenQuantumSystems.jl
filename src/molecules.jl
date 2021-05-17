@@ -1,7 +1,7 @@
 
 # include("core.jl")
 
-struct Mode{T}
+mutable struct Mode{T}
     omega::T
     shift::T
     function Mode(omega::T, shift::T) where {T<:ComputableType}
@@ -69,6 +69,14 @@ end
 
 Molecule(modes::Vector{Mode{C}}, Nvib::T, E::Array{C,1}) where {C,T} =
     Molecule{T,C,C}(modes, Nvib, E)
+
+function updateMolecule!(mol::Molecule{T, C1, C2}) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
+    mol = Molecule{T, C1, C2}(mol.modes, mol.Nvib, mol.E)
+end
+
+function updateMolecule(mol::Molecule{T, C1, C2}) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
+    Molecule{T, C1, C2}(mol.modes, mol.Nvib, mol.E)
+end
 
 function getMolStateEnergy(
     mol::Molecule{T,C1,C2},
