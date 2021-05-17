@@ -403,3 +403,9 @@ function ad(
     basis = GenericBasis([basisLen])
     return DenseOperator(basis, basis, W)
 end
+
+function correlation_function(t, W0_bath, Ham_S, Ham_int, agg, FCProd, aggInds, vibindices; groundState = true)
+    Ham_II_t = getInteractionHamIPicture(Ham_S, Ham_int, t)
+    prod = Ham_II_t * Ham_int * W0_bath
+    trace_bath(prod, agg, FCProd, aggInds, vibindices; groundState = groundState)
+end

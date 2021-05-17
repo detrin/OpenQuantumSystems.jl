@@ -194,6 +194,7 @@ export
     get_rho_bath,
     trace_bath_part,
     ad,
+    correlation_function,
 
     # initial_state.jl
     exp_series,
