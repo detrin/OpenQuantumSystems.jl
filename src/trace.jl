@@ -104,13 +104,13 @@ end
 function trace_bath(
     rho::T,
     agg,
-    FCFact,
+    FCProd,
     aggIndices,
     vibindices;
     groundState = false,
 ) where {B<:Basis,T<:Operator{B,B}}
     rho_traced =
-        trace_bath(rho.data, agg, FCFact, aggIndices, vibindices; groundState = groundState)
+        trace_bath(rho.data, agg, FCProd, aggIndices, vibindices; groundState = groundState)
     basisLen = size(rho_traced, 1)
     basis = GenericBasis([basisLen])
     return DenseOperator(basis, basis, rho_traced)
@@ -205,17 +205,16 @@ function trace_bath(
     a,
     b,
     agg,
-    FCFact,
+    FCProd,
     aggIndices,
     vibindices
 ) where {B<:Basis,T<:Operator{B,B}}
     rho_traced =
-        trace_bath(rho.data, a, b, agg, FCFact, aggIndices, vibindices)
+        trace_bath(rho.data, a, b, agg, FCProd, aggIndices, vibindices)
     return rho_traced
 end
 
 function trace_bath_part(rho::Array, a, b, agg, FCProd, aggIndices, vibindices; groundState = false)
-    aggIndLen = length(aggIndices)
     vibLen = length(vibindices[2])
     rho_traced = eltype(rho)(0)
 
@@ -237,17 +236,17 @@ function trace_bath_part(
     a,
     b,
     agg,
-    FCFact,
+    FCProd,
     aggIndices,
     vibindices; 
     groundState = false
 ) where {B<:Basis,T<:Operator{B,B}}
     rho_traced =
-        trace_bath(rho.data, a, b, agg, FCFact, aggIndices, vibindices; groundState = groundState)
+        trace_bath(rho.data, a, b, agg, FCProd, aggIndices, vibindices; groundState = groundState)
     return rho_traced
 end
 
-function get_rho_bath(rho::Array, agg, FCProd, aggIndices, vibindices; groundState=false, justCopy=true)
+function get_rho_bath(rho::Array, agg, FCProd, aggIndices, vibindices; groundState=false, justCopy=false)
     rho_traced = trace_bath(rho, agg, FCProd, aggIndices, vibindices; groundState=groundState)
     vibLen = length(vibindices[end])
     aggIndLen = length(aggIndices)
@@ -311,7 +310,7 @@ function get_rho_bath(rho::Array, agg, FCProd, aggIndices, vibindices; groundSta
 end
 
 function get_rho_bath(
-        rho::T, agg, FCProd, aggIndices, vibindices; groundState=false, justCopy=true
+        rho::T, agg, FCProd, aggIndices, vibindices; groundState=false, justCopy=false
         ) where {B<:Basis,T<:Operator{B,B}}
     rho_data = get_rho_bath(rho.data, agg, FCProd, aggIndices, vibindices; groundState=groundState, justCopy=justCopy)
     return DenseOperator(rho.basis_l, rho.basis_r, rho_data)
