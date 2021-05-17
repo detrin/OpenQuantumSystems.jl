@@ -284,6 +284,60 @@ function getAggHamiltonianBath(
     return DenseOperator(b, b, Ham_bath)
 end
 
+function getAggHamSysBath(
+    agg::Aggregate{T,C1,C2},
+    aggIndices::Any;
+    groundState::Bool = false,
+    groundEnergy::Bool = false,
+    ) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
+    agg2 = deepcopy(agg)
+    for mol_i in 1:length(agg2.molecules)
+        mol = agg2.molecules[mol_i]
+        for mode in mol.modes
+            mode.shift = typeof(mode.shift)(0)
+        end
+        mol = updateMolecule(mol)
+        agg2.molecules[mol_i] = mol
+    end
+    
+    if aggIndices === nothing
+        aggIndices = getIndices(agg2; groundState = groundState)
+    end
+    aggIndLen = length(aggIndices)
+    molLen = length(agg.molecules)
+    franckCondonFactors = getFranckCondonFactors(agg2, aggIndices)
+    getAggHamiltonian(agg2, aggIndices; groundState=groundState, groundEnergy=groundEnergy)
+end
+
+function getAggHamSysBath2(
+    agg::Aggregate{T,C1,C2},
+    aggIndices::Any;
+    groundState::Bool = false,
+    groundEnergy::Bool = false,
+    ) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
+    if aggIndices === nothing
+        aggIndices = getIndices(agg; groundState = groundState)
+    end
+    aggIndLen = length(aggIndices)
+    Ham_bath = getAggHamiltonianBath(agg)
+    Ham_sys = getAggHamiltonianSystem(agg; groundState = groundState)
+    b = GenericBasis([aggIndLen])
+    b_sys = GenericBasis([size(Ham_sys, 1)])
+    b_bath = GenericBasis([size(Ham_bath, 1)])
+
+    Ham_S =
+        tensor(OneDenseOperator(b_bath), Ham_sys) +
+        tensor(Ham_bath, OneDenseOperator(b_sys))
+
+    if !groundEnergy
+        E0 = Ham_S.data[1, 1]
+        for I = 1:aggIndLen
+            Ham_S.data[I, I] -= E0
+        end
+    end
+    return DenseOperator(b, b, Ham_S.data)
+end
+
 function getAggHamiltonianInteraction(
     agg::Aggregate{T,C1,C2},
     aggIndices::Any,
@@ -305,16 +359,15 @@ function getAggHamiltonianInteraction(
         groundState = groundState,
         groundEnergy = true,
     )
-    Ham_bath = getAggHamiltonianBath(agg)
-    Ham_sys = getAggHamiltonianSystem(agg; groundState = groundState)
-    b = GenericBasis([aggIndLen])
-    b_sys = GenericBasis([size(Ham_sys, 1)])
-    b_bath = GenericBasis([size(Ham_bath, 1)])
-
-    Ham_S =
-        tensor(OneDenseOperator(b_bath), Ham_sys) +
-        tensor(Ham_bath, OneDenseOperator(b_sys))
+    
+    Ham_S = getAggHamSysBath2(
+        agg,
+        aggIndices;
+        groundState = groundState,
+        groundEnergy = true
+    )
     H_int = Ham.data - Ham_S.data
+    b = GenericBasis([aggIndLen])
     return DenseOperator(b, b, H_int)
 end
 
