@@ -2,7 +2,7 @@
 CurrentModule=OpenQuantumSystems
 ```
 
-# Example
+# A site
 
 Example Julia package repo.
 

@@ -7,13 +7,16 @@ using OpenQuantumSystems
 makedocs(
     format=     Documenter.HTML(
                     prettyurls= !("local" in ARGS),
-                    canonical=  "https://detrin.github.io/OpenQuantumSystems.jl//latest/",
+                    canonical=  "https://detrin.github.io/OpenQuantumSystems.jl/latest/",
                     analytics=  "G-F12F2Y92VY",
                     ),
     clean=      false,
     sitename=   "OpemQuantumSystems.jl",
     pages=      [
                 "Home"      =>  "index.md",
+                "Tutorials"      =>  [ 
+                        "tutorials/A.md", 
+                    ]
                 ]
 )
 
