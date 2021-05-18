@@ -1,8 +1,6 @@
 # push!(LOAD_PATH,"../src/")
 
-using Documenter
-using DocumenterTools
-using OpenQuantumSystems
+using Documenter, OpenQuantumSystems
 
 makedocs(
     modules = [OpenQuantumSystems],
@@ -30,4 +28,3 @@ deploydocs(
     deps=       nothing,
     make=       nothing,
 )
-#     modules = [OpemQuantumSystems],
