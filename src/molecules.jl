@@ -3,7 +3,7 @@
 """
     Mode{T}(omega, shift)
 
-Mutable stuct which purpose is to model vibrational LHO mode.
+Mutable stuct which purpose is to model vibrational LHO mode in [`Molecule`](@ref).
 
 ``V(q) = \\hbar \\omega (q - q_0)^2``
 
@@ -19,12 +19,26 @@ mutable struct Mode{T}
     end
 end
 
+"""
+    franckCondonFactors(size, shift)
+
+Get Franck-Condon factors for LHO mode calculated using [`ShiftOperator`](@ref).
+
+"""
 function franckCondonFactors(size::T, shift::U) where {T<:Integer,U<:ComputableType}
     b = GenericBasis([size + 100])
     shift_op = ShiftOperator(b, shift)
     return shift_op.data[1:size, 1:size]
 end
 
+"""
+    vibrationalIndices(maxInds)
+
+Get the vibrational indices for all states on [`Molecule`](@ref).
+
+# Arguments
+* `maxInds`: Vector of maximum number of vibrational states.
+"""
 function vibrationalIndices(maxInds::Vector{T}) where {T<:Integer}
     vibInds = Array{Array{T,1},1}(undef, 0)
     indLen = length(maxInds)
@@ -45,6 +59,16 @@ function vibrationalIndices(maxInds::Vector{T}) where {T<:Integer}
     return vibInds
 end
 
+
+"""
+electronicIndices(molCount; groundState = true)
+
+Get the electric indices for all states on [`Aggregate`](@ref).
+
+# Arguments
+* `molCount`: Number of molecules in [`Aggregate`](@ref).
+* `groundState`: Option for allowing the ground electric state in local basis.
+"""
 function electronicIndices(molCount::T; groundState = true) where {T<:Integer}
     vibInds = Array{Array{T,1},1}(undef, 0)
     currentInds = fill(1, (molCount))
@@ -59,6 +83,16 @@ function electronicIndices(molCount::T; groundState = true) where {T<:Integer}
     return vibInds
 end
 
+"""
+    Molecule{T,C1,C2}(modes, Nvib, E)
+
+Mutable stuct which purpose is to model a molecule in [`Aggregate`](@ref).
+
+# Arguments
+* `modes`: Vector of modes ([`Mode`](@ref)).
+* `Nvib`: Maximum number of vibrational states for all modes.
+* `E`: Energy of ground and excited state of molecule (HOMO, LUMO).
+"""
 mutable struct Molecule{T<:Integer,C1<:ComputableType,C2<:ComputableType}
     modes::Vector{Mode{C1}}
     Nvib::T
@@ -84,10 +118,25 @@ function updateMolecule!(mol::Molecule{T, C1, C2}) where {T<:Integer,C1<:Computa
     mol = Molecule{T, C1, C2}(mol.modes, mol.Nvib, mol.E)
 end
 
+"""
+    updateMolecule(mol)
+
+Get updated molecule with new params (e.g. [`Mode`](@ref)).
+"""
 function updateMolecule(mol::Molecule{T, C1, C2}) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
     Molecule{T, C1, C2}(mol.modes, mol.Nvib, mol.E)
 end
 
+"""
+    getMolStateEnergy(mol, molElState, molVibState)
+
+Get the energy of the [`Molecule`](@ref) state.
+
+# Arguments
+* `mol`: Instance of [`Molecule`](@ref).
+* `molElState`: Electric state of the molecule in local basis (i.e. 1 or 2, where 1 is ground state).
+* `molVibState`: Vibrational state of the molecule (e.g. [1, 5, 2, 2]).
+"""
 function getMolStateEnergy(
     mol::Molecule{T,C1,C2},
     molElState::U,
@@ -101,6 +150,16 @@ function getMolStateEnergy(
     return energy
 end
 
+"""
+    getMolStateFC(mol, molElState1, molVibState1, molElState2, molVibState2)
+
+Get the energy of the [`Molecule`](@ref) state.
+
+# Arguments
+* `mol`: Instance of [`Molecule`](@ref).
+* `molElState1`, `molElState2`: Electric state of the molecule in local basis (i.e. 1 or 2, where 1 is ground state).
+* `molVibState1`, `molVibState2`: Vibrational state of the molecule (e.g. [1, 5, 2, 2]).
+"""
 function getMolStateFC(
     mol::Molecule{T,C1,C2},
     molElState1::U,
