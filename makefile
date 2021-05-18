@@ -39,3 +39,6 @@ benchmark:
 
 format:
 	julia -e 'using JuliaFormatter; format(".")'
+
+docs:
+	julia --project=docs docs/make.jl local

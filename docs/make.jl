@@ -10,7 +10,7 @@ makedocs(
                     analytics=  "G-F12F2Y92VY",
                     ),
     clean=      false,
-    sitename=   "OpemQuantumSystems.jl",
+    sitename=   "OpenQuantumSystems.jl",
     authors = "Daniel Herman",
     linkcheck = !("skiplinks" in ARGS),
     pages=      [
