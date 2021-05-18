@@ -134,6 +134,8 @@ export
     vibrationalIndices,
     electronicIndices,
     Molecule,
+    updateMolecule!,
+    updateMolecule,
     getMolStateEnergy,
     getMolStateFC,
 
@@ -152,6 +154,8 @@ export
     getAggHamiltonianInteraction,
     getFranckCondonFactorsSparse,
     getAggHamiltonianSparse,
+    getAggHamSysBath,
+    getAggHamSysBath2,
 
     # evolution.jl
     evolutionOperator,
@@ -190,6 +194,7 @@ export
     get_rho_bath,
     trace_bath_part,
     ad,
+    correlation_function,
 
     # initial_state.jl
     exp_series,
