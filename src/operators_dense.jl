@@ -9,9 +9,6 @@
 
 Create dense annihilation operator mutable struct.
 
-# Arguments
-* `basis_l`: Bra basis.
-* `basis_r`: Ket basis.
 """
 mutable struct AnnihilationOperator{BL<:Basis,BR<:Basis} <: DataOperator{BL,BR}
     basis_l::BL
@@ -41,9 +38,6 @@ AnnihilationOperator(b::Basis) = AnnihilationOperator(b, b)
 
 Create dense creation operator mutable struct.
 
-# Arguments
-* `basis_l`: Bra basis.
-* `basis_r`: Ket basis.
 """
 mutable struct CreationOperator{BL<:Basis,BR<:Basis} <: DataOperator{BL,BR}
     basis_l::BL
@@ -105,9 +99,6 @@ ShiftOperator(b::Basis, shift::ComputableType) = ShiftOperator(b, b, shift)
 
 Creates DenseOperator with ones on the diagonal.
 
-# Arguments
-* `basis_l`: Bra basis.
-* `basis_r`: Ket basis.
 """
 function OneDenseOperator(basis_l::BL, basis_r::BR) where {BL<:Basis,BR<:Basis}
     op = DenseOperator(basis_l, basis_r)

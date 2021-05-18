@@ -17,6 +17,8 @@ You can obtain OpenQuantumSystems using Julia's Pkg REPL-mode (hitting `]` as th
 (v1.6) pkg> add OpenQuantumSystems
 ```
 
+or with `using Pkg; Pkg.add("OpenQuantumSystems")`.
+
 ### Questions & Contributions
 
 The package is still under development. If you have any questions or need help,
