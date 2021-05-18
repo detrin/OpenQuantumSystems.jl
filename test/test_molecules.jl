@@ -69,4 +69,17 @@ using LinearAlgebra
     @test getMolStateFC(mol, 1, [2, 1], 1, [1, 2]) == 0.0
     @test getMolStateFC(mol, 1, [1, 1], 2, [1, 1]) ≈ 0.6065306597126334
     @test getMolStateFC(mol, 2, [3, 1], 2, [1, 2]) == 0.0
+
+    mode1 = Mode(0.2, 1.0)
+    mode2 = Mode(0.4, 1.0)
+    Energy = [0.0, 200.0]
+    mol1 = Molecule([mode1, mode2], 3, Energy)
+    mol1.E = [0.0, 400.0]
+    mol2 = updateMolecule(mol1)
+    @test mol2.E == [0.0, 400.0]
+    mol2.E = [0.0, 200.0]
+    updateMolecule!(mol2)
+    mol1.E = [0.0, 200.0]
+    mol1 = updateMolecule(mol1)
+    @test mol1.E == mol2.E
 end
