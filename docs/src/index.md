@@ -1,3 +1,7 @@
+```@meta
+CurrentModule=OpenQuantumSystems
+```
+
 # Example
 
 Example Julia package repo.
