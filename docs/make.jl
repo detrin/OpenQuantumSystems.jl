@@ -16,12 +16,12 @@ makedocs(
                 "Home"      =>  "index.md",
                 "Tutorials"      =>  [ 
                         "tutorials/A.md", 
+                        "tutorials/B.md", 
                     ]
                 ]
 )
 
 deploydocs(
-
     repo=       "github.com/detrin/OpenQuantumSystems.jl.git",
     target=     "build",
     deps=       nothing,
