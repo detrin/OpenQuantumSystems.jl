@@ -1,5 +1,27 @@
-using Documenter, Example
+# push!(LOAD_PATH,"../src/")
 
-makedocs(modules = [Example], sitename = "OpemQuantumSystems.jl")
+using Documenter
+using DocumenterTools
+using OpenQuantumSystems
 
-# deploydocs(repo = "github.com/JuliaLang/Example.jl.git")
+makedocs(
+    format=     Documenter.HTML(
+                    prettyurls= !("local" in ARGS),
+                    canonical=  "https://detrin.github.io/OpenQuantumSystems.jl//latest/",
+                    analytics=  "G-F12F2Y92VY",
+                    ),
+    clean=      false,
+    sitename=   "OpemQuantumSystems.jl",
+    pages=      [
+                "Home"      =>  "index.md",
+                ]
+)
+
+deploydocs(
+
+    repo=       "github.com/detrin/OpenQuantumSystems.jl.git",
+    target=     "build",
+    deps=       nothing,
+    make=       nothing,
+)
+#     modules = [OpemQuantumSystems],
