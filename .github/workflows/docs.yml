@@ -16,3 +16,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
+          TRAVIS_PULL_REQUEST: false
+          TRAVIS_BRANCH: master
