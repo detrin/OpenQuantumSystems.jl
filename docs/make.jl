@@ -5,6 +5,7 @@ using DocumenterTools
 using OpenQuantumSystems
 
 makedocs(
+    modules = [OpenQuantumSystems],
     format=     Documenter.HTML(
                     prettyurls= !("local" in ARGS),
                     canonical=  "https://detrin.github.io/OpenQuantumSystems.jl/latest/",
@@ -12,6 +13,8 @@ makedocs(
                     ),
     clean=      false,
     sitename=   "OpemQuantumSystems.jl",
+    authors = "Daniel Herman",
+    linkcheck = !("skiplinks" in ARGS),
     pages=      [
                 "Home"      =>  "index.md",
                 "Tutorials"      =>  [ 
