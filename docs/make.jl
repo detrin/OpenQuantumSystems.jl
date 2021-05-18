@@ -24,7 +24,4 @@ makedocs(
 
 deploydocs(
     repo=       "github.com/detrin/OpenQuantumSystems.jl.git",
-    target=     "build",
-    deps=       nothing,
-    make=       nothing,
 )
