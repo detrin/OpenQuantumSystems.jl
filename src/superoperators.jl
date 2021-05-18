@@ -9,7 +9,7 @@ ishermitian(A::SuperOperator{B1,B2}) where {B1<:Tuple{Basis,Basis},B2<:Tuple{Bas
 """
     Commutator(A)
 
-Create commutator as in a form of superoperator from a given operator.
+Create commutator in a form of superoperator from a given operator.
 
 ``\\text{Commutator}(A) \\:\\cdot\\: = [A, \\:\\cdot\\:]``
 
