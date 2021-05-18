@@ -4,6 +4,15 @@
 # Convert data to CuArray with cu(::Operator)
 # Adapt.adapt_structure(to, x::Operator) = Operator(x.basis_l, x.basis_r, Adapt.adapt(to, x.data))
 
+"""
+    AnnihilationOperator{BL,BR}(basis_l, basis_r)
+
+Create dense annihilation operator mutable struct.
+
+# Arguments
+* `basis_l`: Bra basis.
+* `basis_r`: Ket basis.
+"""
 mutable struct AnnihilationOperator{BL<:Basis,BR<:Basis} <: DataOperator{BL,BR}
     basis_l::BL
     basis_r::BR
@@ -27,6 +36,15 @@ end
 AnnihilationOperator(bl::BL, br::BR) where {BL,BR} = AnnihilationOperator{BL,BR}(bl, br)
 AnnihilationOperator(b::Basis) = AnnihilationOperator(b, b)
 
+"""
+    CreationOperator{BL,BR}(basis_l, basis_r)
+
+Create dense creation operator mutable struct.
+
+# Arguments
+* `basis_l`: Bra basis.
+* `basis_r`: Ket basis.
+"""
 mutable struct CreationOperator{BL<:Basis,BR<:Basis} <: DataOperator{BL,BR}
     basis_l::BL
     basis_r::BR
@@ -47,6 +65,18 @@ end
 CreationOperator(bl::BL, br::BR) where {BL,BR} = CreationOperator{BL,BR}(bl, br)
 CreationOperator(b::Basis) = CreationOperator(b, b)
 
+"""
+    CreationOperator{BL,BR}(basis_l, basis_r, shift)
+
+Create dense creation operator mutable struct using the definition.
+
+``D(\\alpha) = \\exp(\\alpha a^\\dagger - \\alpha^* a)``
+
+# Arguments
+* `basis_l`: Bra basis.
+* `basis_r`: Ket basis.
+* `shift`: Shift or ``\\alpha`` parameter, can be complex number.
+"""
 mutable struct ShiftOperator{BL<:Basis,BR<:Basis,T<:ComputableType} <: DataOperator{BL,BR}
     basis_l::BL
     basis_r::BR
@@ -70,8 +100,17 @@ ShiftOperator(bl::BL, br::BR, shift::T) where {BL,BR,T} =
     ShiftOperator{BL,BR,T}(bl, br, shift)
 ShiftOperator(b::Basis, shift::ComputableType) = ShiftOperator(b, b, shift)
 
-function OneDenseOperator(bl::BL, br::BR) where {BL<:Basis,BR<:Basis}
-    op = DenseOperator(bl, br)
+"""
+    OneDenseOperator(basis_l, basis_r)
+
+Creates DenseOperator with ones on the diagonal.
+
+# Arguments
+* `basis_l`: Bra basis.
+* `basis_r`: Ket basis.
+"""
+function OneDenseOperator(basis_l::BL, basis_r::BR) where {BL<:Basis,BR<:Basis}
+    op = DenseOperator(basis_l, basis_r)
     opLen = size(op.data, 1)
     for i = 1:opLen
         op.data[i, i] = 1.0
