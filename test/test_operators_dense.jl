@@ -2,7 +2,7 @@ using Test
 using OpenQuantumSystems
 using Random, SparseArrays, LinearAlgebra
 
-@testset "operators-dense" begin
+@testset "operators dense" begin
 
     Random.seed!(0)
 
