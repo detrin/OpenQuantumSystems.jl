@@ -1,6 +1,16 @@
 
-# include("core.jl")
 
+"""
+    Mode{T}(omega, shift)
+
+Mutable stuct which purpose is to model vibrational LHO mode.
+
+``V(q) = \\hbar \\omega (q - q_0)^2``
+
+# Arguments
+* `omega`: The frequency of LHO (``\\omega``).
+* `shift`: The shift of the coordinate of LHO (``q_0``).
+"""
 mutable struct Mode{T}
     omega::T
     shift::T
