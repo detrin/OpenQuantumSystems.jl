@@ -115,6 +115,8 @@ using SparseArrays, LinearAlgebra
 
 export
     # operators_dense.jl
+    AnnihilationOperator,
+    CreationOperator,
     OneDenseOperator,
 
     # superoperators.jl

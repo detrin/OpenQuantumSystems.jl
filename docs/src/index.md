@@ -19,7 +19,7 @@ You can obtain OpenQuantumSystems using Julia's Pkg REPL-mode (hitting `]` as th
 (v1.6) pkg> add OpenQuantumSystems
 ```
 
-or with `using Pkg; Pkg.add("Revise")`.
+or with `using Pkg; Pkg.add("OpenQuantumSystems")`.
 
 ## Documentation
 
