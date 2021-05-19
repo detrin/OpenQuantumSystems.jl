@@ -60,9 +60,9 @@ CreationOperator(bl::BL, br::BR) where {BL,BR} = CreationOperator{BL,BR}(bl, br)
 CreationOperator(b::Basis) = CreationOperator(b, b)
 
 """
-    CreationOperator{BL,BR}(basis_l, basis_r, shift)
+    ShiftOperator{BL,BR}(basis_l, basis_r, shift)
 
-Dense creation operator as a mutable struct using the definition
+Dense shift operator as a mutable struct using the definition
 
 ``D(\\alpha) = \\exp(\\alpha a^\\dagger - \\alpha^* a)``.
 
