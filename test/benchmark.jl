@@ -244,7 +244,7 @@ if true
 end
 
 if true
-    println("## liouville von-Neumann")
+    println("## Liouville-von Neumann")
     tspan = [0.0:0.02:1.0;]
     println("\n `tspan = [0.0:0.02:1.0;]`\n")
     println("### System 1\n")
