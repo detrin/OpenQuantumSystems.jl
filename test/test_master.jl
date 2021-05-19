@@ -48,6 +48,8 @@ import DelayDiffEq
         Ham_int;
         reltol = 1e-6,
         abstol = 1e-6,
+        int_reltol = 1e-8,
+        int_abstol = 0.0,
         alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
     )#, alg=OrdinaryDiffEq.Vern7())
     rho_prev = deepcopy(rho0)

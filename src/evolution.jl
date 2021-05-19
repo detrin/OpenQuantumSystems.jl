@@ -22,7 +22,7 @@ Get evolution operator as Array using the definition
 
 ``U(t) = S e^{-i H_\\lambda t / \\hbar} S^{-1},``
 
-where ``\\quad \\hbar = 1``, ``H_{\\lambda,ii} = \\lambda_i`` are eigenvalues of ``H``,
+where ``\\hbar = 1``, ``H_{\\lambda,ii} = \\lambda_i`` are eigenvalues of ``H``,
 so ``H`` has to be non-singular, otherwise ``H_{\\lambda,ij} = 0, i \\neq j``. 
 ``S`` is obtained from eigendecomposition of ``H``, for example
 
@@ -156,7 +156,8 @@ end
 
 
 """
-    evolutionSuperOperatorIterator(Hamiltonian, tspan; diagonalize = true, approximate = false)
+    evolutionSuperOperatorIterator(Hamiltonian, tspan; 
+    \tdiagonalize = true, approximate = false)
 
 Resumable function that returns evolution operator as Operator type at the time t from tspan.
 See [`evolutionSuperOperator`](@ref). The `diagonalize` argument decompose Hamiltonian into ``\\lambda_i, S, S^{-1}``
@@ -230,7 +231,8 @@ end
 
 
 """
-    evolutionExact!(ket_array, ket0, tspan, Hamiltonian; diagonalize = true, approximate = false)
+    evolutionExact!(ket_array, ket0, tspan, Hamiltonian; 
+    \tdiagonalize = true, approximate = false)
 
 Calculate exact time evolution of the `ket0` state inplace see [`evolutionOperatorIterator`](@ref). 
 The `diagonalize` argument decompose Hamiltonian into ``\\lambda_i, S, S^{-1}``
@@ -285,7 +287,8 @@ end
 
 
 """
-    evolutionExact!(op_array, op0, tspan, Hamiltonian; diagonalize = true, approximate = false)
+    evolutionExact!(op_array, op0, tspan, Hamiltonian; 
+    \tdiagonalize = true, approximate = false)
 
 Calculate exact time evolution of the `op0` state inplace see [`evolutionOperatorIterator`](@ref). 
 The `diagonalize` argument decompose Hamiltonian into ``\\lambda_i, S, S^{-1}``

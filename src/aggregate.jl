@@ -234,7 +234,8 @@ function elIndOrder(elInd::Vector{T}) where {T<:Integer}
 end
 
 """
-    getAggHamiltonian(agg, aggIndices, franckCondonFactors; groundState = false, groundEnergy = false)
+    getAggHamiltonian(agg, aggIndices, 
+    \tfranckCondonFactors; groundState = false, groundEnergy = false)
     getAggHamiltonian(agg, aggIndices; groundState = false, groundEnergy = false)
     getAggHamiltonian(agg; groundState = false, groundEnergy = false)
 
@@ -464,7 +465,8 @@ function getAggHamSysBath2(
 end
 
 """
-    getAggHamiltonianInteraction(agg, aggIndices, franckCondonFactors; groundState = false, groundEnergy = false)
+    getAggHamiltonianInteraction(agg, aggIndices, franckCondonFactors; 
+    \tgroundState = false, groundEnergy = false)
     getAggHamiltonianInteraction(agg, aggIndices; groundState = false, groundEnergy = false)
     getAggHamiltonianInteraction(agg; groundState = false, groundEnergy = false)
 
