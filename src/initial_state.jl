@@ -29,7 +29,7 @@ we suppose that after the thermal state is excited with laser pulse, the whole p
 of ground state is distributed over electric states in `mu_array`. We assume 
 Condon approximation.
 
-``\\rho_\\text{thermal} = \\exp\\[ -\\frac{i}{\\hbar} H \\], \\quad \\hbar = 1```.
+``\\rho_\\text{thermal} = \\exp( -\\frac{i}{\\hbar} H ), \\quad \\hbar = 1```.
 
 # Arguments
 * `T`: Temperature of the initial thermal state.
@@ -88,7 +88,7 @@ For example
 thermal_state_composite(T, [0.0, 0.8, 0.2], ...) = 0.8 * thermal_state(T, [1, 2, 1], ...) + 0.2 * thermal_state(T, [1, 1, 2], ...)
 ````
 
-``\\rho_\\text{thermal} = \\exp\\[ -\\frac{i}{\\hbar} H \\], \\quad \\hbar = 1``.
+``\\rho_\\text{thermal} = \\exp( -\\frac{i}{\\hbar} H ), \\quad \\hbar = 1``.
 
 # Arguments
 * `T`: Temperature of the initial thermal state.
