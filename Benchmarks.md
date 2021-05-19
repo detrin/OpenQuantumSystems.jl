@@ -146,7 +146,7 @@ schroedinger(psi0, Ham3, tspan; reltol=1e-10, abstol=1e-10, alg=OrdinaryDiffEq.T
 schroedinger(psi0, Ham2, tspan; reltol=1e-12, abstol=1e-12, alg=OrdinaryDiffEq.Vern7()
 
   23.155 s (13772 allocations: 8.67 MiB)
-## liouville von-Neumann
+## lLiouville-von Neumann
 
  `tspan = [0.0:0.02:1.0;]`
 

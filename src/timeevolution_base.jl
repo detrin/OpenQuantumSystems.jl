@@ -205,12 +205,14 @@ end
 
 
 const QO_CHECKS = Ref(true)
+#=
 """
     @skiptimechecks
 
 Macro to skip checks during time-dependent problems.
 Useful for [`master_dynamic`](@ref) and similar functions.
 """
+=#
 macro skiptimechecks(ex)
     return quote
         QO_CHECKS.x = false

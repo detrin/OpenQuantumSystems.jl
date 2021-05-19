@@ -1,18 +1,24 @@
 import OrdinaryDiffEq
 
 """
-    schroedinger(tspan, psi0, H; fout)
+    schroedinger(psi0, tspan, H; 
+    \treltol=1.0e-12, abstol=1.0e-12, fout=nothing, alg=OrdinaryDiffEq.Tsit5())
 
-Integrate Schroedinger equation to evolve states or compute propagators.
+Integrate Schroedinger equation to evolve states or compute propagators
+
+`` \\frac{d}{d t}\\vert\\psi(t)\\rangle = - \\frac{i}{\\hbar} \\hat H\\vert\\psi(t)\\rangle, \\quad \\hbar = 1``.
 
 # Arguments
 * `psi0`: Initial state vector (can be a bra or a ket) or initial propagator.
-* `H`: Arbitrary operator specifying the Hamiltonian.
 * `tspan`: Vector specifying the points of time for which output should be displayed.
+* `H`: Arbitrary operator specifying the Hamiltonian.
+* `reltol`: Relative tolerance for OrdinaryDiffEq solver and its inner states.
+* `abstol`: Absolute tolerance for OrdinaryDiffEq solver and its inner states.
 * `fout=nothing`: If given, this function `fout(t, psi)` is called every time
         an output should be displayed. ATTENTION: The state `psi` is neither
         normalized nor permanent! It is still in use by the ode solver and
         therefore must not be changed.
+* `alg`: Algorithm with which OrdinaryDiffEq will solve Schroedinger equation.
 """
 function schroedinger(
     psi0::T,
@@ -20,7 +26,7 @@ function schroedinger(
     H::AbstractOperator{B,B};
     reltol::Float64 = 1.0e-12,
     abstol::Float64 = 1.0e-12,
-    alg::OrdinaryDiffEq.OrdinaryDiffEqAlgorithm = OrdinaryDiffEq.DP5(),
+    alg::OrdinaryDiffEq.OrdinaryDiffEqAlgorithm = OrdinaryDiffEq.Tsit5(),
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
 ) where {B<:Basis,T<:Union{AbstractOperator{B,B},StateVector{B}}}
@@ -45,18 +51,24 @@ end
 
 
 """
-    schroedinger_dynamic(tspan, psi0, f; fout)
+    schroedinger_dynamic(psi0, tspan, f; 
+    \treltol=1.0e-12, abstol=1.0e-12, fout=nothing, alg=OrdinaryDiffEq.Tsit5())
 
-Integrate time-dependent Schroedinger equation to evolve states or compute propagators.
+Integrate time-dependent Schroedinger equation to evolve states or compute propagators
+
+``\\frac{d}{d t}\\vert\\psi(t)\\rangle = - \\frac{i}{\\hbar} \\hat H(t)\\vert\\rho(t)\\rangle, \\quad \\hbar = 1``.
 
 # Arguments
-* `tspan`: Vector specifying the points of time for which output should be displayed.
 * `psi0`: Initial state vector (can be a bra or a ket) or initial propagator.
+* `tspan`: Vector specifying the points of time for which output should be displayed.
 * `f`: Function `f(t, psi) -> H` returning the time and or state dependent Hamiltonian.
+* `reltol`: Relative tolerance for OrdinaryDiffEq solver and its inner states.
+* `abstol`: Absolute tolerance for OrdinaryDiffEq solver and its inner states.
 * `fout=nothing`: If given, this function `fout(t, psi)` is called every time
         an output should be displayed. ATTENTION: The state `psi` is neither
         normalized nor permanent! It is still in use by the ode solver and
         therefore must not be changed.
+* `alg`: Algorithm with which OrdinaryDiffEq will solve Schroedinger equation.
 """
 function schroedinger_dynamic(
     psi0::T,
