@@ -199,7 +199,6 @@ export
     correlation_function,
 
     # initial_state.jl
-    exp_series,
     thermal_state,
     thermal_state_composite,
 

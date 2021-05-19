@@ -8,7 +8,7 @@ import LinearAlgebra: ishermitian
 Trace norm of `rho`.
 It is defined as
 ```math
-T(ρ) = Tr\\{\\sqrt{ρ^† ρ}\\}.
+T(ρ) = \\operatorname{tr}\\{\\sqrt{ρ^† ρ}\\}.
 ```
 Depending if `rho` is hermitian either [`tracenorm_h`](@ref) or
 [`tracenorm_nh`](@ref) is called.
@@ -30,7 +30,7 @@ end
 Trace norm of `rho`.
 It uses the identity
 ```math
-T(ρ) = Tr\\{\\sqrt{ρ^† ρ}\\} = \\sum_i |λ_i|
+T(ρ) = \\operatorname{tr}\\{\\sqrt{ρ^† ρ}\\} = \\sum_i |λ_i|
 ```
 where ``λ_i`` are the eigenvalues of `rho`.
 """
@@ -52,7 +52,7 @@ Note that in this case `rho` doesn't have to be represented by a square
 matrix (i.e. it can have different left-hand and right-hand bases).
 It uses the identity
 ```math
-    T(ρ) = Tr\\{\\sqrt{ρ^† ρ}\\} = \\sum_i σ_i
+    T(ρ) = \\operatorname{tr}\\{\\sqrt{ρ^† ρ}\\} = \\sum_i σ_i
 ```
 where ``σ_i`` are the singular values of `rho`.
 """
@@ -64,7 +64,7 @@ tracenorm_nh(rho::SuperOperator{B,B,T}) where {B<:Tuple{Basis,Basis},T} =
 Trace distance between `rho` and `sigma`.
 It is defined as
 ```math
-T(ρ,σ) = \\frac{1}{2} Tr\\{\\sqrt{(ρ - σ)^† (ρ - σ)}\\}.
+T(ρ,σ) = \\frac{1}{2} \\operatorname{tr}\\{\\sqrt{(ρ - σ)^† (ρ - σ)}\\}.
 ```
 It calls [`tracenorm`](@ref) which in turn either uses [`tracenorm_h`](@ref)
 or [`tracenorm_nh`](@ref) depending if ``ρ-σ`` is hermitian or not.
@@ -79,7 +79,7 @@ tracedistance(
 Trace distance between `rho` and `sigma`.
 It uses the identity
 ```math
-T(ρ,σ) = \\frac{1}{2} Tr\\{\\sqrt{(ρ - σ)^† (ρ - σ)}\\} = \\frac{1}{2} \\sum_i |λ_i|
+T(ρ,σ) = \\frac{1}{2} \\operatorname{tr}\\{\\sqrt{(ρ - σ)^† (ρ - σ)}\\} = \\frac{1}{2} \\sum_i |λ_i|
 ```
 where ``λ_i`` are the eigenvalues of `rho` - `sigma`.
 """
@@ -96,7 +96,7 @@ Note that in this case `rho` and `sigma` don't have to be represented by square
 matrices (i.e. they can have different left-hand and right-hand bases).
 It uses the identity
 ```math
-    T(ρ,σ) = \\frac{1}{2} Tr\\{\\sqrt{(ρ - σ)^† (ρ - σ)}\\}
+    T(ρ,σ) = \\frac{1}{2} \\operatorname{tr}\\{\\sqrt{(ρ - σ)^† (ρ - σ)}\\}
          = \\frac{1}{2} \\sum_i σ_i
 ```
 where ``σ_i`` are the singular values of `rho` - `sigma`.
