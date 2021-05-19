@@ -1,4 +1,10 @@
 
+"""
+    getFCProd(agg, FCFact, aggIndices, vibindices; groundState = false)
+
+Get product of Franck-Condon factors. This way the trace over bath will be faster
+
+"""
 function getFCProd(agg, FCFact, aggIndices, vibindices; groundState = false)
     elLen = length(agg.molecules)
     aggIndLen = length(aggIndices)
@@ -57,6 +63,16 @@ function getFCProd(agg, FCFact, aggIndices, vibindices; groundState = false)
     return FCProd
 end
 
+
+"""
+    trace_bath(rho, agg, FCProd, aggIndices, vibindices; groundState = false)
+
+Trace out bath degrees of freedom from `rho`
+
+``\\rho_\\text{tr} = \\operatorname{tr}_B \\{\\rho\\} = 
+\\sum_{k} \\langle k \\vert \\left( \\sum_{ab} \\rho_{am, bn} \\vert am \\rangle \\langle bn \\vert \\right)\\vert k \\rangle``
+
+"""
 function trace_bath(rho::Array, agg, FCProd, aggIndices, vibindices; groundState = false)
     elLen = length(agg.molecules)
     aggIndLen = length(aggIndices)
@@ -116,6 +132,12 @@ function trace_bath(
     return DenseOperator(basis, basis, rho_traced)
 end
 
+"""
+    trace_bath_slow(rho, agg, FCFact, aggIndices, vibindices; groundState = false)
+
+Trace out bath degrees of freedom from `rho` without the product of Franck-Condon factors.
+
+"""
 function trace_bath_slow(rho::Array, agg, FCFact, aggIndices, vibindices; groundState = false)
     elLen = length(agg.molecules)
     aggIndLen = length(aggIndices)
@@ -184,6 +206,14 @@ function trace_bath_slow(
     return DenseOperator(basis, basis, rho_traced)
 end
 
+"""
+    trace_bath(rho, a, b, agg, FCProd, aggIndices, vibindices; groundState = false)
+
+Trace out bath degrees of freedom from `rho` without the product of Franck-Condon factors.
+The trace will be done only on the Hilber space for electric bra part `a` and ket part `b`.
+Input density matrix `rho` is for the whole Hilber space. This method returns number.
+
+"""
 function trace_bath(rho::Array, a, b, agg, FCProd, aggIndices, vibindices)
     aggIndLen = length(aggIndices)
     vibLen = length(vibindices[2])
@@ -214,6 +244,14 @@ function trace_bath(
     return rho_traced
 end
 
+"""
+    trace_bath_part(rho, a, b, agg, FCProd, aggIndices, vibindices; groundState = false)
+
+Trace out bath degrees of freedom from `rho` without the product of Franck-Condon factors.
+The trace will be done only on the Hilber space for electric bra part `a` and ket part `b`.
+Input density matrix `rho` is only for the subspace. This method returns number.
+
+"""
 function trace_bath_part(rho::Array, a, b, agg, FCProd, aggIndices, vibindices; groundState = false)
     vibLen = length(vibindices[2])
     rho_traced = eltype(rho)(0)
@@ -246,6 +284,17 @@ function trace_bath_part(
     return rho_traced
 end
 
+
+"""
+    get_rho_bath(rho, agg, FCProd, aggIndices, vibindices; groundState=false, justCopy=false)
+
+This method will return the bath part of `rho` knowing the result of [`trace_bath`](@ref) defined as follows
+
+`` \\rho_\\text{bath} = \\operatorname{tr}_S \\{\\rho\\} ``
+
+`` \\rho_{\\text{bath}, ab} = \\rho_{ab} / \\langle a \\vert \\operatorname{tr}_B \\{ \\rho \\}\\vert b \\rangle``
+
+"""
 function get_rho_bath(rho::Array, agg, FCProd, aggIndices, vibindices; groundState=false, justCopy=false)
     rho_traced = trace_bath(rho, agg, FCProd, aggIndices, vibindices; groundState=groundState)
     vibLen = length(vibindices[end])
@@ -316,14 +365,24 @@ function get_rho_bath(
     return DenseOperator(rho.basis_l, rho.basis_r, rho_data)
 end
 
-function ad(rho_traced::Array, W_bath::Array, agg, FCProd, aggIndices, vibindices; groundState=false)
+
+"""
+    ad(rho_traced, rho_bath, agg, FCProd, aggIndices, vibindices; groundState=false)
+
+This is the inverse operation to the trace over bath [`trace_bath`](@ref) and [`get_rho_bath`](@ref) 
+defined as follows
+
+`` \\rho = \\operatorname{ad}\\{\\rho_\\text{tr}, \\rho_\\text{bath} \\} ``
+
+"""
+function ad(rho_traced::Array, rho_bath::Array, agg, FCProd, aggIndices, vibindices; groundState=false)
     elLen = length(agg.molecules)
     aggIndLen = length(aggIndices)
     vibLen = length(vibindices[2])
     if groundState
         elLen += 1
     end
-    W = zero(W_bath)
+    W = zero(rho_bath)
 
     if !groundState
         for I = 1:aggIndLen
@@ -340,7 +399,7 @@ function ad(rho_traced::Array, W_bath::Array, agg, FCProd, aggIndices, vibindice
                     continue
                 end
 
-                W[I, J] = rho_traced[elOrder1-1, elOrder2-1] * W_bath[I, J]
+                W[I, J] = rho_traced[elOrder1-1, elOrder2-1] * rho_bath[I, J]
             end
         end
     else
@@ -352,7 +411,7 @@ function ad(rho_traced::Array, W_bath::Array, agg, FCProd, aggIndices, vibindice
                 elind2, vibind2 = aggIndices[J]
                 elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
 
-                W[I, J] = rho_traced[elOrder1, elOrder2] * W_bath[I, J]
+                W[I, J] = rho_traced[elOrder1, elOrder2] * rho_bath[I, J]
             end
         end
     end
@@ -404,8 +463,17 @@ function ad(
     return DenseOperator(basis, basis, W)
 end
 
-function correlation_function(t, W0_bath, Ham_S, Ham_int, agg, FCProd, aggInds, vibindices; groundState = true)
-    Ham_II_t = getInteractionHamIPicture(Ham_S, Ham_int, t)
-    prod = Ham_II_t * Ham_int * W0_bath
-    trace_bath(prod, agg, FCProd, aggInds, vibindices; groundState = groundState)
+
+"""
+    correlation_function(t, rho0_bath, Ham_0, Ham_I, agg, FCProd, aggInds, vibindices; groundState = true)
+
+Get time dependent correlation function for a specified time `t` using following definition
+
+`` C(t) = \\operatorname{tr}_B \\{ \\hat{H}_I^{(I)}(t) \\hat{H}_I \\rho_\\text{bath}(0) \\} ``
+
+"""
+function correlation_function(t, rho0_bath, Ham_0, Ham_I, agg, FCProd, aggInds, vibindices; groundState = true)
+    Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
+    prod = Ham_II_t * Ham_I * rho0_bath
+    return trace_bath(prod, agg, FCProd, aggInds, vibindices; groundState = groundState)
 end

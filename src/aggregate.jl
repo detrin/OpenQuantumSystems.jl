@@ -470,7 +470,7 @@ end
     getAggHamiltonianInteraction(agg, aggIndices; groundState = false, groundEnergy = false)
     getAggHamiltonianInteraction(agg; groundState = false, groundEnergy = false)
 
-Get interation Hamiltonian of the [`Aggregate`](@ref), ``H_\\text{int}`` by substracting 
+Get interation Hamiltonian of the [`Aggregate`](@ref), ``H_I`` by substracting 
 Hamiltonian and Hamiltonian of the systems and of the bath, ``H - H_S - H_B``.
 
 # Arguments

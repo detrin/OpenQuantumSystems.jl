@@ -15,10 +15,6 @@ makedocs(
     linkcheck = !("skiplinks" in ARGS),
     pages=      [
                 "Home"      =>  "index.md",
-                "Tutorials"      =>  [ 
-                        "tutorials/A.md", 
-                        "tutorials/B.md", 
-                    ]
                 ]
 )
 
