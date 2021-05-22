@@ -657,3 +657,38 @@ getAggHamiltonianSparse(
     nothing;
     groundState = groundState,
 )
+
+
+function setupAggregate(agg; groundState=false, groundEnergy=true, verbose=false)
+    if verbose
+        println("aggInds")
+        @time aggInds = getIndices(agg; groundState=groundState)
+        println("vibindices")
+        @time vibindices = getVibIndices(agg, aggInds)
+        aggIndLen = length(aggInds)
+        println("aggIndLen: ", aggIndLen)
+        println("basis")
+        @time basis = GenericBasis([aggIndLen])
+        println("FCFact")
+        @time FCFact = getFranckCondonFactors(agg, aggInds; groundState=groundState)
+        println("FCProd")
+        @time FCProd = getFCProd(agg, FCFact, aggInds, vibindices; groundState=groundState)
+        println("Ham")
+        @time Ham = getAggHamiltonian(agg, aggInds, FCFact; groundState=groundState, groundEnergy=groundEnergy)
+        println("Ham_0")
+        @time Ham_0 = getAggHamSysBath(agg, aggInds; groundState=groundState, groundEnergy=groundEnergy)
+        println("Ham_I")
+        @time Ham_I = Ham - Ham_0
+    else
+        aggInds = getIndices(agg; groundState=groundState)
+        vibindices = getVibIndices(agg, aggInds)
+        aggIndLen = length(aggInds)
+        basis = GenericBasis([aggIndLen])
+        FCFact = getFranckCondonFactors(agg, aggInds; groundState=groundState)
+        FCProd = getFCProd(agg, FCFact, aggInds, vibindices; groundState=groundState)
+        Ham = getAggHamiltonian(agg, aggInds, FCFact; groundState=groundState, groundEnergy=groundEnergy)
+        Ham_0 = getAggHamSysBath(agg, aggInds; groundState=groundState, groundEnergy=groundEnergy)
+        Ham_I = Ham - Ham_0
+    end
+    return (aggInds, vibindices, aggIndLen, basis, FCFact, FCProd, Ham, Ham_0, Ham_I)
+end

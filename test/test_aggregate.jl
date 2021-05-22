@@ -3,9 +3,49 @@ using OpenQuantumSystems
 using LinearAlgebra
 using SparseArrays
 
+# https://github.com/JuliaIO/Suppressor.jl/blob/master/src/Suppressor.jl
+macro suppress(block)
+    quote
+        if ccall(:jl_generating_output, Cint, ()) == 0
+            original_stdout = stdout
+            out_rd, out_wr = redirect_stdout()
+            out_reader = @async read(out_rd, String)
+
+            original_stderr = stderr
+            err_rd, err_wr = redirect_stderr()
+            err_reader = @async read(err_rd, String)
+
+            # approach adapted from https://github.com/JuliaLang/IJulia.jl/pull/667/files
+            logstate = Base.CoreLogging._global_logstate
+            logger = logstate.logger
+            if logger.stream == original_stderr
+                new_logstate = Base.CoreLogging.LogState(typeof(logger)(err_wr, logger.min_level))
+                Core.eval(Base.CoreLogging, Expr(:(=), :(_global_logstate), new_logstate))
+            end
+        end
+
+        try
+            $(esc(block))
+        finally
+            if ccall(:jl_generating_output, Cint, ()) == 0
+                redirect_stdout(original_stdout)
+                close(out_wr)
+
+                redirect_stderr(original_stderr)
+                close(err_wr)
+
+                if logger.stream == stderr
+                    Core.eval(Base.CoreLogging, Expr(:(=), :(_global_logstate), logstate))
+                end
+            end
+        end
+    end
+end
+
 @testset "aggregate" begin
 
     D(op1::Array, op2::Array) = abs(norm(op1 - op2))
+    
 
     mode1 = Mode(0.2, 1.0)
     mode2 = Mode(0.4, 1.0)
@@ -493,4 +533,36 @@ using SparseArrays
     Ham_S3 = getAggHamSysBath2(agg, aggInds; groundState = false, groundEnergy=true)
     @test 1e12 > D(Ham_S.data, Ham_S3.data)
 
+
+    aggInds_ref = getIndices(agg; groundState=false)
+    vibindices_ref = getVibIndices(agg, aggInds_ref)
+    aggIndLen_ref = length(aggInds_ref)
+    basis_ref = GenericBasis([aggIndLen_ref])
+    FCFact_ref = getFranckCondonFactors(agg, aggInds_ref; groundState=false)
+    FCProd_ref = getFCProd(agg, FCFact_ref, aggInds_ref, vibindices_ref; groundState=false)
+    Ham_ref = getAggHamiltonian(agg, aggInds_ref, FCFact_ref; groundState=false, groundEnergy=true)
+    Ham_0_ref = getAggHamSysBath(agg, aggInds_ref; groundState=false, groundEnergy=true)
+    Ham_I_ref = Ham_ref - Ham_0_ref
+
+    aggInds, vibindices, aggIndLen, basis, FCFact, FCProd, Ham, Ham_0, Ham_I = setupAggregate(agg; groundState=false, groundEnergy=true, verbose=false)
+    @test aggInds_ref == aggInds
+    @test vibindices_ref == vibindices
+    @test aggIndLen_ref == aggIndLen
+    @test basis_ref == basis
+    @test FCFact_ref == FCFact
+    @test FCProd_ref == FCProd
+    @test Ham_ref == Ham
+    @test Ham_0_ref == Ham_0
+    @test Ham_I_ref == Ham_I
+
+    @suppress aggInds, vibindices, aggIndLen, basis, FCFact, FCProd, Ham, Ham_0, Ham_I = setupAggregate(agg; groundState=false, groundEnergy=true, verbose=true)
+    @test aggInds_ref == aggInds
+    @test vibindices_ref == vibindices
+    @test aggIndLen_ref == aggIndLen
+    @test basis_ref == basis
+    @test FCFact_ref == FCFact
+    @test FCProd_ref == FCProd
+    @test Ham_ref == Ham
+    @test Ham_0_ref == Ham_0
+    @test Ham_I_ref == Ham_I
 end
