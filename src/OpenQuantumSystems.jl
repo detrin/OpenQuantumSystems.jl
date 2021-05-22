@@ -158,6 +158,7 @@ export
     getAggHamiltonianSparse,
     getAggHamSysBath,
     getAggHamSysBath2,
+    setupAggregate,
 
     # evolution.jl
     evolutionOperator,
