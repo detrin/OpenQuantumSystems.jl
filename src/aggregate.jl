@@ -658,7 +658,13 @@ getAggHamiltonianSparse(
     groundState = groundState,
 )
 
+"""
+    setupAggregate(agg; groundState=false, groundEnergy=true, verbose=false)
 
+Generate all basic data from the [`Aggregate`](@ref). Returns
+`aggInds, vibindices, aggIndLen, basis, FCFact, FCProd, Ham, Ham_0, Ham_I`.
+
+"""
 function setupAggregate(agg; groundState=false, groundEnergy=true, verbose=false)
     if verbose
         println("aggInds")
