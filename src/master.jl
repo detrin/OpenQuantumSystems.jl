@@ -44,8 +44,19 @@ function master_int(
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
     # (du,u,h,p,t)
     tmp = copy(rho0.data)
-    dmaster_(t, rho::T, drho::T, history_fun, p) =
-        dmaster_int(t, rho, drho, history_fun, tmp, p, rho0, Ham_0, Ham_I, int_reltol, int_abstol)
+    dmaster_(t, rho::T, drho::T, history_fun, p) = dmaster_int(
+        t,
+        rho,
+        drho,
+        history_fun,
+        tmp,
+        p,
+        rho0,
+        Ham_0,
+        Ham_I,
+        int_reltol,
+        int_abstol,
+    )
     tspan_ = convert(Vector{float(eltype(tspan))}, tspan)
     x0 = rho0.data
     state = T(rho0.basis_l, rho0.basis_r, rho0.data)
@@ -87,7 +98,7 @@ function dmaster_int(
         0,
         t,
         rtol = int_reltol,
-        atol = int_abstol
+        atol = int_abstol,
     )
     LinearAlgebra.mul!(
         drho.data,

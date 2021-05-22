@@ -120,7 +120,12 @@ equidistant points, therefore ``U(t)`` has to be calculated for ``t_0`` and ``t_
 """
 function evolutionOperatorIterator end
 
-@resumable function evolutionOperatorIterator(Hamiltonian::Operator, tspan::Array; diagonalize = true, approximate = false)
+@resumable function evolutionOperatorIterator(
+    Hamiltonian::Operator,
+    tspan::Array;
+    diagonalize = true,
+    approximate = false,
+)
     N = length(tspan)
     t_step = tspan[2] - tspan[1]
     if diagonalize
@@ -167,7 +172,12 @@ equidistant points, therefore ``U(t)`` has to be calculated for ``t_0`` and ``t_
 """
 function evolutionSuperOperatorIterator end
 
-@resumable function evolutionSuperOperatorIterator(Hamiltonian::Operator, tspan::Array; diagonalize = true, approximate = false)
+@resumable function evolutionSuperOperatorIterator(
+    Hamiltonian::Operator,
+    tspan::Array;
+    diagonalize = true,
+    approximate = false,
+)
     N = length(tspan)
     t_step = tspan[2] - tspan[1]
     if diagonalize
@@ -215,14 +225,25 @@ and calculate the exponential using eigenvalue decomposition. The `approximate` 
 equidistant points, therefore ``U(t)`` has to be calculated for ``t_0`` and ``t_\\text{step}``.
 
 """
-function evolutionExact(ket0::Ket, tspan::Array, Hamiltonian::Operator; diagonalize = true, approximate = false)
+function evolutionExact(
+    ket0::Ket,
+    tspan::Array,
+    Hamiltonian::Operator;
+    diagonalize = true,
+    approximate = false,
+)
     N = length(tspan)
     ket_array = Array{Ket,1}(undef, 0)
     for t_i = 1:N
         push!(ket_array, deepcopy(ket0))
     end
     t_i = 0
-    for U_op in evolutionOperatorIterator(Hamiltonian, tspan; diagonalize = diagonalize, approximate = approximate)
+    for U_op in evolutionOperatorIterator(
+        Hamiltonian,
+        tspan;
+        diagonalize = diagonalize,
+        approximate = approximate,
+    )
         t_i += 1
         ket_array[t_i] = U_op * ket0
     end
@@ -244,8 +265,9 @@ function evolutionExact!(
     ket_array::Array{Array{C,1},1},
     ket0::Ket,
     tspan::Array,
-    Hamiltonian::Operator; 
-    diagonalize = true, approximate = false
+    Hamiltonian::Operator;
+    diagonalize = true,
+    approximate = false,
 ) where {C<:ComputableType}
     N = length(tspan)
     buffer = zeros(C, size(ket0.data))
@@ -253,7 +275,12 @@ function evolutionExact!(
         push!(ket_array, deepcopy(ket0.data))
     end
     t_i = 0
-    for U_op in evolutionOperatorIterator(Hamiltonian, tspan; diagonalize = diagonalize, approximate = approximate)
+    for U_op in evolutionOperatorIterator(
+        Hamiltonian,
+        tspan;
+        diagonalize = diagonalize,
+        approximate = approximate,
+    )
         t_i += 1
         buffer[:] .= convert(Array{C,1}, (U_op * ket0).data)
         ket_array[t_i] = deepcopy(buffer)
@@ -271,14 +298,25 @@ and calculate the exponential using eigenvalue decomposition. The `approximate` 
 equidistant points, therefore ``U(t)`` has to be calculated for ``t_0`` and ``t_\\text{step}``.
 
 """
-function evolutionExact(op0::Operator, tspan::Array, Hamiltonian::Operator; diagonalize = true, approximate = false)
+function evolutionExact(
+    op0::Operator,
+    tspan::Array,
+    Hamiltonian::Operator;
+    diagonalize = true,
+    approximate = false,
+)
     N = length(tspan)
     op_array = Array{typeof(op0),1}(undef, 0)
     for t_i = 1:N
         push!(op_array, deepcopy(op0))
     end
     t_i = 0
-    for U_op in evolutionOperatorIterator(Hamiltonian, tspan; diagonalize = diagonalize, approximate = approximate)
+    for U_op in evolutionOperatorIterator(
+        Hamiltonian,
+        tspan;
+        diagonalize = diagonalize,
+        approximate = approximate,
+    )
         t_i += 1
         op_array[t_i] = U_op * op0 * U_op'
     end
