@@ -42,9 +42,17 @@ Condon approximation.
         and calculate the exponential using eigenvalue decomposition.
 * `diagonal`: Return only the diagonal part of the excited density matrix.
 """
-function thermal_state(T, mu_array, Ham, aggIndices; boltzmann_const::Float64 = 0.69503476, diagonalize::Bool=false, diagonal=false)
+function thermal_state(
+    T,
+    mu_array,
+    Ham,
+    aggIndices;
+    boltzmann_const::Float64 = 0.69503476,
+    diagonalize::Bool = false,
+    diagonal = false,
+)
     aggIndsLen = length(aggIndices)
-    data = -Ham.data/(T*boltzmann_const)
+    data = -Ham.data / (T * boltzmann_const)
     if diagonal
         data = Diagonal(data)
     end
@@ -53,7 +61,7 @@ function thermal_state(T, mu_array, Ham, aggIndices; boltzmann_const::Float64 = 
     else
         H_lambda, H_S = eigen(data)
         H_lambda = diagm(H_lambda)
-        data = H_S * exp(-H_lambda/(T*boltzmann_const)) * inv(H_S)
+        data = H_S * exp(-H_lambda / (T * boltzmann_const)) * inv(H_S)
     end
     W0 = DenseOperator(Ham.basis_r, Ham.basis_l, data)
 
@@ -69,7 +77,7 @@ function thermal_state(T, mu_array, Ham, aggIndices; boltzmann_const::Float64 = 
             if elind2 in mu_array
                 continue
             end
-            W0.data[I, J] = 0.
+            W0.data[I, J] = 0.0
         end
     end
     normalize!(W0)
@@ -100,9 +108,17 @@ thermal_state_composite(T, [0.0, 0.8, 0.2], ...) = 0.8 * thermal_state(T, [1, 2,
         and calculate the exponential using eigenvalue decomposition.
 * `diagonal`: Return only the diagonal part of the excited density matrix.
 """
-function thermal_state_composite(T, mu_weighted, Ham, aggIndices; boltzmann_const::Float64 = 0.69503476, diagonalize::Bool=false, diagonal=false)
+function thermal_state_composite(
+    T,
+    mu_weighted,
+    Ham,
+    aggIndices;
+    boltzmann_const::Float64 = 0.69503476,
+    diagonalize::Bool = false,
+    diagonal = false,
+)
     aggIndsLen = length(aggIndices)
-    data = -Ham.data/(T*boltzmann_const)
+    data = -Ham.data / (T * boltzmann_const)
     if diagonal
         data = Diagonal(data)
     end
@@ -111,7 +127,7 @@ function thermal_state_composite(T, mu_weighted, Ham, aggIndices; boltzmann_cons
     else
         H_lambda, H_S = eigen(data)
         H_lambda = diagm(H_lambda)
-        data = H_S * exp(-H_lambda/(T*boltzmann_const)) * inv(H_S)
+        data = H_S * exp(-H_lambda / (T * boltzmann_const)) * inv(H_S)
     end
     W0 = DenseOperator(Ham.basis_r, Ham.basis_l, zero(data))
 
