@@ -403,9 +403,9 @@ function getAggHamSysBath(
     aggIndices::Any;
     groundState::Bool = false,
     groundEnergy::Bool = false,
-    ) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
+) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
     agg2 = deepcopy(agg)
-    for mol_i in 1:length(agg2.molecules)
+    for mol_i = 1:length(agg2.molecules)
         mol = agg2.molecules[mol_i]
         for mode in mol.modes
             mode.shift = typeof(mode.shift)(0)
@@ -413,14 +413,19 @@ function getAggHamSysBath(
         mol = updateMolecule(mol)
         agg2.molecules[mol_i] = mol
     end
-    
+
     if aggIndices === nothing
         aggIndices = getIndices(agg2; groundState = groundState)
     end
     aggIndLen = length(aggIndices)
     molLen = length(agg.molecules)
     franckCondonFactors = getFranckCondonFactors(agg2, aggIndices)
-    getAggHamiltonian(agg2, aggIndices; groundState=groundState, groundEnergy=groundEnergy)
+    getAggHamiltonian(
+        agg2,
+        aggIndices;
+        groundState = groundState,
+        groundEnergy = groundEnergy,
+    )
 end
 
 """
@@ -440,7 +445,7 @@ function getAggHamSysBath2(
     aggIndices::Any;
     groundState::Bool = false,
     groundEnergy::Bool = false,
-    ) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
+) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
     if aggIndices === nothing
         aggIndices = getIndices(agg; groundState = groundState)
     end
@@ -500,13 +505,9 @@ function getAggHamiltonianInteraction(
         groundState = groundState,
         groundEnergy = true,
     )
-    
-    Ham_S = getAggHamSysBath2(
-        agg,
-        aggIndices;
-        groundState = groundState,
-        groundEnergy = true
-    )
+
+    Ham_S =
+        getAggHamSysBath2(agg, aggIndices; groundState = groundState, groundEnergy = true)
     H_int = Ham.data - Ham_S.data
     b = GenericBasis([aggIndLen])
     return DenseOperator(b, b, H_int)
@@ -658,11 +659,17 @@ getAggHamiltonianSparse(
     groundState = groundState,
 )
 
+"""
+    setupAggregate(agg; groundState=false, groundEnergy=true, verbose=false)
 
-function setupAggregate(agg; groundState=false, groundEnergy=true, verbose=false)
+Generate all basic data from the [`Aggregate`](@ref). Returns
+`aggInds, vibindices, aggIndLen, basis, FCFact, FCProd, Ham, Ham_0, Ham_I`.
+
+"""
+function setupAggregate(agg; groundState = false, groundEnergy = true, verbose = false)
     if verbose
         println("aggInds")
-        @time aggInds = getIndices(agg; groundState=groundState)
+        @time aggInds = getIndices(agg; groundState = groundState)
         println("vibindices")
         @time vibindices = getVibIndices(agg, aggInds)
         aggIndLen = length(aggInds)
@@ -670,24 +677,47 @@ function setupAggregate(agg; groundState=false, groundEnergy=true, verbose=false
         println("basis")
         @time basis = GenericBasis([aggIndLen])
         println("FCFact")
-        @time FCFact = getFranckCondonFactors(agg, aggInds; groundState=groundState)
+        @time FCFact = getFranckCondonFactors(agg, aggInds; groundState = groundState)
         println("FCProd")
-        @time FCProd = getFCProd(agg, FCFact, aggInds, vibindices; groundState=groundState)
+        @time FCProd =
+            getFCProd(agg, FCFact, aggInds, vibindices; groundState = groundState)
         println("Ham")
-        @time Ham = getAggHamiltonian(agg, aggInds, FCFact; groundState=groundState, groundEnergy=groundEnergy)
+        @time Ham = getAggHamiltonian(
+            agg,
+            aggInds,
+            FCFact;
+            groundState = groundState,
+            groundEnergy = groundEnergy,
+        )
         println("Ham_0")
-        @time Ham_0 = getAggHamSysBath(agg, aggInds; groundState=groundState, groundEnergy=groundEnergy)
+        @time Ham_0 = getAggHamSysBath(
+            agg,
+            aggInds;
+            groundState = groundState,
+            groundEnergy = groundEnergy,
+        )
         println("Ham_I")
         @time Ham_I = Ham - Ham_0
     else
-        aggInds = getIndices(agg; groundState=groundState)
+        aggInds = getIndices(agg; groundState = groundState)
         vibindices = getVibIndices(agg, aggInds)
         aggIndLen = length(aggInds)
         basis = GenericBasis([aggIndLen])
-        FCFact = getFranckCondonFactors(agg, aggInds; groundState=groundState)
-        FCProd = getFCProd(agg, FCFact, aggInds, vibindices; groundState=groundState)
-        Ham = getAggHamiltonian(agg, aggInds, FCFact; groundState=groundState, groundEnergy=groundEnergy)
-        Ham_0 = getAggHamSysBath(agg, aggInds; groundState=groundState, groundEnergy=groundEnergy)
+        FCFact = getFranckCondonFactors(agg, aggInds; groundState = groundState)
+        FCProd = getFCProd(agg, FCFact, aggInds, vibindices; groundState = groundState)
+        Ham = getAggHamiltonian(
+            agg,
+            aggInds,
+            FCFact;
+            groundState = groundState,
+            groundEnergy = groundEnergy,
+        )
+        Ham_0 = getAggHamSysBath(
+            agg,
+            aggInds;
+            groundState = groundState,
+            groundEnergy = groundEnergy,
+        )
         Ham_I = Ham - Ham_0
     end
     return (aggInds, vibindices, aggIndLen, basis, FCFact, FCProd, Ham, Ham_0, Ham_I)
