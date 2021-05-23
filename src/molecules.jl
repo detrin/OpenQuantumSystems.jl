@@ -114,8 +114,10 @@ end
 Molecule(modes::Vector{Mode{C}}, Nvib::T, E::Array{C,1}) where {C,T} =
     Molecule{T,C,C}(modes, Nvib, E)
 
-function updateMolecule!(mol::Molecule{T, C1, C2}) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
-    mol = Molecule{T, C1, C2}(mol.modes, mol.Nvib, mol.E)
+function updateMolecule!(
+    mol::Molecule{T,C1,C2},
+) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
+    mol = Molecule{T,C1,C2}(mol.modes, mol.Nvib, mol.E)
 end
 
 """
@@ -123,8 +125,10 @@ end
 
 Get updated molecule with new params (e.g. [`Mode`](@ref)).
 """
-function updateMolecule(mol::Molecule{T, C1, C2}) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
-    Molecule{T, C1, C2}(mol.modes, mol.Nvib, mol.E)
+function updateMolecule(
+    mol::Molecule{T,C1,C2},
+) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
+    Molecule{T,C1,C2}(mol.modes, mol.Nvib, mol.E)
 end
 
 """

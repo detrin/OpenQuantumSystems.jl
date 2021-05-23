@@ -32,7 +32,16 @@ Calculate the first part of Memory Kernel with the definition
 * `vibindices`: Aggregate vibrational indices, see [`getVibIndices`](@ref).
 * `groundState`: Flag for including ground state of the aggregate.
 """
-function MemoryKernel_1_traced(H_II_t::Array, H_II_tau::Array, W_bath::Array, agg, FCProd, aggIndices, vibindices; groundState = false)
+function MemoryKernel_1_traced(
+    H_II_t::Array,
+    H_II_tau::Array,
+    W_bath::Array,
+    agg,
+    FCProd,
+    aggIndices,
+    vibindices;
+    groundState = false,
+)
     aggIndLen = length(aggIndices)
     vibLen = length(vibindices[2])
     elLen = length(agg.molecules)
@@ -40,32 +49,34 @@ function MemoryKernel_1_traced(H_II_t::Array, H_II_tau::Array, W_bath::Array, ag
         elLen += 1
     end
     MemoryKernel = zeros(ComplexF64, elLen, elLen, elLen, elLen)
-    H_II_t_tau = H_II_t * H_II_tau 
+    H_II_t_tau = H_II_t * H_II_tau
 
     if !groundState
-        for a in 2:elLen+1
-            for c in 2:elLen+1
+        for a = 2:elLen+1
+            for c = 2:elLen+1
                 H_II_t_tau_ac = take_el_part(H_II_t_tau, a, c, vibindices)
-                for d in 2:elLen+1
+                for d = 2:elLen+1
                     W_bath_cd = take_el_part(W_bath, c, d, vibindices)
                     MK_big = H_II_t_tau_ac * W_bath_cd
-                    MemoryKernel[a-1, d-1, c-1, d-1] = trace_bath_part(MK_big, a, d, agg, FCProd, aggIndices, vibindices)
+                    MemoryKernel[a-1, d-1, c-1, d-1] =
+                        trace_bath_part(MK_big, a, d, agg, FCProd, aggIndices, vibindices)
                 end
             end
         end
     else
-        for a in 1:elLen
-            for c in 1:elLen
+        for a = 1:elLen
+            for c = 1:elLen
                 H_II_t_tau_ac = take_el_part(H_II_t_tau, a, c, vibindices)
-                for d in 1:elLen
+                for d = 1:elLen
                     W_bath_cd = take_el_part(W_bath, c, d, vibindices)
                     MK_big = H_II_t_tau_ac * W_bath_cd
-                    MemoryKernel[a, d, c, d] = trace_bath_part(MK_big, a, d, agg, FCProd, aggIndices, vibindices)
+                    MemoryKernel[a, d, c, d] =
+                        trace_bath_part(MK_big, a, d, agg, FCProd, aggIndices, vibindices)
                 end
             end
         end
     end
-    return MemoryKernel 
+    return MemoryKernel
 end
 
 
@@ -86,7 +97,16 @@ Calculate the second part of Memory Kernel with the definition
 * `vibindices`: Aggregate vibrational indices, see [`getVibIndices`](@ref).
 * `groundState`: Flag for including ground state of the aggregate.
 """
-function MemoryKernel_2_traced(H_II_t::Array, H_II_tau::Array, W_bath::Array, agg, FCProd, aggIndices, vibindices; groundState = false)
+function MemoryKernel_2_traced(
+    H_II_t::Array,
+    H_II_tau::Array,
+    W_bath::Array,
+    agg,
+    FCProd,
+    aggIndices,
+    vibindices;
+    groundState = false,
+)
     aggIndLen = length(aggIndices)
     vibLen = length(vibindices[2])
     elLen = length(agg.molecules)
@@ -96,35 +116,51 @@ function MemoryKernel_2_traced(H_II_t::Array, H_II_tau::Array, W_bath::Array, ag
     MemoryKernel = zeros(ComplexF64, elLen, elLen, elLen, elLen)
 
     if !groundState
-        for a in 2:elLen+1
-            for b in 2:elLen+1
-                for c in 2:elLen+1
+        for a = 2:elLen+1
+            for b = 2:elLen+1
+                for c = 2:elLen+1
                     H_II_t_ac = take_el_part(H_II_t, a, c, vibindices)
-                    for d in 2:elLen+1
+                    for d = 2:elLen+1
                         H_II_tau_db = take_el_part(H_II_tau, d, b, vibindices)
                         W_bath_cd = take_el_part(W_bath, c, d, vibindices)
                         MK_big = H_II_t_ac * W_bath_cd * H_II_tau_db
-                        MemoryKernel[a-1, b-1, c-1, d-1] = trace_bath_part(MK_big, a, b, agg, FCProd, aggIndices, vibindices)
+                        MemoryKernel[a-1, b-1, c-1, d-1] = trace_bath_part(
+                            MK_big,
+                            a,
+                            b,
+                            agg,
+                            FCProd,
+                            aggIndices,
+                            vibindices,
+                        )
                     end
                 end
             end
         end
     else
-        for a in 1:elLen
-            for b in 1:elLen
-                for c in 1:elLen
+        for a = 1:elLen
+            for b = 1:elLen
+                for c = 1:elLen
                     H_II_t_ac = take_el_part(H_II_t, a, c, vibindices)
-                    for d in 1:elLen
+                    for d = 1:elLen
                         H_II_tau_db = take_el_part(H_II_tau, d, b, vibindices)
                         W_bath_cd = take_el_part(W_bath, c, d, vibindices)
                         MK_big = H_II_t_ac * W_bath_cd * H_II_tau_db
-                        MemoryKernel[a, b, c, d] = trace_bath_part(MK_big, a, b, agg, FCProd, aggIndices, vibindices)
+                        MemoryKernel[a, b, c, d] = trace_bath_part(
+                            MK_big,
+                            a,
+                            b,
+                            agg,
+                            FCProd,
+                            aggIndices,
+                            vibindices,
+                        )
                     end
                 end
             end
         end
     end
-    return MemoryKernel 
+    return MemoryKernel
 end
 
 
@@ -145,7 +181,16 @@ Calculate the third part of Memory Kernel with the definition
 * `vibindices`: Aggregate vibrational indices, see [`getVibIndices`](@ref).
 * `groundState`: Flag for including ground state of the aggregate.
 """
-function MemoryKernel_3_traced(H_II_t::Array, H_II_tau::Array, W_bath::Array, agg, FCProd, aggIndices, vibindices; groundState = false)
+function MemoryKernel_3_traced(
+    H_II_t::Array,
+    H_II_tau::Array,
+    W_bath::Array,
+    agg,
+    FCProd,
+    aggIndices,
+    vibindices;
+    groundState = false,
+)
     aggIndLen = length(aggIndices)
     vibLen = length(vibindices[2])
     elLen = length(agg.molecules)
@@ -155,35 +200,51 @@ function MemoryKernel_3_traced(H_II_t::Array, H_II_tau::Array, W_bath::Array, ag
     MemoryKernel = zeros(ComplexF64, elLen, elLen, elLen, elLen)
 
     if !groundState
-        for a in 2:elLen+1
-            for b in 2:elLen+1
-                for c in 2:elLen+1
+        for a = 2:elLen+1
+            for b = 2:elLen+1
+                for c = 2:elLen+1
                     H_II_tau_ac = take_el_part(H_II_tau, a, c, vibindices)
-                    for d in 2:elLen+1
+                    for d = 2:elLen+1
                         H_II_t_db = take_el_part(H_II_t, d, b, vibindices)
                         W_bath_cd = take_el_part(W_bath, c, d, vibindices)
                         MK_big = H_II_tau_ac * W_bath_cd * H_II_t_db
-                        MemoryKernel[a-1, b-1, c-1, d-1] = trace_bath_part(MK_big, a, b, agg, FCProd, aggIndices, vibindices)
+                        MemoryKernel[a-1, b-1, c-1, d-1] = trace_bath_part(
+                            MK_big,
+                            a,
+                            b,
+                            agg,
+                            FCProd,
+                            aggIndices,
+                            vibindices,
+                        )
                     end
                 end
             end
         end
     else
-        for a in 1:elLen
-            for b in 1:elLen
-                for c in 1:elLen
+        for a = 1:elLen
+            for b = 1:elLen
+                for c = 1:elLen
                     H_II_tau_ac = take_el_part(H_II_tau, a, c, vibindices)
-                    for d in 1:elLen
+                    for d = 1:elLen
                         W_bath_cd = take_el_part(W_bath, c, d, vibindices)
                         H_II_t_db = take_el_part(H_II_t, d, b, vibindices)
                         MK_big = H_II_tau_ac * W_bath_cd * H_II_t_db
-                        MemoryKernel[a, b, c, d] = trace_bath_part(MK_big, a, b, agg, FCProd, aggIndices, vibindices)
+                        MemoryKernel[a, b, c, d] = trace_bath_part(
+                            MK_big,
+                            a,
+                            b,
+                            agg,
+                            FCProd,
+                            aggIndices,
+                            vibindices,
+                        )
                     end
                 end
             end
         end
     end
-    return MemoryKernel 
+    return MemoryKernel
 end
 
 
@@ -204,7 +265,16 @@ Calculate the fourth part of Memory Kernel with the definition
 * `vibindices`: Aggregate vibrational indices, see [`getVibIndices`](@ref).
 * `groundState`: Flag for including ground state of the aggregate.
 """
-function MemoryKernel_4_traced(H_II_t::Array, H_II_tau::Array, W_bath::Array, agg, FCProd, aggIndices, vibindices; groundState = false)
+function MemoryKernel_4_traced(
+    H_II_t::Array,
+    H_II_tau::Array,
+    W_bath::Array,
+    agg,
+    FCProd,
+    aggIndices,
+    vibindices;
+    groundState = false,
+)
     aggIndLen = length(aggIndices)
     vibLen = length(vibindices[2])
     elLen = length(agg.molecules)
@@ -212,32 +282,34 @@ function MemoryKernel_4_traced(H_II_t::Array, H_II_tau::Array, W_bath::Array, ag
         elLen += 1
     end
     MemoryKernel = zeros(ComplexF64, elLen, elLen, elLen, elLen)
-    H_II_tau_t = H_II_tau * H_II_t 
+    H_II_tau_t = H_II_tau * H_II_t
 
     if !groundState
-        for a in 2:elLen+1
-            for b in 2:elLen+1
-                for d in 2:elLen+1
+        for a = 2:elLen+1
+            for b = 2:elLen+1
+                for d = 2:elLen+1
                     W_bath_ad = take_el_part(W_bath, a, d, vibindices)
                     H_II_tau_t_db = take_el_part(H_II_tau_t, d, b, vibindices)
                     MK_big = W_bath_ad * H_II_tau_t_db
-                    MemoryKernel[a-1, b-1, a-1, d-1] = trace_bath_part(MK_big, a, b, agg, FCProd, aggIndices, vibindices)
+                    MemoryKernel[a-1, b-1, a-1, d-1] =
+                        trace_bath_part(MK_big, a, b, agg, FCProd, aggIndices, vibindices)
                 end
             end
         end
     else
-        for a in 1:elLen
-            for b in 1:elLen
-                for d in 1:elLen
+        for a = 1:elLen
+            for b = 1:elLen
+                for d = 1:elLen
                     W_bath_ad = take_el_part(W_bath, a, d, vibindices)
                     H_II_tau_t_db = take_el_part(H_II_tau_t, d, b, vibindices)
                     MK_big = W_bath_ad * H_II_tau_t_db
-                    MemoryKernel[a, b, a, d] = trace_bath_part(MK_big, a, b, agg, FCProd, aggIndices, vibindices)
+                    MemoryKernel[a, b, a, d] =
+                        trace_bath_part(MK_big, a, b, agg, FCProd, aggIndices, vibindices)
                 end
             end
         end
     end
-    return MemoryKernel 
+    return MemoryKernel
 end
 
 
@@ -258,7 +330,16 @@ Calculate Memory Kernel with the definition
 * `vibindices`: Aggregate vibrational indices, see [`getVibIndices`](@ref).
 * `groundState`: Flag for including ground state of the aggregate.
 """
-function MemoryKernel_traced(H_II_t::Array, H_II_tau::Array, W_bath::Array, agg, FCProd, aggIndices, vibindices; groundState = false)
+function MemoryKernel_traced(
+    H_II_t::Array,
+    H_II_tau::Array,
+    W_bath::Array,
+    agg,
+    FCProd,
+    aggIndices,
+    vibindices;
+    groundState = false,
+)
     aggIndLen = length(aggIndices)
     vibLen = length(vibindices[2])
     elLen = length(agg.molecules)
@@ -266,22 +347,22 @@ function MemoryKernel_traced(H_II_t::Array, H_II_tau::Array, W_bath::Array, agg,
         elLen += 1
     end
     MemoryKernel = zeros(ComplexF64, elLen, elLen, elLen, elLen)
-    H_II_tau_t = H_II_tau * H_II_t 
+    H_II_tau_t = H_II_tau * H_II_t
     H_II_t_tau = H_II_t * H_II_tau
 
     if !groundState
-        for a in 2:elLen+1
-            for c in 2:elLen+1
+        for a = 2:elLen+1
+            for c = 2:elLen+1
                 H_II_t_tau_ac = take_el_part(H_II_t_tau, a, c, vibindices)
                 H_II_tau_ac = take_el_part(H_II_tau, a, c, vibindices)
                 H_II_t_ac = take_el_part(H_II_t, a, c, vibindices)
-                for d in 2:elLen+1
+                for d = 2:elLen+1
                     W_bath_cd = take_el_part(W_bath, c, d, vibindices)
                     W_bath_cd = take_el_part(W_bath, c, d, vibindices)
-                    for b in 2:elLen+1
+                    for b = 2:elLen+1
                         H_II_tau_db = take_el_part(H_II_tau, d, b, vibindices)
-                        
-                        MK_big = - H_II_t_ac * W_bath_cd * H_II_tau_db
+
+                        MK_big = -H_II_t_ac * W_bath_cd * H_II_tau_db
 
                         H_II_t_db = take_el_part(H_II_t, d, b, vibindices)
                         MK_big[:, :] -= H_II_tau_ac * W_bath_cd * H_II_t_db
@@ -295,24 +376,32 @@ function MemoryKernel_traced(H_II_t::Array, H_II_tau::Array, W_bath::Array, agg,
                         if d == b
                             MK_big[:, :] += H_II_t_tau_ac * W_bath_cd
                         end
-                        MemoryKernel[a-1, b-1, c-1, d-1] = trace_bath_part(MK_big, a, b, agg, FCProd, aggIndices, vibindices)
+                        MemoryKernel[a-1, b-1, c-1, d-1] = trace_bath_part(
+                            MK_big,
+                            a,
+                            b,
+                            agg,
+                            FCProd,
+                            aggIndices,
+                            vibindices,
+                        )
                     end
                 end
             end
         end
     else
-        for a in 1:elLen
-            for c in 1:elLen
+        for a = 1:elLen
+            for c = 1:elLen
                 H_II_t_tau_ac = take_el_part(H_II_t_tau, a, c, vibindices)
                 H_II_tau_ac = take_el_part(H_II_tau, a, c, vibindices)
                 H_II_t_ac = take_el_part(H_II_t, a, c, vibindices)
-                for d in 1:elLen
+                for d = 1:elLen
                     W_bath_cd = take_el_part(W_bath, c, d, vibindices)
                     W_bath_cd = take_el_part(W_bath, c, d, vibindices)
-                    for b in 1:elLen
+                    for b = 1:elLen
                         H_II_tau_db = take_el_part(H_II_tau, d, b, vibindices)
-                        
-                        MK_big = - H_II_t_ac * W_bath_cd * H_II_tau_db
+
+                        MK_big = -H_II_t_ac * W_bath_cd * H_II_tau_db
 
                         H_II_t_db = take_el_part(H_II_t, d, b, vibindices)
                         MK_big[:, :] -= H_II_tau_ac * W_bath_cd * H_II_t_db
@@ -326,11 +415,19 @@ function MemoryKernel_traced(H_II_t::Array, H_II_tau::Array, W_bath::Array, agg,
                         if d == b
                             MK_big[:, :] += H_II_t_tau_ac * W_bath_cd
                         end
-                        MemoryKernel[a, b, c, d] = trace_bath_part(MK_big, a, b, agg, FCProd, aggIndices, vibindices)
+                        MemoryKernel[a, b, c, d] = trace_bath_part(
+                            MK_big,
+                            a,
+                            b,
+                            agg,
+                            FCProd,
+                            aggIndices,
+                            vibindices,
+                        )
                     end
                 end
             end
         end
     end
-    return MemoryKernel 
+    return MemoryKernel
 end

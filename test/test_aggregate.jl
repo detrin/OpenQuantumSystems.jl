@@ -19,7 +19,8 @@ macro suppress(block)
             logstate = Base.CoreLogging._global_logstate
             logger = logstate.logger
             if logger.stream == original_stderr
-                new_logstate = Base.CoreLogging.LogState(typeof(logger)(err_wr, logger.min_level))
+                new_logstate =
+                    Base.CoreLogging.LogState(typeof(logger)(err_wr, logger.min_level))
                 Core.eval(Base.CoreLogging, Expr(:(=), :(_global_logstate), new_logstate))
             end
         end
@@ -45,7 +46,7 @@ end
 @testset "aggregate" begin
 
     D(op1::Array, op2::Array) = abs(norm(op1 - op2))
-    
+
 
     mode1 = Mode(0.2, 1.0)
     mode2 = Mode(0.4, 1.0)
@@ -527,24 +528,32 @@ end
 
     aggInds = getIndices(agg; groundState = false)
     FCfact = getFranckCondonFactors(agg; groundState = false)
-    Ham_S2 = getAggHamSysBath(agg, aggInds; groundState = false, groundEnergy=true)
+    Ham_S2 = getAggHamSysBath(agg, aggInds; groundState = false, groundEnergy = true)
     @test 1e12 > D(Ham_S.data, Ham_S2.data)
 
-    Ham_S3 = getAggHamSysBath2(agg, aggInds; groundState = false, groundEnergy=true)
+    Ham_S3 = getAggHamSysBath2(agg, aggInds; groundState = false, groundEnergy = true)
     @test 1e12 > D(Ham_S.data, Ham_S3.data)
 
 
-    aggInds_ref = getIndices(agg; groundState=false)
+    aggInds_ref = getIndices(agg; groundState = false)
     vibindices_ref = getVibIndices(agg, aggInds_ref)
     aggIndLen_ref = length(aggInds_ref)
     basis_ref = GenericBasis([aggIndLen_ref])
-    FCFact_ref = getFranckCondonFactors(agg, aggInds_ref; groundState=false)
-    FCProd_ref = getFCProd(agg, FCFact_ref, aggInds_ref, vibindices_ref; groundState=false)
-    Ham_ref = getAggHamiltonian(agg, aggInds_ref, FCFact_ref; groundState=false, groundEnergy=true)
-    Ham_0_ref = getAggHamSysBath(agg, aggInds_ref; groundState=false, groundEnergy=true)
+    FCFact_ref = getFranckCondonFactors(agg, aggInds_ref; groundState = false)
+    FCProd_ref =
+        getFCProd(agg, FCFact_ref, aggInds_ref, vibindices_ref; groundState = false)
+    Ham_ref = getAggHamiltonian(
+        agg,
+        aggInds_ref,
+        FCFact_ref;
+        groundState = false,
+        groundEnergy = true,
+    )
+    Ham_0_ref = getAggHamSysBath(agg, aggInds_ref; groundState = false, groundEnergy = true)
     Ham_I_ref = Ham_ref - Ham_0_ref
 
-    aggInds, vibindices, aggIndLen, basis, FCFact, FCProd, Ham, Ham_0, Ham_I = setupAggregate(agg; groundState=false, groundEnergy=true, verbose=false)
+    aggInds, vibindices, aggIndLen, basis, FCFact, FCProd, Ham, Ham_0, Ham_I =
+        setupAggregate(agg; groundState = false, groundEnergy = true, verbose = false)
     @test aggInds_ref == aggInds
     @test vibindices_ref == vibindices
     @test aggIndLen_ref == aggIndLen
@@ -555,7 +564,8 @@ end
     @test Ham_0_ref == Ham_0
     @test Ham_I_ref == Ham_I
 
-    @suppress aggInds, vibindices, aggIndLen, basis, FCFact, FCProd, Ham, Ham_0, Ham_I = setupAggregate(agg; groundState=false, groundEnergy=true, verbose=true)
+    @suppress aggInds, vibindices, aggIndLen, basis, FCFact, FCProd, Ham, Ham_0, Ham_I =
+        setupAggregate(agg; groundState = false, groundEnergy = true, verbose = true)
     @test aggInds_ref == aggInds
     @test vibindices_ref == vibindices
     @test aggIndLen_ref == aggIndLen
