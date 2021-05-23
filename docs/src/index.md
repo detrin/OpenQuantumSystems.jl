@@ -21,9 +21,5 @@ You can obtain OpenQuantumSystems using Julia's Pkg REPL-mode (hitting `]` as th
 
 or with `using Pkg; Pkg.add("OpenQuantumSystems")`.
 
-## Documentation
 
-```@autodocs
-Modules = [OpenQuantumSystems]
-```
 
