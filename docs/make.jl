@@ -13,7 +13,11 @@ makedocs(
     sitename = "OpenQuantumSystems.jl",
     authors = "Daniel Herman",
     linkcheck = !("skiplinks" in ARGS),
-    pages = ["Home" => "index.md"],
+    pages = ["Home" => "index.md",
+            "Tutorials" => [
+                "Dimer" => "tutorials/dimer.md"
+                ]
+            ],
 )
 
 deploydocs(repo = "github.com/detrin/OpenQuantumSystems.jl.git")
