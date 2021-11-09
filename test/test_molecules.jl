@@ -1,6 +1,7 @@
 using Test
 using OpenQuantumSystems
 using LinearAlgebra
+# using Traceur
 
 @testset "molecules" begin
 
@@ -47,6 +48,8 @@ using LinearAlgebra
         [4, 3],
     ]
     @test vibrationalIndices([4, 3]) == inds
+    # @trace vibrationalIndices([4, 3])
+    # println("dispatch 2")
 
     @test electronicIndices(3) == [[1, 1, 1], [2, 1, 1], [1, 2, 1], [1, 1, 2]]
     @test electronicIndices(3; groundState = false) == [[2, 1, 1], [1, 2, 1], [1, 1, 2]]
