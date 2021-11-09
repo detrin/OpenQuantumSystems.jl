@@ -80,7 +80,7 @@ function dmaster_int(
     t::AbstractFloat,
     rho::T,
     drho::T,
-    history_fun::Function,
+    history_fun,
     tmp::Array,
     p,
     rho0,
