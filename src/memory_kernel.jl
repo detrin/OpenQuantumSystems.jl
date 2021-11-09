@@ -15,6 +15,7 @@ function take_el_part(A::Array, a, b, vibindices)
 end
 
 
+
 """
     MemoryKernel_1_traced(H_II_t, H_II_tau, W_bath, agg, FCProd, aggIndices, vibindices; 
     \tgroundState = false)
