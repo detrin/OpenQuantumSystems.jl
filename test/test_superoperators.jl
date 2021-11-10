@@ -11,12 +11,7 @@ using SparseArrays, LinearAlgebra
     C_ref = DenseSuperOperator(
         (b, b),
         (b, b),
-        [
-            0.0+0.0im 2.0+0.0im -3.0+0.0im 0.0+0.0im
-            3.0+0.0im 3.0+0.0im 0.0+0.0im -3.0+0.0im
-            -2.0+0.0im 0.0+0.0im -3.0+0.0im 2.0+0.0im
-            0.0+0.0im -2.0+0.0im 3.0+0.0im 0.0+0.0im
-        ],
+        [0 2 -3 0; 3 3 0 -3; -2 0 -3 2; 0 -2 3 0],
     )
     @test Commutator(A) == C_ref
     @test Commutator(A) * B == A * B - B * A
