@@ -1,5 +1,14 @@
 @ECHO OFF
 
+IF "%1"=="install_dev" (
+    julia -e "using Pkg; Pkg.add(path=\"../OpenQuantumSystems.jl\")"
+)
+IF "%1"=="install_dev2" (
+    julia -e "using Pkg; Pkg.develop(path=\"../OpenQuantumSystems.jl\")"
+)
+IF "%1"=="install_dev2" (
+    julia -e "using Pkg; Pkg.rm(\"OpenQuantumSystems\")"
+)
 IF "%1"=="remove" (
     julia -e "using Pkg; Pkg.rm(\"OpenQuantumSystems\")"
 )
