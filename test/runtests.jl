@@ -13,6 +13,7 @@ names = [
     "test_trace.jl",
     "test_initial_state.jl",
     "test_memory_kernel.jl",
+    "test_master_ansatz.jl",
 ]
 
 detected_tests =
@@ -28,7 +29,7 @@ if length(unavailable_tests) != 0
     error("The following tests could not be found:\n", join(unavailable_tests, "\n"))
 end
 
-# names = ["test_master.jl"]
+names = ["test_master_ansatz.jl"]
 
 for name in names
     if startswith(name, "test_") && endswith(name, ".jl")
