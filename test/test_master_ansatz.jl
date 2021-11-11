@@ -46,7 +46,7 @@ import QuantumOpticsBase
     normalize!(rho0)
     # tests have to be quick enough
     t_max = 0.001
-    t_count = 100
+    t_count = 10
     t0 = 0.
     t_step = (t_max - t0) / (t_count)
     tspan = [t0:t_step:t_max;]
@@ -72,19 +72,16 @@ import QuantumOpticsBase
         rho0,
         tspan,
         p;
-        reltol = 1.0e-6,
-        abstol = 1.0e-6,
+        reltol = 1.0e-4,
+        abstol = 1.0e-4,
         alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5())
     )
     rho_prev = deepcopy(rho0)
     for t_i = 2:length(rho_t)
         t = T[t_i]
         rho_I = rho_t[t_i]
-        U_op_S = evolutionOperator(Ham_S, t)
+        U_op_S = evolutionOperator(Ham_sys, t)
         rho = U_op_S * rho_I * U_op_S'
-        U_op = evolutionOperator(Ham, t)
-        rho_ref = U_op * rho0 * U_op'
-        # @test 1e-10 > D(rho_ref, rho)
     end
 
 end # testset
