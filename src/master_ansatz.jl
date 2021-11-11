@@ -59,16 +59,17 @@ function dmaster_ansatz(
         s -> MemoryKernel(t, s, tmp1, tmp2, tmp3, h, p, Ham_II_t),
         0,
         t,
-        rtol = 1e-8,
+        rtol = 1e-3,
+        atol = 1e-3
     )
     
     LinearAlgebra.mul!(tmp1, Ham_II_t, W0_bath.data, -elementtype(im), zero(elementtype))
     LinearAlgebra.mul!(tmp1, W0_bath.data, Ham_II_t, elementtype(im), one(elementtype))
     K_traced = trace_bath(tmp1, agg, FCProd, aggIndices, vibindices; groundState = groundState)
     rho0 = trace_bath(W0, agg, FCProd, aggIndices, vibindices; groundState = groundState)
-    println(t)
-    println(K_traced)
-    println(K_traced .* rho0.data)
+    # println(t)
+    # println(K_traced)
+    # println(K_traced .* rho0.data)
 
     # println(data)
     LinearAlgebra.mul!(drho.data, one(elementtype), K_traced, -elementtype(im), zero(elementtype))
@@ -82,7 +83,7 @@ end
 
 function MemoryKernel(t, s, tmp1, tmp2, tmp3, h, p, Ham_II_t)
     Ham_S, Ham_int, H_lambda, H_S, H_Sinv, W0, W0_bath, agg, FCProd, aggIndices, vibindices, groundState, elementtype = p
-    println(t)
+    # sprintln(t)
     # Ham_II_s = getInteractionHamIPictureA(Ham_S, Ham_int, s)
     tmp3 .= getInteractionHamIPictureA(Ham_int.data, H_lambda, H_S, H_Sinv, s)
     # LinearAlgebra.mul!(tmp1, H_S, exp(-1im * H_lambda * s), one(elementtype), zero(elementtype))
