@@ -51,7 +51,7 @@ function thermal_state(
     boltzmann_const::Float64 = 0.69503476,
     diagonalize::Bool = false,
     diagonal = false,
-    groundState = false,
+    groundState = true,
 )
     a1 = vibindices[1][1]
     a2 = vibindices[1][end]
