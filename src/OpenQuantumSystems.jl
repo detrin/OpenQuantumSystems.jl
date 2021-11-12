@@ -201,7 +201,9 @@ export
 
     # initial_state.jl
     thermal_state,
+    thermal_state_old,
     thermal_state_composite,
+    thermal_state_composite_old,
 
     # memory_kernel.jl
     take_el_part,
@@ -209,7 +211,10 @@ export
     MemoryKernel_2_traced,
     MemoryKernel_3_traced,
     MemoryKernel_4_traced,
-    MemoryKernel_traced
+    MemoryKernel_traced,
+
+    # master_ansatz.jl
+    master_ansatz
 
 include("core.jl")
 include("operators_dense.jl")
@@ -226,5 +231,6 @@ include("master.jl")
 include("trace.jl")
 include("initial_state.jl")
 include("memory_kernel.jl")
+include("master_ansatz.jl")
 
 end
