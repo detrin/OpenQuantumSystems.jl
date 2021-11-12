@@ -59,7 +59,7 @@ import QuantumOpticsBase
     W02 = thermal_state(T, mu_array, Ham, vibindices, aggInds; diagonalize=false, diagonal=true)
     rho_traced2 = trace_bath(W02.data, agg, FCProd, aggInds, vibindices; groundState=false)
 
-    W0 = 1.0*W01 + 0.0*W02 
+    W0 = 1.0*W01 + 0.0*W02
     W0_bath = get_rho_bath(W0, agg, FCProd, aggInds, vibindices; groundState=true)
     rho0 = trace_bath(W0, agg, FCProd, aggInds, vibindices; groundState=false)
 
@@ -85,4 +85,3 @@ import QuantumOpticsBase
     end
 
 end # testset
-

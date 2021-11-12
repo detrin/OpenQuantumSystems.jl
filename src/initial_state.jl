@@ -21,12 +21,12 @@ end
 
 
 """
-    thermal_state(T, mu_array, Ham, aggIndices; 
+    thermal_state(T, mu_array, Ham, aggIndices;
     \tboltzmann_const = 0.69503476, diagonalize = false, diagonal = false)
 
 Get initial state as thermal state excited with ultra-fast laser pulse. In this version
-we suppose that after the thermal state is excited with laser pulse, the whole population 
-of ground state is distributed over electric states in `mu_array`. We assume 
+we suppose that after the thermal state is excited with laser pulse, the whole population
+of ground state is distributed over electric states in `mu_array`. We assume
 Condon approximation.
 
 ``\\rho_\\text{thermal} = \\exp( -\\frac{i}{\\hbar} H ), \\quad \\hbar = 1```.
@@ -128,12 +128,12 @@ function thermal_state_old(
 end
 
 """
-    thermal_state_composite(T, mu_weighted, Ham, aggIndices; 
+    thermal_state_composite(T, mu_weighted, Ham, aggIndices;
     \tboltzmann_const::Float64 = 0.69503476, diagonalize::Bool=false, diagonal=false)
 
-Functionality of this method is similar to [`thermal_state`](@ref), but the final 
+Functionality of this method is similar to [`thermal_state`](@ref), but the final
 state is constructed from partial `thermal_states` with weight specified in `mu_weighted`.
-For example 
+For example
 
 ```julia
 thermal_state_composite(T, [0.0, 0.8, 0.2], ...) = 0.8 * thermal_state(T, [1, 2, 1], ...) + 0.2 * thermal_state(T, [1, 1, 2], ...)
