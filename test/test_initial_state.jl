@@ -41,7 +41,20 @@ import QuantumOpticsBase
         0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0       0.0        0.0504362  0.0
         0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0       0.0        0.0        0.0028381
     ]
-    W0 = thermal_state(T, [[1, 2]], Ham, vibindices, aggInds; diagonalize = false)
+    W0 = thermal_state(T, [[1, 2]], Ham, vibindices, aggInds; diagonalize = false, groundState = true)
+    @test 1e-6 > D(W0_ref, W0.data)
+
+    W0_ref = [
+        0.0  0.0  0.0  0.0  0.0       0.0        0.0        0.0
+        0.0  0.0  0.0  0.0  0.0       0.0        0.0        0.0
+        0.0  0.0  0.0  0.0  0.0       0.0        0.0        0.0
+        0.0  0.0  0.0  0.0  0.0       0.0        0.0        0.0
+        0.0  0.0  0.0  0.0  0.896289  0.0        0.0        0.0
+        0.0  0.0  0.0  0.0  0.0       0.0504362  0.0        0.0
+        0.0  0.0  0.0  0.0  0.0       0.0        0.0504362  0.0
+        0.0  0.0  0.0  0.0  0.0       0.0        0.0        0.00283816
+    ]
+    W0 = thermal_state(T, [[1, 2]], Ham, vibindices, aggInds; diagonalize = false, groundState = false)
     @test 1e-6 > D(W0_ref, W0.data)
 
     mode1 = Mode(0.2, 1.0)

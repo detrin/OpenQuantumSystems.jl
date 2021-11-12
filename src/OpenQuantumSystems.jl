@@ -202,6 +202,7 @@ export
     # initial_state.jl
     thermal_state,
     thermal_state_old,
+    thermal_state_composite,
     thermal_state_composite_old,
 
     # memory_kernel.jl
