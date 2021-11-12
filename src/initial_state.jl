@@ -46,6 +46,49 @@ function thermal_state(
     T,
     mu_array,
     Ham,
+    vibindices,
+    aggIndices;
+    boltzmann_const::Float64 = 0.69503476,
+    diagonalize::Bool = false,
+    diagonal = false,
+    groundState = true,
+)
+    a1 = vibindices[1][1]
+    a2 = vibindices[1][end]
+    Ham_g = Ham.data[a1:a2, a1:a2]
+    data = -Ham_g / (T * boltzmann_const)
+    if diagonal
+        data = Diagonal(data)
+    end
+    if !diagonalize
+        data = exp(data)
+    else
+        H_lambda, H_S = eigen(data)
+        H_lambda = diagm(H_lambda)
+        data = H_S * exp(-H_lambda / (T * boltzmann_const)) * inv(H_S)
+    end
+    W0 = DenseOperator(Ham.basis_r, Ham.basis_l, zero(Ham.data))
+    excitedElInd = 0
+    for elInd in 1:length(vibindices)-1
+        excitedElInd += (elInd+1) * (mu_array[1][elInd] - 1)
+    end
+    a1 = vibindices[excitedElInd][1]
+    a2 = vibindices[excitedElInd][end]
+    W0.data[a1:a2, a1:a2] = data
+
+    if !groundState
+        a = vibindices[2][1]
+        base = GenericBasis([length(W0.basis_r) - a + 1])
+        W0 = DenseOperator(base, base, W0.data[a:end, a:end])
+    end
+    normalize!(W0)
+    return W0
+end
+
+function thermal_state_old(
+    T,
+    mu_array,
+    Ham,
     aggIndices;
     boltzmann_const::Float64 = 0.69503476,
     diagonalize::Bool = false,
@@ -109,6 +152,46 @@ thermal_state_composite(T, [0.0, 0.8, 0.2], ...) = 0.8 * thermal_state(T, [1, 2,
 * `diagonal`: Return only the diagonal part of the excited density matrix.
 """
 function thermal_state_composite(
+    T,
+    mu_weighted,
+    Ham,
+    aggIndices;
+    boltzmann_const::Float64 = 0.69503476,
+    diagonalize::Bool = false,
+    diagonal = false,
+)
+    aggIndsLen = length(aggIndices)
+    data = -Ham.data / (T * boltzmann_const)
+    if diagonal
+        data = Diagonal(data)
+    end
+    if !diagonalize
+        data = exp(data)
+    else
+        H_lambda, H_S = eigen(data)
+        H_lambda = diagm(H_lambda)
+        data = H_S * exp(-H_lambda / (T * boltzmann_const)) * inv(H_S)
+    end
+    W0 = DenseOperator(Ham.basis_r, Ham.basis_l, zero(data))
+
+    for I = 1:aggIndsLen
+        elind1, vibind1 = aggIndices[I]
+        elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
+        mu_w = mu_weighted[elOrder1]
+        for J = 1:aggIndsLen
+            elind2, vibind2 = aggIndices[J]
+            elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
+            if elOrder1 != elOrder2
+                continue
+            end
+            W0.data[I, J] = data[I, J] * mu_w
+        end
+    end
+    normalize!(W0)
+    return W0
+end
+
+function thermal_state_composite_old(
     T,
     mu_weighted,
     Ham,
