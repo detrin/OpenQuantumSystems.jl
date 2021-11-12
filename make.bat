@@ -6,13 +6,10 @@ IF "%1"=="install_dev" (
 IF "%1"=="install_dev2" (
     julia -e "using Pkg; Pkg.develop(path=\"../OpenQuantumSystems.jl\")"
 )
-IF "%1"=="install_dev2" (
-    julia -e "using Pkg; Pkg.rm(\"OpenQuantumSystems\")"
-)
 IF "%1"=="remove" (
     julia -e "using Pkg; Pkg.rm(\"OpenQuantumSystems\")"
 )
-IF "%1"=="test" (
+IF "%1"=="tests" (
     julia --project -e "using Pkg; Pkg.build(); Pkg.test()"
 )
 IF "%1"=="test_dev" (
