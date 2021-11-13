@@ -12,6 +12,9 @@ IF "%1"=="remove" (
 IF "%1"=="tests" (
     julia --project -e "using Pkg; Pkg.build(); Pkg.test()"
 )
+IF "%1"=="test" (
+    julia --project -e "using Pkg; Pkg.build(); Pkg.test(test_args = [\""%2"\"])"
+)
 IF "%1"=="test_dev" (
     julia test/runtests_dev.jl
 )
