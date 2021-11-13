@@ -495,9 +495,17 @@ end
     Ham_sys_ref = [200.0 100.0 0.0; 100.0 300.0 100.0; 0.0 100.0 400.0]
     @test 1e12 > D(Ham_sys.data, Ham_sys_ref)
 
+    Ham_sys = getAggHamiltonianSystem(agg; groundEnergy = false)
+    Ham_sys_ref = [0.0 100.0 0.0; 100.0 100.0 100.0; 0.0 100.0 200.0]
+    @test 1e12 > D(Ham_sys.data, Ham_sys_ref)
+
     Ham_sys_ref =
         [0.0 0.0 0.0 0.0; 0.0 200.0 100.0 0.0; 0.0 100.0 300.0 100.0; 0.0 0.0 100.0 400.0]
     Ham_sys = getAggHamiltonianSystem(agg; groundState = true)
+    @test 1e12 > D(Ham_sys.data, Ham_sys_ref)
+
+    Ham_sys = getAggHamiltonianSystem(agg; groundState = true, groundEnergy = false)
+    Ham_sys_ref = [0.0 0.0 0.0 0.0; 0.0 200.0 100.0 0.0; 0.0 100.0 300.0 100.0; 0.0 0.0 100.0 400.0]
     @test 1e12 > D(Ham_sys.data, Ham_sys_ref)
 
     modes = [Mode(2.0, 2.0)]
