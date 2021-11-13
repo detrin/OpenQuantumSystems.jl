@@ -138,31 +138,32 @@ HR = 0.01
 shift = (2.0 * HR)
 modes = [Mode(180., shift)]
 mols = [
-    Molecule([Mode(300., shift)], 2, [12500., 12670.]),
-    Molecule([Mode(300., shift)], 2, [12510., 12730.])
+    Molecule([Mode(300., shift)], 2, [12500., 12700.]),
+    Molecule([Mode(300., shift)], 2, [12500., 12700.])
 ]
 
 agg = Aggregate(mols)
 for mol_i in 2:length(agg.molecules)
-    agg.coupling[mol_i, mol_i+1] = 200
-    agg.coupling[mol_i+1, mol_i] = 200
+    agg.coupling[mol_i, mol_i+1] = 2000
+    agg.coupling[mol_i+1, mol_i] = 2000
 end
 # agg.coupling[1, 3] = 50
 # agg.coupling[3, 1] = 50
 # agg.coupling[:, :] = rand(Float64, (length(mols)+1, length(mols)+1)) * 200
 
-println("getIndices")
-@time aggIndices = getIndices(agg; groundState = true)
-aggInds = getIndices(agg; groundState = true)
-vibindices = getVibIndices(agg, aggInds)
-aggIndsLen = length(aggInds)
-basis = GenericBasis([aggIndsLen])
-FCFact = getFranckCondonFactors(agg, aggInds; groundState = true)
+aggIndices = getIndices(agg; groundState=true)
+vibindices = getVibIndices(agg, aggIndices)
+aggIndLen = length(aggIndices)
+println(aggIndLen)
+base = GenericBasis([aggIndLen])
+FCFact = getFranckCondonFactors(agg, aggIndices; groundState=true)
 FCProd = getFCProd(agg, FCFact, aggIndices, vibindices; groundState = true)
-Ham = getAggHamiltonian(agg, aggInds, FCFact; groundState = true, groundEnergy=false)
+Ham = getAggHamiltonian(agg, aggIndices, FCFact; groundState=true)
+basis = GenericBasis([length(aggIndices)])
+println(aggIndLen)
 
 Ham_bath = getAggHamiltonianBath(agg)
-Ham_sys = getAggHamiltonianSystem(agg; groundState = false)
+Ham_sys = getAggHamiltonianSystem(agg; groundState=true)
 b_sys = GenericBasis([size(Ham_sys, 1)])
 b_bath = GenericBasis([size(Ham_bath, 1)])
 
@@ -174,19 +175,148 @@ println(Ham)
 
 println("###########")
 
-t_max = 0.05
+t_max = 0.01
 t_count = 200
 t0 = 0.
 t_step = (t_max - t0) / (t_count)
 tspan = [t0:t_step:t_max;]
 
-T = 1e-1
+T = 300
 mu_array = [[2, 1]]
-W0 = thermal_state(T, mu_array, Ham, vibindices, aggIndices; diagonalize = true)
+W0 = thermal_state(T, mu_array, Ham, vibindices, aggIndices; diagonalize = false, groundState=true)
 println(W0)
-W0_bath = get_rho_bath(W0, agg, FCProd, aggIndices, vibindices; groundState=true)
 
 H_lambda, H_S = eigen(Ham_S.data)
 H_Sinv = inv(H_S)
 H_lambda = diagm(H_lambda)
-println("")
+
+W0_bath = get_rho_bath(W0, agg, FCProd, aggIndices, vibindices; groundState=true)
+
+println("###########")
+
+rho0 = trace_bath(W0, agg, FCProd, aggIndices, vibindices; groundState = true)
+rho0 = DenseOperator(rho0.basis_l, rho0.basis_r, complex(rho0.data))
+W0 = DenseOperator(W0.basis_l, W0.basis_r, complex(W0.data))
+println(size(H_S))
+p = (Ham_S, Ham_int, H_lambda, H_S, H_Sinv, W0, W0_bath, agg, FCProd, aggIndices, vibindices, true, ComplexF64)
+@time T, rho_t_taylor_int = master_ansatz2(
+    rho0,
+    tspan,
+    p;
+    reltol = 1.0e-6,
+    abstol = 1.0e-6,
+    alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5())
+)
+
+elLen = length(agg.molecules)
+rho_t_taylor = zeros(ComplexF64, length(tspan), elLen+1, elLen+1)
+for t_i in 1:length(tspan)
+    t = tspan[t_i]
+    U_op_S = evolutionOperator(Ham_sys, t)
+    rho = U_op_S * rho_t_taylor_int[t_i] * U_op_S'
+    rho_t_taylor[t_i, :, :] = rho.data
+end
+println("###########")
+
+rho0 = trace_bath(W0, agg, FCProd, aggIndices, vibindices; groundState = true)
+rho0 = DenseOperator(rho0.basis_l, rho0.basis_r, complex(rho0.data))
+W0 = DenseOperator(W0.basis_l, W0.basis_r, complex(W0.data))
+W0_bath = DenseOperator(W0_bath.basis_l, W0_bath.basis_r, complex(W0_bath.data))
+p = (Ham_S, Ham_int, H_lambda, H_S, H_Sinv, W0, W0_bath, agg, FCProd, aggIndices, vibindices, true, ComplexF64)
+@time T, rho_t_ansatz_int = master_ansatz(
+    rho0,
+    tspan,
+    p;
+    reltol = 1.0e-6,
+    abstol = 1.0e-6,
+    alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5())
+)
+
+elLen = length(agg.molecules)
+rho_t_ansatz = zeros(ComplexF64, length(tspan), elLen+1, elLen+1)
+for t_i in 1:length(tspan)
+    t = tspan[t_i]
+    U_op_S = evolutionOperator(Ham_sys, t)
+    rho = U_op_S * rho_t_ansatz_int[t_i] * U_op_S'
+    rho_t_ansatz[t_i, :, :] = rho.data
+end
+println("###########")
+
+rho0 = trace_bath(W0, agg, FCProd, aggIndices, vibindices; groundState = true)
+rho0 = DenseOperator(rho0.basis_l, rho0.basis_r, complex(rho0.data))
+W0 = DenseOperator(W0.basis_l, W0.basis_r, complex(W0.data))
+W0_bath = DenseOperator(W0_bath.basis_l, W0_bath.basis_r, complex(W0_bath.data))
+p = (Ham_S, Ham_int, H_lambda, H_S, H_Sinv, W0, W0_bath, agg, FCProd, aggIndices, vibindices, true, ComplexF64)
+@time T, W_t_master_int = master_int(
+    W0,
+    tspan,
+    Ham_S,
+    Ham_int;
+    reltol = 1.0e-6,
+    abstol = 1.0e-6,
+    alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5())
+)
+
+elLen = length(agg.molecules)
+rho_t_master = zeros(ComplexF64, length(tspan), elLen+1, elLen+1)
+for t_i in 1:length(tspan)
+    t = tspan[t_i]
+    U_op_S = evolutionOperator(Ham_sys, t)
+    rho = trace_bath(W_t_master_int[t_i], agg, FCProd, aggIndices, vibindices; groundState = true)
+    rho = U_op_S * rho * U_op_S'
+    rho_t_master[t_i, :, :] = rho.data
+end
+println("###########")
+
+rho0 = trace_bath(W0, agg, FCProd, aggIndices, vibindices; groundState = true)
+rho0 = DenseOperator(rho0.basis_l, rho0.basis_r, complex(rho0.data))
+W0 = DenseOperator(W0.basis_l, W0.basis_r, complex(W0.data))
+W0_bath = DenseOperator(W0_bath.basis_l, W0_bath.basis_r, complex(W0_bath.data))
+p = (Ham_S, Ham_int, H_lambda, H_S, H_Sinv, W0, W0_bath, agg, FCProd, aggIndices, vibindices, true, ComplexF64)
+@time T, W_t = liouvilleVonNeumann(
+    W0,
+    tspan,
+    Ham;
+    reltol = 1.0e-6,
+    abstol = 1.0e-6,
+    alg = OrdinaryDiffEq.Tsit5()
+)
+
+elLen = length(agg.molecules)
+rho_t_LvN = zeros(ComplexF64, length(tspan), elLen+1, elLen+1)
+for t_i in 1:length(tspan)
+    t = tspan[t_i]
+    rho = trace_bath(W_t[t_i], agg, FCProd, aggIndices, vibindices; groundState = true)
+    rho_t_LvN[t_i, :, :] = rho.data
+end
+println("###########")
+
+elLen = length(agg.molecules)
+rho_t_exact = zeros(ComplexF64, length(tspan), elLen+1, elLen+1)
+t_i = 0
+
+p = Progress(t_count, barglyphs=BarGlyphs("[=> ]"), barlen=50)
+foreach(evolutionOperatorIterator(Ham, tspan; diagonalize = false, approximate=true)) do U_op
+    global t_i = t_i + 1
+    # println(t_i / 150. * 100)
+    W = U_op * W0 * U_op'
+    rho_traced = trace_bath(W.data, agg, FCProd, aggIndices, vibindices; groundState=true)
+    rho_t_exact[t_i, :, :] = rho_traced
+    ProgressMeter.next!(p)
+end
+
+rho_t_plot = zeros(Float64, length(tspan), 5, elLen+1, elLen+1)
+println(real(rho_t_exact[1, :, :]))
+for i in 1:length(tspan)
+    rho_t_plot[i, 1, :, :] = real(rho_t_exact[i, :, :])
+    rho_t_plot[i, 2, :, :] = real(rho_t_ansatz[i, :, :])
+    rho_t_plot[i, 3, :, :] = real(rho_t_taylor[i, :, :])
+    rho_t_plot[i, 4, :, :] = real(rho_t_master[i, :, :])
+    rho_t_plot[i, 5, :, :] = real(rho_t_LvN[i, :, :])
+end
+
+plot(tspan, rho_t_plot[:, 1, 1, 1], label="exact rho_11", linealpha = 0.5, linewidth = 4, linestyle = :solid)
+plot!(tspan, rho_t_plot[:, 2, 1, 1], label="ansatz rho_11", linealpha = 0.5, linewidth = 4, linestyle = :solid)
+plot!(tspan, rho_t_plot[:, 3, 1, 1], label="taylor rho_11", linealpha = 0.5, linewidth = 4, linestyle = :dash)
+plot!(tspan, rho_t_plot[:, 4, 1, 1], label="master rho_11", linealpha = 0.5, linewidth = 4, linestyle = :dash)
+# plot!(tspan, rho_t_plot[:, 5, 1, 1], label="LvN rho_11")

@@ -66,7 +66,7 @@ function dmaster_ansatz(
     LinearAlgebra.mul!(tmp1, Ham_II_t, W0_bath.data, -elementtype(im), zero(elementtype))
     LinearAlgebra.mul!(tmp1, W0_bath.data, Ham_II_t, elementtype(im), one(elementtype))
     K_traced = trace_bath(tmp1, agg, FCProd, aggIndices, vibindices; groundState = groundState)
-    rho0 = trace_bath(W0, agg, FCProd, aggIndices, vibindices; groundState = groundState)
+    # rho0 = trace_bath(W0, agg, FCProd, aggIndices, vibindices; groundState = groundState)
     # println(t)
     # println(K_traced)
     # println(K_traced .* rho0.data)

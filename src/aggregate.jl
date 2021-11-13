@@ -325,6 +325,7 @@ Get Hamiltonian of the system, ``H_S``.
 function getAggHamiltonianSystem(
     agg::Aggregate{T,C1,C2};
     groundState::Bool = false,
+    groundEnergy::Bool = true,
 ) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
     molLen = length(agg.molecules)
     if groundState
@@ -352,6 +353,12 @@ function getAggHamiltonianSystem(
         Ham_sys[:, :] += agg.coupling[:, :]
     else
         Ham_sys[:, :] += agg.coupling[2:molLen+1, 2:molLen+1]
+    end
+    if !groundEnergy
+        E0 = Ham_sys[1, 1]
+        for i = 1:size(Ham_sys, 1)
+            Ham_sys[i, i] -= E0
+        end
     end
     b = GenericBasis([size(Ham_sys, 1)])
     return DenseOperator(b, b, Ham_sys)
@@ -451,7 +458,7 @@ function getAggHamSysBath2(
     end
     aggIndLen = length(aggIndices)
     Ham_bath = getAggHamiltonianBath(agg)
-    Ham_sys = getAggHamiltonianSystem(agg; groundState = groundState)
+    Ham_sys = getAggHamiltonianSystem(agg; groundState = groundState, groundEnergy = groundEnergy)
     b = GenericBasis([aggIndLen])
     b_sys = GenericBasis([size(Ham_sys, 1)])
     b_bath = GenericBasis([size(Ham_bath, 1)])
