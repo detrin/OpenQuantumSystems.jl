@@ -2,7 +2,7 @@
 import QuantumOpticsBase, LinearAlgebra, OrdinaryDiffEq, QuadGK, DelayDiffEq
 
 """
-    master_int(rho0, tspan, Ham_0, Ham_I; 
+    master_int(W0, tspan, Ham_0, Ham_I; 
     \treltol=1.0e-12, abstol=1.0e-12, int_reltol=1.0e-8, int_abstol=0.0, 
     \tfout=nothing, alg=DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()))
 
@@ -14,7 +14,7 @@ Integrate Quantum Master equation
 ``H = H_S + H_B + H_I = H_0 + H_I, \\quad \\hbar = 1. ``
 
 # Arguments
-* `rho0`: Initial state vector (can be a bra or a ket) or initial propagator.
+* `W0`: Initial state vector (can be a bra or a ket) or initial propagator.
 * `tspan`: Vector specifying the points of time for which output should be displayed.s
 * `Ham_0`: System and bath Hamiltonian as Operator.
 * `Ham_I`: Interaction Hamiltonian as Operator.
@@ -29,7 +29,7 @@ Integrate Quantum Master equation
 * `alg`: Algorithm with which DiffEqCallbacks will solve QME equation.
 """
 function master_int(
-    rho0::T,
+    W0::T,
     tspan::Array,
     Ham_0::U,
     Ham_I::V;
@@ -41,9 +41,9 @@ function master_int(
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B},U<:Operator{B,B},V<:Operator{B,B}}
-    history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
+    history_fun(p, t) = T(W0.basis_l, W0.basis_r, zeros(ComplexF64, size(W0.data)))
     # (du,u,h,p,t)
-    tmp = copy(rho0.data)
+    tmp = copy(W0.data)
     dmaster_(t, rho::T, drho::T, history_fun, p) = dmaster_int(
         t,
         rho,
@@ -51,16 +51,16 @@ function master_int(
         history_fun,
         tmp,
         p,
-        rho0,
+        W0,
         Ham_0,
         Ham_I,
         int_reltol,
         int_abstol,
     )
     tspan_ = convert(Vector{float(eltype(tspan))}, tspan)
-    x0 = rho0.data
-    state = T(rho0.basis_l, rho0.basis_r, rho0.data)
-    dstate = T(rho0.basis_l, rho0.basis_r, rho0.data)
+    x0 = W0.data
+    state = T(W0.basis_l, W0.basis_r, W0.data)
+    dstate = T(W0.basis_l, W0.basis_r, W0.data)
     OpenQuantumSystems.integrate_delayed(
         tspan_,
         dmaster_,
@@ -83,15 +83,15 @@ function dmaster_int(
     history_fun,
     tmp::Array,
     p,
-    rho0,
+    W0,
     Ham_0::U,
     Ham_I::V,
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,
 ) where {B<:Basis,T<:Operator{B,B},U<:Operator{B,B},V<:Operator{B,B}}
     Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
-    QuantumOpticsBase.mul!(drho, Ham_II_t, rho0, -eltype(rho)(im), zero(eltype(rho)))
-    QuantumOpticsBase.mul!(drho, rho0, Ham_II_t, eltype(rho)(im), one(eltype(rho)))
+    QuantumOpticsBase.mul!(drho, Ham_II_t, W0, -eltype(rho)(im), zero(eltype(rho)))
+    QuantumOpticsBase.mul!(drho, W0, Ham_II_t, eltype(rho)(im), one(eltype(rho)))
 
     kernel_integrated, err = QuadGK.quadgk(
         s -> kernel_int(t, s, tmp, history_fun, p, Ham_II_t.data, Ham_0, Ham_I),
@@ -128,7 +128,7 @@ function kernel_int(t, s, tmp, h, p, Ham_II_t, Ham_0, Ham_I)
 end
 
 """
-    master(rho0, tspan, Ham; 
+    master(W0, tspan, Ham; 
     \treltol=1.0e-12, abstol=1.0e-12, int_reltol=1.0e-8, int_abstol=0.0, 
     \tfout=nothing, alg=DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()))
 
@@ -139,7 +139,7 @@ Integrate Quantum Master equation
 ,\\quad \\hbar = 1. ``
 
 # Arguments
-* `rho0`: Initial state vector (can be a bra or a ket) or initial propagator.
+* `W0`: Initial state vector (can be a bra or a ket) or initial propagator.
 * `tspan`: Vector specifying the points of time for which output should be displayed.s
 * `Ham`: Arbitrary operator specifying the Hamiltonian.
 * `reltol`: Relative tolerance for DiffEqCallbacks solver and its inner states.
@@ -153,7 +153,7 @@ Integrate Quantum Master equation
 * `alg`: Algorithm with which DiffEqCallbacks will solve QME equation.
 """
 function master(
-    rho0::T,
+    W0::T,
     tspan,
     Ham::U;
     reltol::Float64 = 1.0e-12,
@@ -164,15 +164,15 @@ function master(
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B},U<:Operator{B,B}}
-    history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
+    history_fun(p, t) = T(W0.basis_l, W0.basis_r, zeros(ComplexF64, size(W0.data)))
     # (du,u,h,p,t)
-    tmp = copy(rho0.data)
+    tmp = copy(W0.data)
     dmaster_(t, rho::T, drho::T, history_fun, p) =
-        dmaster(t, rho, drho, history_fun, tmp, p, rho0, Ham)
+        dmaster(t, rho, drho, history_fun, tmp, p, W0, Ham)
     tspan_ = convert(Vector{float(eltype(tspan))}, tspan)
-    x0 = rho0.data
-    state = T(rho0.basis_l, rho0.basis_r, rho0.data)
-    dstate = T(rho0.basis_l, rho0.basis_r, rho0.data)
+    x0 = W0.data
+    state = T(W0.basis_l, W0.basis_r, W0.data)
+    dstate = T(W0.basis_l, W0.basis_r, W0.data)
     OpenQuantumSystems.integrate_delayed(
         tspan_,
         dmaster_,
@@ -195,11 +195,11 @@ function dmaster(
     history_fun,
     tmp::Array,
     p,
-    rho0,
+    W0,
     Ham::U,
 ) where {B<:Basis,T<:Operator{B,B},U<:Operator{B,B}}
-    QuantumOpticsBase.mul!(drho, Ham, rho0, -eltype(rho)(im), zero(eltype(rho)))
-    QuantumOpticsBase.mul!(drho, rho0, Ham, eltype(rho)(im), one(eltype(rho)))
+    QuantumOpticsBase.mul!(drho, Ham, W0, -eltype(rho)(im), zero(eltype(rho)))
+    QuantumOpticsBase.mul!(drho, W0, Ham, eltype(rho)(im), one(eltype(rho)))
 
     kernel_integrated, err =
         QuadGK.quadgk(s -> kernel(t, s, tmp, history_fun, p, Ham.data), 0, t, rtol = 1e-8)
