@@ -514,7 +514,7 @@ function getAggHamiltonianInteraction(
     )
 
     Ham_S =
-        getAggHamSysBath2(agg, aggIndices; groundState = groundState, groundEnergy = true)
+        getAggHamSysBath(agg, aggIndices; groundState = groundState, groundEnergy = true)
     H_int = Ham.data - Ham_S.data
     b = GenericBasis([aggIndLen])
     return DenseOperator(b, b, H_int)
