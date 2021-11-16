@@ -217,8 +217,6 @@ FCFact = getFranckCondonFactors(agg, aggIndices; groundState=true)
 FCProd = getFCProd(agg, FCFact, aggIndices, vibindices; groundState = true)
 Ham = getAggHamiltonian(agg, aggIndices, FCFact; groundState=true)
 basis = GenericBasis([length(aggIndices)])
-psi0 = randstate(base)
-rho0 = dm(psi0)
 
 Ham_bath = getAggHamiltonianBath(agg)
 Ham_sys = getAggHamiltonianSystem(agg; groundState=true, groundEnergy=false)
@@ -342,7 +340,7 @@ end
 
 ### evolutionOperatorIterator
 BenchmarkTools.DEFAULT_PARAMETERS.seconds = 20.
-p = (Ham_S, Ham_int, H_lambda, H_S, H_Sinv, W0, W0_bath, agg, FCProd, aggIndices, vibindices, true, ComplexF64)
+p = (Ham_S, Ham_int, H_lambda, H_S, H_Sinv, Ham_B, W0, W0_bath, agg, FCProd, aggIndices, vibindices, true, ComplexF64)
 t2_7 = @benchmark begin
     Tspan, rho_t_ansatz_int = master_ansatz(
         rho0,
