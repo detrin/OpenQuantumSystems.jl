@@ -1,4 +1,4 @@
-name: CI-short
+name: CI julia v1.7
 on:
   push:
     branches:
