@@ -39,9 +39,11 @@ using Random, SparseArrays, LinearAlgebra
         0.5960193120071318-0.31849769746151213im 0.4626332738354356+0.0im
     ]
     rho_traced = trace_bath_slow(rho, agg, FCFact, aggInds, vibindices; groundState = false)
+    println(rho_traced)
     @test 1e-14 > D(rho_traced.data, rho_traced_ref)
     rho_traced =
         trace_bath_slow(rho.data, agg, FCFact, aggInds, vibindices; groundState = false)
+    println(rho_traced)
     @test 1e-14 > D(rho_traced, rho_traced_ref)
 
     FCProd = getFCProd(agg, FCFact, aggInds, vibindices; groundState = false)
