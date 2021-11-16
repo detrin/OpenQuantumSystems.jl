@@ -1,4 +1,4 @@
-name: CI-nightly-julia
+name: CI julia nightly
 on:
   pull_request:
     branches:
