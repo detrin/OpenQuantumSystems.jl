@@ -14,7 +14,7 @@ function master_ansatz(
 ) where {B<:Basis,T<:Operator{B,B}}
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
     # (du,u,h,p,t)
-    Ham_S, Ham_int, H_lambda, H_S, H_Sinv, W0, W0_bath, agg, FCProd, aggIndices, vibindices, groundState, elementtype = p
+    Ham_S, Ham_int, H_lambda, H_S, H_Sinv, Ham_B, W0, W0_bath, agg, FCProd, aggIndices, vibindices, elementtype = p
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
     tmp3 = copy(W0.data)
@@ -52,7 +52,7 @@ function dmaster_ansatz(
     p,
     h
 ) where {B<:Basis,T<:Operator{B,B}}
-    Ham_S, Ham_int, H_lambda, H_S, H_Sinv, W0, W0_bath, agg, FCProd, aggIndices, vibindices, groundState, elementtype = p
+    Ham_S, Ham_int, H_lambda, H_S, H_Sinv, Ham_B, W0, W0_bath, agg, FCProd, aggIndices, vibindices, elementtype = p
     # Ham_II_t = getInteractionHamIPicture(Ham_S, Ham_int, t)
     Ham_II_t = getInteractionHamIPictureA(Ham_int.data, H_lambda, H_S, H_Sinv, t)
     kernel_integrated, err = QuadGK.quadgk(
@@ -65,8 +65,8 @@ function dmaster_ansatz(
     
     LinearAlgebra.mul!(tmp1, Ham_II_t, W0_bath.data, -elementtype(im), zero(elementtype))
     LinearAlgebra.mul!(tmp1, W0_bath.data, Ham_II_t, elementtype(im), one(elementtype))
-    K_traced = trace_bath(tmp1, agg, FCProd, aggIndices, vibindices; groundState = groundState)
-    rho0 = trace_bath(W0, agg, FCProd, aggIndices, vibindices; groundState = groundState)
+    K_traced = trace_bath(tmp1, agg, FCProd, aggIndices, vibindices)
+    # rho0 = trace_bath(W0, agg, FCProd, aggIndices, vibindices)
     # println(t)
     # println(K_traced)
     # println(K_traced .* rho0.data)
@@ -82,7 +82,7 @@ function dmaster_ansatz(
 end
 
 function MemoryKernel(t, s, tmp1, tmp2, tmp3, h, p, Ham_II_t)
-    Ham_S, Ham_int, H_lambda, H_S, H_Sinv, W0, W0_bath, agg, FCProd, aggIndices, vibindices, groundState, elementtype = p
+    Ham_S, Ham_int, H_lambda, H_S, H_Sinv, Ham_B, W0, W0_bath, agg, FCProd, aggIndices, vibindices, elementtype = p
     # sprintln(t)
     # Ham_II_s = getInteractionHamIPictureA(Ham_S, Ham_int, s)
     tmp3 .= getInteractionHamIPictureA(Ham_int.data, H_lambda, H_S, H_Sinv, s)
@@ -98,14 +98,16 @@ function MemoryKernel(t, s, tmp1, tmp2, tmp3, h, p, Ham_II_t)
         rho = rho.data
     end
     # println("rho", rho)
-    tmp2 .= ad(rho, W0_bath.data, agg, FCProd, aggIndices, vibindices; groundState = groundState)
+    U_b_s = evolutionOperator(Ham_B, s)
+    W0_bath_int_s = U_b_s' * W0_bath * U_b_s
+    tmp2 .= ad(rho, W0_bath_int_s.data, agg, FCProd, aggIndices, vibindices)
 
     QuantumOpticsBase.mul!(tmp1, tmp3, tmp2, elementtype(1), zero(elementtype))
     QuantumOpticsBase.mul!(tmp1, tmp2, tmp3, -elementtype(1), one(elementtype))
 
     QuantumOpticsBase.mul!(tmp2, Ham_II_t, tmp1, elementtype(1), zero(elementtype))
     QuantumOpticsBase.mul!(tmp2, tmp1, Ham_II_t, -elementtype(1), one(elementtype))
-    MK_traced = trace_bath(tmp2, agg, FCProd, aggIndices, vibindices; groundState = groundState)
+    MK_traced = trace_bath(tmp2, agg, FCProd, aggIndices, vibindices)
     # println(MK_traced)
     return MK_traced
 end
