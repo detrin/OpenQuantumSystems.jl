@@ -35,11 +35,12 @@ using Random, SparseArrays, LinearAlgebra
     U_op = evolutionOperator(Ham, t)
     rho = U_op * rho0 * U_op'
     rho_traced_ref = ComplexF64[
-        0.27983831453187563+0.0im 0.39510751997977556+0.3832496461602654im 0.36717929072360034+0.48380689550795175im
-        0.39510751997977556-0.3832496461602654im 0.3757521692494342+0.0im 0.4295074106269881+0.3124835865738737im
-        0.36717929072360034-0.48380689550795175im 0.4295074106269881-0.3124835865738737im 0.3444095162186903+0.0im
+        0.38039889598242 + 0.0im 0.28369491536092306 + 0.248783725284891im 0.2196786799502027 + 0.25348757179772047im; 
+        0.28369491536092306 - 0.248783725284891im 0.2741822201009351 - 1.3010426069826053e-17im 0.11525284205621783 + 0.23102806588760527im; 
+        0.21967867995020277 - 0.2534875717977205im 0.11525284205621782 - 0.23102806588760527im 0.3377238162369547 - 1.3769367590565906e-17im
     ]
     rho_traced = trace_bath_slow(rho, agg, FCFact, aggInds, vibindices)
+    println(rho_traced.data)
     @test 1e-14 > D(rho_traced.data, rho_traced_ref)
     rho_traced =
         trace_bath_slow(rho.data, agg, FCFact, aggInds, vibindices)
@@ -69,12 +70,13 @@ using Random, SparseArrays, LinearAlgebra
     U_op = evolutionOperator(Ham, t)
     rho = U_op * rho0 * U_op'
     rho_traced_ref = ComplexF64[
-        0.27983831453187474+4.807665611244999e-18im 0.5271823941867131-0.15833182524717854im 0.6013924791789407-0.08495192560698843im
-        0.5271823941867131+0.15833182524717854im 0.3757521692494339+5.194043729796511e-18im 0.4295074106269877+0.31248358657387476im
-        0.6013924791789407+0.08495192560698844im 0.4295074106269877-0.3124835865738748im 0.34440951621869137+4.376703186460492e-18im
+        0.3803988959824186 + 2.6020852139652106e-18im 0.3487316508666893 - 0.03548586492564312im 0.3626658702848767 + 0.0005197749818341463im; 
+        0.3487316508666892 + 0.03548586492564312im 0.2560172766886787 - 1.6543652845120398e-17im 0.11949445051795413 + 0.2239460097353317im; 
+        0.3626658702848766 - 0.0005197749818341714im 0.11949445051795418 - 0.2239460097353317im 0.33235575587167504 - 4.0115480381963664e-18im
     ]
 
     rho_traced = trace_bath_slow(rho, agg, FCFact, aggInds, vibindices)
+    println(rho_traced.data)
     @test 1e-14 > D(rho_traced.data, rho_traced_ref)
     rho_traced =
         trace_bath_slow(rho.data, agg, FCFact, aggInds, vibindices)
@@ -98,8 +100,7 @@ using Random, SparseArrays, LinearAlgebra
             agg,
             FCProd,
             aggInds,
-            vibindices;
-            groundState = true,
+            vibindices
         )
         @test 1e-14 > abs(rho_traced_ref[a, b] - rho_traced_ab)
     end
@@ -127,8 +128,7 @@ using Random, SparseArrays, LinearAlgebra
         agg,
         FCProd,
         aggInds,
-        vibindices;
-        groundState = true,
+        vibindices
     )
     @test 1e-14 > D(corr, corr_ref)
 
@@ -144,8 +144,7 @@ using Random, SparseArrays, LinearAlgebra
         agg,
         FCProd,
         aggInds,
-        vibindices;
-        groundState = true,
+        vibindices
     )
     @test 1e-14 > D(corr, corr_ref)
 
