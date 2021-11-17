@@ -1,10 +1,10 @@
 using Test
 using OpenQuantumSystems
-using Random, SparseArrays, LinearAlgebra
+using Random, SparseArrays, LinearAlgebra, StableRNGs
 
 @testset "operators dense" begin
 
-    Random.seed!(0)
+    Random.seed!(StableRNG(0), 1)
 
     D(op1::AbstractOperator, op2::AbstractOperator) =
         abs(tracedistance_nh(dense(op1), dense(op2)))
