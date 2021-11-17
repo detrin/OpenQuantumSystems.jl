@@ -65,7 +65,8 @@ t1_1 = @benchmark begin
     b = GenericBasis([aggIndLen])
     b_sys = GenericBasis([size(Ham_sys, 1)])
     b_bath = GenericBasis([size(Ham_bath, 1)])
-
+    println(size(Ham.data))
+    println(size(FCFact))
     Ham_int = getAggHamiltonianInteraction(agg, aggIndices, FCFact)
     Ham_S = Ham - Ham_int
     b_sys = GenericBasis([size(Ham_sys, 1)])
@@ -95,21 +96,21 @@ t1_2 = @benchmark begin
         agg.coupling[mol_i+1, mol_i] = 200
     end
 
-    aggIndices = getIndices(agg; groundState=true)
+    aggIndices = getIndices(agg)
     vibindices = getVibIndices(agg, aggIndices)
     aggIndLen = length(aggIndices)
     base = GenericBasis([aggIndLen])
-    FCFact = getFranckCondonFactors(agg, aggIndices; groundState=true)
-    FCProd = getFCProd(agg, FCFact, aggIndices, vibindices; groundState = true)
-    Ham = getAggHamiltonian(agg, aggIndices, FCFact; groundState=true)
+    FCFact = getFranckCondonFactors(agg, aggIndices)
+    FCProd = getFCProd(agg, FCFact, aggIndices, vibindices)
+    Ham = getAggHamiltonian(agg, aggIndices, FCFact)
 
     Ham_bath = getAggHamiltonianBath(agg)
-    Ham_sys = getAggHamiltonianSystem(agg; groundState=true, groundEnergy=false)
+    Ham_sys = getAggHamiltonianSystem(agg; groundEnergy=false)
     b = GenericBasis([aggIndLen])
     b_sys = GenericBasis([size(Ham_sys, 1)])
     b_bath = GenericBasis([size(Ham_bath, 1)])
 
-    Ham_int = getAggHamiltonianInteraction(agg, aggIndices, FCFact; groundState=true)
+    Ham_int = getAggHamiltonianInteraction(agg, aggIndices, FCFact)
     Ham_S = Ham - Ham_int
     b_sys = GenericBasis([size(Ham_sys, 1)])
     b_bath = GenericBasis([size(Ham_bath, 1)])
@@ -156,14 +157,14 @@ base = GenericBasis([aggIndLen])
 ### getFranckCondonFactors
 BenchmarkTools.DEFAULT_PARAMETERS.seconds = 10.
 t1_5 = @benchmark begin
-    FCFact = getFranckCondonFactors(agg, aggIndices; groundState=true)
+    FCFact = getFranckCondonFactors(agg, aggIndices)
 end
 FCFact = getFranckCondonFactors(agg, aggIndices)
 
 ### getFCProd
 BenchmarkTools.DEFAULT_PARAMETERS.seconds = 100.
 t1_6 = @benchmark begin
-    FCProd = getFCProd(agg, FCFact, aggIndices, vibindices; groundState = true)
+    FCProd = getFCProd(agg, FCFact, aggIndices, vibindices)
 end
 FCProd = getFCProd(agg, FCFact, aggIndices, vibindices)
 
