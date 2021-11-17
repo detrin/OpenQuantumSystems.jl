@@ -1,3 +1,6 @@
+if length(ARGS) != 0 && ARGS[1] == "local"
+    include("local.jl"); exit()
+end
 
 names = [
     "test_operators_dense.jl",

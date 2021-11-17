@@ -154,13 +154,14 @@ export
     getFranckCondonFactors,
     getAggStateEnergy,
     getAggHamiltonian,
-    getAggHamiltonianSystem,
-    getAggHamiltonianBath,
+    getAggHamiltonianSystemSmall,
+    getAggHamiltonianSystemBig,
+    getAggHamiltonianBathSmall,
+    getAggHamiltonianBathBig,
+    getAggHamSystemBath,
     getAggHamiltonianInteraction,
     getFranckCondonFactorsSparse,
     getAggHamiltonianSparse,
-    getAggHamSysBath,
-    getAggHamSysBath2,
     setupAggregate,
 
     # evolution.jl

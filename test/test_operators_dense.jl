@@ -40,5 +40,4 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     shift_op_ref = [0.779728662995649 + 0.0im -0.5431245605675081 + 0.0im 0.3115107121936076 + 0.0im; 0.5431245605675084 + 0.0im 0.33918598898694735 + 0.0im -0.7680941196124976 + 0.0im; 0.31151071219360765 + 0.0im 0.7680941196124975 + 0.0im 0.559457325991298 + 0.0im]
     @test 1e-12 > D(shift_op.data, shift_op_ref)
 
-
 end # testset
