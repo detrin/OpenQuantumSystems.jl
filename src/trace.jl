@@ -30,6 +30,7 @@ function getFCProd(agg, FCFact, aggIndices, vibindices)
             =#
 
             for m = 1:vibLen
+                # according to quantarhei, trace_over_vibrations()
                 K = vibindices[1][m]
                 L = vibindices[1][m]
                 FCProd[I, J] += FCFact[K, I] * FCFact[J, L]
@@ -113,8 +114,9 @@ function trace_bath_slow(
             elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
 
             for m = 1:vibLen
-                K = vibindices[elOrder1][m]
-                L = vibindices[elOrder2][m]
+                # according to quantarhei, trace_over_vibrations()
+                K = vibindices[1][m]
+                L = vibindices[1][m]
                 rho_traced[elOrder1, elOrder2] +=
                     FCFact[K, I] * rho[I, J] * FCFact[J, L]
             end
