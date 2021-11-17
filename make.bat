@@ -43,3 +43,4 @@ IF "%1"=="benchmark" (
 	julia .\benchmark\benchmark.jl
 	python .\benchmark\benchmark_plot.py
 )
+:: Set-Alias -Name julia1.7 -Value C:\Users\daniel.herman\AppData\Local\Programs\Julia-1.7.0-rc3\bin\julia.exe
