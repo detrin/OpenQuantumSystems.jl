@@ -1,4 +1,3 @@
-
 import matplotlib.pyplot as plt
 import pandas as pd
 import json
@@ -19,7 +18,7 @@ def plot_test(test_name, div_factor=1, units="ps"):
         d = dic_commits[commit_hash]
         if test_name in d:
             commit_date = d["commit_date"]
-            label = commit_hash+"\n"+commit_date
+            label = commit_hash + "\n" + commit_date
             print(commit_hash, test_name, len(d[test_name]))
             dic_slice.append([x / div_factor for x in d[test_name]])
             # df_slice = pd.DataFrame(dic_slice)
