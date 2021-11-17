@@ -52,21 +52,21 @@ t1_1 = @benchmark begin
         agg.coupling[mol_i+1, mol_i] = 200
     end
 
-    aggIndices = getIndices(agg; groundState=true)
+    aggIndices = getIndices(agg)
     vibindices = getVibIndices(agg, aggIndices)
     aggIndLen = length(aggIndices)
     base = GenericBasis([aggIndLen])
-    FCFact = getFranckCondonFactors(agg, aggIndices; groundState=true)
-    FCProd = getFCProd(agg, FCFact, aggIndices, vibindices; groundState = true)
-    Ham = getAggHamiltonian(agg, aggIndices, FCFact; groundState=true)
+    FCFact = getFranckCondonFactors(agg, aggIndices)
+    FCProd = getFCProd(agg, FCFact, aggIndices, vibindices)
+    Ham = getAggHamiltonian(agg, aggIndices, FCFact)
 
     Ham_bath = getAggHamiltonianBath(agg)
-    Ham_sys = getAggHamiltonianSystem(agg; groundState=true, groundEnergy=false)
+    Ham_sys = getAggHamiltonianSystem(agg; groundEnergy=false)
     b = GenericBasis([aggIndLen])
     b_sys = GenericBasis([size(Ham_sys, 1)])
     b_bath = GenericBasis([size(Ham_bath, 1)])
 
-    Ham_int = getAggHamiltonianInteraction(agg, aggIndices, FCFact; groundState=true)
+    Ham_int = getAggHamiltonianInteraction(agg, aggIndices, FCFact)
     Ham_S = Ham - Ham_int
     b_sys = GenericBasis([size(Ham_sys, 1)])
     b_bath = GenericBasis([size(Ham_bath, 1)])
@@ -148,7 +148,7 @@ for mol_i in 2:length(agg.molecules)
     agg.coupling[mol_i+1, mol_i] = 200
 end
 
-aggIndices = getIndices(agg; groundState=true)
+aggIndices = getIndices(agg)
 vibindices = getVibIndices(agg, aggIndices)
 aggIndLen = length(aggIndices)
 base = GenericBasis([aggIndLen])
@@ -158,23 +158,23 @@ BenchmarkTools.DEFAULT_PARAMETERS.seconds = 10.
 t1_5 = @benchmark begin
     FCFact = getFranckCondonFactors(agg, aggIndices; groundState=true)
 end
-FCFact = getFranckCondonFactors(agg, aggIndices; groundState=true)
+FCFact = getFranckCondonFactors(agg, aggIndices)
 
 ### getFCProd
 BenchmarkTools.DEFAULT_PARAMETERS.seconds = 100.
 t1_6 = @benchmark begin
     FCProd = getFCProd(agg, FCFact, aggIndices, vibindices; groundState = true)
 end
-FCProd = getFCProd(agg, FCFact, aggIndices, vibindices; groundState = true)
+FCProd = getFCProd(agg, FCFact, aggIndices, vibindices)
 
 ### getFCProd
 BenchmarkTools.DEFAULT_PARAMETERS.seconds = 10.
 t1_7 = @benchmark begin
-    Ham = getAggHamiltonian(agg, aggIndices, FCFact; groundState=true)
+    Ham = getAggHamiltonian(agg, aggIndices, FCFact)
 end
-Ham = getAggHamiltonian(agg, aggIndices, FCFact; groundState=true)
+Ham = getAggHamiltonian(agg, aggIndices, FCFact)
 Ham_bath = getAggHamiltonianBath(agg)
-Ham_sys = getAggHamiltonianSystem(agg; groundState=true, groundEnergy=false)
+Ham_sys = getAggHamiltonianSystem(agg; groundEnergy=false)
 b = GenericBasis([aggIndLen])
 b_sys = GenericBasis([size(Ham_sys, 1)])
 b_bath = GenericBasis([size(Ham_bath, 1)])
@@ -182,7 +182,7 @@ b_bath = GenericBasis([size(Ham_bath, 1)])
 ### getAggHamiltonianInteraction
 BenchmarkTools.DEFAULT_PARAMETERS.seconds = 10.
 t1_8 = @benchmark begin
-    Ham_int = getAggHamiltonianInteraction(agg, aggIndices, FCFact; groundState=true)
+    Ham_int = getAggHamiltonianInteraction(agg, aggIndices, FCFact)
 end
 
 dic_commit["agg_dimer_small"] = t1_1.times # 27
@@ -209,22 +209,22 @@ for mol_i in 2:length(agg.molecules)
     agg.coupling[mol_i+1, mol_i] = 200
 end
 
-aggIndices = getIndices(agg; groundState=true)
+aggIndices = getIndices(agg)
 vibindices = getVibIndices(agg, aggIndices)
 aggIndLen = length(aggIndices)
 base = GenericBasis([aggIndLen])
-FCFact = getFranckCondonFactors(agg, aggIndices; groundState=true)
-FCProd = getFCProd(agg, FCFact, aggIndices, vibindices; groundState = true)
-Ham = getAggHamiltonian(agg, aggIndices, FCFact; groundState=true)
+FCFact = getFranckCondonFactors(agg, aggIndices)
+FCProd = getFCProd(agg, FCFact, aggIndices, vibindices)
+Ham = getAggHamiltonian(agg, aggIndices, FCFact)
 basis = GenericBasis([length(aggIndices)])
 
 Ham_bath = getAggHamiltonianBath(agg)
-Ham_sys = getAggHamiltonianSystem(agg; groundState=true, groundEnergy=false)
+Ham_sys = getAggHamiltonianSystem(agg; groundEnergy=false)
 b = GenericBasis([aggIndLen])
 b_sys = GenericBasis([size(Ham_sys, 1)])
 b_bath = GenericBasis([size(Ham_bath, 1)])
 
-Ham_int = getAggHamiltonianInteraction(agg, aggIndices, FCFact; groundState=true)
+Ham_int = getAggHamiltonianInteraction(agg, aggIndices, FCFact)
 Ham_S = Ham - Ham_int
 Ham_B = tensor(Ham_bath, OneDenseOperator(b_sys))
 E0 = Ham_B.data[1, 1]
@@ -244,19 +244,19 @@ t_step = (t_max - t0) / (t_count)
 tspan = [t0:t_step:t_max;]
 T = 300
 mu_array = [[2, 1]]
-W0_1 = thermal_state(T, mu_array, Ham, vibindices, aggIndices; diagonalize = false, groundState=true)
+W0_1 = thermal_state(T, mu_array, Ham, vibindices, aggIndices; diagonalize = false)
 mu_array = [[1, 2]]
-W0_2 = thermal_state(T, mu_array, Ham, vibindices, aggIndices; diagonalize = false, groundState=true)
+W0_2 = thermal_state(T, mu_array, Ham, vibindices, aggIndices; diagonalize = false)
 W0 = 0.8*W0_1 + 0.2*W0_2
 W0 = DenseOperator(W0.basis_l, W0.basis_r, complex(W0.data))
-W0_bath = get_rho_bath(W0, agg, FCProd, aggIndices, vibindices; groundState=true)
+W0_bath = get_rho_bath(W0, agg, FCProd, aggIndices, vibindices)
 W0_bath = DenseOperator(W0_bath.basis_l, W0_bath.basis_r, complex(W0_bath.data))
-rho0 = trace_bath(W0, agg, FCProd, aggIndices, vibindices; groundState = true)
+rho0 = trace_bath(W0, agg, FCProd, aggIndices, vibindices)
 rho0 = DenseOperator(rho0.basis_l, rho0.basis_r, complex(rho0.data))
 
 ### trace_bath
 t2_0 = @benchmark begin
-    rho0 = trace_bath(W0, agg, FCProd, aggIndices, vibindices; groundState = true)
+    rho0 = trace_bath(W0, agg, FCProd, aggIndices, vibindices)
 end
 
 ### evolutionExact
@@ -308,14 +308,14 @@ t2_5 = @benchmark begin
         t_i = t_i + 1
         # println(t_i / 150. * 100)
         W = U_op * W0 * U_op'
-        rho_traced = trace_bath(W.data, agg, FCProd, aggIndices, vibindices; groundState=true)
+        rho_traced = trace_bath(W.data, agg, FCProd, aggIndices, vibindices)
         rho_t_exact[t_i, :, :] = rho_traced
     end
 end
 
 ### master_int
 BenchmarkTools.DEFAULT_PARAMETERS.seconds = 20.
-p = (Ham_S, Ham_int, H_lambda, H_S, H_Sinv, W0, W0_bath, agg, FCProd, aggIndices, vibindices, true, ComplexF64)
+p = (Ham_S, Ham_int, H_lambda, H_S, H_Sinv, W0, W0_bath, agg, FCProd, aggIndices, vibindices, ComplexF64)
 t2_6 = @benchmark begin
     Tspan, W_t_master_int = master_int(
         W0,
@@ -332,7 +332,7 @@ t2_6 = @benchmark begin
     for t_i in 1:length(tspan)
         t = tspan[t_i]
         U_op_S = evolutionOperator(Ham_sys, t)
-        rho = trace_bath(W_t_master_int[t_i], agg, FCProd, aggIndices, vibindices; groundState = true)
+        rho = trace_bath(W_t_master_int[t_i], agg, FCProd, aggIndices, vibindices)
         rho = U_op_S * rho * U_op_S'
         rho_t_master[t_i, :, :] = rho.data
     end
@@ -340,7 +340,7 @@ end
 
 ### evolutionOperatorIterator
 BenchmarkTools.DEFAULT_PARAMETERS.seconds = 20.
-p = (Ham_S, Ham_int, H_lambda, H_S, H_Sinv, Ham_B, W0, W0_bath, agg, FCProd, aggIndices, vibindices, true, ComplexF64)
+p = (Ham_S, Ham_int, H_lambda, H_S, H_Sinv, Ham_B, W0, W0_bath, agg, FCProd, aggIndices, vibindices, ComplexF64)
 t2_7 = @benchmark begin
     Tspan, rho_t_ansatz_int = master_ansatz(
         rho0,
