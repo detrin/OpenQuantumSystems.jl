@@ -1,7 +1,8 @@
-import matplotlib.pyplot as plt
-import pandas as pd
 import json
+
+import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 with open("benchmark/benchmark_commits.json", "r") as f:
     dic_commits = json.load(f)
