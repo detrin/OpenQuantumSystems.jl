@@ -52,7 +52,6 @@ using LinearAlgebra
     # println("dispatch 2")
 
     @test electronicIndices(3) == [[1, 1, 1], [2, 1, 1], [1, 2, 1], [1, 1, 2]]
-    @test electronicIndices(3; groundState = false) == [[2, 1, 1], [1, 2, 1], [1, 1, 2]]
 
     mode1 = Mode(0.2, 1.0)
     mode2 = Mode(0.4, 1.0)

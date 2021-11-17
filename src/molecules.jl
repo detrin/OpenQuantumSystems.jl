@@ -61,20 +61,17 @@ end
 
 
 """
-electronicIndices(molCount; groundState = true)
+electronicIndices(molCount)
 
 Get the electric indices for all states on [`Aggregate`](@ref).
 
 # Arguments
 * `molCount`: Number of molecules in [`Aggregate`](@ref).
-* `groundState`: Option for allowing the ground electric state in local basis.
 """
-function electronicIndices(molCount::T; groundState = true) where {T<:Integer}
+function electronicIndices(molCount::T) where {T<:Integer}
     vibInds = Array{Array{T,1},1}(undef, 0)
     currentInds = fill(1, (molCount))
-    if groundState
-        push!(vibInds, copy(currentInds))
-    end
+    push!(vibInds, copy(currentInds))
     for indPos = 1:molCount
         currentInds[indPos] += 1
         push!(vibInds, copy(currentInds))
