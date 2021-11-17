@@ -121,7 +121,7 @@ end
 """
     getVibIndices(agg)
 
-Get pointers (integers) to the indices of the [`Aggregate`](@ref) separated by 
+Get pointers (integers) to the indices of the [`Aggregate`](@ref) separated by
 electronic states (e.g. [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]).
 
 # Arguments
@@ -224,7 +224,7 @@ function elIndOrder(elInd::Vector{T}) where {T<:Integer}
 end
 
 """
-    getAggHamiltonian(agg, aggIndices, 
+    getAggHamiltonian(agg, aggIndices,
     \tfranckCondonFactors; groundEnergy = false)
     getAggHamiltonian(agg, aggIndices; groundEnergy = false)
     getAggHamiltonian(agg; groundEnergy = false)
@@ -368,7 +368,7 @@ end
 """
     getAggHamSysBath(agg, aggIndices; groundEnergy = false)
 
-Get Hamiltonian of the system and of the bath, ``H_S + H_B`` by generating Hamiltonian 
+Get Hamiltonian of the system and of the bath, ``H_S + H_B`` by generating Hamiltonian
 with zero [`Mode`](@ref) shifts.
 
 # Arguments
@@ -407,7 +407,7 @@ end
 """
     getAggHamSysBath2(agg, aggIndices; groundEnergy = false)
 
-Get Hamiltonian of the system and of the bath, ``H_S + H_B`` by multiplication Hilbert 
+Get Hamiltonian of the system and of the bath, ``H_S + H_B`` by multiplication Hilbert
 spaces of the system and of the bath.
 
 # Arguments
@@ -444,12 +444,12 @@ function getAggHamSysBath2(
 end
 
 """
-    getAggHamiltonianInteraction(agg, aggIndices, franckCondonFactors; 
+    getAggHamiltonianInteraction(agg, aggIndices, franckCondonFactors;
     \t, groundEnergy = false)
     getAggHamiltonianInteraction(agg, aggIndices; groundEnergy = false)
     getAggHamiltonianInteraction(agg; groundEnergy = false)
 
-Get interation Hamiltonian of the [`Aggregate`](@ref), ``H_I`` by substracting 
+Get interation Hamiltonian of the [`Aggregate`](@ref), ``H_I`` by substracting
 Hamiltonian and Hamiltonian of the systems and of the bath, ``H - H_S - H_B``.
 
 # Arguments

@@ -21,7 +21,7 @@ import QuantumOpticsBase
 BenchmarkTools.DEFAULT_PARAMETERS.samples = 100
 
 # dic_commits = JSON.parsefile("test/benchmark_commits.json")
-open("benchmark/benchmark_commits.json","r") do f 
+open("benchmark/benchmark_commits.json","r") do f
     global dic_commits = JSON.parse(f)
 end
 
@@ -185,11 +185,11 @@ end
 
 dic_commit["agg_dimer_small"] = t1_1.times # 27
 dic_commit["agg_dimer_medium"] = t1_2.times # 147
-dic_commit["agg_building"] = t1_4.times 
-dic_commit["getFranckCondonFactors"] = t1_5.times 
+dic_commit["agg_building"] = t1_4.times
+dic_commit["getFranckCondonFactors"] = t1_5.times
 dic_commit["getFCProd"] = t1_6.times
-dic_commit["getAggHamiltonian"] = t1_7.times  
-dic_commit["getAggHamiltonianInteraction"] = t1_8.times  
+dic_commit["getAggHamiltonian"] = t1_7.times
+dic_commit["getAggHamiltonianInteraction"] = t1_8.times
 
 
 ## Simulations
@@ -348,7 +348,7 @@ t2_7 = @benchmark begin
         abstol = 1.0e-4,
         alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5())
     )
-    
+
     elLen = length(agg.molecules)
     rho_t_ansatz = zeros(ComplexF64, length(tspan), elLen+1, elLen+1)
     for t_i in 1:length(tspan)
@@ -359,18 +359,18 @@ t2_7 = @benchmark begin
     end
 end
 
-dic_commit["trace_bath"] = t2_0.times 
-dic_commit["evolutionExact"] = t2_1.times 
-dic_commit["evolutionApproximate"] = t2_2.times 
-dic_commit["schroedinger"] = t2_3.times 
-dic_commit["liouvilleVonNeumann"] = t2_4.times 
-dic_commit["evolutionOperatorIterator"] = t2_5.times 
-dic_commit["master_int"] = t2_6.times 
-dic_commit["master_ansatz"] = t2_7.times 
+dic_commit["trace_bath"] = t2_0.times
+dic_commit["evolutionExact"] = t2_1.times
+dic_commit["evolutionApproximate"] = t2_2.times
+dic_commit["schroedinger"] = t2_3.times
+dic_commit["liouvilleVonNeumann"] = t2_4.times
+dic_commit["evolutionOperatorIterator"] = t2_5.times
+dic_commit["master_int"] = t2_6.times
+dic_commit["master_ansatz"] = t2_7.times
 
 dic_commits[commit_hash] = dic_commit
 json_string = JSON.json(dic_commits)
 
-open("benchmark/benchmark_commits.json","w") do f 
-    write(f, json_string) 
+open("benchmark/benchmark_commits.json","w") do f
+    write(f, json_string)
 end

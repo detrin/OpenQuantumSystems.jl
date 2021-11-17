@@ -46,7 +46,7 @@ end
 
 Trace out bath degrees of freedom from `rho`
 
-``\\rho_\\text{tr} = \\operatorname{tr}_B \\{\\rho\\} = 
+``\\rho_\\text{tr} = \\operatorname{tr}_B \\{\\rho\\} =
 \\sum_{k} \\langle k \\vert \\left( \\sum_{ab} \\rho_{am, bn} \\vert am \\rangle \\langle bn \\vert \\right)\\vert k \\rangle``
 
 """
@@ -320,7 +320,7 @@ end
 """
     ad(rho_traced, rho_bath, agg, FCProd, aggIndices, vibindices)
 
-This is the inverse operation to the trace over bath [`trace_bath`](@ref) and [`get_rho_bath`](@ref) 
+This is the inverse operation to the trace over bath [`trace_bath`](@ref) and [`get_rho_bath`](@ref)
 defined as follows
 
 `` \\rho = \\operatorname{ad}\\{\\rho_\\text{tr}, \\rho_\\text{bath} \\} ``

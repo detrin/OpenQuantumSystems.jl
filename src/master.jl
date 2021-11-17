@@ -2,13 +2,13 @@
 import QuantumOpticsBase, LinearAlgebra, OrdinaryDiffEq, QuadGK, DelayDiffEq
 
 """
-    master_int(W0, tspan, Ham_0, Ham_I; 
-    \treltol=1.0e-12, abstol=1.0e-12, int_reltol=1.0e-8, int_abstol=0.0, 
+    master_int(W0, tspan, Ham_0, Ham_I;
+    \treltol=1.0e-12, abstol=1.0e-12, int_reltol=1.0e-8, int_abstol=0.0,
     \tfout=nothing, alg=DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()))
 
-Integrate Quantum Master equation 
+Integrate Quantum Master equation
 
-``\\frac{d}{d t} \\rho^{(I)}(t) = - \\frac{i}{\\hbar} [ \\hat{H}_I^{(I)}(t), \\rho^{(I)}(t_0) ] 
+``\\frac{d}{d t} \\rho^{(I)}(t) = - \\frac{i}{\\hbar} [ \\hat{H}_I^{(I)}(t), \\rho^{(I)}(t_0) ]
 -\\frac{1}{\\hbar^2} \\int_{t_0}^{t_1} \\text{d} \\tau \\: [ \\hat{H}_I^{(I)}(t), [ \\hat{H}_I^{(I)}(\\tau), \\rho^{(I)}(\\tau) ]] ``
 
 ``H = H_S + H_B + H_I = H_0 + H_I, \\quad \\hbar = 1. ``
@@ -128,14 +128,14 @@ function kernel_int(t, s, tmp, h, p, Ham_II_t, Ham_0, Ham_I)
 end
 
 """
-    master(W0, tspan, Ham; 
-    \treltol=1.0e-12, abstol=1.0e-12, int_reltol=1.0e-8, int_abstol=0.0, 
+    master(W0, tspan, Ham;
+    \treltol=1.0e-12, abstol=1.0e-12, int_reltol=1.0e-8, int_abstol=0.0,
     \tfout=nothing, alg=DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()))
 
-Integrate Quantum Master equation 
+Integrate Quantum Master equation
 
-``\\frac{d}{d t} \\rho(t) = - \\frac{i}{\\hbar} [ \\hat{H}, \\rho(t_0) ] 
--\\frac{1}{\\hbar^2} \\int_{t_0}^{t_1} \\text{d} \\tau \\: [ \\hat{H}, [ \\hat{H}, \\rho(\\tau) ]] 
+``\\frac{d}{d t} \\rho(t) = - \\frac{i}{\\hbar} [ \\hat{H}, \\rho(t_0) ]
+-\\frac{1}{\\hbar^2} \\int_{t_0}^{t_1} \\text{d} \\tau \\: [ \\hat{H}, [ \\hat{H}, \\rho(\\tau) ]]
 ,\\quad \\hbar = 1. ``
 
 # Arguments
