@@ -1,8 +1,10 @@
 using Test
 using OpenQuantumSystems
-using Random, SparseArrays, LinearAlgebra
+using Random, SparseArrays, LinearAlgebra, StableRNGs
 
 @testset "trace" begin
+
+    Random.seed!(StableRNG(0), 1)
 
     D(op1::Array, op2::Array) = abs(norm(op1 - op2))
     D(x1::StateVector, x2::StateVector) = norm(x2 - x1)
@@ -25,14 +27,14 @@ using Random, SparseArrays, LinearAlgebra
     Ham_S = getAggHamSysBath2(agg, aggInds)
     Ham_int = Ham - Ham_S
 
-    data = Matrix(Hermitian(rand(MersenneTwister(0), ComplexF64, aggIndsLen, aggIndsLen)))
+    data = Matrix(Hermitian(rand(StableRNG(0), ComplexF64, aggIndsLen, aggIndsLen)))
     rho0 = DenseOperator(basis, basis, data)
     normalize!(rho0)
 
     t = 0.0
     U_op = evolutionOperator(Ham, t)
     rho = U_op * rho0 * U_op'
-    rho_traced_ref = ComplexF64[0.38039889598242 + 0.0im 0.283694915360923 + 0.24878372528489087im 0.21967867995020274 + 0.2534875717977204im; 0.2836949153609229 - 0.2487837252848909im 0.274182220100935 - 6.5052130349130266e-18im 0.11525284205621783 + 0.2310280658876051im; 0.2196786799502027 - 0.25348757179772047im 0.11525284205621791 - 0.23102806588760508im 0.3377238162369546 - 1.5395670849294163e-17im]
+    rho_traced_ref = ComplexF64[0.30545089951602383 + 0.0im 0.14375197756961597 + 0.21658981002618588im 0.23626964940425038 + 0.1914303091850988im; 0.14375197756961597 - 0.21658981002618588im 0.30379617012935617 + 1.5178830414797062e-18im 0.15887255193342634 + 0.11195793936579877im; 0.23626964940425035 - 0.19143030918509882im 0.15887255193342636 - 0.11195793936579874im 0.4026345547478164 - 1.734723475976807e-18im]
     rho_traced = trace_bath_slow(rho, agg, FCFact, aggInds, vibindices)
     @test 1e-7 > D(rho_traced.data, rho_traced_ref)
     rho_traced =
@@ -62,8 +64,7 @@ using Random, SparseArrays, LinearAlgebra
     t = 1.0
     U_op = evolutionOperator(Ham, t)
     rho = U_op * rho0 * U_op'
-    rho_traced_ref = ComplexF64[0.38039889598241905 + 5.169466926083869e-18im 0.34873165086669033 - 0.03548586492564361im 0.36266587028487896 + 0.0005197749818330946im; 0.34873165086669045 + 0.035485864925643595im 0.25601727668867935 - 1.7027579889003e-17im 0.11949445051795352 + 0.2239460097353315im; 0.36266587028487896 - 0.0005197749818331085im 0.11949445051795347 - 0.22394600973533152im 0.33235575587167526 + 3.47901666667007e-18im]
-
+    rho_traced_ref = ComplexF64[0.30545089951602455 + 0.0im 0.27487510559103273 + 0.03248766557875096im 0.30184368281947643 - 0.05602820966070799im; 0.2748751055910327 - 0.03248766557875095im 0.2979302015891273 + 3.0612122231274e-19im 0.17734441884490892 + 0.11901706815341803im; 0.3018436828194764 + 0.05602820966070803im 0.177344418844909 - 0.11901706815341806im 0.3955255687091211 + 1.0315865594447475e-17im]
     rho_traced = trace_bath_slow(rho, agg, FCFact, aggInds, vibindices)
     @test 1e-7 > D(rho_traced.data, rho_traced_ref)
     rho_traced =

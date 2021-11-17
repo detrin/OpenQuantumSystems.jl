@@ -1,12 +1,12 @@
 using Test
-using Random, SparseArrays, LinearAlgebra
+using Random, SparseArrays, LinearAlgebra, StableRNGs
 using OpenQuantumSystems
 import DelayDiffEq
 import QuantumOpticsBase
 
 @testset "master ansatz" begin
 
-    Random.seed!(0)
+    Random.seed!(StableRNG(0), 1)
 
     D(op1::Array, op2::Array) = abs(norm(op1 - op2))
     D(x1::StateVector, x2::StateVector) = norm(x2 - x1)
