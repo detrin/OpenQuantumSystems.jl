@@ -53,9 +53,7 @@ function trace_bath(rho::Array, agg, FCProd, aggIndices, vibindices)
     elLen = length(agg.molecules)
     aggIndLen = length(aggIndices)
     vibLen = length(vibindices[2])
-    if groundState
-        elLen += 1
-    end
+    elLen += 1
     rho_traced = zeros(eltype(rho), elLen, elLen)
 
     for I = 1:aggIndLen
@@ -88,7 +86,7 @@ function trace_bath(
 end
 
 """
-    trace_bath_slow(rho, agg, FCFact, aggIndices, vibindices; groundState = false)
+    trace_bath_slow(rho, agg, FCFact, aggIndices, vibindices)
 
 Trace out bath degrees of freedom from `rho` without the product of Franck-Condon factors.
 
@@ -103,9 +101,7 @@ function trace_bath_slow(
     elLen = length(agg.molecules)
     aggIndLen = length(aggIndices)
     vibLen = length(vibindices[2])
-    if groundState
-        elLen += 1
-    end
+    elLen += 1
     rho_traced = zeros(eltype(rho), elLen, elLen)
 
     for I = 1:aggIndLen
@@ -132,8 +128,7 @@ function trace_bath_slow(
     agg,
     FCFact,
     aggIndices,
-    vibindices;
-    groundState = false,
+    vibindices
 ) where {B<:Basis,T<:Operator{B,B}}
     rho_traced = trace_bath_slow(
         rho.data,
@@ -148,7 +143,7 @@ function trace_bath_slow(
 end
 
 """
-    trace_bath(rho, a, b, agg, FCProd, aggIndices, vibindices; groundState = false)
+    trace_bath(rho, a, b, agg, FCProd, aggIndices, vibindices)
 
 Trace out bath degrees of freedom from `rho` without the product of Franck-Condon factors.
 The trace will be done only on the Hilber space for electric bra part `a` and ket part `b`.
@@ -185,7 +180,7 @@ function trace_bath(
 end
 
 """
-    trace_bath_part(rho, a, b, agg, FCProd, aggIndices, vibindices; groundState = false)
+    trace_bath_part(rho, a, b, agg, FCProd, aggIndices, vibindices)
 
 Trace out bath degrees of freedom from `rho` without the product of Franck-Condon factors.
 The trace will be done only on the Hilber space for electric bra part `a` and ket part `b`.
@@ -240,7 +235,7 @@ end
 
 
 """
-    get_rho_bath(rho, agg, FCProd, aggIndices, vibindices; groundState=false, justCopy=false)
+    get_rho_bath(rho, agg, FCProd, aggIndices, vibindices; justCopy=false)
 
 This method will return the bath part of `rho` knowing the result of [`trace_bath`](@ref) defined as follows
 
@@ -262,9 +257,7 @@ function get_rho_bath(
     vibLen = length(vibindices[end])
     aggIndLen = length(aggIndices)
     elLen = length(agg.molecules)
-    if groundState
-        elLen += 1
-    end
+    elLen += 1
     rho_bath = zeros(eltype(rho), aggIndLen, aggIndLen)
     rho_bath_ref = zeros(eltype(rho), vibLen, vibLen)
 
@@ -323,7 +316,7 @@ end
 
 
 """
-    ad(rho_traced, rho_bath, agg, FCProd, aggIndices, vibindices; groundState=false)
+    ad(rho_traced, rho_bath, agg, FCProd, aggIndices, vibindices)
 
 This is the inverse operation to the trace over bath [`trace_bath`](@ref) and [`get_rho_bath`](@ref) 
 defined as follows
@@ -342,9 +335,7 @@ function ad(
     elLen = length(agg.molecules)
     aggIndLen = length(aggIndices)
     vibLen = length(vibindices[2])
-    if groundState
-        elLen += 1
-    end
+    elLen += 1
     W = zero(rho_bath)
 
     for I = 1:aggIndLen
