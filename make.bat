@@ -39,6 +39,7 @@ IF "%1"=="docs_generate" (
 	julia --project=docs docs/make.jl local
 )
 IF "%1"=="benchmark" (
+	julia -e "using Pkg; Pkg.add(path=\"../OpenQuantumSystems.jl\")"
 	julia .\benchmark\benchmark.jl
 	python .\benchmark\benchmark_plot.py
 )
