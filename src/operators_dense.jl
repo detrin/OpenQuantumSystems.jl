@@ -60,6 +60,58 @@ CreationOperator(bl::BL, br::BR) where {BL,BR} = CreationOperator{BL,BR}(bl, br)
 CreationOperator(b::Basis) = CreationOperator(b, b)
 
 """
+    PositionOperator{BL,BR}(basis_l, basis_r)
+
+Dense position operator as a mutable struct without mass and frequency.
+
+"""
+mutable struct PositionOperator{BL<:Basis,BR<:Basis} <: DataOperator{BL,BR}
+    basis_l::BL
+    basis_r::BR
+    data::Matrix{Float64}
+    function PositionOperator{BL,BR}(
+        basis_l::BL,
+        basis_r::BR,
+    ) where {BL<:Basis,BR<:Basis}
+        # data = zeros(Float64, length(basis_l), length(basis_r))
+        creation_op = CreationOperator(basis_l, basis_r)
+        annihilation_op = AnnihilationOperator(basis_l, basis_r)
+        data = (creation_op.data + annihilation_op.data)/sqrt(2.0)
+        # new(basis_l, basis_r, data)
+        new(basis_l, basis_r, data)
+    end
+end
+
+PositionOperator(bl::BL, br::BR) where {BL,BR} = PositionOperator{BL,BR}(bl, br)
+PositionOperator(b::Basis) = PositionOperator(b, b)
+
+"""
+MomentumOperator{BL,BR}(basis_l, basis_r)
+
+Dense momentum operator as a mutable struct without mass and frequency.
+
+"""
+mutable struct MomentumOperator{BL<:Basis,BR<:Basis} <: DataOperator{BL,BR}
+    basis_l::BL
+    basis_r::BR
+    data::Matrix{ComplexF64}
+    function MomentumOperator{BL,BR}(
+        basis_l::BL,
+        basis_r::BR,
+    ) where {BL<:Basis,BR<:Basis}
+        # data = zeros(ComplexF64, length(basis_l), length(basis_r))
+        creation_op = CreationOperator(basis_l, basis_r)
+        annihilation_op = AnnihilationOperator(basis_l, basis_r)
+        data = 1im*(creation_op.data - annihilation_op.data)/sqrt(2.0)
+        # new(basis_l, basis_r, data)
+        new(basis_l, basis_r, data)
+    end
+end
+
+MomentumOperator(bl::BL, br::BR) where {BL,BR} = MomentumOperator{BL,BR}(bl, br)
+MomentumOperator(b::Basis) = MomentumOperator(b, b)
+
+"""
     ShiftOperator{BL,BR}(basis_l, basis_r, shift)
 
 Dense shift operator as a mutable struct using the definition

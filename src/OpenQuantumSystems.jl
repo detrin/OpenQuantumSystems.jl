@@ -117,6 +117,9 @@ export
     # operators_dense.jl
     AnnihilationOperator,
     CreationOperator,
+    PositionOperator,
+    MomentumOperator,
+    ShiftOperator,
     OneDenseOperator,
 
     # superoperators.jl
