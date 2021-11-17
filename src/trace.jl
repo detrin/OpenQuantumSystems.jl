@@ -1,62 +1,38 @@
 
 """
-    getFCProd(agg, FCFact, aggIndices, vibindices; groundState = false)
+    getFCProd(agg, FCFact, aggIndices, vibindices)
 
 Get product of Franck-Condon factors. This way the trace over bath will be faster
 
 """
-function getFCProd(agg, FCFact, aggIndices, vibindices; groundState = false)
+function getFCProd(agg, FCFact, aggIndices, vibindices)
     elLen = length(agg.molecules)
     aggIndLen = length(aggIndices)
     vibLen = length(vibindices[2])
-    if groundState
-        elLen += 1
-    end
+    elLen += 1
     FCProd = zeros(eltype(FCFact), aggIndLen, aggIndLen)
+    println("FCFact")
+    println(FCFact)
 
-    if !groundState
-        for I = 1:aggIndLen
-            elind1, vibind1 = aggIndices[I]
-            elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
-            if elOrder1 == 1
-                continue
-            end
+    for I = 1:aggIndLen
+        elind1, vibind1 = aggIndices[I]
+        elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
 
-            for J = 1:aggIndLen
-                elind2, vibind2 = aggIndices[J]
-                elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
-                if elOrder2 == 1
-                    continue
-                end
+        for J = 1:aggIndLen
+            elind2, vibind2 = aggIndices[J]
+            elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
+            #=
+            K1 = vibindices[elOrder1][1]
+            K2 = vibindices[elOrder1][end]
+            L1 = vibindices[elOrder2][1]
+            L2 = vibindices[elOrder2][end]
+            FCProd[I, J] = sum(FCFact[K1:K2, I] .* FCFact[J, L1:L2])
+            =#
 
-                for m = 1:vibLen
-                    K = vibindices[elOrder1][m]
-                    L = vibindices[elOrder2][m]
-                    FCProd[I, J] += FCFact[K, I] * FCFact[J, L]
-                end
-            end
-        end
-    else
-        for I = 1:aggIndLen
-            elind1, vibind1 = aggIndices[I]
-            elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
-
-            for J = 1:aggIndLen
-                elind2, vibind2 = aggIndices[J]
-                elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
-                #=
-                K1 = vibindices[elOrder1][1]
-                K2 = vibindices[elOrder1][end]
-                L1 = vibindices[elOrder2][1]
-                L2 = vibindices[elOrder2][end]
-                FCProd[I, J] = sum(FCFact[K1:K2, I] .* FCFact[J, L1:L2])
-                =#
-
-                for m = 1:vibLen
-                    K = vibindices[elOrder1][m]
-                    L = vibindices[elOrder2][m]
-                    FCProd[I, J] += FCFact[K, I] * FCFact[J, L]
-                end
+            for m = 1:vibLen
+                K = vibindices[1][m]
+                L = vibindices[1][m]
+                FCProd[I, J] += FCFact[K, I] * FCFact[J, L]
             end
         end
     end
@@ -65,7 +41,7 @@ end
 
 
 """
-    trace_bath(rho, agg, FCProd, aggIndices, vibindices; groundState = false)
+    trace_bath(rho, agg, FCProd, aggIndices, vibindices)
 
 Trace out bath degrees of freedom from `rho`
 
@@ -73,7 +49,7 @@ Trace out bath degrees of freedom from `rho`
 \\sum_{k} \\langle k \\vert \\left( \\sum_{ab} \\rho_{am, bn} \\vert am \\rangle \\langle bn \\vert \\right)\\vert k \\rangle``
 
 """
-function trace_bath(rho::Array, agg, FCProd, aggIndices, vibindices; groundState = false)
+function trace_bath(rho::Array, agg, FCProd, aggIndices, vibindices)
     elLen = length(agg.molecules)
     aggIndLen = length(aggIndices)
     vibLen = length(vibindices[2])
@@ -82,35 +58,15 @@ function trace_bath(rho::Array, agg, FCProd, aggIndices, vibindices; groundState
     end
     rho_traced = zeros(eltype(rho), elLen, elLen)
 
-    if !groundState
-        for I = 1:aggIndLen
-            elind1, vibind1 = aggIndices[I]
-            elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
-            if elOrder1 == 1
-                continue
-            end
+    for I = 1:aggIndLen
+        elind1, vibind1 = aggIndices[I]
+        elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
 
-            for J = 1:aggIndLen
-                elind2, vibind2 = aggIndices[J]
-                elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
-                if elOrder2 == 1
-                    continue
-                end
+        for J = 1:aggIndLen
+            elind2, vibind2 = aggIndices[J]
+            elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
 
-                rho_traced[elOrder1-1, elOrder2-1] += rho[I, J] * FCProd[I, J]
-            end
-        end
-    else
-        for I = 1:aggIndLen
-            elind1, vibind1 = aggIndices[I]
-            elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
-
-            for J = 1:aggIndLen
-                elind2, vibind2 = aggIndices[J]
-                elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
-
-                rho_traced[elOrder1, elOrder2] += rho[I, J] * FCProd[I, J]
-            end
+            rho_traced[elOrder1, elOrder2] += rho[I, J] * FCProd[I, J]
         end
     end
     return rho_traced
@@ -122,11 +78,10 @@ function trace_bath(
     agg,
     FCProd,
     aggIndices,
-    vibindices;
-    groundState = false,
+    vibindices
 ) where {B<:Basis,T<:Operator{B,B}}
     rho_traced =
-        trace_bath(rho.data, agg, FCProd, aggIndices, vibindices; groundState = groundState)
+        trace_bath(rho.data, agg, FCProd, aggIndices, vibindices)
     basisLen = size(rho_traced, 1)
     basis = GenericBasis([basisLen])
     return DenseOperator(basis, basis, rho_traced)
@@ -143,8 +98,7 @@ function trace_bath_slow(
     agg,
     FCFact,
     aggIndices,
-    vibindices;
-    groundState = false,
+    vibindices
 )
     elLen = length(agg.molecules)
     aggIndLen = length(aggIndices)
@@ -154,44 +108,19 @@ function trace_bath_slow(
     end
     rho_traced = zeros(eltype(rho), elLen, elLen)
 
-    if !groundState
-        for I = 1:aggIndLen
-            elind1, vibind1 = aggIndices[I]
-            elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
-            if elOrder1 == 1
-                continue
-            end
+    for I = 1:aggIndLen
+        elind1, vibind1 = aggIndices[I]
+        elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
 
-            for J = 1:aggIndLen
-                elind2, vibind2 = aggIndices[J]
-                elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
-                if elOrder2 == 1
-                    continue
-                end
+        for J = 1:aggIndLen
+            elind2, vibind2 = aggIndices[J]
+            elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
 
-                for m = 1:vibLen
-                    K = vibindices[elOrder1][m]
-                    L = vibindices[elOrder2][m]
-                    rho_traced[elOrder1-1, elOrder2-1] +=
-                        FCFact[K, I] * rho[I, J] * FCFact[J, L]
-                end
-            end
-        end
-    else
-        for I = 1:aggIndLen
-            elind1, vibind1 = aggIndices[I]
-            elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
-
-            for J = 1:aggIndLen
-                elind2, vibind2 = aggIndices[J]
-                elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
-
-                for m = 1:vibLen
-                    K = vibindices[elOrder1][m]
-                    L = vibindices[elOrder2][m]
-                    rho_traced[elOrder1, elOrder2] +=
-                        FCFact[K, I] * rho[I, J] * FCFact[J, L]
-                end
+            for m = 1:vibLen
+                K = vibindices[elOrder1][m]
+                L = vibindices[elOrder2][m]
+                rho_traced[elOrder1, elOrder2] +=
+                    FCFact[K, I] * rho[I, J] * FCFact[J, L]
             end
         end
     end
@@ -211,8 +140,7 @@ function trace_bath_slow(
         agg,
         FCFact,
         aggIndices,
-        vibindices;
-        groundState = groundState,
+        vibindices
     )
     basisLen = size(rho_traced, 1)
     basis = GenericBasis([basisLen])
@@ -271,8 +199,7 @@ function trace_bath_part(
     agg,
     FCProd,
     aggIndices,
-    vibindices;
-    groundState = false,
+    vibindices
 )
     vibLen = length(vibindices[2])
     rho_traced = eltype(rho)(0)
@@ -297,8 +224,7 @@ function trace_bath_part(
     agg,
     FCProd,
     aggIndices,
-    vibindices;
-    groundState = false,
+    vibindices
 ) where {B<:Basis,T<:Operator{B,B}}
     rho_traced = trace_bath(
         rho.data,
@@ -307,8 +233,7 @@ function trace_bath_part(
         agg,
         FCProd,
         aggIndices,
-        vibindices;
-        groundState = groundState,
+        vibindices
     )
     return rho_traced
 end
@@ -330,11 +255,10 @@ function get_rho_bath(
     FCProd,
     aggIndices,
     vibindices;
-    groundState = false,
     justCopy = false,
 )
     rho_traced =
-        trace_bath(rho, agg, FCProd, aggIndices, vibindices; groundState = groundState)
+        trace_bath(rho, agg, FCProd, aggIndices, vibindices)
     vibLen = length(vibindices[end])
     aggIndLen = length(aggIndices)
     elLen = length(agg.molecules)
@@ -343,71 +267,38 @@ function get_rho_bath(
     end
     rho_bath = zeros(eltype(rho), aggIndLen, aggIndLen)
     rho_bath_ref = zeros(eltype(rho), vibLen, vibLen)
-    if groundState
-        el1_p = 0
-        el2_p = 0
-        for el1 = 1:elLen, el2 = 1:elLen
-            if abs(rho_traced[el1, el2]) != 0
-                el1_p = el1
-                el2_p = el2
-                break
-            end
+
+    el1_p = 0
+    el2_p = 0
+    for el1 = 1:elLen, el2 = 1:elLen
+        if abs(rho_traced[el1, el2]) != 0
+            el1_p = el1
+            el2_p = el2
+            break
         end
-        vib11 = vibindices[el1_p][1]
-        vib12 = vibindices[el1_p][end]
-        vib21 = vibindices[el2_p][1]
-        vib22 = vibindices[el2_p][end]
-        rho_bath_ref[:, :] = rho[vib11:vib12, vib21:vib22] / rho_traced[el1_p, el2_p]
-        for el1 = 1:elLen, el2 = 1:elLen
-            vib11 = vibindices[el1][1]
-            vib12 = vibindices[el1][end]
-            vib21 = vibindices[el2][1]
-            vib22 = vibindices[el2][end]
-            if abs(rho_traced[el1, el2]) != 0
-                rho_bath[vib11:vib12, vib21:vib22] =
-                    rho[vib11:vib12, vib21:vib22] / rho_traced[el1, el2]
+    end
+    vib11 = vibindices[el1_p][1]
+    vib12 = vibindices[el1_p][end]
+    vib21 = vibindices[el2_p][1]
+    vib22 = vibindices[el2_p][end]
+    rho_bath_ref[:, :] = rho[vib11:vib12, vib21:vib22] / rho_traced[el1_p, el2_p]
+    for el1 = 1:elLen, el2 = 1:elLen
+        vib11 = vibindices[el1][1]
+        vib12 = vibindices[el1][end]
+        vib21 = vibindices[el2][1]
+        vib22 = vibindices[el2][end]
+        if abs(rho_traced[el1, el2]) != 0
+            rho_bath[vib11:vib12, vib21:vib22] =
+                rho[vib11:vib12, vib21:vib22] / rho_traced[el1, el2]
+        else
+            if justCopy
+                rho_bath[vib11:vib12, vib21:vib22] = rho[vib11:vib12, vib21:vib22]
             else
-                if justCopy
-                    rho_bath[vib11:vib12, vib21:vib22] = rho[vib11:vib12, vib21:vib22]
-                else
-                    rho_bath[vib11:vib12, vib21:vib22] = rho_bath_ref[:, :]
-                end
-            end
-        end
-    else
-        el1_p = 0
-        el2_p = 0
-        for el1 = 1:elLen, el2 = 1:elLen
-            if abs(rho_traced[el1, el2]) != 0
-                el1_p = el1
-                el2_p = el2
-                break
-            end
-        end
-        el1_p += 1
-        el2_p += 1
-        vib11 = vibindices[el1_p][1]
-        vib12 = vibindices[el1_p][end]
-        vib21 = vibindices[el2_p][1]
-        vib22 = vibindices[el2_p][end]
-        rho_bath_ref[:, :] = rho[vib11:vib12, vib21:vib22] / rho_traced[el1_p-1, el2_p-1]
-        for el1 = 2:elLen+1, el2 = 2:elLen+1
-            vib11 = vibindices[el1][1]
-            vib12 = vibindices[el1][end]
-            vib21 = vibindices[el2][1]
-            vib22 = vibindices[el2][end]
-            if abs(rho_traced[el1-1, el2-1]) != 0
-                rho_bath[vib11:vib12, vib21:vib22] =
-                    rho[vib11:vib12, vib21:vib22] / rho_traced[el1-1, el2-1]
-            else
-                if justCopy
-                    rho_bath[vib11:vib12, vib21:vib22] = rho[vib11:vib12, vib21:vib22]
-                else
-                    rho_bath[vib11:vib12, vib21:vib22] = rho_bath_ref[:, :]
-                end
+                rho_bath[vib11:vib12, vib21:vib22] = rho_bath_ref[:, :]
             end
         end
     end
+
     return rho_bath
 end
 
@@ -417,7 +308,6 @@ function get_rho_bath(
     FCProd,
     aggIndices,
     vibindices;
-    groundState = false,
     justCopy = false,
 ) where {B<:Basis,T<:Operator{B,B}}
     rho_data = get_rho_bath(
@@ -426,7 +316,6 @@ function get_rho_bath(
         FCProd,
         aggIndices,
         vibindices;
-        groundState = groundState,
         justCopy = justCopy,
     )
     return DenseOperator(rho.basis_l, rho.basis_r, rho_data)
@@ -449,7 +338,6 @@ function ad(
     FCProd,
     aggIndices,
     vibindices;
-    groundState = false,
 )
     elLen = length(agg.molecules)
     aggIndLen = length(aggIndices)
@@ -459,35 +347,15 @@ function ad(
     end
     W = zero(rho_bath)
 
-    if !groundState
-        for I = 1:aggIndLen
-            elind1, vibind1 = aggIndices[I]
-            elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
-            if elOrder1 == 1
-                continue
-            end
+    for I = 1:aggIndLen
+        elind1, vibind1 = aggIndices[I]
+        elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
 
-            for J = 1:aggIndLen
-                elind2, vibind2 = aggIndices[J]
-                elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
-                if elOrder2 == 1
-                    continue
-                end
+        for J = 1:aggIndLen
+            elind2, vibind2 = aggIndices[J]
+            elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
 
-                W[I, J] = rho_traced[elOrder1-1, elOrder2-1] * rho_bath[I, J]
-            end
-        end
-    else
-        for I = 1:aggIndLen
-            elind1, vibind1 = aggIndices[I]
-            elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
-
-            for J = 1:aggIndLen
-                elind2, vibind2 = aggIndices[J]
-                elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
-
-                W[I, J] = rho_traced[elOrder1, elOrder2] * rho_bath[I, J]
-            end
+            W[I, J] = rho_traced[elOrder1, elOrder2] * rho_bath[I, J]
         end
     end
     return W
@@ -499,8 +367,7 @@ function ad(
     agg,
     FCFact,
     aggIndices,
-    vibindices;
-    groundState = false,
+    vibindices
 ) where {B<:Basis,T<:Operator{B,B}}
     W = ad(
         rho_traced.data,
@@ -508,8 +375,7 @@ function ad(
         agg,
         FCFact,
         aggIndices,
-        vibindices;
-        groundState = groundState,
+        vibindices
     )
     basisLen = size(W, 1)
     basis = GenericBasis([basisLen])
@@ -522,8 +388,7 @@ function ad(
     agg,
     FCFact,
     aggIndices,
-    vibindices;
-    groundState = false,
+    vibindices
 ) where {B<:Basis,T<:Operator{B,B}}
     W = ad(
         rho_traced,
@@ -531,8 +396,7 @@ function ad(
         agg,
         FCFact,
         aggIndices,
-        vibindices;
-        groundState = groundState,
+        vibindices
     )
     basisLen = size(W, 1)
     basis = GenericBasis([basisLen])
@@ -545,8 +409,7 @@ function ad(
     agg,
     FCFact,
     aggIndices,
-    vibindices;
-    groundState = false,
+    vibindices
 ) where {B<:Basis,T<:Operator{B,B}}
     W = ad(
         rho_traced.data,
@@ -554,8 +417,7 @@ function ad(
         agg,
         FCFact,
         aggIndices,
-        vibindices;
-        groundState = groundState,
+        vibindices
     )
     basisLen = size(W, 1)
     basis = GenericBasis([basisLen])
@@ -564,7 +426,7 @@ end
 
 
 """
-    correlation_function(t, rho0_bath, Ham_0, Ham_I, agg, FCProd, aggInds, vibindices; groundState = true)
+    correlation_function(t, rho0_bath, Ham_0, Ham_I, agg, FCProd, aggInds, vibindices)
 
 Get time dependent correlation function for a specified time `t` using following definition
 
@@ -579,10 +441,9 @@ function correlation_function(
     agg,
     FCProd,
     aggInds,
-    vibindices;
-    groundState = true,
+    vibindices
 )
     Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
     prod = Ham_II_t * Ham_I * rho0_bath
-    return trace_bath(prod, agg, FCProd, aggInds, vibindices; groundState = groundState)
+    return trace_bath(prod, agg, FCProd, aggInds, vibindices)
 end
