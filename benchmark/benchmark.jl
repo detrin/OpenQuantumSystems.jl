@@ -14,8 +14,6 @@ using DataFrames
 using JSON
 using Git
 
-Random.seed!(0)
-
 import OrdinaryDiffEq, DiffEqCallbacks, DelayDiffEq
 import SparseArrays: sparse
 import QuantumOpticsBase
