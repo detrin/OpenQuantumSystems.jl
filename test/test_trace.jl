@@ -40,7 +40,6 @@ using Random, SparseArrays, LinearAlgebra
         0.21967867995020277 - 0.2534875717977205im 0.11525284205621782 - 0.23102806588760527im 0.3377238162369547 - 1.3769367590565906e-17im
     ]
     rho_traced = trace_bath_slow(rho, agg, FCFact, aggInds, vibindices)
-    println(rho_traced.data)
     @test 1e-14 > D(rho_traced.data, rho_traced_ref)
     rho_traced =
         trace_bath_slow(rho.data, agg, FCFact, aggInds, vibindices)
