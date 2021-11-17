@@ -65,8 +65,7 @@ t1_1 = @benchmark begin
     b = GenericBasis([aggIndLen])
     b_sys = GenericBasis([size(Ham_sys, 1)])
     b_bath = GenericBasis([size(Ham_bath, 1)])
-    println(size(Ham.data))
-    println(size(FCFact))
+
     Ham_int = getAggHamiltonianInteraction(agg, aggIndices, FCFact)
     Ham_S = Ham - Ham_int
     b_sys = GenericBasis([size(Ham_sys, 1)])

@@ -11,8 +11,8 @@ function getFCProd(agg, FCFact, aggIndices, vibindices)
     vibLen = length(vibindices[2])
     elLen += 1
     FCProd = zeros(eltype(FCFact), aggIndLen, aggIndLen)
-    println("FCFact")
-    println(FCFact)
+    # println("FCFact")
+    # println(FCFact)
 
     for I = 1:aggIndLen
         elind1, vibind1 = aggIndices[I]
