@@ -1,4 +1,4 @@
-name: CI-short
+name: CI short
 on:
   push:
     branches:
