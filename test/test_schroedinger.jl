@@ -106,11 +106,11 @@ import OrdinaryDiffEq
     mol1 = Molecule([mode1], 2, Energy)
     mol2 = Molecule([mode1], 2, Energy)
     agg = Aggregate([mol1, mol2])
-    aggInds = getIndices(agg; groundState = false)
+    aggInds = getIndices(agg)
     aggIndsLen = length(aggInds)
     basis = GenericBasis([aggIndsLen])
-    FCFact = getFranckCondonFactors(agg, aggInds; groundState = false)
-    Ham = getAggHamiltonian(agg, aggInds, FCFact; groundState = false)
+    FCFact = getFranckCondonFactors(agg, aggInds)
+    Ham = getAggHamiltonian(agg, aggInds, FCFact)
 
     ket0 = randstate(basis)
     ket0 = Ket(basis)
@@ -131,7 +131,7 @@ import OrdinaryDiffEq
     for t_i = 1:length(tspan)
         U_op = evolutionOperator(Ham, tspan[t_i])
         ket = U_op * ket0
-        @test 1e-11 > D(ket, rho_t[t_i])
+        @test 1e-8 > D(ket, rho_t[t_i])
         # println(t_i, " ", D(ket.data, rho_t[t_i].data))
     end
 

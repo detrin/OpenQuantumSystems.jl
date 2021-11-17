@@ -14,7 +14,7 @@ function master_ansatz(
 ) where {B<:Basis,T<:Operator{B,B}}
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
     # (du,u,h,p,t)
-    Ham_S, Ham_int, H_lambda, H_S, H_Sinv, Ham_B, W0, W0_bath, agg, FCProd, aggIndices, vibindices, groundState, elementtype = p
+    Ham_S, Ham_int, H_lambda, H_S, H_Sinv, Ham_B, W0, W0_bath, agg, FCProd, aggIndices, vibindices, elementtype = p
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
     tmp3 = copy(W0.data)
