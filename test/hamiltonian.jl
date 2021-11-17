@@ -18,10 +18,10 @@ for mol_i = 2:length(agg.molecules)
     agg.coupling[mol_i+1, mol_i] = 100
 end
 
-aggInds = getIndices(agg; groundState = true)
+aggInds = getIndices(agg)
 aggIndLen = length(aggInds)
 base = GenericBasis([aggIndLen])
-FCFact = getFranckCondonFactors(agg, aggInds; groundState = true)
-Ham = getAggHamiltonian(agg, aggInds, FCFact; groundState = true, groundEnergy = true)
+FCFact = getFranckCondonFactors(agg, aggInds)
+Ham = getAggHamiltonian(agg, aggInds, FCFact; groundEnergy = true)
 println(size(Ham.data))
 writedlm("test/hamiltonian.csv", Ham.data, ',')

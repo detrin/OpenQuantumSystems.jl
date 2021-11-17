@@ -29,8 +29,10 @@ if length(unavailable_tests) != 0
     error("The following tests could not be found:\n", join(unavailable_tests, "\n"))
 end
 
-# names = ["test_initial_state.jl"]
-
+if length(ARGS) != 0
+    names = map(x -> "test_" * x * ".jl", ARGS)
+end
+# names = ["test_trace.jl"]
 for name in names
     if startswith(name, "test_") && endswith(name, ".jl")
         include(name)

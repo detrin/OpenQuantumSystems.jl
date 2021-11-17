@@ -12,6 +12,9 @@ IF "%1"=="remove" (
 IF "%1"=="tests" (
     julia --project -e "using Pkg; Pkg.build(); Pkg.test()"
 )
+IF "%1"=="test" (
+    julia --project -e "using Pkg; Pkg.build(); Pkg.test(test_args = [\""%2"\"])"
+)
 IF "%1"=="test_dev" (
     julia test/runtests_dev.jl
 )
@@ -35,3 +38,9 @@ IF "%1"=="format" (
 IF "%1"=="docs_generate" (
 	julia --project=docs docs/make.jl local
 )
+IF "%1"=="benchmark" (
+	julia -e "using Pkg; Pkg.add(path=\"../OpenQuantumSystems.jl\")"
+	julia .\benchmark\benchmark.jl
+	python .\benchmark\benchmark_plot.py
+)
+:: Set-Alias -Name julia1.7 -Value C:\Users\daniel.herman\AppData\Local\Programs\Julia-1.7.0-rc3\bin\julia.exe

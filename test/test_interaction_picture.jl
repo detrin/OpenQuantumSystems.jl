@@ -16,18 +16,18 @@ using SparseArrays, LinearAlgebra
     mol1 = Molecule([mode1], 2, Energy)
     mol2 = Molecule([mode1], 2, Energy)
     agg = Aggregate([mol1, mol2])
-    aggInds = getIndices(agg; groundState = false)
+    aggInds = getIndices(agg)
     aggIndsLen = length(aggInds)
     basis = GenericBasis([aggIndsLen])
-    FCFact = getFranckCondonFactors(agg, aggInds; groundState = false)
-    Ham = getAggHamiltonian(agg, aggInds, FCFact; groundState = false)
+    FCFact = getFranckCondonFactors(agg, aggInds)
+    Ham = getAggHamiltonian(agg, aggInds, FCFact)
 
     Ham_bath = getAggHamiltonianBath(agg)
-    Ham_sys = getAggHamiltonianSystem(agg; groundState = false)
+    Ham_sys = getAggHamiltonianSystem(agg)
     b_sys = GenericBasis([size(Ham_sys, 1)])
     b_bath = GenericBasis([size(Ham_bath, 1)])
 
-    Ham_int = getAggHamiltonianInteraction(agg, aggInds, FCFact; groundState = false)
+    Ham_int = getAggHamiltonianInteraction(agg, aggInds, FCFact)
     Ham_S = Ham - Ham_int
 
     H_lambda, H_S = eigen(Ham_S.data)
