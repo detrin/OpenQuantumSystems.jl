@@ -32,7 +32,7 @@ end
 if length(ARGS) != 0
     names = map(x -> "test_" * x * ".jl", ARGS)
 end
-names = ["test_trace.jl"]
+# names = ["test_trace.jl"]
 for name in names
     if startswith(name, "test_") && endswith(name, ".jl")
         include(name)
