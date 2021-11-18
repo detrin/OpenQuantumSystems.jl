@@ -501,7 +501,6 @@ function getAggHamInteraction(
             agg_coeffs[mol_i][mode_i] = agg_shifts[mol_i][mode_i] * sqrt(agg_frequencies[mol_i][mode_i] / 2)
         end
     end
-    println(agg_coeffs)
 
     for I = 1:aggIndLen
         elind1, vibind1 = aggIndices[I]
@@ -527,14 +526,13 @@ function getAggHamInteraction(
                 end
             end
 
-            if diff_num != 1
+            if diff_num != 1 || mol_j != elOrder1
                 continue
             end
             vib_n = vibind1[mol_j][mode_j]
             vib_m = vibind2[mol_j][mode_j]
             coeff = agg_coeffs[mol_j][mode_j]
-            println(I, " ", J, " ", vibind1, " ", vibind2, " ", diff_num, " ", mol_j, " ", mode_j)
-            println(- coeff * sqrt(min(vib_n, vib_m)))
+
             Ham_I[I, J] = - coeff * sqrt(min(vib_n, vib_m))
         end
     end
