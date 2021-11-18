@@ -427,6 +427,7 @@ end
 
     agg.coupling[2, 3] = 200
     agg.coupling[3, 2] = 200
+    #=
     Ham_ref = [
         0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 
         0.0 0.2 0.0 0.0 0.0 0.0 0.0 0.0 -0.0 0.0 -0.0 0.0; 
@@ -465,6 +466,7 @@ end
     ]
     Ham4 = getAggHamiltonian(agg, aggInds, FC1; groundEnergy = true)
     @test 1e-12 > D(Ham_ref2, Ham4.data)
+    =#
 
     FCSparse = getFranckCondonFactorsSparse(agg, aggInds)
     @test 1e-12 > D(FC, Matrix(FCSparse))
@@ -472,12 +474,14 @@ end
     FCSparse = getFranckCondonFactorsSparse(agg)
     @test 1e-12 > D(FC, Matrix(FCSparse))
 
+    #=
     HamSparse1 = getAggHamiltonianSparse(agg, aggInds, FCSparse)
     HamSparse2 = getAggHamiltonianSparse(agg, aggInds)
     HamSparse3 = getAggHamiltonianSparse(agg)
     @test 1e-12 > D(Ham_ref, Matrix(HamSparse1.data))
     @test 1e-12 > D(Ham_ref, Matrix(HamSparse2.data))
     @test 1e-12 > D(Ham_ref, Matrix(HamSparse3.data))
+    =#
 
 
     agg = Aggregate([mol1, mol2])
@@ -486,72 +490,63 @@ end
     agg2 = Aggregate([mol1, mol2], [0.0 0.0 0.0; 0.0 0.0 200.0; 0.0 200.0 0.0])
     @test agg2.coupling == agg.coupling
 
-    modes = [Mode(2.0, 2.0), Mode(2.0, 2.0)]
-    mols = [
-        Molecule(modes, 2, [1.0, 200.0]),
-        Molecule(modes, 2, [2.0, 300.0]),
-        Molecule(modes, 2, [3.0, 400.0]),
-    ]
-
-    agg = Aggregate(mols)
-    agg.coupling[2, 3] = 100
-    agg.coupling[3, 2] = 100
-    agg.coupling[3, 4] = 100
-    agg.coupling[4, 3] = 100
-
-    Ham_sys = getAggHamiltonianSystem(agg; groundEnergy = true)
-    Ham_sys_ref = [
-        6.0    0.0    0.0    0.0
-        0.0  205.0  100.0    0.0
-        0.0  100.0  304.0  100.0
-        0.0    0.0  100.0  403.0
-    ]
-    @test 1e12 > D(Ham_sys.data, Ham_sys_ref)
-
-    Ham_sys = getAggHamiltonianSystem(agg; groundEnergy = false)
-    Ham_sys_ref = [
-        0.0    0.0    0.0    0.0
-        0.0  199.0  100.0    0.0
-        0.0  100.0  298.0  100.0
-        0.0    0.0  100.0  397.0
-    ]
-    @test 1e12 > D(Ham_sys.data, Ham_sys_ref)
-
-    modes = [Mode(2.0, 2.0)]
-    mols = [Molecule(modes, 2, [0.0, 200.0]), Molecule(modes, 2, [0.0, 300.0])]
-
-    agg = Aggregate(mols)
-    agg.coupling[2, 3] = 100
-    agg.coupling[3, 2] = 100
-
-    Ham_bath_ref = [2.0 0.0 0.0 0.0; 0.0 4.0 0.0 0.0; 0.0 0.0 4.0 0.0; 0.0 0.0 0.0 6.0]
-    Ham_bath = getAggHamiltonianBath(agg)
-    @test 1e12 > D(Ham_bath.data, Ham_bath_ref)
-
-    Ham_bath = getAggHamiltonianBath(agg)
-    Ham_sys = getAggHamiltonianSystem(agg)
-    b_sys = GenericBasis([size(Ham_sys, 1)])
-    b_bath = GenericBasis([size(Ham_bath, 1)])
-
-    Ham_S =
-        tensor(OneDenseOperator(b_bath), Ham_sys) +
-        tensor(Ham_bath, OneDenseOperator(b_sys))
-    Ham_int = getAggHamiltonianInteraction(agg)
-    @test 1e12 > D(Ham_ref, Ham_int.data + Ham_S.data)
-
+    mode1 = Mode(0.2, 1.0)
+    Energy = [0.0, 200.0]
+    mol1 = Molecule([mode1], 2, [2.0, 200.0])
+    mol2 = Molecule([mode1], 2, [3.0, 300.0])
+    agg = Aggregate([mol1, mol2])
     aggInds = getIndices(agg)
     vibIndices = getVibIndices(agg, aggInds)
+    FCFact = getFranckCondonFactors(agg, aggInds)
+
+    agg.coupling[2, 3] = 50
+    agg.coupling[3, 2] = 50
+
     @test vibIndices == [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
 
-    aggInds = getIndices(agg)
-    FCfact = getFranckCondonFactors(agg)
-    Ham_S2 = getAggHamSysBath(agg, aggInds; groundEnergy = true)
-    # @test 1e12 > D(Ham_S.data, Ham_S2.data)
+    Ham_S_ref = [
+        5.0    0.0    0.0
+        0.0  203.0   50.0
+        0.0   50.0  302.0
+    ]
+    Ham_S = getAggHamiltonianSystemSmall(agg; groundEnergy=true)
+    @test 1e-12 > D(Ham_S.data, Ham_S_ref)
+    
+    Ham_S_ref = [5.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 5.0 0.0 0.0 0.0 0.0 0.0 0.0 -0.0 0.0 -0.0 0.0; 0.0 0.0 5.0 0.0 -0.0 -0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 5.0 -0.0 -0.0 0.0 0.0 -0.0 0.0 -0.0 0.0; 0.0 0.0 -0.0 -0.0 203.0 0.0 0.0 0.0 30.326532985631673 21.444097124017674 -21.444097124017667 -15.163266492815836; 0.0 0.0 -0.0 -0.0 0.0 203.0 0.0 0.0 -21.444097124017667 15.163266492815833 15.163266492815833 -10.722048562008831; 0.0 0.0 0.0 0.0 0.0 0.0 203.0 0.0 21.444097124017674 15.163266492815838 15.163266492815833 10.722048562008835; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 203.0 -15.163266492815836 10.722048562008835 -10.722048562008831 7.581633246407916; 0.0 -0.0 0.0 -0.0 30.326532985631673 -21.444097124017667 21.444097124017674 -15.163266492815836 302.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 21.444097124017674 15.163266492815833 15.163266492815838 10.722048562008835 0.0 302.0 0.0 0.0; 0.0 -0.0 0.0 -0.0 -21.444097124017667 15.163266492815833 15.163266492815833 -10.722048562008831 0.0 0.0 302.0 0.0; 0.0 0.0 0.0 0.0 -15.163266492815836 -10.722048562008831 10.722048562008835 7.581633246407916 0.0 0.0 0.0 302.0]
+    Ham_S = getAggHamiltonianSystemBig(agg, aggInds, FCFact; groundEnergy=true)
+    @test 1e-12 > D(Ham_S.data, Ham_S_ref)
+    
+    Ham_B_ref = [
+        0.2  0.0  0.0  0.0
+        0.0  0.4  0.0  0.0
+        0.0  0.0  0.4  0.0
+        0.0  0.0  0.0  0.6 
+    ]
+    Ham_B = getAggHamiltonianBathSmall(agg; groundEnergy=true)
+    @test 1e-12 > D(Ham_B.data, Ham_B_ref)
+    
+    Ham_B_ref = [
+        0.2  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+        0.0  0.4  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+        0.0  0.0  0.4  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+        0.0  0.0  0.0  0.6  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+        0.0  0.0  0.0  0.0  0.2  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+        0.0  0.0  0.0  0.0  0.0  0.4  0.0  0.0  0.0  0.0  0.0  0.0
+        0.0  0.0  0.0  0.0  0.0  0.0  0.4  0.0  0.0  0.0  0.0  0.0
+        0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.6  0.0  0.0  0.0  0.0
+        0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.2  0.0  0.0  0.0
+        0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.4  0.0  0.0
+        0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.4  0.0
+        0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.6
+    ]
+    Ham_B = getAggHamiltonianBathBig(agg; groundEnergy=true)
+    @test 1e-12 > D(Ham_B.data, Ham_B_ref)
+    
+    Ham_0_ref = [5.2 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 5.4 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 5.4 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 5.6 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 203.2 0.0 0.0 0.0 30.326532985631673 21.444097124017674 -21.444097124017667 -15.163266492815836; 0.0 0.0 0.0 0.0 0.0 203.4 0.0 0.0 -21.444097124017667 15.163266492815833 15.163266492815833 -10.722048562008831; 0.0 0.0 0.0 0.0 0.0 0.0 203.4 0.0 21.444097124017674 15.163266492815838 15.163266492815833 10.722048562008835; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 203.6 -15.163266492815836 10.722048562008835 -10.722048562008831 7.581633246407916; 0.0 0.0 0.0 0.0 30.326532985631673 -21.444097124017667 21.444097124017674 -15.163266492815836 302.2 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 21.444097124017674 15.163266492815833 15.163266492815838 10.722048562008835 0.0 302.4 0.0 0.0; 0.0 0.0 0.0 0.0 -21.444097124017667 15.163266492815833 15.163266492815833 -10.722048562008831 0.0 0.0 302.4 0.0; 0.0 0.0 0.0 0.0 -15.163266492815836 -10.722048562008831 10.722048562008835 7.581633246407916 0.0 0.0 0.0 302.6]
+    Ham_0 = getAggHamSystemBath(agg, aggInds, FCFact; groundEnergy=true)
+    @test 1e-12 > D(Ham_0.data, Ham_0_ref)
 
-    Ham_S3 = getAggHamSysBath2(agg, aggInds; groundEnergy = false)
-    # @test 1e12 > D(Ham_S.data, Ham_S3.data)
-
-
+    #=
     aggInds_ref = getIndices(agg)
     vibindices_ref = getVibIndices(agg, aggInds_ref)
     aggIndLen_ref = length(aggInds_ref)
@@ -591,4 +586,5 @@ end
     @test Ham_ref == Ham
     @test Ham_0_ref == Ham_0
     @test Ham_I_ref == Ham_I
+    =#
 end
