@@ -181,3 +181,39 @@ function getMolStateFC(
     end
     return fc
 end
+
+"""
+    getMolShifts(mol)
+
+Get shifts of every mode on the [`Molecule`](@ref) state.
+
+# Arguments
+* `mol`: Instance of [`Molecule`](@ref).
+"""
+function getMolShifts(
+    mol::Molecule{T,C1,C2},
+) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
+    shifts = Array{C1,1}(undef, 0)
+    for mode in mol.modes
+        push!(shifts, mode.shift)
+    end
+    return shifts
+end
+
+"""
+    getMolFrequencies(mol)
+
+Get shifts of every mode on the [`Molecule`](@ref) state.
+
+# Arguments
+* `mol`: Instance of [`Molecule`](@ref).
+"""
+function getMolFrequencies(
+    mol::Molecule{T,C1,C2},
+) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
+    frquencies = Array{C1,1}(undef, 0)
+    for mode in mol.modes
+        push!(frquencies, mode.omega)
+    end
+    return frquencies
+end

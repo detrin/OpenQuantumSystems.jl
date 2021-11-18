@@ -44,6 +44,38 @@ function getNvib(
 end
 
 """
+    getShifts(agg)
+
+Get shifts for every mode on each molecule in the [`Aggregate`](@ref).
+
+"""
+function getShifts(
+    agg::Aggregate{T,C1,C2},
+) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
+    shifts = Array{Array{C1,1},1}(undef, 0)
+    for mol in agg.molecules
+        push!(shifts, getMolShifts(mol))
+    end
+    return shifts
+end
+
+"""
+    getFrequencies(agg)
+
+Get frequencies for every mode on each molecule in the [`Aggregate`](@ref).
+
+"""
+function getFrequencies(
+    agg::Aggregate{T,C1,C2},
+) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
+    frequencies = Array{Array{C1,1},1}(undef, 0)
+    for mol in agg.molecules
+        push!(frequencies, getMolFrequencies(mol))
+    end
+    return frequencies
+end
+
+"""
     vibrationalIndices(agg)
 
 Get all vibrational indices of the [`Aggregate`](@ref).
@@ -224,14 +256,14 @@ function elIndOrder(elInd::Vector{T}) where {T<:Integer}
 end
 
 """
-    getAggHamiltonianSystemSmall(agg)
+    getAggHamSystemSmall(agg)
 
 Get Hamiltonian of the system, ``H_S`` only for ``\\mathcal{H}_S``.
 
 # Arguments
 * `agg`: Instance of [`Aggregate`](@ref).
 """
-function getAggHamiltonianSystemSmall(
+function getAggHamSystemSmall(
     agg::Aggregate{T,C1,C2};
     groundEnergy::Bool = true,
 ) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
@@ -263,14 +295,14 @@ function getAggHamiltonianSystemSmall(
 end
 
 """
-    getAggHamiltonianSystemBig(agg)
+    getAggHamSystemBig(agg)
 
 Get Hamiltonian of the system, ``H_S`` for ``\\mathcal{H}_S \\otimes \\mathcal{H}_B``.
 
 # Arguments
 * `agg`: Instance of [`Aggregate`](@ref).
 """
-function getAggHamiltonianSystemBig(
+function getAggHamSystemBig(
     agg::Aggregate{T,C1,C2},
     aggIndices::Any,
     franckCondonFactors::Any;
@@ -284,7 +316,7 @@ function getAggHamiltonianSystemBig(
     if franckCondonFactors === nothing
         franckCondonFactors = getFranckCondonFactors(agg, aggIndices)
     end
-    Ham_sys = getAggHamiltonianSystemSmall(agg; groundEnergy = groundEnergy)
+    Ham_sys = getAggHamSystemSmall(agg; groundEnergy = groundEnergy)
     Ham = zeros(C2, (aggIndLen, aggIndLen))
     for I = 1:aggIndLen
         elind1, vibind1 = aggIndices[I]
@@ -307,12 +339,12 @@ function getAggHamiltonianSystemBig(
 end
 
 """
-    getAggHamiltonianBathSmall(agg)
+    getAggHamBathSmall(agg)
 
 Get Hamiltonian of the bath, ``H_B`` only for ``\\mathcal{H}_B``.
 
 """
-function getAggHamiltonianBathSmall(
+function getAggHamBathSmall(
     agg::Aggregate{T,C1,C2};
     groundEnergy::Bool = true
 ) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
@@ -326,7 +358,7 @@ function getAggHamiltonianBathSmall(
         agg2.molecules[mol_i].E[1] = 0.0
     end
     elind = fill(1, (molLen + 1))
-    Ham_sys = getAggHamiltonianSystemSmall(agg)
+    Ham_sys = getAggHamSystemSmall(agg)
     for I = 1:vibIndsLen
         vibind = vibInds[I]
         Ham_bath[I, I] = getAggStateEnergy(agg, elind, vibind) - Ham_sys.data[1, 1]
@@ -342,12 +374,12 @@ function getAggHamiltonianBathSmall(
 end
 
 """
-    getAggHamiltonianBathBig(agg)
+    getAggHamBathBig(agg)
 
 Get Hamiltonian of the bath, ``H_B`` only for ``\\mathcal{H}_S \\otimes \\mathcal{H}_B``.
 
 """
-function getAggHamiltonianBathBig(
+function getAggHamBathBig(
     agg::Aggregate{T,C1,C2};
     groundEnergy::Bool = true
 ) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
@@ -355,8 +387,8 @@ function getAggHamiltonianBathBig(
     aggIndLen = length(aggIndices)
     b = GenericBasis([aggIndLen])
 
-    Ham_bath = getAggHamiltonianBathSmall(agg)
-    Ham_sys = getAggHamiltonianSystemSmall(agg)
+    Ham_bath = getAggHamBathSmall(agg)
+    Ham_sys = getAggHamSystemSmall(agg)
     b_sys = GenericBasis([size(Ham_sys, 1)])
     one_sys = OneDenseOperator(b_sys)
     # TODO: optimise types in future
@@ -374,8 +406,8 @@ end
 """
     getAggHamSystemBath(agg, aggIndices, 
     \tfranckCondonFactors; groundEnergy = false)
-    getAggHamiltonian(agg, aggIndices; groundEnergy = false)
-    getAggHamiltonian(agg; groundEnergy = false)
+    getAggHamSystemBath(agg, aggIndices; groundEnergy = false)
+    getAggHamSystemBath(agg; groundEnergy = false)
 
 Get Hamiltonian of the [`Aggregate`](@ref) in a form of DenseOperator.
 
@@ -399,17 +431,16 @@ function getAggHamSystemBath(
         franckCondonFactors = getFranckCondonFactors(agg, aggIndices)
     end
     
-    Ham_B = getAggHamiltonianBathBig(agg; groundEnergy=true)
-    Ham_S = getAggHamiltonianSystemBig(agg, aggIndices, franckCondonFactors; groundEnergy=true)
-
+    Ham_B = getAggHamBathBig(agg; groundEnergy=true)
+    Ham_S = getAggHamSystemBig(agg, aggIndices, franckCondonFactors; groundEnergy=true)
+    Ham_0 = Ham_B + Ham_S
     if !groundEnergy
-        E0 = Ham[1, 1]
+        E0 = Ham_0.data[1, 1]
         for I = 1:aggIndLen
-            Ham[I, I] -= E0
+            Ham_0.data[I, I] -= E0
         end
     end
-    b = GenericBasis([aggIndLen])
-    return Ham_B + Ham_S
+    return Ham_0
 end
 
 getAggHamSystemBath(
@@ -434,10 +465,10 @@ getAggHamSystemBath(
 )
 
 """
-    getAggHamiltonianInteraction(agg, aggIndices, franckCondonFactors; 
+    getAggHamInteraction(agg, aggIndices, franckCondonFactors; 
     \t, groundEnergy = false)
-    getAggHamiltonianInteraction(agg, aggIndices; groundEnergy = false)
-    getAggHamiltonianInteraction(agg; groundEnergy = false)
+    getAggHamInteraction(agg, aggIndices; groundEnergy = false)
+    getAggHamInteraction(agg; groundEnergy = false)
 
 Get interation Hamiltonian of the [`Aggregate`](@ref), ``H_I`` by substracting 
 Hamiltonian and Hamiltonian of the systems and of the bath, ``H - H_S - H_B``.
@@ -447,7 +478,7 @@ Hamiltonian and Hamiltonian of the systems and of the bath, ``H - H_S - H_B``.
 * `aggIndices`: Aggregate indices generated by [`getIndices`](@ref).
 * `franckCondonFactors`: Franck-Condon factors generated by [`getFranckCondonFactors`](@ref).
 """
-function getAggHamiltonianInteraction(
+function getAggHamInteraction(
     agg::Aggregate{T,C1,C2},
     aggIndices::Any,
     franckCondonFactors::Any
@@ -460,35 +491,120 @@ function getAggHamiltonianInteraction(
     if franckCondonFactors === nothing
         franckCondonFactors = getFranckCondonFactors(agg, aggIndices)
     end
-    Ham = getAggHamiltonian(
-        agg,
-        aggIndices,
-        franckCondonFactors;
-        groundEnergy = true,
-    )
+    Ham_I = zeros(C2, (aggIndLen, aggIndLen))
+    agg_shifts = getShifts(agg)
+    agg_frequencies = getShifts(agg)
+    agg_coeffs = deepcopy(agg_frequencies)
+    for mol_i = 1:length(agg.molecules)
+        mol = agg.molecules[mol_i]
+        for mode_i = 1:length(mol.modes)
+            agg_coeffs[mol_i][mode_i] = agg_shifts[mol_i][mode_i] * sqrt(agg_frequencies[mol_i][mode_i] / 2)
+        end
+    end
+    println(agg_coeffs)
 
-    Ham_S =
-        getAggHamSysBath(agg, aggIndices; groundEnergy = true)
-    H_int = Ham.data - Ham_S.data
+    for I = 1:aggIndLen
+        elind1, vibind1 = aggIndices[I]
+        elOrder1 = elIndOrder(elind1)
+        if elOrder1 == 1
+            continue
+        end
+        for J = 1:aggIndLen
+            elind2, vibind2 = aggIndices[J]
+            elOrder2 = elIndOrder(elind2)
+            if elOrder2 == 1 || elOrder1 != elOrder2
+                continue
+            end
+            diff_num = 0; mol_j = 0; mode_j = 0
+            for mol_i = 1:length(agg.molecules)
+                mol = agg.molecules[mol_i]
+                for mode_i = 1:length(mol.modes)
+                    diff_vib = abs(vibind1[mol_i][mode_i] - vibind2[mol_i][mode_i])
+                    diff_num += diff_vib
+                    if diff_vib == 1 && diff_num == 1
+                        mol_j = mol_i; mode_j = mode_i;
+                    end
+                end
+            end
+
+            if diff_num != 1
+                continue
+            end
+            vib_n = vibind1[mol_j][mode_j]
+            vib_m = vibind2[mol_j][mode_j]
+            coeff = agg_coeffs[mol_j][mode_j]
+            println(I, " ", J, " ", vibind1, " ", vibind2, " ", diff_num, " ", mol_j, " ", mode_j)
+            println(- coeff * sqrt(min(vib_n, vib_m)))
+            Ham_I[I, J] = - coeff * sqrt(min(vib_n, vib_m))
+        end
+    end
     b = GenericBasis([aggIndLen])
-    return DenseOperator(b, b, H_int)
+    return DenseOperator(b, b, Ham_I)
 end
 
-getAggHamiltonianInteraction(
+getAggHamInteraction(
     agg::Aggregate{T,C1,C2}
-) where {T<:Integer,C1<:ComputableType,C2<:ComputableType} = getAggHamiltonianInteraction(
+) where {T<:Integer,C1<:ComputableType,C2<:ComputableType} = getAggHamInteraction(
     agg::Aggregate{T,C1,C2},
     nothing,
-    nothing;
+    nothing
 )
 
-getAggHamiltonianInteraction(
+getAggHamInteraction(
     agg::Aggregate{T,C1,C2},
     aggIndices::Any
-) where {T<:Integer,C1<:ComputableType,C2<:ComputableType} = getAggHamiltonianInteraction(
+) where {T<:Integer,C1<:ComputableType,C2<:ComputableType} = getAggHamInteraction(
     agg::Aggregate{T,C1,C2},
     aggIndices,
-    nothing;
+    nothing
+)
+
+"""
+    getAggHamiltonian(agg, aggIndices, franckCondonFactors; 
+    \t, groundEnergy = false)
+    getAggHamiltonian(agg, aggIndices; groundEnergy = false)
+    getAggHamiltonian(agg; groundEnergy = false)
+
+Get Hamiltonian of the [`Aggregate`](@ref).
+
+# Arguments
+* `agg`: Instance of [`Aggregate`](@ref).
+* `aggIndices`: Aggregate indices generated by [`getIndices`](@ref).
+* `franckCondonFactors`: Franck-Condon factors generated by [`getFranckCondonFactors`](@ref).
+"""
+function getAggHamiltonian(
+    agg::Aggregate{T,C1,C2},
+    aggIndices::Any,
+    franckCondonFactors::Any
+) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
+    if aggIndices === nothing
+        aggIndices = getIndices(agg)
+    end
+    aggIndLen = length(aggIndices)
+    molLen = length(agg.molecules)
+    if franckCondonFactors === nothing
+        franckCondonFactors = getFranckCondonFactors(agg, aggIndices)
+    end
+    Ham_I = getAggHamInteraction(agg, aggIndices, franckCondonFactors)
+    Ham_0 = getAggHamSystemBath(agg, aggIndices, franckCondonFactors)
+    return Ham_0 + Ham_I 
+end
+
+getAggHamiltonian(
+    agg::Aggregate{T,C1,C2}
+) where {T<:Integer,C1<:ComputableType,C2<:ComputableType} = getAggHamiltonian(
+    agg::Aggregate{T,C1,C2},
+    nothing,
+    nothing
+)
+
+getAggHamiltonian(
+    agg::Aggregate{T,C1,C2},
+    aggIndices::Any
+) where {T<:Integer,C1<:ComputableType,C2<:ComputableType} = getAggHamiltonian(
+    agg::Aggregate{T,C1,C2},
+    aggIndices,
+    nothing
 )
 
 ### Sparse versions
