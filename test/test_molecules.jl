@@ -84,4 +84,13 @@ using LinearAlgebra
     mol1.E = [0.0, 200.0]
     mol1 = updateMolecule(mol1)
     @test mol1.E == mol2.E
+
+    mode1 = Mode(0.2, 1.0)
+    mode2 = Mode(0.4, 2.0)
+    Energy = [0.0, 200.0]
+    mol1 = Molecule([mode1, mode2], 3, Energy)
+
+    @test getMolShifts(mol1) == [1.0, 2.0]
+    @test getMolFrequencies(mol1) == [0.2, 0.4]
+    
 end
