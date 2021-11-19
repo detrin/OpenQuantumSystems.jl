@@ -13,6 +13,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     D(op1::AbstractSuperOperator, op2::AbstractSuperOperator) =
         abs(tracedistance_nh(dense(op1), dense(op2)))
 
+    # TODO: change to macro
     mode1 = Mode(0.2, 1.0)
     Energy = [0.0, 200.0]
     mol1 = Molecule([mode1], 2, Energy)
@@ -63,9 +64,9 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     U_sop1 = evolutionSuperOperator(Ham, 0.0)
     U_sop2 = evolutionSuperOperator(Ham, 0.5)
     U_sop3 = evolutionSuperOperator(Ham, 1.0)
-    @test 1e-12 > D(U_sop_array[1], U_sop1)
-    @test 1e-12 > D(U_sop_array[2], U_sop2)
-    @test 1e-12 > D(U_sop_array[3], U_sop3)
+    @test 1e-11 > D(U_sop_array[1], U_sop1)
+    @test 1e-11 > D(U_sop_array[2], U_sop2)
+    @test 1e-11 > D(U_sop_array[3], U_sop3)
 
     t = 0.0
     foreach(evolutionOperatorIterator(Ham, tspan)) do U_op
@@ -95,7 +96,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     t = 0.0
     foreach(evolutionSuperOperatorIterator(Ham, tspan)) do U_sop
         U_sop_ref = evolutionSuperOperator(Ham, t)
-        @test 1e-12 > D(U_sop, U_sop_ref)
+        @test 1e-11 > D(U_sop, U_sop_ref)
         t += 0.5
     end
 

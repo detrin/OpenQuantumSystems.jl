@@ -27,13 +27,9 @@ import DelayDiffEq
     FCFact = getFranckCondonFactors(agg, aggInds)
     Ham = getAggHamiltonian(agg, aggInds, FCFact)
 
-    Ham_bath = getAggHamiltonianBath(agg)
-    Ham_sys = getAggHamiltonianSystem(agg)
-    b_sys = GenericBasis([size(Ham_sys, 1)])
-    b_bath = GenericBasis([size(Ham_bath, 1)])
-
-    Ham_int = getAggHamiltonianInteraction(agg, aggInds, FCFact)
-    Ham_S = Ham - Ham_int
+    Ham_I = getAggHamInteraction(agg, aggInds, FCFact)
+    Ham_0 = getAggHamSystemBath(agg, aggInds, FCFact)
+    Ham = getAggHamiltonian(agg, aggInds, FCFact)
 
     data = Matrix(Hermitian(rand(ComplexF64, aggIndsLen, aggIndsLen)))
     rho0 = DenseOperator(basis, basis, data)
@@ -45,8 +41,8 @@ import DelayDiffEq
     T, rho_t = master_int(
         rho0,
         tspan,
-        Ham_S,
-        Ham_int;
+        Ham_0,
+        Ham_I;
         reltol = 1e-6,
         abstol = 1e-6,
         int_reltol = 1e-8,
@@ -57,7 +53,7 @@ import DelayDiffEq
     for t_i = 2:length(rho_t)
         t = T[t_i]
         rho_I = rho_t[t_i]
-        U_op_S = evolutionOperator(Ham_S, t)
+        U_op_S = evolutionOperator(Ham_0, t)
         rho = U_op_S * rho_I * U_op_S'
         U_op = evolutionOperator(Ham, t)
         rho_ref = U_op * rho0 * U_op'
