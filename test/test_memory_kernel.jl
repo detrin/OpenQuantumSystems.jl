@@ -15,6 +15,7 @@ import QuantumOpticsBase
     D(op1::AbstractSuperOperator, op2::AbstractSuperOperator) =
         abs(tracedistance_nh(dense(op1), dense(op2)))
 
+    # TODO: change to macro
     HR = 0.01
     shift = (2.0 * HR)^0.5
     mode1 = Mode(300.0, shift)
@@ -32,13 +33,13 @@ import QuantumOpticsBase
     FCProd = getFCProd(agg, FCFact, aggInds, vibindices)
     Ham = getAggHamiltonian(agg, aggInds, FCFact)
 
-    Ham_bath = getAggHamiltonianBath(agg)
-    Ham_sys = getAggHamiltonianSystem(agg)
-    b_sys = GenericBasis([size(Ham_sys, 1)])
-    b_bath = GenericBasis([size(Ham_bath, 1)])
+    Ham_I = getAggHamInteraction(agg, aggInds, FCFact)
+    Ham_0 = getAggHamSystemBath(agg, aggInds, FCFact)
+    Ham = getAggHamiltonian(agg, aggInds, FCFact)
 
-    Ham_int = getAggHamiltonianInteraction(agg, aggInds, FCFact)
-    Ham_S = Ham - Ham_int
+    Ham_0_lambda, Ham_0_S = eigen(Ham_0.data)
+    Ham_0_Sinv = inv(Ham_0_S)
+    Ham_0_lambda = diagm(Ham_0_lambda)
 
     # T = 300
     # W0 = thermal_state_composite(T, [0.0, 0.8, 0.2], Ham, aggInds; diagonalize=false, diagonal=true)
@@ -59,18 +60,14 @@ import QuantumOpticsBase
     W_ab_len = size(W_ab, 1)
     @test 1e-15 > D(W_ab, W0.data[1:W_ab_len, 1:W_ab_len])
 
-    H_lambda, H_S = eigen(Ham_S.data)
-    H_Sinv = inv(H_S)
-    H_lambda = diagm(H_lambda)
-
     tspan = [0.0:0.1:0.3;]
     for t_i = 1:length(tspan)
         for s_i = 1:t_i
             t = tspan[t_i]
             s = tspan[s_i]
             # println(t, " ", s)
-            H_II_t = getInteractionHamIPictureA(Ham_int.data, H_lambda, H_S, H_Sinv, t)
-            H_II_s = getInteractionHamIPictureA(Ham_int.data, H_lambda, H_S, H_Sinv, s)
+            H_II_t = getInteractionHamIPictureA(Ham_I.data, Ham_0_lambda, Ham_0_S, Ham_0_Sinv, t)
+            H_II_s = getInteractionHamIPictureA(Ham_I.data, Ham_0_lambda, Ham_0_S, Ham_0_Sinv, s)
 
             MemoryKernel_1 = MemoryKernel_1_traced(
                 H_II_t,
@@ -191,8 +188,8 @@ import QuantumOpticsBase
         for s_i = 1:t_i
             t = tspan[t_i]
             s = tspan[s_i]
-            H_II_t = getInteractionHamIPictureA(Ham_int.data, H_lambda, H_S, H_Sinv, t)
-            H_II_s = getInteractionHamIPictureA(Ham_int.data, H_lambda, H_S, H_Sinv, s)
+            H_II_t = getInteractionHamIPictureA(Ham_I.data, Ham_0_lambda, Ham_0_S, Ham_0_Sinv, t)
+            H_II_s = getInteractionHamIPictureA(Ham_I.data, Ham_0_lambda, Ham_0_S, Ham_0_Sinv, s)
 
             MemoryKernel = MemoryKernel_traced(
                 H_II_t,

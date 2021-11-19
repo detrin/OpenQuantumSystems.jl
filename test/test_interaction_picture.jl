@@ -11,6 +11,7 @@ using SparseArrays, LinearAlgebra
     D(op1::AbstractSuperOperator, op2::AbstractSuperOperator) =
         abs(tracedistance_nh(dense(op1), dense(op2)))
 
+    # TODO: change to macro 
     mode1 = Mode(0.2, 1.0)
     Energy = [0.0, 200.0]
     mol1 = Molecule([mode1], 2, Energy)
@@ -20,49 +21,24 @@ using SparseArrays, LinearAlgebra
     aggIndsLen = length(aggInds)
     basis = GenericBasis([aggIndsLen])
     FCFact = getFranckCondonFactors(agg, aggInds)
+
+    Ham_I = getAggHamInteraction(agg, aggInds, FCFact)
+    Ham_0 = getAggHamSystemBath(agg, aggInds, FCFact)
     Ham = getAggHamiltonian(agg, aggInds, FCFact)
 
-    Ham_bath = getAggHamiltonianBath(agg)
-    Ham_sys = getAggHamiltonianSystem(agg)
-    b_sys = GenericBasis([size(Ham_sys, 1)])
-    b_bath = GenericBasis([size(Ham_bath, 1)])
+    Ham_0_lambda, Ham_0_S = eigen(Ham_0.data)
+    Ham_0_Sinv = inv(Ham_0_S)
+    Ham_0_lambda = diagm(Ham_0_lambda)
 
-    Ham_int = getAggHamiltonianInteraction(agg, aggInds, FCFact)
-    Ham_S = Ham - Ham_int
-
-    H_lambda, H_S = eigen(Ham_S.data)
-    H_Sinv = inv(H_S)
-    H_lambda = diagm(H_lambda)
-
-    t = 0.0
-    U_II_t = getInteractionHamIPicture(Ham_S, Ham_int, t)
-    U_op = evolutionOperator(Ham_S, t)
-    U_II_t_ref = U_op' * Ham_int * U_op
-    @test 1e-15 > D(U_II_t_ref, U_II_t)
-    U_II_t = getInteractionHamIPictureA(Ham_S, Ham_int, t)
-    @test 1e-15 > D(U_II_t_ref.data, U_II_t)
-    U_II_t = getInteractionHamIPictureA(Ham_int.data, H_lambda, H_S, H_Sinv, t)
-    @test 1e-15 > D(U_II_t_ref.data, U_II_t)
-
-    t = 1.0
-    U_II_t = getInteractionHamIPicture(Ham_S, Ham_int, t)
-    U_op = evolutionOperator(Ham_S, t)
-    U_II_t_ref = U_op' * Ham_int * U_op
-    @test 1e-15 > D(U_II_t_ref, U_II_t)
-    U_II_t = getInteractionHamIPictureA(Ham_S, Ham_int, t)
-    @test 1e-15 > D(U_II_t_ref.data, U_II_t)
-    U_II_t = getInteractionHamIPictureA(Ham_int.data, H_lambda, H_S, H_Sinv, t)
-    @test 1e-15 > D(U_II_t_ref.data, U_II_t)
-
-    t = 2.0
-    U_II_t = getInteractionHamIPicture(Ham_S, Ham_int, t)
-    U_op = evolutionOperator(Ham_S, t)
-    U_II_t_ref = U_op' * Ham_int * U_op
-    @test 1e-15 > D(U_II_t_ref, U_II_t)
-    U_II_t = getInteractionHamIPictureA(Ham_S, Ham_int, t)
-    @test 1e-15 > D(U_II_t_ref.data, U_II_t)
-    U_II_t = getInteractionHamIPictureA(Ham_int.data, H_lambda, H_S, H_Sinv, t)
-    @test 1e-15 > D(U_II_t_ref.data, U_II_t)
-
+    for t in [0.0, 1.0, 2.0]
+        U_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
+        U_op = evolutionOperator(Ham_0, t)
+        U_II_t_ref = U_op' * Ham_I * U_op
+        @test 1e-14 > D(U_II_t_ref, U_II_t)
+        U_II_t = getInteractionHamIPictureA(Ham_0, Ham_I, t)
+        @test 1e-14 > D(U_II_t_ref.data, U_II_t)
+        U_II_t = getInteractionHamIPictureA(Ham_I.data, Ham_0_lambda, Ham_0_S, Ham_0_Sinv, t)
+        @test 1e-14 > D(U_II_t_ref.data, U_II_t)
+    end
 
 end # testset
