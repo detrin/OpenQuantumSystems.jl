@@ -11,7 +11,7 @@ using SparseArrays, LinearAlgebra
     D(op1::AbstractSuperOperator, op2::AbstractSuperOperator) =
         abs(tracedistance_nh(dense(op1), dense(op2)))
 
-    # TODO: change to macro 
+    # TODO: change to macro
     mode1 = Mode(0.2, 1.0)
     Energy = [0.0, 200.0]
     mol1 = Molecule([mode1], 2, Energy)

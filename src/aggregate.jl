@@ -153,7 +153,7 @@ end
 """
     getVibIndices(agg)
 
-Get pointers (integers) to the indices of the [`Aggregate`](@ref) separated by 
+Get pointers (integers) to the indices of the [`Aggregate`](@ref) separated by
 electronic states (e.g. [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]).
 
 # Arguments
@@ -296,7 +296,7 @@ function getAggHamSystemSmall(
         if ind > 1
             E_state += reorganisation_energies[ind-1]
         end
-        Ham_sys[ind, ind] = E_state 
+        Ham_sys[ind, ind] = E_state
     end
 
     Ham_sys[:, :] += agg.coupling[:, :]
@@ -420,7 +420,7 @@ function getAggHamBathBig(
 end
 
 """
-    getAggHamSystemBath(agg, aggIndices, 
+    getAggHamSystemBath(agg, aggIndices,
     \tfranckCondonFactors; groundEnergy = false)
     getAggHamSystemBath(agg, aggIndices; groundEnergy = false)
     getAggHamSystemBath(agg; groundEnergy = false)
@@ -446,7 +446,7 @@ function getAggHamSystemBath(
     if franckCondonFactors === nothing
         franckCondonFactors = getFranckCondonFactors(agg, aggIndices)
     end
-    
+
     Ham_B = getAggHamBathBig(agg; groundEnergy=true)
     Ham_S = getAggHamSystemBig(agg, aggIndices, franckCondonFactors; groundEnergy=true)
     Ham_0 = Ham_B + Ham_S
@@ -571,7 +571,7 @@ getAggHamInteraction(
 )
 
 """
-    getAggHamiltonian(agg, aggIndices, franckCondonFactors; 
+    getAggHamiltonian(agg, aggIndices, franckCondonFactors;
     \t, groundEnergy = true)
     getAggHamiltonian(agg, aggIndices; groundEnergy = true)
     getAggHamiltonian(agg; groundEnergy = true)
@@ -599,7 +599,7 @@ function getAggHamiltonian(
     end
     Ham_I = getAggHamInteraction(agg, aggIndices, franckCondonFactors)
     Ham_0 = getAggHamSystemBath(agg, aggIndices, franckCondonFactors; groundEnergy = groundEnergy)
-    return Ham_0 + Ham_I 
+    return Ham_0 + Ham_I
 end
 
 getAggHamiltonian(
