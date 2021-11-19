@@ -270,6 +270,18 @@ function getAggHamSystemSmall(
     molLen = length(agg.molecules)
     Ham_sys = zeros(C2, (molLen + 1, molLen + 1))
 
+    agg_shifts = getShifts(agg)
+    agg_frequencies = getShifts(agg)
+    reorganisation_energies = []
+    for mol_i = 1:length(agg.molecules)
+        mol = agg.molecules[mol_i]
+        reorganisation_energy = 0.
+        for mode_i = 1:length(mol.modes)
+            reorganisation_energy += agg_frequencies[mol_i][mode_i] * agg_shifts[mol_i][mode_i]^2 / 2.
+        end
+        push!(reorganisation_energies, reorganisation_energy)
+    end
+
     elInds = electronicIndices(agg)
     E_agg = zeros(C1, (2, molLen))
     E_agg[1, :] = map(mol -> mol.E[1], agg.molecules)
@@ -280,7 +292,11 @@ function getAggHamSystemSmall(
         for mol_i = 1:molLen
             E_state += E_agg[elInd[mol_i], mol_i]
         end
-        Ham_sys[ind, ind] = E_state
+        # add reorganisation energy
+        if ind > 1
+            E_state += reorganisation_energies[ind-1]
+        end
+        Ham_sys[ind, ind] = E_state 
     end
 
     Ham_sys[:, :] += agg.coupling[:, :]
