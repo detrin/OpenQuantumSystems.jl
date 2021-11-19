@@ -13,6 +13,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     D(op1::AbstractSuperOperator, op2::AbstractSuperOperator) =
         abs(tracedistance_nh(dense(op1), dense(op2)))
 
+    # TODO: change to macro
     mode1 = Mode(0.2, 1.0)
     Energy = [0.0, 200.0]
     mol1 = Molecule([mode1], 3, Energy)
@@ -23,9 +24,11 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     aggIndsLen = length(aggInds)
     basis = GenericBasis([aggIndsLen])
     FCFact = getFranckCondonFactors(agg, aggInds)
+
     Ham = getAggHamiltonian(agg, aggInds, FCFact)
-    Ham_S = getAggHamSysBath2(agg, aggInds)
-    Ham_int = Ham - Ham_S
+    Ham_I = getAggHamInteraction(agg, aggInds, FCFact)
+    Ham_0 = getAggHamSystemBath(agg, aggInds, FCFact)
+
 
     data = Matrix(Hermitian(rand(StableRNG(0), ComplexF64, aggIndsLen, aggIndsLen)))
     rho0 = DenseOperator(basis, basis, data)
@@ -64,7 +67,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     t = 1.0
     U_op = evolutionOperator(Ham, t)
     rho = U_op * rho0 * U_op'
-    rho_traced_ref = ComplexF64[0.30545089951602455 + 0.0im 0.27487510559103273 + 0.03248766557875096im 0.30184368281947643 - 0.05602820966070799im; 0.2748751055910327 - 0.03248766557875095im 0.2979302015891273 + 3.0612122231274e-19im 0.17734441884490892 + 0.11901706815341803im; 0.3018436828194764 + 0.05602820966070803im 0.177344418844909 - 0.11901706815341806im 0.3955255687091211 + 1.0315865594447475e-17im]
+    rho_traced_ref = ComplexF64[0.30545089951602605 + 3.0357660829594124e-18im 0.19173860810181675 - 0.0844643501820273im 0.19018921460047641 - 0.20310674141599672im; 0.19173860810181684 + 0.0844643501820273im 0.3499470437099394 + 8.50622960880644e-18im 0.13057918573136992 + 0.08614578235028769im; 0.19018921460047636 + 0.20310674141599672im 0.13057918573136984 - 0.08614578235028776im 0.411399271707198 + 6.1416735243015536e-18im]
     rho_traced = trace_bath_slow(rho, agg, FCFact, aggInds, vibindices)
     @test 1e-7 > D(rho_traced.data, rho_traced_ref)
     rho_traced =
@@ -106,14 +109,14 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     rho_bath = get_rho_bath(rho0, agg, FCProd, aggInds, vibindices)
 
     t = 0.0
-    Ham_II_t = getInteractionHamIPicture(Ham_S, Ham_int, t)
-    prod = Ham_II_t * Ham_int * rho_bath
+    Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
+    prod = Ham_II_t * Ham_I * rho_bath
     corr_ref = trace_bath(prod, agg, FCProd, aggInds, vibindices)
     corr = correlation_function(
         t,
         rho_bath,
-        Ham_S,
-        Ham_int,
+        Ham_0,
+        Ham_I,
         agg,
         FCProd,
         aggInds,
@@ -122,14 +125,14 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     @test 1e-7 > D(corr, corr_ref)
 
     t = 1.0
-    Ham_II_t = getInteractionHamIPicture(Ham_S, Ham_int, t)
-    prod = Ham_II_t * Ham_int * rho_bath
+    Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
+    prod = Ham_II_t * Ham_I * rho_bath
     corr_ref = trace_bath(prod, agg, FCProd, aggInds, vibindices)
     corr = correlation_function(
         t,
         rho_bath,
-        Ham_S,
-        Ham_int,
+        Ham_0,
+        Ham_I,
         agg,
         FCProd,
         aggInds,

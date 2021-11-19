@@ -15,6 +15,7 @@ import QuantumOpticsBase
     D(op1::AbstractSuperOperator, op2::AbstractSuperOperator) =
         abs(tracedistance_nh(dense(op1), dense(op2)))
 
+    # TODO: change to macro
     HR = 0.01
     shift = (2.0 * HR)^0.5
     mode1 = Mode(300., shift)
@@ -27,24 +28,16 @@ import QuantumOpticsBase
     basis = GenericBasis([aggIndsLen])
     FCFact = getFranckCondonFactors(agg, aggInds)
     FCProd = getFCProd(agg, FCFact, aggInds, vibindices)
+
+    Ham_sys = getAggHamSystemSmall(agg)
+    Ham_I = getAggHamInteraction(agg, aggInds, FCFact)
+    Ham_0 = getAggHamSystemBath(agg, aggInds, FCFact)
+    Ham_B = getAggHamBathBig(agg)
     Ham = getAggHamiltonian(agg, aggInds, FCFact)
 
-    Ham_bath = getAggHamiltonianBath(agg)
-    Ham_sys = getAggHamiltonianSystem(agg)
-    b_sys = GenericBasis([size(Ham_sys, 1)])
-    b_bath = GenericBasis([size(Ham_bath, 1)])
-
-    Ham_int = getAggHamiltonianInteraction(agg, aggInds, FCFact)
-    Ham_S = Ham - Ham_int
-    Ham_B = tensor(Ham_bath, OneDenseOperator(b_sys))
-    E0 = Ham_B.data[1, 1]
-    for I = 1:aggIndsLen
-        Ham_B.data[I, I] -= E0
-    end
-    Ham_B = DenseOperator(basis, basis, Ham_B.data)
-    H_lambda, H_S = eigen(Ham_S.data)
-    H_Sinv = inv(H_S)
-    H_lambda = diagm(H_lambda)
+    Ham_0_lambda, Ham_0_S = eigen(Ham_0.data)
+    Ham_0_Sinv = inv(Ham_0_S)
+    Ham_0_lambda = diagm(Ham_0_lambda)
 
     data = Matrix(Hermitian(rand(ComplexF64, aggIndsLen, aggIndsLen)))
     rho0 = DenseOperator(basis, basis, data)
@@ -72,7 +65,7 @@ import QuantumOpticsBase
     W0_bath = DenseOperator(W0_bath.basis_l, W0_bath.basis_r, complex(W0_bath.data))
     rho0 = DenseOperator(rho0.basis_l, rho0.basis_r, complex(rho0.data))
 
-    p = (Ham_S, Ham_int, H_lambda, H_S, H_Sinv, Ham_B, W0, W0_bath, agg, FCProd, aggInds, vibindices, ComplexF64)
+    p = (Ham_0, Ham_I, Ham_0_lambda, Ham_0_S, Ham_0_Sinv, Ham_B, W0, W0_bath, agg, FCProd, aggInds, vibindices, ComplexF64)
     Tspan, rho_t = master_ansatz(
         rho0,
         tspan,

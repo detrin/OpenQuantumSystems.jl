@@ -425,7 +425,7 @@ end
     getAggHamSystemBath(agg, aggIndices; groundEnergy = false)
     getAggHamSystemBath(agg; groundEnergy = false)
 
-Get Hamiltonian of the [`Aggregate`](@ref) in a form of DenseOperator.
+Get system and bath Hamiltonian of the [`Aggregate`](@ref) in a form of DenseOperator.
 
 # Arguments
 * `agg`: Instance of [`Aggregate`](@ref).
@@ -436,7 +436,7 @@ function getAggHamSystemBath(
     agg::Aggregate{T,C1,C2},
     aggIndices::Any,
     franckCondonFactors::Any;
-    groundEnergy::Bool = false,
+    groundEnergy::Bool = true,
 ) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
     if aggIndices === nothing
         aggIndices = getIndices(agg)
@@ -461,7 +461,7 @@ end
 
 getAggHamSystemBath(
     agg::Aggregate{T,C1,C2};
-    groundEnergy::Bool = false,
+    groundEnergy::Bool = true,
 ) where {T<:Integer,C1<:ComputableType,C2<:ComputableType} = getAggHamSystemBath(
     agg::Aggregate{T,C1,C2},
     nothing,
@@ -472,7 +472,7 @@ getAggHamSystemBath(
 getAggHamSystemBath(
     agg::Aggregate{T,C1,C2},
     aggIndices::Any;
-    groundEnergy::Bool = false,
+    groundEnergy::Bool = true,
 ) where {T<:Integer,C1<:ComputableType,C2<:ComputableType} = getAggHamSystemBath(
     agg::Aggregate{T,C1,C2},
     aggIndices,
@@ -481,13 +481,11 @@ getAggHamSystemBath(
 )
 
 """
-    getAggHamInteraction(agg, aggIndices, franckCondonFactors; 
-    \t, groundEnergy = false)
-    getAggHamInteraction(agg, aggIndices; groundEnergy = false)
-    getAggHamInteraction(agg; groundEnergy = false)
+    getAggHamInteraction(agg, aggIndices, franckCondonFactors)
+    getAggHamInteraction(agg, aggIndices)
+    getAggHamInteraction(agg)
 
-Get interation Hamiltonian of the [`Aggregate`](@ref), ``H_I`` by substracting 
-Hamiltonian and Hamiltonian of the systems and of the bath, ``H - H_S - H_B``.
+Get interation Hamiltonian of the [`Aggregate`](@ref).
 
 # Arguments
 * `agg`: Instance of [`Aggregate`](@ref).
@@ -574,9 +572,9 @@ getAggHamInteraction(
 
 """
     getAggHamiltonian(agg, aggIndices, franckCondonFactors; 
-    \t, groundEnergy = false)
-    getAggHamiltonian(agg, aggIndices; groundEnergy = false)
-    getAggHamiltonian(agg; groundEnergy = false)
+    \t, groundEnergy = true)
+    getAggHamiltonian(agg, aggIndices; groundEnergy = true)
+    getAggHamiltonian(agg; groundEnergy = true)
 
 Get Hamiltonian of the [`Aggregate`](@ref).
 
@@ -588,7 +586,8 @@ Get Hamiltonian of the [`Aggregate`](@ref).
 function getAggHamiltonian(
     agg::Aggregate{T,C1,C2},
     aggIndices::Any,
-    franckCondonFactors::Any
+    franckCondonFactors::Any;
+    groundEnergy::Bool = true
 ) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
     if aggIndices === nothing
         aggIndices = getIndices(agg)
@@ -599,25 +598,29 @@ function getAggHamiltonian(
         franckCondonFactors = getFranckCondonFactors(agg, aggIndices)
     end
     Ham_I = getAggHamInteraction(agg, aggIndices, franckCondonFactors)
-    Ham_0 = getAggHamSystemBath(agg, aggIndices, franckCondonFactors)
+    Ham_0 = getAggHamSystemBath(agg, aggIndices, franckCondonFactors; groundEnergy = groundEnergy)
     return Ham_0 + Ham_I 
 end
 
 getAggHamiltonian(
-    agg::Aggregate{T,C1,C2}
+    agg::Aggregate{T,C1,C2};
+    groundEnergy::Bool = true
 ) where {T<:Integer,C1<:ComputableType,C2<:ComputableType} = getAggHamiltonian(
     agg::Aggregate{T,C1,C2},
     nothing,
-    nothing
+    nothing;
+    groundEnergy = groundEnergy,
 )
 
 getAggHamiltonian(
     agg::Aggregate{T,C1,C2},
-    aggIndices::Any
+    aggIndices::Any;
+    groundEnergy::Bool = true
 ) where {T<:Integer,C1<:ComputableType,C2<:ComputableType} = getAggHamiltonian(
     agg::Aggregate{T,C1,C2},
     aggIndices,
-    nothing
+    nothing;
+    groundEnergy = groundEnergy,
 )
 
 ### Sparse versions
