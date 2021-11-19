@@ -117,6 +117,9 @@ export
     # operators_dense.jl
     AnnihilationOperator,
     CreationOperator,
+    PositionOperator,
+    MomentumOperator,
+    ShiftOperator,
     OneDenseOperator,
 
     # superoperators.jl
@@ -140,24 +143,29 @@ export
     updateMolecule,
     getMolStateEnergy,
     getMolStateFC,
+    getMolShifts,
+    getMolFrequencies,
 
     # aggregate.jl
     Aggregate,
     getNvib,
+    getShifts,
+    getFrequencies,
     vibrationalIndices,
     electronicIndices,
     getIndices,
     getVibIndices,
     getFranckCondonFactors,
     getAggStateEnergy,
+    getAggHamSystemSmall,
+    getAggHamSystemBig,
+    getAggHamBathSmall,
+    getAggHamBathBig,
+    getAggHamSystemBath,
+    getAggHamInteraction,
     getAggHamiltonian,
-    getAggHamiltonianSystem,
-    getAggHamiltonianBath,
-    getAggHamiltonianInteraction,
     getFranckCondonFactorsSparse,
-    getAggHamiltonianSparse,
-    getAggHamSysBath,
-    getAggHamSysBath2,
+    # getAggHamiltonianSparse,
     setupAggregate,
 
     # evolution.jl
