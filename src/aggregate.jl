@@ -1,6 +1,9 @@
 
 # include("core.jl")
 
+struct AggregateOperators{}
+end
+
 """
     Aggregate{T,C1,C2}(molecules, coupling)
     Aggregate{T,C1,C2}(molecules)
