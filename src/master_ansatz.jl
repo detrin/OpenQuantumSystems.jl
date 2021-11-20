@@ -82,7 +82,7 @@ function dmaster_ansatz(
 end
 
 function MemoryKernel(t, s, tmp1, tmp2, tmp3, h, p, Ham_II_t)
-    Ham_0, Ham_I, Ham_0_lambda, Ham_0_S, Ham_0_Sinv, Ham_B, W0, W0_bath, agg, FCProd, aggIndices, vibindices = p
+    Ham_0, Ham_I, Ham_0_lambda, Ham_0_S, Ham_0_Sinv, Ham_B, W0, W0_bath, agg, FCProd, aggIndices, vibindices, elementtype = p
     # sprintln(t)
     # Ham_II_s = getInteractionHamIPictureA(Ham_S, Ham_int, s)
     tmp3 .= getInteractionHamIPictureA(Ham_I.data, Ham_0_lambda, Ham_0_S, Ham_0_Sinv, s)
