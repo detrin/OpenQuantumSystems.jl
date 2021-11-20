@@ -3,7 +3,7 @@
 """
     Mode{T}(omega, shift)
 
-Mutable stuct which purpose is to model vibrational LHO mode in [`Molecule`](@ref).
+Stuct which purpose is to model vibrational LHO mode in [`Molecule`](@ref).
 
 ``V(q) = \\hbar \\omega (q - q_0)^2, \\quad \\hbar = 1``
 
@@ -11,7 +11,7 @@ Mutable stuct which purpose is to model vibrational LHO mode in [`Molecule`](@re
 * `omega`: The frequency of LHO (``\\omega``).
 * `shift`: The shift of the coordinate of LHO (``q_0``).
 """
-mutable struct Mode{T}
+struct Mode{T}
     omega::T
     shift::T
     function Mode(omega::T, shift::T) where {T<:ComputableType}
@@ -83,14 +83,14 @@ end
 """
     Molecule{T,C1,C2}(modes, Nvib, E)
 
-Mutable stuct which purpose is to model a molecule in [`Aggregate`](@ref).
+Stuct which purpose is to model a molecule in [`Aggregate`](@ref).
 
 # Arguments
 * `modes`: Vector of modes ([`Mode`](@ref)).
 * `Nvib`: Maximum number of vibrational states for all modes.
 * `E`: Energy of ground and excited state of molecule (HOMO, LUMO).
 """
-mutable struct Molecule{T<:Integer,C1<:ComputableType,C2<:ComputableType}
+struct Molecule{T<:Integer,C1<:ComputableType,C2<:ComputableType}
     modes::Vector{Mode{C1}}
     Nvib::T
     fcFactors::Array{Array{C2,2},1}
@@ -110,23 +110,6 @@ end
 
 Molecule(modes::Vector{Mode{C}}, Nvib::T, E::Array{C,1}) where {C,T} =
     Molecule{T,C,C}(modes, Nvib, E)
-
-function updateMolecule!(
-    mol::Molecule{T,C1,C2},
-) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
-    mol = Molecule{T,C1,C2}(mol.modes, mol.Nvib, mol.E)
-end
-
-"""
-    updateMolecule(mol)
-
-Get updated molecule with new params (e.g. [`Mode`](@ref)).
-"""
-function updateMolecule(
-    mol::Molecule{T,C1,C2},
-) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
-    Molecule{T,C1,C2}(mol.modes, mol.Nvib, mol.E)
-end
 
 """
     getMolStateEnergy(mol, molElState, molVibState)
