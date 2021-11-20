@@ -98,10 +98,9 @@ function MemoryKernel(t, s, tmp1, tmp2, tmp3, h, p, Ham_II_t)
         rho = rho.data
     end
     # println("rho", rho)
-    U_b_s = evolutionOperator(Ham_B, s)
-    W0_bath_int_s = U_b_s' * W0_bath * U_b_s
-    tmp2 .= ad(rho, W0_bath_int_s.data, agg, FCProd, aggIndices, vibindices)
-
+    U_0_op = evolutionOperator(Ham_0, s)
+    W0_int_s = U_0_op' * W0_bath * U_0_op
+    tmp2 .= ad(rho, W0_int_s.data, agg, FCProd, aggIndices, vibindices)
     QuantumOpticsBase.mul!(tmp1, tmp3, tmp2, elementtype(1), zero(elementtype))
     QuantumOpticsBase.mul!(tmp1, tmp2, tmp3, -elementtype(1), one(elementtype))
 

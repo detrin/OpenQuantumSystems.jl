@@ -44,10 +44,10 @@ function master_int(
     history_fun(p, t) = T(W0.basis_l, W0.basis_r, zeros(ComplexF64, size(W0.data)))
     # (du,u,h,p,t)
     tmp = copy(W0.data)
-    dmaster_(t, rho::T, drho::T, history_fun, p) = dmaster_int(
+    dmaster_(t, W::T, dW::T, history_fun, p) = dmaster_int(
         t,
-        rho,
-        drho,
+        W,
+        dW,
         history_fun,
         tmp,
         p,
@@ -78,8 +78,8 @@ end
 
 function dmaster_int(
     t::AbstractFloat,
-    rho::T,
-    drho::T,
+    W::T,
+    dW::T,
     history_fun,
     tmp::Array,
     p,
@@ -90,8 +90,8 @@ function dmaster_int(
     int_abstol::AbstractFloat,
 ) where {B<:Basis,T<:Operator{B,B},U<:Operator{B,B},V<:Operator{B,B}}
     Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
-    QuantumOpticsBase.mul!(drho, Ham_II_t, W0, -eltype(rho)(im), zero(eltype(rho)))
-    QuantumOpticsBase.mul!(drho, W0, Ham_II_t, eltype(rho)(im), one(eltype(rho)))
+    QuantumOpticsBase.mul!(dW, Ham_II_t, W0, -eltype(W)(im), zero(eltype(W)))
+    QuantumOpticsBase.mul!(dW, W0, Ham_II_t, eltype(W)(im), one(eltype(W)))
 
     kernel_integrated, err = QuadGK.quadgk(
         s -> kernel_int(t, s, tmp, history_fun, p, Ham_II_t.data, Ham_0, Ham_I),
@@ -101,30 +101,30 @@ function dmaster_int(
         atol = int_abstol,
     )
     LinearAlgebra.mul!(
-        drho.data,
-        -one(eltype(rho)),
+        dW.data,
+        -one(eltype(W)),
         kernel_integrated,
-        one(eltype(rho)),
-        one(eltype(rho)),
+        one(eltype(W)),
+        one(eltype(W)),
     )
-    return drho
+    return dW
 end
 
 function kernel_int(t, s, tmp, h, p, Ham_II_t, Ham_0, Ham_I)
     Ham_II_s = getInteractionHamIPictureA(Ham_0, Ham_I, s)
-    rho = h(p, s)
+    W_s = h(p, s)
 
-    if (typeof(rho) <: Operator)
-        rho = rho.data
+    if (typeof(W_s) <: Operator)
+        W_s = W_s.data
     end
-    drho = deepcopy(rho)
+    dW = deepcopy(W_s)
     # commutator(Ham.data, commutator(Ham.data, tmp))
-    QuantumOpticsBase.mul!(tmp, Ham_II_s, rho, eltype(rho)(1), zero(eltype(rho)))
-    QuantumOpticsBase.mul!(tmp, rho, Ham_II_s, -eltype(rho)(1), one(eltype(rho)))
+    QuantumOpticsBase.mul!(tmp, Ham_II_s, W_s, eltype(W_s)(1), zero(eltype(W_s)))
+    QuantumOpticsBase.mul!(tmp, W_s, Ham_II_s, -eltype(W_s)(1), one(eltype(W_s)))
 
-    QuantumOpticsBase.mul!(drho, Ham_II_t, tmp, eltype(rho)(1), zero(eltype(rho)))
-    QuantumOpticsBase.mul!(drho, tmp, Ham_II_t, -eltype(rho)(1), one(eltype(rho)))
-    return drho
+    QuantumOpticsBase.mul!(dW, Ham_II_t, tmp, eltype(W_s)(1), zero(eltype(W_s)))
+    QuantumOpticsBase.mul!(dW, tmp, Ham_II_t, -eltype(W_s)(1), one(eltype(W_s)))
+    return dW
 end
 
 """
