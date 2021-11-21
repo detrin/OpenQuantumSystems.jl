@@ -148,6 +148,9 @@ export
 
     # aggregate.jl
     Aggregate,
+    AggregateCore,
+    AggregateTools,
+    AggregateOperators,
     getNvib,
     getShifts,
     getFrequencies,
@@ -166,6 +169,7 @@ export
     getAggHamiltonian,
     getFranckCondonFactorsSparse,
     # getAggHamiltonianSparse,
+    AggregateOperators,
     setupAggregate,
 
     # evolution.jl

@@ -1,103 +1,114 @@
 
 # include("core.jl")
 
-struct AggregateOperators{}
-end
+abstract type AbstractAggregate end
+abstract type AbstractAggregateCore end
+abstract type AbstractAggregateTools end
+abstract type AbstractAggregateOperators end
+
+# const AggregateCoreN = Union{Nothing, AbstractAggregateCore}
+# const AggregateToolsN = Union{Nothing, AbstractAggregateTools}
+# const AggregateOperatorsN = Union{Nothing, AbstractAggregateOperators}
+
 
 """
-    Aggregate{T,C1,C2}(molecules, coupling)
-    Aggregate{T,C1,C2}(molecules)
+    AggregateCore{T,C1,C2}(molecules, coupling)
+    AggregateCore{T,C1,C2}(molecules)
 
-Mutable stuct which purpose is to store important information about the whole system.
+Mutable stuct which purpose is to store important information about the whole aggregate.
 
 # Arguments
 * `molecules`: Vector of molecules ([`Molecule`](@ref)).
 * `coupling`: Matrix of couplings ``J_{nm}`` between molecules.
 """
-mutable struct Aggregate{T<:Integer,C1<:ComputableType,C2<:ComputableType}
+struct AggregateCore{T<:Integer,C1<:ComputableType,C2<:ComputableType} <: AbstractAggregateCore
     molecules::Vector{Molecule{T,C1,C2}}
     coupling::Matrix{C1}
-    function Aggregate{T,C1,C2}(
+    function AggregateCore{T,C1,C2}(
         molecules::Vector{Molecule{T,C1,C2}},
-        coupling::Matrix{C1},
+        coupling::Matrix{C1}
     ) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
         new(molecules, coupling)
     end
 end
 
-Aggregate(molecules::Vector{Molecule{T,C1,C2}}, coupling::Matrix{C1}) where {T,C1,C2} =
-    Aggregate{T,C1,C2}(molecules, coupling)
-Aggregate(molecules::Vector{Molecule{T,C1,C2}}) where {T,C1,C2} =
-    Aggregate{T,C1,C2}(molecules, zeros(C1, (length(molecules) + 1, length(molecules) + 1)))
+AggregateCore(molecules::Vector{Molecule{T,C1,C2}}, coupling::Matrix{C1}) where {T,C1,C2} =
+    AggregateCore{T,C1,C2}(molecules, coupling)
+AggregateCore(molecules::Vector{Molecule{T,C1,C2}}) where {T,C1,C2} =
+    AggregateCore{T,C1,C2}(molecules, zeros(C1, (length(molecules) + 1, length(molecules) + 1)))
 
 """
-    getNvib(agg)
+    getNvib(aggCore)
 
 Get maximum number of vibrational states of each molecule in the [`Aggregate`](@ref).
 
 """
 function getNvib(
-    agg::Aggregate{T,C1,C2},
-) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
-    NvibMols = Array{Array{T,1},1}(undef, 0)
-    for mol in agg.molecules
+    aggCore::C,
+) where {C<:AbstractAggregateCore}
+# TODO: add typeofs
+    NvibMols = Array{Array{Int64,1},1}(undef, 0)
+    for mol in aggCore.molecules
         push!(NvibMols, fill(mol.Nvib, length(mol.modes)))
     end
     return NvibMols
 end
 
 """
-    getShifts(agg)
+    getShifts(aggCore)
 
 Get shifts for every mode on each molecule in the [`Aggregate`](@ref).
 
 """
 function getShifts(
-    agg::Aggregate{T,C1,C2},
-) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
-    shifts = Array{Array{C1,1},1}(undef, 0)
-    for mol in agg.molecules
+    aggCore::C,
+) where {C<:AbstractAggregateCore}
+# TODO: add typeofs
+    shifts = Array{Array{Float64,1},1}(undef, 0)
+    for mol in aggCore.molecules
         push!(shifts, getMolShifts(mol))
     end
     return shifts
 end
 
 """
-    getFrequencies(agg)
+    getFrequencies(aggCore)
 
 Get frequencies for every mode on each molecule in the [`Aggregate`](@ref).
 
 """
 function getFrequencies(
-    agg::Aggregate{T,C1,C2},
-) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
-    frequencies = Array{Array{C1,1},1}(undef, 0)
-    for mol in agg.molecules
+    aggCore::C,
+) where {C<:AbstractAggregateCore}
+# TODO: add typeofs
+    frequencies = Array{Array{Float64,1},1}(undef, 0)
+    for mol in aggCore.molecules
         push!(frequencies, getMolFrequencies(mol))
     end
     return frequencies
 end
 
 """
-    vibrationalIndices(agg)
+    vibrationalIndices(aggCore)
 
 Get all vibrational indices of the [`Aggregate`](@ref).
 
 """
 function vibrationalIndices(
-    agg::Aggregate{T,C1,C2},
-) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
-    NvibMols = getNvib(agg)
-    molLen = length(agg.molecules)
-    NvibIndMols = Array{Array{Array{T,1},1},1}(undef, 0)
+    aggCore::C,
+) where {C<:AbstractAggregateCore}
+# TODO: add typeofs
+    NvibMols = getNvib(aggCore)
+    molLen = length(aggCore.molecules)
+    NvibIndMols = Array{Array{Array{Int64,1},1},1}(undef, 0)
     for mol_i = 1:molLen
         push!(NvibIndMols, vibrationalIndices(NvibMols[mol_i]))
     end
     molNvib = map((vibInds) -> length(vibInds), NvibIndMols)
     molInds = vibrationalIndices(molNvib)
-    aggInds = Array{Array{Array{T,1},1},1}(undef, 0)
+    aggInds = Array{Array{Array{Int64,1},1},1}(undef, 0)
     for molInd in molInds
-        aggInd = Array{Array{T,1},1}(undef, 0)
+        aggInd = Array{Array{Int64,1},1}(undef, 0)
         for mol_i = 1:molLen
             push!(aggInd, NvibIndMols[mol_i][molInd[mol_i]])
         end
@@ -107,18 +118,19 @@ function vibrationalIndices(
 end
 
 """
-    vibrationalIndices(agg)
+    vibrationalIndices(aggCore)
 
 Get all electronic indices of the [`Aggregate`](@ref).
 
 # Arguments
-* `agg`: Instance of [`Aggregate`](@ref).
+* `aggCore`: Instance of [`Aggregate`](@ref).
 """
 function electronicIndices(
-    agg::Aggregate{T,C1,C2}
-) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
-    vibInds = Array{Array{T,1},1}(undef, 0)
-    molCount = length(agg.molecules)
+    aggCore::C
+) where {C<:AbstractAggregateCore}
+    # TODO: add typeofs
+    vibInds = Array{Array{Int64,1},1}(undef, 0)
+    molCount = length(aggCore.molecules)
     currentInds = fill(1, (molCount))
     push!(vibInds, copy(currentInds))
     for indPos = 1:molCount
@@ -130,21 +142,21 @@ function electronicIndices(
 end
 
 """
-    getIndices(agg)
+    getIndices(aggCore)
 
 Get all indices (electronic and vibrational) of the [`Aggregate`](@ref).
 
 # Arguments
-* `agg`: Instance of [`Aggregate`](@ref).
+* `aggCore`: Instance of [`Aggregate`](@ref).
 """
 function getIndices(
-    agg::Aggregate{T,C1,C2}
-) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
-    vibInds = vibrationalIndices(agg)
+    aggCore::C
+) where {C<:AbstractAggregateCore}
+    vibInds = vibrationalIndices(aggCore)
     vibIndsLen = length(vibInds)
-    elInds = electronicIndices(agg)
+    elInds = electronicIndices(aggCore)
     elIndsLen = length(elInds)
-    indices = Array{Array{Array{T,1} where T,1},1}(undef, 0)
+    indices = Array{Array{Array{Int64,1} where Int64,1},1}(undef, 0)
     for el_i = 1:elIndsLen
         for vib_i = 1:vibIndsLen
             push!(indices, [elInds[el_i], vibInds[vib_i]])
@@ -154,7 +166,7 @@ function getIndices(
 end
 
 """
-    getVibIndices(agg)
+    getVibIndices(aggCore)
 
 Get pointers (integers) to the indices of the [`Aggregate`](@ref) separated by 
 electronic states (e.g. [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]).
@@ -162,12 +174,12 @@ electronic states (e.g. [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]).
 # Arguments
 * `agg`: Instance of [`Aggregate`](@ref).
 """
-function getVibIndices(agg, aggIndices)
+function getVibIndices(aggCore, aggIndices)
     aggIndLen = length(aggIndices)
-    vibindices = Array{Array{Int,1},1}(undef, 0)
+    vibindices = Array{Array{Int64,1},1}(undef, 0)
     elLen = length(agg.molecules) + 1
     for el_i = 1:elLen
-        push!(vibindices, Array{Int,1}(undef, 0))
+        push!(vibindices, Array{Int64,1}(undef, 0))
     end
 
     for I = 1:aggIndLen
@@ -179,25 +191,25 @@ function getVibIndices(agg, aggIndices)
 end
 
 """
-    getFranckCondonFactors(agg, aggIndices)
-    getFranckCondonFactors(agg)
+    getFranckCondonFactors(aggCore, aggIndices)
+    getFranckCondonFactors(aggCore)
 
 Get Frack-Condon factors of the [`Aggregate`](@ref) in a form of matrix.
 
 # Arguments
-* `agg`: Instance of [`Aggregate`](@ref).
+* `aggCore`: Instance of [`Aggregate`](@ref).
 * `aggIndices`: Aggregate indices generated by [`getIndices`](@ref).
 """
 function getFranckCondonFactors(
-    agg::Aggregate{T,C1,C2},
+    aggCore::C,
     aggIndices::Any
-) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
+) where {C<:AbstractAggregateCore}
     if aggIndices === nothing
-        aggIndices = getIndices(agg)
+        aggIndices = getIndices(aggCore)
     end
     aggIndLen = length(aggIndices)
-    molLen = length(agg.molecules)
-    FC = zeros(C2, (aggIndLen, aggIndLen))
+    molLen = length(aggCore.molecules)
+    FC = zeros(Float64, (aggIndLen, aggIndLen))
     for I = 1:aggIndLen
         elind1, vibind1 = aggIndices[I]
         for J = 1:aggIndLen
@@ -207,9 +219,9 @@ function getFranckCondonFactors(
                     FC[I, J] = 1.0
                 end
             else
-                fc = 1.0::C2
+                fc = 1.0::Float64
                 for mi = 1:molLen
-                    mol = agg.molecules[mi]
+                    mol = aggCore.molecules[mi]
                     fc *=
                         getMolStateFC(mol, elind1[mi], vibind1[mi], elind2[mi], vibind2[mi])
                 end
@@ -221,9 +233,34 @@ function getFranckCondonFactors(
 end
 
 getFranckCondonFactors(
-    agg::Aggregate{T,C1,C2}
-) where {T<:Integer,C1<:ComputableType,C2<:ComputableType} =
-    getFranckCondonFactors(agg::Aggregate{T,C1,C2}, nothing)
+    aggCore::C
+) where {C<:AbstractAggregateCore} =
+    getFranckCondonFactors(aggCore::C, nothing)
+
+struct AggregateTools <: AbstractAggregateTools
+    elIndices::Any
+    vibIndices::Any
+    indices::Any
+    FCfactors::Any
+    function AggregateTools(
+        elIndices,
+        vibIndices,
+        indices,
+        FCfactors
+    ) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
+        new(elIndices, vibIndices, indices, FCfactors)
+    end
+end
+
+function AggregateTools(aggCore::AggregateCore)
+    elIndices = electronicIndices(aggCore)
+    vibIndices = vibrationalIndices(aggCore)
+    indices = getIndices(aggCore)
+    FCfactors = getFranckCondonFactors(aggCore, aggInds)
+
+    return AggregateTools(elIndices, vibIndices, indices, FCfactors)
+end
+
 
 """
     getAggStateEnergy(agg, aggElState, aggVibState)
@@ -236,11 +273,12 @@ Get Hamiltonian of the [`Aggregate`](@ref) in a form of DenseOperator.
 * `aggVibState`: Aggregate vibrational state (e.g. [[9, 1], [2, 5, 3], [10]]).
 """
 function getAggStateEnergy(
-    agg::Aggregate{T,C1,C2},
+    aggCore::C,
     aggElState::Vector{U},
     aggVibState::Vector{Vector{U}},
-) where {T<:Integer,C1<:ComputableType,C2<:ComputableType,U<:Integer}
-    energy = 0.0::C1
+) where {C<:AbstractAggregateCore,U<:Integer}
+    # TODO: typeof
+    energy = 0.0
     for mol_i = 1:length(agg.molecules)
         molElState = aggElState[mol_i]
         molVibState = aggVibState[mol_i]
@@ -267,17 +305,17 @@ Get Hamiltonian of the system, ``H_S`` only for ``\\mathcal{H}_S``.
 * `agg`: Instance of [`Aggregate`](@ref).
 """
 function getAggHamSystemSmall(
-    agg::Aggregate{T,C1,C2};
+    aggCore::C;
     groundEnergy::Bool = true,
-) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
-    molLen = length(agg.molecules)
-    Ham_sys = zeros(C2, (molLen + 1, molLen + 1))
+) where {C<:AbstractAggregateCore}
+    molLen = length(aggCore.molecules)
+    Ham_sys = zeros(Float64, (molLen + 1, molLen + 1))
 
-    agg_shifts = getShifts(agg)
-    agg_frequencies = getShifts(agg)
+    agg_shifts = getShifts(aggCore)
+    agg_frequencies = getShifts(aggCore)
     reorganisation_energies = []
-    for mol_i = 1:length(agg.molecules)
-        mol = agg.molecules[mol_i]
+    for mol_i = 1:length(aggCore.molecules)
+        mol = aggCore.molecules[mol_i]
         reorganisation_energy = 0.
         for mode_i = 1:length(mol.modes)
             reorganisation_energy += agg_frequencies[mol_i][mode_i] * agg_shifts[mol_i][mode_i]^2 / 2.
@@ -285,10 +323,10 @@ function getAggHamSystemSmall(
         push!(reorganisation_energies, reorganisation_energy)
     end
 
-    elInds = electronicIndices(agg)
-    E_agg = zeros(C1, (2, molLen))
-    E_agg[1, :] = map(mol -> mol.E[1], agg.molecules)
-    E_agg[2, :] = map(mol -> mol.E[2], agg.molecules)
+    elInds = electronicIndices(aggCore)
+    E_agg = zeros(Float64, (2, molLen))
+    E_agg[1, :] = map(mol -> mol.E[1], aggCore.molecules)
+    E_agg[2, :] = map(mol -> mol.E[2], aggCore.molecules)
     for elInd in elInds
         ind = OpenQuantumSystems.elIndOrder(elInd)
         E_state = 0
@@ -302,7 +340,7 @@ function getAggHamSystemSmall(
         Ham_sys[ind, ind] = E_state 
     end
 
-    Ham_sys[:, :] += agg.coupling[:, :]
+    Ham_sys[:, :] += aggCore.coupling[:, :]
     if !groundEnergy
         E0 = Ham_sys[1, 1]
         for i = 1:size(Ham_sys, 1)
@@ -322,11 +360,11 @@ Get Hamiltonian of the system, ``H_S`` for ``\\mathcal{H}_S \\otimes \\mathcal{H
 * `agg`: Instance of [`Aggregate`](@ref).
 """
 function getAggHamSystemBig(
-    agg::Aggregate{T,C1,C2},
+    agg::C,
     aggIndices::Any,
     franckCondonFactors::Any;
     groundEnergy::Bool = true,
-) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
+) where {C<:AbstractAggregateCore}
     if aggIndices === nothing
         aggIndices = getIndices(agg)
     end
@@ -336,7 +374,7 @@ function getAggHamSystemBig(
         franckCondonFactors = getFranckCondonFactors(agg, aggIndices)
     end
     Ham_sys = getAggHamSystemSmall(agg; groundEnergy = groundEnergy)
-    Ham = zeros(C2, (aggIndLen, aggIndLen))
+    Ham = zeros(Float64, (aggIndLen, aggIndLen))
     for I = 1:aggIndLen
         elind1, vibind1 = aggIndices[I]
         elOrder1 = elIndOrder(elind1)
@@ -364,13 +402,13 @@ Get Hamiltonian of the bath, ``H_B`` only for ``\\mathcal{H}_B``.
 
 """
 function getAggHamBathSmall(
-    agg::Aggregate{T,C1,C2};
+    agg::C;
     groundEnergy::Bool = true
-) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
+) where {C<:AbstractAggregateCore}
     molLen = length(agg.molecules)
     vibInds = vibrationalIndices(agg)
     vibIndsLen = length(vibInds)
-    Ham_bath = zeros(C2, (vibIndsLen, vibIndsLen))
+    Ham_bath = zeros(Float64, (vibIndsLen, vibIndsLen))
 
     agg2 = deepcopy(agg)
     for mol_i in molLen
@@ -399,9 +437,9 @@ Get Hamiltonian of the bath, ``H_B`` only for ``\\mathcal{H}_S \\otimes \\mathca
 
 """
 function getAggHamBathBig(
-    agg::Aggregate{T,C1,C2};
+    agg::C;
     groundEnergy::Bool = true
-) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
+) where {C<:AbstractAggregateCore}
     aggIndices = getIndices(agg)
     aggIndLen = length(aggIndices)
     b = GenericBasis([aggIndLen])
@@ -436,11 +474,11 @@ Get system and bath Hamiltonian of the [`Aggregate`](@ref) in a form of DenseOpe
 * `franckCondonFactors`: Franck-Condon factors generated by [`getFranckCondonFactors`](@ref).
 """
 function getAggHamSystemBath(
-    agg::Aggregate{T,C1,C2},
+    agg::C,
     aggIndices::Any,
     franckCondonFactors::Any;
     groundEnergy::Bool = true,
-) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
+) where {C<:AbstractAggregateCore}
     if aggIndices === nothing
         aggIndices = getIndices(agg)
     end
@@ -463,21 +501,21 @@ function getAggHamSystemBath(
 end
 
 getAggHamSystemBath(
-    agg::Aggregate{T,C1,C2};
+    agg::C;
     groundEnergy::Bool = true,
-) where {T<:Integer,C1<:ComputableType,C2<:ComputableType} = getAggHamSystemBath(
-    agg::Aggregate{T,C1,C2},
+) where {C<:AbstractAggregateCore} = getAggHamSystemBath(
+    agg::C,
     nothing,
     nothing;
     groundEnergy = groundEnergy,
 )
 
 getAggHamSystemBath(
-    agg::Aggregate{T,C1,C2},
+    agg::C,
     aggIndices::Any;
     groundEnergy::Bool = true,
-) where {T<:Integer,C1<:ComputableType,C2<:ComputableType} = getAggHamSystemBath(
-    agg::Aggregate{T,C1,C2},
+) where {C<:AbstractAggregateCore} = getAggHamSystemBath(
+    agg::C,
     aggIndices,
     nothing;
     groundEnergy = groundEnergy,
@@ -496,10 +534,10 @@ Get interation Hamiltonian of the [`Aggregate`](@ref).
 * `franckCondonFactors`: Franck-Condon factors generated by [`getFranckCondonFactors`](@ref).
 """
 function getAggHamInteraction(
-    agg::Aggregate{T,C1,C2},
+    agg::C,
     aggIndices::Any,
     franckCondonFactors::Any
-) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
+) where {C<:AbstractAggregateCore}
     if aggIndices === nothing
         aggIndices = getIndices(agg)
     end
@@ -508,7 +546,7 @@ function getAggHamInteraction(
     if franckCondonFactors === nothing
         franckCondonFactors = getFranckCondonFactors(agg, aggIndices)
     end
-    Ham_I = zeros(C2, (aggIndLen, aggIndLen))
+    Ham_I = zeros(Float64, (aggIndLen, aggIndLen))
     agg_shifts = getShifts(agg)
     agg_frequencies = getShifts(agg)
     agg_coeffs = deepcopy(agg_frequencies)
@@ -557,18 +595,18 @@ function getAggHamInteraction(
 end
 
 getAggHamInteraction(
-    agg::Aggregate{T,C1,C2}
-) where {T<:Integer,C1<:ComputableType,C2<:ComputableType} = getAggHamInteraction(
-    agg::Aggregate{T,C1,C2},
+    agg::C
+) where {C<:AbstractAggregateCore} = getAggHamInteraction(
+    agg::C,
     nothing,
     nothing
 )
 
 getAggHamInteraction(
-    agg::Aggregate{T,C1,C2},
+    agg::C,
     aggIndices::Any
-) where {T<:Integer,C1<:ComputableType,C2<:ComputableType} = getAggHamInteraction(
-    agg::Aggregate{T,C1,C2},
+) where {C<:AbstractAggregateCore} = getAggHamInteraction(
+    agg::C,
     aggIndices,
     nothing
 )
@@ -587,11 +625,11 @@ Get Hamiltonian of the [`Aggregate`](@ref).
 * `franckCondonFactors`: Franck-Condon factors generated by [`getFranckCondonFactors`](@ref).
 """
 function getAggHamiltonian(
-    agg::Aggregate{T,C1,C2},
+    agg::C,
     aggIndices::Any,
     franckCondonFactors::Any;
     groundEnergy::Bool = true
-) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
+) where {C<:AbstractAggregateCore}
     if aggIndices === nothing
         aggIndices = getIndices(agg)
     end
@@ -606,21 +644,21 @@ function getAggHamiltonian(
 end
 
 getAggHamiltonian(
-    agg::Aggregate{T,C1,C2};
+    agg::C;
     groundEnergy::Bool = true
-) where {T<:Integer,C1<:ComputableType,C2<:ComputableType} = getAggHamiltonian(
-    agg::Aggregate{T,C1,C2},
+) where {C<:AbstractAggregateCore} = getAggHamiltonian(
+    agg::C,
     nothing,
     nothing;
     groundEnergy = groundEnergy,
 )
 
 getAggHamiltonian(
-    agg::Aggregate{T,C1,C2},
+    agg::C,
     aggIndices::Any;
     groundEnergy::Bool = true
-) where {T<:Integer,C1<:ComputableType,C2<:ComputableType} = getAggHamiltonian(
-    agg::Aggregate{T,C1,C2},
+) where {C<:AbstractAggregateCore} = getAggHamiltonian(
+    agg::C,
     aggIndices,
     nothing;
     groundEnergy = groundEnergy,
@@ -636,9 +674,9 @@ Sparse version of [`getFranckCondonFactors`](@ref).
 
 """
 function getFranckCondonFactorsSparse(
-    agg::Aggregate{T,C1,C2},
+    agg::C,
     aggIndices::Any
-) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
+) where {C<:AbstractAggregateCore}
     if aggIndices === nothing
         aggIndices = getIndices(agg)
     end
@@ -670,9 +708,9 @@ function getFranckCondonFactorsSparse(
 end
 
 getFranckCondonFactorsSparse(
-    agg::Aggregate{T,C1,C2}
-) where {T<:Integer,C1<:ComputableType,C2<:ComputableType} = getFranckCondonFactorsSparse(
-    agg::Aggregate{T,C1,C2},
+    agg::C
+) where {C<:AbstractAggregateCore} = getFranckCondonFactorsSparse(
+    agg::C,
     nothing
 )
 
@@ -684,7 +722,7 @@ Sparse version of [`getAggHamiltonian`](@ref).
 
 """
 function getAggHamiltonianSparse(
-    agg::Aggregate{T,C1,C2},
+    agg::AggregateCore{T,C1,C2},
     aggIndices::Any,
     franckCondonFactors::Any
 ) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
@@ -727,21 +765,111 @@ function getAggHamiltonianSparse(
 end
 
 getAggHamiltonianSparse(
-    agg::Aggregate{T,C1,C2}
+    agg::AggregateCore{T,C1,C2}
 ) where {T<:Integer,C1<:ComputableType,C2<:ComputableType} = getAggHamiltonianSparse(
-    agg::Aggregate{T,C1,C2},
+    agg::AggregateCore{T,C1,C2},
     nothing,
     nothing
 )
 
 getAggHamiltonianSparse(
-    agg::Aggregate{T,C1,C2},
+    agg::AggregateCore{T,C1,C2},
     aggIndices::Any
 ) where {T<:Integer,C1<:ComputableType,C2<:ComputableType} = getAggHamiltonianSparse(
-    agg::Aggregate{T,C1,C2},
+    agg::AggregateCore{T,C1,C2},
     aggIndices,
     nothing
 )
+
+
+# TODO: add docs and proper types
+struct AggregateOperators{O_sys, O_bath, O} <: AbstractAggregateOperators
+    Ham_sys::O_sys
+    Ham_bath::O_bath
+    Ham_S::O
+    Ham_B::O
+    Ham_0::O
+    Ham_I::O
+    Ham::O
+    function AggregateOperators{O_sys, O_bath, O}(
+        Ham_sys::O_sys,
+        Ham_bath::O_bath,
+        Ham_S::O,
+        Ham_B::O,
+        Ham_0::O,
+        Ham_I::O,
+        Ham::O,
+    ) where {O_sys<:Operator, O_bath<:Operator, O<:Operator}
+        new(
+            Ham_sys, Ham_bath,
+            Ham_S, Ham_B, Ham_0, Ham_I, Ham
+        )
+    end
+end
+
+function AggregateOperators(
+        agg::AggregateCore{T,C1,C2}, 
+        aggIndices::Any,
+        franckCondonFactors::Any
+    ) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
+    if aggIndices === nothing
+        aggIndices = getIndices(agg)
+    end
+    if franckCondonFactors === nothing
+        franckCondonFactors = getFranckCondonFactors(agg, aggIndices)
+    end
+
+    Ham_sys = getAggHamSystemSmall(agg)
+    Ham_bath = getAggHamBathSmall(agg)
+    Ham_S = getAggHamSystemBig(agg, aggIndices, franckCondonFactors)
+    Ham_B = getAggHamBathBig(agg)
+    Ham_0 = getAggHamSystemBath(agg, aggIndices, franckCondonFactors)
+    Ham_I = getAggHamInteraction(agg, aggIndices, franckCondonFactors)
+    Ham =  getAggHamiltonian(agg, aggIndices, franckCondonFactors)
+
+    O_sys = typeof(Ham_sys)
+    O_bath = typeof(Ham_bath)
+    O = typeof(Ham_S)
+
+    return AggregateOperators{O_sys, O_bath, O}(
+        Ham_sys, Ham_bath,
+        Ham_S, Ham_B, Ham_0, Ham_I, Ham
+    )
+end
+
+AggregateOperators(
+    agg::AggregateCore{T,C1,C2}
+) where {T<:Integer,C1<:ComputableType,C2<:ComputableType} = AggregateOperators(
+    agg::AggregateCore{T,C1,C2},
+    nothing,
+    nothing
+)
+
+AggregateOperators(
+    agg::AggregateCore{T,C1,C2},
+    aggIndices::Any
+) where {T<:Integer,C1<:ComputableType,C2<:ComputableType} = AggregateOperators(
+    agg::AggregateCore{T,C1,C2},
+    aggIndices,
+    nothing
+)
+
+mutable struct Aggregate 
+    core::Union{AggregateCore, Nothing}
+    tools::Union{AggregateTools, Nothing}
+    operators::Union{AggregateOperators, Nothing}
+end
+
+Aggregate(aggCore) = Aggregate(aggCore, nothing, nothing)
+
+function AggregateTools(agg::Aggregate) 
+    elIndices = electronicIndices(agg.core)
+    vibIndices = vibrationalIndices(agg.core)
+    indices = getIndices(agg.core)
+    FCfactors = getFranckCondonFactors(agg.core, indices)
+
+    return AggregateTools(elIndices, vibIndices, indices, FCfactors)
+end
 
 """
     setupAggregate(agg; groundEnergy=true, verbose=false)
