@@ -40,3 +40,6 @@ function setupAggregate!(agg::Aggregate; groundEnergy::Bool = true)::Aggregate
     agg.operators = AggregateOperators(agg.core, agg.tools; groundEnergy=groundEnergy)
     return agg
 end
+
+Base.:(==)(x::Aggregate, y::Aggregate) = 
+    x.core == y.core && x.tools == y.tools && x.operators == y.operators

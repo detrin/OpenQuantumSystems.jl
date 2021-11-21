@@ -17,27 +17,30 @@ import DelayDiffEq
         abs(tracedistance_nh(dense(op1), dense(op2)))
 
     mode1 = Mode(0.2, 1.0)
+    mode2 = Mode(0.3, 2.0)
     Energy = [0.0, 200.0]
-    mol1 = Molecule([mode1], 2, Energy)
-    mol2 = Molecule([mode1], 2, Energy)
-    agg = Aggregate([mol1, mol2])
-    aggInds = getIndices(agg)
-    aggIndsLen = length(aggInds)
-    basis = GenericBasis([aggIndsLen])
-    FCFact = getFranckCondonFactors(agg, aggInds)
-    Ham = getAggHamiltonian(agg, aggInds, FCFact)
+    mol1 = Molecule([mode1], 3, [2.0, 200.0])
+    mol2 = Molecule([mode2], 3, [3.0, 300.0])
+    aggCore = AggregateCore([mol1, mol2])
+    aggCore.coupling[2, 3] = 50
+    aggCore.coupling[3, 2] = 50
+    agg = setupAggregate(aggCore)
 
-    Ham_I = getAggHamInteraction(agg, aggInds, FCFact)
-    Ham_0 = getAggHamSystemBath(agg, aggInds, FCFact)
-    Ham = getAggHamiltonian(agg, aggInds, FCFact)
+    Ham_I = agg.operators.Ham_I
+    Ham_0 = agg.operators.Ham_0
+    Ham = agg.operators.Ham
+
+    basis = agg.tools.basis
+    aggIndsLen = agg.tools.bSize
 
     data = Matrix(Hermitian(rand(ComplexF64, aggIndsLen, aggIndsLen)))
     rho0 = DenseOperator(basis, basis, data)
     normalize!(rho0)
     # tests have to be quick enough
-    tspan = [0.0:0.01:0.1;]
+    tspan = [0.0:0.002:0.02;]
 
     # TODO: chenge back reltol, abstol after solving QuadGK
+    # TODO: increase precision
     T, rho_t = master_int(
         rho0,
         tspan,
@@ -60,6 +63,7 @@ import DelayDiffEq
         @test 1e-4 > D(rho_ref, rho)
     end
 
+    # TODO: increase precision
     T, rho_t = master(
         rho0,
         tspan,

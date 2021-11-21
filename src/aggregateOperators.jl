@@ -385,3 +385,9 @@ function AggregateOperators(
         groundEnergy
     )
 end
+
+Base.:(==)(x::AggregateOperators, y::AggregateOperators) = 
+    x.Ham_sys == y.Ham_sys && x.Ham_bath == y.Ham_bath &&
+    x.Ham_S == y.Ham_S && x.Ham_B == y.Ham_B && x.Ham_0 == y.Ham_0 &&
+    x.Ham_I == y.Ham_I && x.Ham == y.Ham && 
+    x.groundEnergy == y.groundEnergy
