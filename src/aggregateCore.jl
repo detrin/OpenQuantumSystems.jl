@@ -29,6 +29,10 @@ AggregateCore(molecules::Vector{Molecule{T,C1,C2}}, coupling::Matrix{C1}) where 
 AggregateCore(molecules::Vector{Molecule{T,C1,C2}}) where {T,C1,C2} =
     AggregateCore{T,C1,C2}(molecules, zeros(C1, (length(molecules) + 1, length(molecules) + 1)), length(molecules))
 
+
+Base.:(==)(x::AggregateCore, y::AggregateCore) = 
+    x.molecules == y.molecules && x.coupling == y.coupling && x.molCount == y.molCount
+
 """
     getNvib(aggCore)
 
