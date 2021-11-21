@@ -254,3 +254,8 @@ function AggregateTools(aggCore::AggregateCore)::AggregateTools
         basisSystem, basisBath, basis, bSystemSize, bBathSize, bSize
     )
 end
+
+Base.:(==)(x::AggregateTools, y::AggregateTools) = 
+    x.elIndices == y.elIndices && x.vibIndices == y.vibIndices && x.indices == y.indices && x.FCfactors == y.FCfactors &&
+    x.bSystemSize == y.bSystemSize && x.bBathSize == y.bBathSize && x.bSize == y.bSize &&
+    x.basisSystem == y.basisSystem && x.basisBath == y.basisBath && x.basis == y.basis
