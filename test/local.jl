@@ -1,6 +1,7 @@
 
 using Revise
-using Pkg; Pkg.activate("../"); Pkg.build()
+using Pkg
+# using Pkg; Pkg.activate("../"); Pkg.build()
 # using Pkg; Pkg.activate(); Pkg.build()
 using OpenQuantumSystems
 Pkg.status("OpenQuantumSystems")
