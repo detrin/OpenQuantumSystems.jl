@@ -146,20 +146,23 @@ export
     getMolShifts,
     getMolFrequencies,
 
-    # aggregate.jl
-    Aggregate,
+    # aggregateCore.jl
     AggregateCore,
-    AggregateTools,
-    AggregateOperators,
     getNvib,
     getShifts,
     getFrequencies,
+    getAggStateEnergy,
+
+    # aggregateTools.jl
+    AggregateTools,
     vibrationalIndices,
     electronicIndices,
     getIndices,
-    getVibIndices,
+    getIndicesMap,
     getFranckCondonFactors,
-    getAggStateEnergy,
+    # getFranckCondonFactorsSparse,
+
+    # aggregateOperators.jl
     getAggHamSystemSmall,
     getAggHamSystemBig,
     getAggHamBathSmall,
@@ -167,9 +170,11 @@ export
     getAggHamSystemBath,
     getAggHamInteraction,
     getAggHamiltonian,
-    getFranckCondonFactorsSparse,
     # getAggHamiltonianSparse,
     AggregateOperators,
+
+    # aggregate.jl
+    Aggregate,
     setupAggregate,
 
     # evolution.jl
@@ -233,6 +238,9 @@ include("operators_dense.jl")
 include("superoperators.jl")
 include("metrics.jl")
 include("molecules.jl")
+include("aggregateCore.jl")
+include("aggregateTools.jl")
+include("aggregateOperators.jl")
 include("aggregate.jl")
 include("timeevolution_base.jl")
 include("evolution.jl")
