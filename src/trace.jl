@@ -1,44 +1,5 @@
 
-"""
-    getFCProd(agg, FCFact, aggIndices, vibindices)
 
-Get product of Franck-Condon factors. This way the trace over bath will be faster
-
-"""
-function getFCProd(agg, FCFact, aggIndices, vibindices)
-    elLen = length(agg.molecules)
-    aggIndLen = length(aggIndices)
-    vibLen = length(vibindices[2])
-    elLen += 1
-    FCProd = zeros(eltype(FCFact), aggIndLen, aggIndLen)
-    # println("FCFact")
-    # println(FCFact)
-
-    for I = 1:aggIndLen
-        elind1, vibind1 = aggIndices[I]
-        elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
-
-        for J = 1:aggIndLen
-            elind2, vibind2 = aggIndices[J]
-            elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
-            #=
-            K1 = vibindices[elOrder1][1]
-            K2 = vibindices[elOrder1][end]
-            L1 = vibindices[elOrder2][1]
-            L2 = vibindices[elOrder2][end]
-            FCProd[I, J] = sum(FCFact[K1:K2, I] .* FCFact[J, L1:L2])
-            =#
-
-            for m = 1:vibLen
-                # according to quantarhei, trace_over_vibrations()
-                K = vibindices[1][m]
-                L = vibindices[1][m]
-                FCProd[I, J] += FCFact[K, I] * FCFact[J, L]
-            end
-        end
-    end
-    return FCProd
-end
 
 
 """
