@@ -11,40 +11,36 @@ Trace out bath degrees of freedom from `rho`
 \\sum_{k} \\langle k \\vert \\left( \\sum_{ab} \\rho_{am, bn} \\vert am \\rangle \\langle bn \\vert \\right)\\vert k \\rangle``
 
 """
-function trace_bath(rho::Array, agg, FCProd, aggIndices, vibindices)
-    elLen = length(agg.molecules)
-    aggIndLen = length(aggIndices)
-    vibLen = length(vibindices[2])
-    elLen += 1
-    rho_traced = zeros(eltype(rho), elLen, elLen)
+function trace_bath(
+    W::Array,
+    aggCore::AggregateCore,
+    aggTools::AggregateTools
+)
+    elLen = aggCore.molCount + 1
+    rho = zeros(eltype(W), elLen, elLen)
 
-    for I = 1:aggIndLen
-        elind1, vibind1 = aggIndices[I]
+    for I = 1:aggTools.bSize
+        elind1, vibind1 = aggTools.indices[I]
         elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
 
-        for J = 1:aggIndLen
-            elind2, vibind2 = aggIndices[J]
+        for J = 1:aggTools.bSize
+            elind2, vibind2 = aggTools.indices[J]
             elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
 
-            rho_traced[elOrder1, elOrder2] += rho[I, J] * FCProd[I, J]
+            rho[elOrder1, elOrder2] += W[I, J] * aggTools.FCproduct[I, J]
         end
     end
-    return rho_traced
+    return rho
 end
 
 
 function trace_bath(
-    rho::T,
-    agg,
-    FCProd,
-    aggIndices,
-    vibindices
-) where {B<:Basis,T<:Operator{B,B}}
-    rho_traced =
-        trace_bath(rho.data, agg, FCProd, aggIndices, vibindices)
-    basisLen = size(rho_traced, 1)
-    basis = GenericBasis([basisLen])
-    return DenseOperator(basis, basis, rho_traced)
+    W::Operator,
+    aggCore::AggregateCore,
+    aggTools::AggregateTools
+) 
+    rho = trace_bath(W.data, aggCore, aggTools)
+    return DenseOperator(aggTools.basisSystem, aggTools.basisSystem, rho)
 end
 
 """
@@ -54,144 +50,112 @@ Trace out bath degrees of freedom from `rho` without the product of Franck-Condo
 
 """
 function trace_bath_slow(
-    rho::Array,
-    agg,
-    FCFact,
-    aggIndices,
-    vibindices
+    W::Array,
+    aggCore::AggregateCore,
+    aggTools::AggregateTools
 )
-    elLen = length(agg.molecules)
-    aggIndLen = length(aggIndices)
-    vibLen = length(vibindices[2])
-    elLen += 1
-    rho_traced = zeros(eltype(rho), elLen, elLen)
+    elLen = aggCore.molCount + 1
+    rho = zeros(eltype(W), elLen, elLen)
 
-    for I = 1:aggIndLen
-        elind1, vibind1 = aggIndices[I]
+    for I = 1:aggTools.bSize
+        elind1, vibind1 = aggTools.indices[I]
         elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
 
-        for J = 1:aggIndLen
-            elind2, vibind2 = aggIndices[J]
+        for J = 1:aggTools.bSize
+            elind2, vibind2 = aggTools.indices[J]
             elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
 
-            for m = 1:vibLen
+            for m = 1:aggTools.bBathSize
                 # according to quantarhei, trace_over_vibrations()
-                K = vibindices[1][m]
-                L = vibindices[1][m]
-                rho_traced[elOrder1, elOrder2] +=
-                    FCFact[K, I] * rho[I, J] * FCFact[J, L]
+                K = aggTools.indicesMap[1][m]
+                L = aggTools.indicesMap[1][m]
+                rho[elOrder1, elOrder2] += aggTools.FCfactors[K, I] * W[I, J] * aggTools.FCfactors[J, L]
             end
         end
     end
-    return rho_traced
+    return rho
 end
 
 function trace_bath_slow(
-    rho::T,
-    agg,
-    FCFact,
-    aggIndices,
-    vibindices
-) where {B<:Basis,T<:Operator{B,B}}
-    rho_traced = trace_bath_slow(
-        rho.data,
-        agg,
-        FCFact,
-        aggIndices,
-        vibindices
+    W::Operator,
+    aggCore::AggregateCore,
+    aggTools::AggregateTools
+) 
+    rho = trace_bath_slow(
+        W.data,
+        aggCore,
+        aggTools
     )
-    basisLen = size(rho_traced, 1)
-    basis = GenericBasis([basisLen])
-    return DenseOperator(basis, basis, rho_traced)
+    return DenseOperator(aggTools.basisSystem, aggTools.basisSystem, rho)
 end
 
 """
     trace_bath(rho, a, b, agg, FCProd, aggIndices, vibindices)
-
 Trace out bath degrees of freedom from `rho` without the product of Franck-Condon factors.
 The trace will be done only on the Hilber space for electric bra part `a` and ket part `b`.
 Input density matrix `rho` is for the whole Hilber space. This method returns number.
-
 """
-function trace_bath(rho::Array, a, b, agg, FCProd, aggIndices, vibindices)
-    aggIndLen = length(aggIndices)
-    vibLen = length(vibindices[2])
-    rho_traced = eltype(rho)(0)
+function trace_bath(    
+    W::Array, 
+    a::N, 
+    b::N, 
+    aggTools::AggregateTools
+) where {N <: Integer}
+    rho = eltype(W)(0)
 
-    a_vibindices = vibindices[a]
-    b_vibindices = vibindices[b]
-
-    for I in a_vibindices
-        for J in b_vibindices
-            rho_traced += rho[I, J] * FCProd[I, J]
+    for I in aggTools.indicesMap[a]
+        for J in aggTools.indicesMap[b]
+            rho += W[I, J] * aggTools.FCproduct[I, J]
         end
     end
-    return rho_traced
+    rho
 end
 
 function trace_bath(
-    rho::T,
-    a,
-    b,
-    agg,
-    FCProd,
-    aggIndices,
-    vibindices,
-) where {B<:Basis,T<:Operator{B,B}}
-    rho_traced = trace_bath(rho.data, a, b, agg, FCProd, aggIndices, vibindices)
-    return rho_traced
+    W::Operator,
+    a::N, 
+    b::N, 
+    aggTools::AggregateTools
+) where {N <: Integer}
+    rho = trace_bath(W.data, a, b, aggTools)
+    return rho
 end
 
 """
     trace_bath_part(rho, a, b, agg, FCProd, aggIndices, vibindices)
-
 Trace out bath degrees of freedom from `rho` without the product of Franck-Condon factors.
 The trace will be done only on the Hilber space for electric bra part `a` and ket part `b`.
 Input density matrix `rho` is only for the subspace. This method returns number.
-
 """
 function trace_bath_part(
-    rho::Array,
-    a,
-    b,
-    agg,
-    FCProd,
-    aggIndices,
-    vibindices
-)
-    vibLen = length(vibindices[2])
-    rho_traced = eltype(rho)(0)
+    W::Array,
+    a::N, 
+    b::N, 
+    aggTools::AggregateTools
+) where {N <: Integer}
+    rho_traced = eltype(W)(0)
 
-    a_vibindices = vibindices[a]
-    b_vibindices = vibindices[b]
-
-    for a_vib = 1:vibLen
-        I = a_vibindices[a_vib]
-        for b_vib = 1:vibLen
-            J = b_vibindices[b_vib]
-            rho_traced += rho[a_vib, b_vib] * FCProd[I, J]
+    for a_vib = 1:aggTools.bBathSize
+        I = aggTools.indicesMap[a][a_vib]
+        for b_vib = 1:aggTools.bBathSize
+            J = aggTools.indicesMap[b][b_vib]
+            rho_traced += W[a_vib, b_vib] * aggTools.FCproduct[I, J]
         end
     end
     return rho_traced
 end
 
 function trace_bath_part(
-    rho::T,
-    a,
-    b,
-    agg,
-    FCProd,
-    aggIndices,
-    vibindices
-) where {B<:Basis,T<:Operator{B,B}}
-    rho_traced = trace_bath(
-        rho.data,
+    W::Operator,
+    a::N, 
+    b::N, 
+    aggTools::AggregateTools
+) where {N <: Integer}
+    rho_traced = trace_bath_part(
+        W.data,
         a,
         b,
-        agg,
-        FCProd,
-        aggIndices,
-        vibindices
+        aggTools
     )
     return rho_traced
 end
@@ -208,26 +172,22 @@ This method will return the bath part of `rho` knowing the result of [`trace_bat
 
 """
 function get_rho_bath(
-    rho::Array,
-    agg,
-    FCProd,
-    aggIndices,
-    vibindices;
-    justCopy = false,
+    W::Array,
+    aggCore::AggregateCore,
+    aggTools::AggregateTools;
+    justCopy::Bool = false,
 )
-    rho_traced =
-        trace_bath(rho, agg, FCProd, aggIndices, vibindices)
+    rho = trace_bath(W, aggCore, aggTools)
+    vibindices = aggTools.indicesMap
     vibLen = length(vibindices[end])
-    aggIndLen = length(aggIndices)
-    elLen = length(agg.molecules)
-    elLen += 1
-    rho_bath = zeros(eltype(rho), aggIndLen, aggIndLen)
+    elLen = aggCore.molCount + 1
+    rho_bath = zeros(eltype(rho), aggTools.bSize, aggTools.bSize)
     rho_bath_ref = zeros(eltype(rho), vibLen, vibLen)
 
     el1_p = 0
     el2_p = 0
     for el1 = 1:elLen, el2 = 1:elLen
-        if abs(rho_traced[el1, el2]) != 0
+        if abs(rho[el1, el2]) != 0
             el1_p = el1
             el2_p = el2
             break
@@ -237,18 +197,18 @@ function get_rho_bath(
     vib12 = vibindices[el1_p][end]
     vib21 = vibindices[el2_p][1]
     vib22 = vibindices[el2_p][end]
-    rho_bath_ref[:, :] = rho[vib11:vib12, vib21:vib22] / rho_traced[el1_p, el2_p]
+    rho_bath_ref[:, :] = W[vib11:vib12, vib21:vib22] / rho[el1_p, el2_p]
     for el1 = 1:elLen, el2 = 1:elLen
         vib11 = vibindices[el1][1]
         vib12 = vibindices[el1][end]
         vib21 = vibindices[el2][1]
         vib22 = vibindices[el2][end]
-        if abs(rho_traced[el1, el2]) != 0
+        if abs(rho[el1, el2]) != 0
             rho_bath[vib11:vib12, vib21:vib22] =
-                rho[vib11:vib12, vib21:vib22] / rho_traced[el1, el2]
+                W[vib11:vib12, vib21:vib22] / rho[el1, el2]
         else
             if justCopy
-                rho_bath[vib11:vib12, vib21:vib22] = rho[vib11:vib12, vib21:vib22]
+                rho_bath[vib11:vib12, vib21:vib22] = W[vib11:vib12, vib21:vib22]
             else
                 rho_bath[vib11:vib12, vib21:vib22] = rho_bath_ref[:, :]
             end
@@ -259,27 +219,23 @@ function get_rho_bath(
 end
 
 function get_rho_bath(
-    rho::T,
-    agg,
-    FCProd,
-    aggIndices,
-    vibindices;
-    justCopy = false,
-) where {B<:Basis,T<:Operator{B,B}}
+    W::Operator,
+    aggCore::AggregateCore,
+    aggTools::AggregateTools,
+    justCopy = false
+)
     rho_data = get_rho_bath(
-        rho.data,
-        agg,
-        FCProd,
-        aggIndices,
-        vibindices;
-        justCopy = justCopy,
+        W.data,
+        aggCore,
+        aggTools;
+        justCopy = justCopy
     )
-    return DenseOperator(rho.basis_l, rho.basis_r, rho_data)
+    return DenseOperator(W.basis_l, W.basis_r, rho_data)
 end
 
 
 """
-    ad(rho_traced, rho_bath, agg, FCProd, aggIndices, vibindices)
+    ad(rho, rho_bath, agg, FCProd, aggIndices, vibindices)
 
 This is the inverse operation to the trace over bath [`trace_bath`](@ref) and [`get_rho_bath`](@ref) 
 defined as follows
@@ -288,94 +244,70 @@ defined as follows
 
 """
 function ad(
-    rho_traced::Array,
+    rho::Array,
     rho_bath::Array,
-    agg,
-    FCProd,
-    aggIndices,
-    vibindices;
+    aggCore::AggregateCore,
+    aggTools::AggregateTools
 )
-    elLen = length(agg.molecules)
-    aggIndLen = length(aggIndices)
-    vibLen = length(vibindices[2])
-    elLen += 1
     W = zero(rho_bath)
 
-    for I = 1:aggIndLen
-        elind1, vibind1 = aggIndices[I]
+    for I = 1:aggTools.bSize
+        elind1, vibind1 = aggTools.indices[I]
         elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
 
-        for J = 1:aggIndLen
-            elind2, vibind2 = aggIndices[J]
+        for J = 1:aggTools.bSize
+            elind2, vibind2 = aggTools.indices[J]
             elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
 
-            W[I, J] = rho_traced[elOrder1, elOrder2] * rho_bath[I, J]
+            W[I, J] = rho[elOrder1, elOrder2] * rho_bath[I, J]
         end
     end
     return W
 end
 
 function ad(
-    rho_traced::T,
+    rho::Operator,
     W_bath::Array,
-    agg,
-    FCFact,
-    aggIndices,
-    vibindices
-) where {B<:Basis,T<:Operator{B,B}}
+    aggCore::AggregateCore,
+    aggTools::AggregateTools;
+) 
     W = ad(
-        rho_traced.data,
+        rho.data,
         W_bath,
-        agg,
-        FCFact,
-        aggIndices,
-        vibindices
+        aggCore,
+        aggTools
     )
-    basisLen = size(W, 1)
-    basis = GenericBasis([basisLen])
-    return DenseOperator(basis, basis, W)
+    return DenseOperator(aggTools.basis, aggTools.basis, W)
 end
 
 function ad(
-    rho_traced::Array,
-    W_bath::T,
-    agg,
-    FCFact,
-    aggIndices,
-    vibindices
-) where {B<:Basis,T<:Operator{B,B}}
+    rho::Array,
+    W_bath::Operator,
+    aggCore::AggregateCore,
+    aggTools::AggregateTools
+) 
     W = ad(
-        rho_traced,
+        rho,
         W_bath.data,
-        agg,
-        FCFact,
-        aggIndices,
-        vibindices
+        aggCore,
+        aggTools
     )
-    basisLen = size(W, 1)
-    basis = GenericBasis([basisLen])
-    return DenseOperator(basis, basis, W)
+    return DenseOperator(aggTools.basis, aggTools.basis, W)
 end
 
 function ad(
-    rho_traced::T,
-    W_bath::T,
-    agg,
-    FCFact,
-    aggIndices,
-    vibindices
-) where {B<:Basis,T<:Operator{B,B}}
+    rho::Operator,
+    W_bath::Operator,
+    aggCore::AggregateCore,
+    aggTools::AggregateTools;
+) 
     W = ad(
-        rho_traced.data,
+        rho.data,
         W_bath.data,
-        agg,
-        FCFact,
-        aggIndices,
-        vibindices
+        aggCore,
+        aggTools
     )
-    basisLen = size(W, 1)
-    basis = GenericBasis([basisLen])
-    return DenseOperator(basis, basis, W)
+    return DenseOperator(aggTools.basis, aggTools.basis, W)
 end
 
 
@@ -392,12 +324,10 @@ function correlation_function(
     rho0_bath,
     Ham_0,
     Ham_I,
-    agg,
-    FCProd,
-    aggInds,
-    vibindices
+    aggCore::AggregateCore,
+    aggTools::AggregateTools
 )
     Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
     prod = Ham_II_t * Ham_I * rho0_bath
-    return trace_bath(prod, agg, FCProd, aggInds, vibindices)
+    return trace_bath(prod, aggCore, aggTools)
 end
