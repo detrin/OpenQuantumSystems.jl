@@ -20,6 +20,7 @@ names = [
     # "test_master_ansatz.jl",
 ]
 
+#=
 detected_tests =
     filter(name -> startswith(name, "test_") && endswith(name, ".jl"), readdir("."))
 
@@ -32,6 +33,7 @@ unavailable_tests = setdiff(names, detected_tests)
 if length(unavailable_tests) != 0
     error("The following tests could not be found:\n", join(unavailable_tests, "\n"))
 end
+=#
 
 if length(ARGS) != 0
     names = map(x -> "test_" * x * ".jl", ARGS)
