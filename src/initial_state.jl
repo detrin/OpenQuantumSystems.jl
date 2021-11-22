@@ -45,13 +45,15 @@ Condon approximation.
 function thermal_state(
     T,
     mu_array,
-    Ham,
-    vibindices,
-    aggIndices;
+    aggCore::AggregateCore,
+    aggTools::AggregateTools,
+    aggOperators::AggregateOperators;
     boltzmann_const::Float64 = 0.69503476,
     diagonalize::Bool = false,
     diagonal = false
 )
+    vibindices = aggTools.indicesMap
+    Ham = aggOperators.Ham
     a1 = vibindices[1][1]
     a2 = vibindices[1][end]
     Ham_g = Ham.data[a1:a2, a1:a2]
@@ -82,12 +84,16 @@ end
 function thermal_state_old(
     T,
     mu_array,
-    Ham,
-    aggIndices;
+    aggCore::AggregateCore,
+    aggTools::AggregateTools,
+    aggOperators::AggregateOperators;
     boltzmann_const::Float64 = 0.69503476,
     diagonalize::Bool = false,
-    diagonal = false,
+    diagonal = false
 )
+    vibindices = aggTools.indicesMap
+    aggIndices = aggTools.indices
+    Ham = aggOperators.Ham
     aggIndsLen = length(aggIndices)
     data = -Ham.data / (T * boltzmann_const)
     if diagonal
@@ -148,13 +154,16 @@ thermal_state_composite(T, [0.0, 0.8, 0.2], ...) = 0.8 * thermal_state(T, [1, 2,
 function thermal_state_composite(
     T,
     mu_weighted,
-    Ham,
-    vibindices,
-    aggIndices;
+    aggCore::AggregateCore,
+    aggTools::AggregateTools,
+    aggOperators::AggregateOperators;
     boltzmann_const::Float64 = 0.69503476,
     diagonalize::Bool = false,
     diagonal = false,
 )
+    vibindices = aggTools.indicesMap
+    aggIndices = aggTools.indices
+    Ham = aggOperators.Ham
     a1 = vibindices[1][1]
     a2 = vibindices[1][end]
     Ham_g = Ham.data[a1:a2, a1:a2]
@@ -184,12 +193,16 @@ end
 function thermal_state_composite_old(
     T,
     mu_weighted,
-    Ham,
-    aggIndices;
+    aggCore::AggregateCore,
+    aggTools::AggregateTools,
+    aggOperators::AggregateOperators;
     boltzmann_const::Float64 = 0.69503476,
     diagonalize::Bool = false,
     diagonal = false,
 )
+    vibindices = aggTools.indicesMap
+    aggIndices = aggTools.indices
+    Ham = aggOperators.Ham
     aggIndsLen = length(aggIndices)
     data = -Ham.data / (T * boltzmann_const)
     if diagonal
