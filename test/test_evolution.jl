@@ -57,7 +57,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     U_op3 = evolutionOperator(Ham, 1.0)
     @test 1e-12 > D(U_op_array[1], U_op1)
     @test 1e-12 > D(U_op_array[2], U_op2)
-    @test 1e-12 > D(U_op_array[3], U_op3)
+    @test 1e-11 > D(U_op_array[3], U_op3)
 
     U_sop_array = evolutionSuperOperatorArray(Ham, tspan)
     U_sop1 = evolutionSuperOperator(Ham, 0.0)
@@ -70,7 +70,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     t = 0.0
     foreach(evolutionOperatorIterator(Ham, tspan)) do U_op
         U_op_ref = evolutionOperator(Ham, t)
-        @test 1e-12 > D(U_op, U_op_ref)
+        @test 1e-11 > D(U_op, U_op_ref)
         t += 0.5
     end
 
