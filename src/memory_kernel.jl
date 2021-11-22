@@ -1,23 +1,21 @@
 
 """
-    take_el_part(A, a, b, vibindices)
+    take_el_part(A, a, b, indicesMap)
 
 Take electric part specified by electric indices `a` and `b` from the A (type of Array). 
 
 """
-function take_el_part(A::Array, a, b, vibindices)
-    a1 = vibindices[a][1]
-    a2 = vibindices[a][end]
-    b1 = vibindices[b][1]
-    b2 = vibindices[b][end]
+function take_el_part(A::Array, a, b, indicesMap)
+    a1 = indicesMap[a][1]
+    a2 = indicesMap[a][end]
+    b1 = indicesMap[b][1]
+    b2 = indicesMap[b][end]
 
     return A[a1:a2, b1:b2]
 end
 
-
-
 """
-    MemoryKernel_1_traced(H_II_t, H_II_tau, W_bath, agg, FCProd, aggIndices, vibindices)
+    MemoryKernel_1_traced(H_II_t, H_II_tau, W_bath, agg, FCProd, aggIndices, indicesMap)
 
 Calculate the first part of Memory Kernel with the definition
 
@@ -29,32 +27,28 @@ Calculate the first part of Memory Kernel with the definition
 * `W_bath`: Density matrix representing bath part of the density matrix, see [`get_rho_bath`](@ref).
 * `agg`: Aggregate of molecules, see [`Aggregate`](@ref).
 * `aggIndices`: Aggregate indices, see [`getIndices`](@ref).
-* `vibindices`: Aggregate vibrational indices, see [`getVibIndices`](@ref).
+* `indicesMap`: Aggregate vibrational indices, see [`getVibIndices`](@ref).
 """
 function MemoryKernel_1_traced(
     H_II_t::Array,
     H_II_tau::Array,
     W_bath::Array,
-    agg,
-    FCProd,
-    aggIndices,
-    vibindices
+    aggCore::AggregateCore,
+    aggTools::AggregateTools
 )
-    aggIndLen = length(aggIndices)
-    vibLen = length(vibindices[2])
-    elLen = length(agg.molecules)
-    elLen += 1
+    indicesMap = aggTools.indicesMap
+    elLen = aggCore.molCount + 1
     MemoryKernel = zeros(ComplexF64, elLen, elLen, elLen, elLen)
     H_II_t_tau = H_II_t * H_II_tau
 
     for a = 1:elLen
         for c = 1:elLen
-            H_II_t_tau_ac = take_el_part(H_II_t_tau, a, c, vibindices)
+            H_II_t_tau_ac = take_el_part(H_II_t_tau, a, c, indicesMap)
             for d = 1:elLen
-                W_bath_cd = take_el_part(W_bath, c, d, vibindices)
+                W_bath_cd = take_el_part(W_bath, c, d, indicesMap)
                 MK_big = H_II_t_tau_ac * W_bath_cd
                 MemoryKernel[a, d, c, d] =
-                    trace_bath_part(MK_big, a, d, agg, FCProd, aggIndices, vibindices)
+                    trace_bath_part(MK_big, a, d, aggTools)
             end
         end
     end
@@ -63,7 +57,7 @@ end
 
 
 """
-    MemoryKernel_2_traced(H_II_t, H_II_tau, W_bath, agg, FCProd, aggIndices, vibindices)
+    MemoryKernel_2_traced(H_II_t, H_II_tau, W_bath, agg, FCProd, aggIndices, indicesMap)
 
 Calculate the second part of Memory Kernel with the definition
 
@@ -75,39 +69,32 @@ Calculate the second part of Memory Kernel with the definition
 * `W_bath`: Density matrix representing bath part of the density matrix, see [`get_rho_bath`](@ref).
 * `agg`: Aggregate of molecules, see [`Aggregate`](@ref).
 * `aggIndices`: Aggregate indices, see [`getIndices`](@ref).
-* `vibindices`: Aggregate vibrational indices, see [`getVibIndices`](@ref).
+* `indicesMap`: Aggregate vibrational indices, see [`getVibIndices`](@ref).
 """
 function MemoryKernel_2_traced(
     H_II_t::Array,
     H_II_tau::Array,
     W_bath::Array,
-    agg,
-    FCProd,
-    aggIndices,
-    vibindices
+    aggCore::AggregateCore,
+    aggTools::AggregateTools
 )
-    aggIndLen = length(aggIndices)
-    vibLen = length(vibindices[2])
-    elLen = length(agg.molecules)
-    elLen += 1
+    indicesMap = aggTools.indicesMap
+    elLen = aggCore.molCount + 1
     MemoryKernel = zeros(ComplexF64, elLen, elLen, elLen, elLen)
 
     for a = 1:elLen
         for b = 1:elLen
             for c = 1:elLen
-                H_II_t_ac = take_el_part(H_II_t, a, c, vibindices)
+                H_II_t_ac = take_el_part(H_II_t, a, c, indicesMap)
                 for d = 1:elLen
-                    H_II_tau_db = take_el_part(H_II_tau, d, b, vibindices)
-                    W_bath_cd = take_el_part(W_bath, c, d, vibindices)
+                    H_II_tau_db = take_el_part(H_II_tau, d, b, indicesMap)
+                    W_bath_cd = take_el_part(W_bath, c, d, indicesMap)
                     MK_big = H_II_t_ac * W_bath_cd * H_II_tau_db
                     MemoryKernel[a, b, c, d] = trace_bath_part(
                         MK_big,
                         a,
                         b,
-                        agg,
-                        FCProd,
-                        aggIndices,
-                        vibindices,
+                        aggTools
                     )
                 end
             end
@@ -118,7 +105,7 @@ end
 
 
 """
-    MemoryKernel_3_traced(H_II_t, H_II_tau, W_bath, agg, FCProd, aggIndices, vibindices)
+    MemoryKernel_3_traced(H_II_t, H_II_tau, W_bath, agg, FCProd, aggIndices, indicesMap)
 
 Calculate the third part of Memory Kernel with the definition
 
@@ -130,39 +117,32 @@ Calculate the third part of Memory Kernel with the definition
 * `W_bath`: Density matrix representing bath part of the density matrix, see [`get_rho_bath`](@ref).
 * `agg`: Aggregate of molecules, see [`Aggregate`](@ref).
 * `aggIndices`: Aggregate indices, see [`getIndices`](@ref).
-* `vibindices`: Aggregate vibrational indices, see [`getVibIndices`](@ref).
+* `indicesMap`: Aggregate vibrational indices, see [`getVibIndices`](@ref).
 """
 function MemoryKernel_3_traced(
     H_II_t::Array,
     H_II_tau::Array,
     W_bath::Array,
-    agg,
-    FCProd,
-    aggIndices,
-    vibindices
+    aggCore::AggregateCore,
+    aggTools::AggregateTools
 )
-    aggIndLen = length(aggIndices)
-    vibLen = length(vibindices[2])
-    elLen = length(agg.molecules)
-    elLen += 1
+    indicesMap = aggTools.indicesMap
+    elLen = aggCore.molCount + 1
     MemoryKernel = zeros(ComplexF64, elLen, elLen, elLen, elLen)
 
     for a = 1:elLen
         for b = 1:elLen
             for c = 1:elLen
-                H_II_tau_ac = take_el_part(H_II_tau, a, c, vibindices)
+                H_II_tau_ac = take_el_part(H_II_tau, a, c, indicesMap)
                 for d = 1:elLen
-                    W_bath_cd = take_el_part(W_bath, c, d, vibindices)
-                    H_II_t_db = take_el_part(H_II_t, d, b, vibindices)
+                    W_bath_cd = take_el_part(W_bath, c, d, indicesMap)
+                    H_II_t_db = take_el_part(H_II_t, d, b, indicesMap)
                     MK_big = H_II_tau_ac * W_bath_cd * H_II_t_db
                     MemoryKernel[a, b, c, d] = trace_bath_part(
                         MK_big,
                         a,
                         b,
-                        agg,
-                        FCProd,
-                        aggIndices,
-                        vibindices,
+                        aggTools
                     )
                 end
             end
@@ -173,7 +153,7 @@ end
 
 
 """
-    MemoryKernel_4_traced(H_II_t, H_II_tau, W_bath, agg, FCProd, aggIndices, vibindices)
+    MemoryKernel_4_traced(H_II_t, H_II_tau, W_bath, agg, FCProd, aggIndices, indicesMap)
 
 Calculate the fourth part of Memory Kernel with the definition
 
@@ -185,32 +165,28 @@ Calculate the fourth part of Memory Kernel with the definition
 * `W_bath`: Density matrix representing bath part of the density matrix, see [`get_rho_bath`](@ref).
 * `agg`: Aggregate of molecules, see [`Aggregate`](@ref).
 * `aggIndices`: Aggregate indices, see [`getIndices`](@ref).
-* `vibindices`: Aggregate vibrational indices, see [`getVibIndices`](@ref).
+* `indicesMap`: Aggregate vibrational indices, see [`getVibIndices`](@ref).
 """
 function MemoryKernel_4_traced(
     H_II_t::Array,
     H_II_tau::Array,
     W_bath::Array,
-    agg,
-    FCProd,
-    aggIndices,
-    vibindices
+    aggCore::AggregateCore,
+    aggTools::AggregateTools
 )
-    aggIndLen = length(aggIndices)
-    vibLen = length(vibindices[2])
-    elLen = length(agg.molecules)
-    elLen += 1
+    indicesMap = aggTools.indicesMap
+    elLen = aggCore.molCount + 1
     MemoryKernel = zeros(ComplexF64, elLen, elLen, elLen, elLen)
     H_II_tau_t = H_II_tau * H_II_t
 
     for a = 1:elLen
         for b = 1:elLen
             for d = 1:elLen
-                W_bath_ad = take_el_part(W_bath, a, d, vibindices)
-                H_II_tau_t_db = take_el_part(H_II_tau_t, d, b, vibindices)
+                W_bath_ad = take_el_part(W_bath, a, d, indicesMap)
+                H_II_tau_t_db = take_el_part(H_II_tau_t, d, b, indicesMap)
                 MK_big = W_bath_ad * H_II_tau_t_db
                 MemoryKernel[a, b, a, d] =
-                    trace_bath_part(MK_big, a, b, agg, FCProd, aggIndices, vibindices)
+                    trace_bath_part(MK_big, a, b, aggTools)
             end
         end
     end
@@ -219,7 +195,7 @@ end
 
 
 """
-    MemoryKernel_traced(H_II_t, H_II_tau, W_bath, agg, FCProd, aggIndices, vibindices)
+    MemoryKernel_traced(H_II_t, H_II_tau, W_bath, agg, FCProd, aggIndices, indicesMap)
 
 Calculate Memory Kernel with the definition
 
@@ -231,44 +207,40 @@ Calculate Memory Kernel with the definition
 * `W_bath`: Density matrix representing bath part of the density matrix, see [`get_rho_bath`](@ref).
 * `agg`: Aggregate of molecules, see [`Aggregate`](@ref).
 * `aggIndices`: Aggregate indices, see [`getIndices`](@ref).
-* `vibindices`: Aggregate vibrational indices, see [`getVibIndices`](@ref).
+* `indicesMap`: Aggregate vibrational indices, see [`getVibIndices`](@ref).
 """
 function MemoryKernel_traced(
     H_II_t::Array,
     H_II_tau::Array,
     W_bath::Array,
-    agg,
-    FCProd,
-    aggIndices,
-    vibindices
+    aggCore::AggregateCore,
+    aggTools::AggregateTools
 )
-    aggIndLen = length(aggIndices)
-    vibLen = length(vibindices[2])
-    elLen = length(agg.molecules)
-    elLen += 1
+    indicesMap = aggTools.indicesMap
+    elLen = aggCore.molCount + 1
     MemoryKernel = zeros(ComplexF64, elLen, elLen, elLen, elLen)
     H_II_tau_t = H_II_tau * H_II_t
     H_II_t_tau = H_II_t * H_II_tau
 
     for a = 1:elLen
         for c = 1:elLen
-            H_II_t_tau_ac = take_el_part(H_II_t_tau, a, c, vibindices)
-            H_II_tau_ac = take_el_part(H_II_tau, a, c, vibindices)
-            H_II_t_ac = take_el_part(H_II_t, a, c, vibindices)
+            H_II_t_tau_ac = take_el_part(H_II_t_tau, a, c, indicesMap)
+            H_II_tau_ac = take_el_part(H_II_tau, a, c, indicesMap)
+            H_II_t_ac = take_el_part(H_II_t, a, c, indicesMap)
             for d = 1:elLen
-                W_bath_cd = take_el_part(W_bath, c, d, vibindices)
-                W_bath_cd = take_el_part(W_bath, c, d, vibindices)
+                W_bath_cd = take_el_part(W_bath, c, d, indicesMap)
+                W_bath_cd = take_el_part(W_bath, c, d, indicesMap)
                 for b = 1:elLen
-                    H_II_tau_db = take_el_part(H_II_tau, d, b, vibindices)
+                    H_II_tau_db = take_el_part(H_II_tau, d, b, indicesMap)
 
                     MK_big = -H_II_t_ac * W_bath_cd * H_II_tau_db
 
-                    H_II_t_db = take_el_part(H_II_t, d, b, vibindices)
+                    H_II_t_db = take_el_part(H_II_t, d, b, indicesMap)
                     MK_big[:, :] -= H_II_tau_ac * W_bath_cd * H_II_t_db
 
                     if a == c
-                        W_bath_ad = take_el_part(W_bath, a, d, vibindices)
-                        H_II_tau_t_db = take_el_part(H_II_tau_t, d, b, vibindices)
+                        W_bath_ad = take_el_part(W_bath, a, d, indicesMap)
+                        H_II_tau_t_db = take_el_part(H_II_tau_t, d, b, indicesMap)
                         MK_big[:, :] += W_bath_ad * H_II_tau_t_db
                     end
 
@@ -279,10 +251,7 @@ function MemoryKernel_traced(
                         MK_big,
                         a,
                         b,
-                        agg,
-                        FCProd,
-                        aggIndices,
-                        vibindices,
+                        aggTools
                     )
                 end
             end
