@@ -221,7 +221,7 @@ end
 function get_rho_bath(
     W::Operator,
     aggCore::AggregateCore,
-    aggTools::AggregateTools,
+    aggTools::AggregateTools;
     justCopy = false
 )
     rho_data = get_rho_bath(
