@@ -14,10 +14,10 @@ names = [
     "test_liouville.jl",
     "test_interaction_picture.jl",
     "test_master.jl",
-    # "test_trace.jl",
-    # "test_initial_state.jl",
-    # "test_memory_kernel.jl",
-    # "test_master_ansatz.jl",
+    "test_trace.jl",
+    "test_initial_state.jl",
+    "test_memory_kernel.jl",
+    "test_master_ansatz.jl",
 ]
 
 #=
