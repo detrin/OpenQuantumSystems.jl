@@ -7,7 +7,7 @@ names = [
     "test_superoperators.jl",
     "test_metrics.jl",
     "test_molecules.jl",
-    "test_aggregateCore.jl"
+    "test_aggregateCore.jl",
     "test_aggregate.jl",
     "test_evolution.jl",
     "test_schroedinger.jl",
