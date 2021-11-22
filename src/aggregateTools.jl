@@ -7,6 +7,7 @@ const VibIndices = Vector{Vector{Vector{Int64}}} where T <: Integer
 const Indices = Vector{Vector{Vector{T} where T}}
 const IndicesMap = Vector{Vector{T}} where T <: Integer 
 const FCfactorsT = Matrix{T} where T <: AbstractFloat
+const FCproductT = Matrix{T} where T <: AbstractFloat
 
 """
     vibrationalIndices(aggCore)
@@ -118,9 +119,6 @@ function getFranckCondonFactors(
     aggCore::AggregateCore,
     aggIndices::Indices
 )::FCfactorsT
-    if aggIndices === nothing
-        aggIndices = getIndices(aggCore)
-    end
     aggIndLen = length(aggIndices)
     molLen = length(aggCore.molecules)
     FC = zeros(Float64, (aggIndLen, aggIndLen))
@@ -148,7 +146,10 @@ end
 
 getFranckCondonFactors(
     aggCore::AggregateCore
-    )::FCfactorsT = getFranckCondonFactors(aggCore, nothing)
+    )::FCfactorsT = (
+        aggIndices = getIndices(aggCore);
+        getFranckCondonFactors(aggCore, aggIndices)
+)
 
 # TODO: resurrect sparse version
 #=
@@ -201,12 +202,57 @@ getFranckCondonFactorsSparse(
 )
 =#
 
+"""
+    getFCProd(agg, FCFact, aggIndices, vibindices)
+
+Get product of Franck-Condon factors. This way the trace over bath will be faster
+
+"""
+function getFCproduct(
+        aggCore::AggregateCore, 
+        indices::Indices, 
+        indicesMap::IndicesMap, 
+        FCfactors::FCfactorsT
+    )::FCproductT
+    elLen = length(aggCore.molecules)
+    aggIndLen = length(indices)
+    vibLen = length(indicesMap[2])
+    elLen += 1
+    FCproduct = zeros(eltype(FCfactors), aggIndLen, aggIndLen)
+
+    for I = 1:aggIndLen
+        elind1, vibind1 = indices[I]
+        elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
+
+        for J = 1:aggIndLen
+            elind2, vibind2 = indices[J]
+            elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
+            #=
+            K1 = vibindices[elOrder1][1]
+            K2 = vibindices[elOrder1][end]
+            L1 = vibindices[elOrder2][1]
+            L2 = vibindices[elOrder2][end]
+            FCProd[I, J] = sum(FCFact[K1:K2, I] .* FCFact[J, L1:L2])
+            =#
+
+            for m = 1:vibLen
+                # according to quantarhei, trace_over_vibrations()
+                K = indicesMap[1][m]
+                L = indicesMap[1][m]
+                FCproduct[I, J] += FCfactors[K, I] * FCfactors[J, L]
+            end
+        end
+    end
+    return FCproduct
+end
+
 struct AggregateTools <: AbstractAggregateTools
     elIndices::ElIndices
     vibIndices::VibIndices
     indices::Indices
     indicesMap::IndicesMap
     FCfactors::FCfactorsT
+    FCproduct::FCproductT
     basisSystem::GenericBasis
     basisBath::GenericBasis
     basis::GenericBasis
@@ -219,6 +265,7 @@ struct AggregateTools <: AbstractAggregateTools
         indices::Indices,
         indicesMap::IndicesMap,
         FCfactors::FCfactorsT,
+        FCproduct::FCproductT,
         basisSystem::GenericBasis,
         basisBath::GenericBasis,
         basis::GenericBasis,
@@ -227,7 +274,8 @@ struct AggregateTools <: AbstractAggregateTools
         bSize::Int64,
     )::AggregateTools
         new(
-            elIndices, vibIndices, indices, indicesMap, FCfactors, 
+            elIndices, vibIndices, indices, indicesMap, 
+            FCfactors, FCproduct,
             basisSystem, basisBath, basis, bSystemSize, bBathSize, bSize
         )
     end
@@ -239,6 +287,7 @@ function AggregateTools(aggCore::AggregateCore)::AggregateTools
     indices = getIndices(aggCore)
     indicesMap = getIndicesMap(aggCore, indices)
     FCfactors = getFranckCondonFactors(aggCore, indices)
+    FCproduct = getFCproduct(aggCore, indices, indicesMap, FCfactors)
     
     bSystemSize = length(elIndices)
     bBathSize = length(vibIndices)
@@ -250,12 +299,14 @@ function AggregateTools(aggCore::AggregateCore)::AggregateTools
     
 
     return AggregateTools(
-        elIndices, vibIndices, indices, indicesMap, FCfactors, 
+        elIndices, vibIndices, indices, indicesMap, 
+        FCfactors, FCproduct,
         basisSystem, basisBath, basis, bSystemSize, bBathSize, bSize
     )
 end
 
 Base.:(==)(x::AggregateTools, y::AggregateTools) = 
-    x.elIndices == y.elIndices && x.vibIndices == y.vibIndices && x.indices == y.indices && x.FCfactors == y.FCfactors &&
+    x.elIndices == y.elIndices && x.vibIndices == y.vibIndices && x.indices == y.indices && 
+    x.FCfactors == y.FCfactors && x.FCproduct == y.FCproduct &&
     x.bSystemSize == y.bSystemSize && x.bBathSize == y.bBathSize && x.bSize == y.bSize &&
     x.basisSystem == y.basisSystem && x.basisBath == y.basisBath && x.basis == y.basis

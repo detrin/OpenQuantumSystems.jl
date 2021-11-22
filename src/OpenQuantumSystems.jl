@@ -161,6 +161,7 @@ export
     getIndicesMap,
     getFranckCondonFactors,
     # getFranckCondonFactorsSparse,
+    getFCproduct,
 
     # aggregateOperators.jl
     getAggHamSystemSmall,
@@ -208,7 +209,6 @@ export
     master,
 
     # trace.jl
-    getFCProd,
     trace_bath,
     trace_bath_slow,
     get_rho_bath,
