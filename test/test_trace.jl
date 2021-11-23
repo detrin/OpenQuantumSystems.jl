@@ -25,9 +25,12 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     agg = setupAggregate(aggCore)
     aggTools = agg.tools
 
-    Ham_I = agg.operators.Ham_I
-    Ham_0 = agg.operators.Ham_0
-    Ham = agg.operators.Ham
+    # not dependent on aggregate
+    Ham_I = Matrix(rand(StableRNG(1), Float64, agg.tools.bSize, agg.tools.bSize))
+    Ham_I = DenseOperator(agg.tools.basis, agg.tools.basis, Ham_I)
+    Ham_0 = Matrix(rand(StableRNG(2), Float64, agg.tools.bSize, agg.tools.bSize))
+    Ham_0 = DenseOperator(agg.tools.basis, agg.tools.basis, Ham_0)
+    Ham = Ham_I + Ham_0
 
     basis = agg.tools.basis
     indicesLen = agg.tools.bSize
@@ -72,7 +75,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     t = 1.0
     U_op = evolutionOperator(Ham, t)
     rho = U_op * rho0 * U_op'
-    rho_traced_ref = ComplexF64[0.30545089951602533 + 2.6020852139652106e-18im -0.19481543938248813 - 0.0606925764154657im -0.07676572355374538 - 0.04994476162858846im; -0.1948154393824881 + 0.060692576415465764im 0.36750281991551814 + 2.211772431870429e-17im 0.09547629084278568 - 0.05271396496643621im; -0.0767657235537454 + 0.04994476162858845im 0.09547629084278565 + 0.05271396496643621im 0.2801299748916579 + 1.8497184048423844e-17im]
+    rho_traced_ref = ComplexF64[0.2595039421087527 + 1.1102230246251565e-16im 0.6626972429778065 - 0.3034395850675509im 0.12521539202671672 - 0.4920188624519769im; 0.6626972429778069 + 0.3034395850675506im 0.21095069278599016 + 2.2730010622775303e-16im 0.29117337783386915 + 1.2392616289083571im; 0.12521539202671667 + 0.492018862451977im 0.29117337783386926 - 1.239261628908357im 1.3575702817649218 + 4.0047474713266894e-17im]
     rho_traced = trace_bath_slow(rho, aggCore, aggTools)
     @test 1e-7 > D(rho_traced.data, rho_traced_ref)
     rho_traced = trace_bath_slow(rho.data, aggCore, aggTools)
