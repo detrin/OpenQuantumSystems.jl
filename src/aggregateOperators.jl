@@ -199,7 +199,7 @@ function getAggHamInteraction(
     for mol_i = 1:aggCore.molCount
         mol = aggCore.molecules[mol_i]
         for mode_i = 1:length(mol.modes)
-            agg_coeffs[mol_i][mode_i] = agg_shifts[mol_i][mode_i] * sqrt(agg_frequencies[mol_i][mode_i] / 2)
+            agg_coeffs[mol_i][mode_i] = agg_shifts[mol_i][mode_i] / sqrt(2)
         end
     end
 
