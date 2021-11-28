@@ -14,7 +14,7 @@ function master_ansatz(
 ) where {B<:Basis,T<:Operator{B,B}}
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
     # (du,u,h,p,t)
-    Ham_S, Ham_int, H_lambda, H_S, H_Sinv, Ham_B, W0, W0_bath, agg, FCProd, aggIndices, vibindices, elementtype, aggCore, aggTools = p
+    Ham_0, Ham_I, Ham_0_lambda, Ham_0_S, Ham_0_Sinv, Ham_B, W0, W0_bath, agg, FCProd, aggIndices, vibindices, elementtype, aggCore, aggTools = p
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
     tmp3 = copy(W0.data)
@@ -52,19 +52,20 @@ function dmaster_ansatz(
     p,
     h
 ) where {B<:Basis,T<:Operator{B,B}}
-    Ham_S, Ham_int, H_lambda, H_S, H_Sinv, Ham_B, W0, W0_bath, agg, FCProd, aggIndices, vibindices, elementtype, aggCore, aggTools = p
+    Ham_0, Ham_I, Ham_0_lambda, Ham_0_S, Ham_0_Sinv, Ham_B, W0, W0_bath, agg, FCProd, aggIndices, vibindices, elementtype, aggCore, aggTools = p
     # Ham_II_t = getInteractionHamIPicture(Ham_S, Ham_int, t)
-    Ham_II_t = getInteractionHamIPictureA(Ham_int.data, H_lambda, H_S, H_Sinv, t)
+    Ham_II_t = getInteractionHamIPictureA(Ham_I.data, Ham_0_lambda, Ham_0_S, Ham_0_Sinv, t)
     kernel_integrated, err = QuadGK.quadgk(
         s -> MemoryKernel(t, s, tmp1, tmp2, tmp3, h, p, Ham_II_t),
         0,
         t,
-        rtol = 1e-3,
-        atol = 1e-3
+        rtol = 1e-5,
+        atol = 1e-5
     )
     
-    LinearAlgebra.mul!(tmp1, Ham_II_t, W0_bath.data, -elementtype(im), zero(elementtype))
-    LinearAlgebra.mul!(tmp1, W0_bath.data, Ham_II_t, elementtype(im), one(elementtype))
+    tmp2 .= ad(rho.data, W0_bath.data, aggCore, aggTools)
+    LinearAlgebra.mul!(tmp1, Ham_II_t, tmp2, -elementtype(im), zero(elementtype))
+    LinearAlgebra.mul!(tmp1, tmp2, Ham_II_t, elementtype(im), one(elementtype))
     K_traced = trace_bath(tmp1, aggCore, aggTools)
     # rho0 = trace_bath(W0, agg, FCProd, aggIndices, vibindices)
     # println(t)
@@ -72,11 +73,12 @@ function dmaster_ansatz(
     # println(K_traced .* rho0.data)
 
     # println(data)
-    LinearAlgebra.mul!(drho.data, one(elementtype), K_traced, -elementtype(im), zero(elementtype))
-    data = kernel_integrated .* rho.data
-    LinearAlgebra.mul!(drho.data, one(elementtype), data, -elementtype(1), one(elementtype))
+    # LinearAlgebra.mul!(drho.data, one(elementtype), K_traced, -elementtype(im), zero(elementtype))
+    # data = kernel_integrated .* rho.data
+    # LinearAlgebra.mul!(drho.data, one(elementtype), kernel_integrated, -elementtype(1), one(elementtype))
     # println(-1im * (K_traced .* rho.data))
     # println(kernel_integrated .* rho.data)
+    drho.data[:, :] = K_traced[:, :] - kernel_integrated[:, :]
     
     return drho
 end
