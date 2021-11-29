@@ -158,7 +158,7 @@ Integrate Quantum Master equation
 function master(
     W0::T,
     tspan,
-    Ham::U;
+    agg::Aggregate;
     reltol::Float64 = 1.0e-12,
     abstol::Float64 = 1.0e-12,
     int_reltol::AbstractFloat = 1.0e-8,
@@ -166,12 +166,14 @@ function master(
     alg::Any = DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()),
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
-) where {B<:Basis,T<:Operator{B,B},U<:Operator{B,B}}
+) where {B<:Basis,T<:Operator{B,B}}
+    p = (agg.operators, W0, eltype(W0))
     history_fun(p, t) = T(W0.basis_l, W0.basis_r, zeros(ComplexF64, size(W0.data)))
     # (du,u,h,p,t)
-    tmp = copy(W0.data)
+    tmp1 = copy(W0.data)
+    tmp2 = copy(W0.data)
     dmaster_(t, rho::T, drho::T, history_fun, p) =
-        dmaster(t, rho, drho, history_fun, tmp, p, W0, Ham)
+        dmaster(t, rho, drho, history_fun, tmp1, tmp2, p, int_reltol, int_abstol)
     tspan_ = convert(Vector{float(eltype(tspan))}, tspan)
     x0 = W0.data
     state = T(W0.basis_l, W0.basis_r, W0.data)
@@ -184,6 +186,7 @@ function master(
         state,
         dstate,
         fout;
+        p = p,
         reltol = reltol,
         abstol = abstol,
         alg = alg,
@@ -193,40 +196,41 @@ end
 
 function dmaster(
     t::AbstractFloat,
-    rho::T,
-    drho::T,
+    W::T,
+    dW::T,
     history_fun,
-    tmp::Array,
+    tmp1::Array,
+    tmp2::Array,
     p,
-    W0,
-    Ham::U,
-) where {B<:Basis,T<:Operator{B,B},U<:Operator{B,B}}
-    QuantumOpticsBase.mul!(drho, Ham, W0, -eltype(rho)(im), zero(eltype(rho)))
-    QuantumOpticsBase.mul!(drho, W0, Ham, eltype(rho)(im), one(eltype(rho)))
+    int_reltol::AbstractFloat = 1.0e-5,
+    int_abstol::AbstractFloat = 1.0e-5,
+) where {B<:Basis,T<:Operator{B,B}}
+    aggOperators, W0, elementtype = p
+    Ham = aggOperators.Ham.data
 
-    kernel_integrated, err =
-        QuadGK.quadgk(s -> kernel(t, s, tmp, history_fun, p, Ham.data), 0, t, rtol = 1e-8)
-    LinearAlgebra.mul!(
-        drho.data,
-        -one(eltype(rho)),
-        kernel_integrated,
-        one(eltype(rho)),
-        one(eltype(rho)),
+    kernel_integrated, err = QuadGK.quadgk(
+        s -> kernel(t, s, tmp1, tmp2, history_fun, p),
+        0,
+        t,
+        rtol = int_reltol,
+        atol = int_abstol,
     )
-    return drho
+
+    tmp1[:, :] = -elementtype(im) * (Ham * W0.data - W0.data * Ham)
+    dW.data[:, :] = tmp1 - kernel_integrated
+    return dW
 end
 
-function kernel(t, s, tmp, h, p, Ham)
-    rho = h(p, s)
-    if (typeof(rho) <: Operator)
-        rho = rho.data
+function kernel(t, s, tmp1, tmp2, h, p)
+    aggOperators, _, _ = p
+    Ham = aggOperators.Ham.data
+    W = h(p, s)
+    if (typeof(W) <: Operator)
+        W = W.data
     end
-    drho = deepcopy(rho)
-    # commutator(Ham.data, commutator(Ham.data, tmp))
-    QuantumOpticsBase.mul!(tmp, Ham, rho, eltype(rho)(1), zero(eltype(rho)))
-    QuantumOpticsBase.mul!(tmp, rho, Ham, -eltype(rho)(1), one(eltype(rho)))
 
-    QuantumOpticsBase.mul!(drho, Ham, tmp, eltype(rho)(1), zero(eltype(rho)))
-    QuantumOpticsBase.mul!(drho, tmp, Ham, -eltype(rho)(1), one(eltype(rho)))
-    return drho
+    tmp1[:, :] = Ham * W - W * Ham
+    tmp2[:, :] = Ham * tmp1 - tmp1 * Ham
+
+    return tmp2
 end
