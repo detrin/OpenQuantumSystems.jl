@@ -24,6 +24,7 @@ import OrdinaryDiffEq
     aggCore.coupling[2, 3] = 50
     aggCore.coupling[3, 2] = 50
     agg = setupAggregate(aggCore)
+    aggTools = agg.tools
 
     Ham = agg.operators.Ham
     Ham_0 = agg.operators.Ham_0
@@ -33,6 +34,23 @@ import OrdinaryDiffEq
     W0 = dm(ket0)
     # tests have to be quick enough
     tspan = [0.0:0.1:1.0;]
+
+    _, rho_t = LvN_sS(
+        W0,
+        tspan,
+        agg;
+        reltol = 1e-10,
+        abstol = 1e-10,
+        alg = OrdinaryDiffEq.Tsit5(),
+    )
+    for t_i = 1:length(tspan)
+        t = tspan[t_i]
+        U_op = evolutionOperator(Ham, t)
+        W = U_op * W0 * U_op'
+        rho = trace_bath(W, aggCore, aggTools)
+        @test 1e-7 > D(rho, rho_t[t_i])
+        # println(t_i, " ", D(W_int, W_int_t[t_i]))
+    end
 
     _, W_t = LvN_SS(
         W0,
