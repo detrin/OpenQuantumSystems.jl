@@ -33,7 +33,7 @@ function LvN_SS(
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
     p = (agg.operators, eltype(W0))
-    dLvN_(t, W::T, dW::T) = dLvN_SS(t, W, dW, p)
+    dLvN_(t, W::T, dW::T, p) = dLvN_SS(t, W, dW, p)
 
     tspan_ = convert(Vector{float(eltype(tspan))}, tspan)
     x0 = W0.data
@@ -47,6 +47,7 @@ function LvN_SS(
         state,
         dstate,
         fout;
+        p = p,
         reltol = reltol,
         abstol = abstol,
         alg = alg,
@@ -56,12 +57,61 @@ end
 
 function dLvN_SS(
     t::AbstractFloat,
-    rho::T,
-    drho::T,
+    W::T,
+    dW::T,
     p
 ) where {B<:Basis,T<:Operator{B,B}}
     aggOperators, elementtype = p
     Ham = aggOperators.Ham.data
-    drho.data[:, :] = -elementtype(im) * (Ham * rho.data - rho.data * Ham)
-    return drho
+    dW.data[:, :] = -elementtype(im) * (Ham * W.data - W.data * Ham)
+    return W
+end
+
+function LvN_SI(
+    W0::T,
+    tspan::Array,
+    agg::Aggregate;
+    reltol::Float64 = 1.0e-12,
+    abstol::Float64 = 1.0e-12,
+    alg::OrdinaryDiffEq.OrdinaryDiffEqAlgorithm = OrdinaryDiffEq.Tsit5(),
+    fout::Union{Function,Nothing} = nothing,
+    kwargs...,
+) where {B<:Basis,T<:Operator{B,B}}
+    p = (agg.operators, eltype(W0))
+    dLvN_(t, W::T, dW::T, p) = dLvN_SI(t, W, dW, p)
+
+    tspan_ = convert(Vector{float(eltype(tspan))}, tspan)
+    x0 = W0.data
+    state = T(W0.basis_l, W0.basis_r, W0.data)
+    dstate = T(W0.basis_l, W0.basis_r, W0.data)
+
+    OpenQuantumSystems.integrate(
+        tspan_,
+        dLvN_,
+        x0,
+        state,
+        dstate,
+        fout;
+        p = p,
+        reltol = reltol,
+        abstol = abstol,
+        alg = alg,
+        kwargs...,
+    )
+end
+
+function dLvN_SI(
+    t::AbstractFloat,
+    W::T,
+    dW::T,
+    p
+) where {B<:Basis,T<:Operator{B,B}}
+    aggOperators, elementtype = p
+    
+    Ham_0 = aggOperators.Ham_0.data
+    Ham_I = aggOperators.Ham_I.data
+    Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
+
+    dW.data[:, :] = -elementtype(im) * (Ham_II_t * W.data - W.data * Ham_II_t)
+    return dW
 end

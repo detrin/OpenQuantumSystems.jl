@@ -199,6 +199,7 @@ export
 
     # liouville.jl
     LvN_SS,
+    LvN_SI,
 
     # interaction_picture.jl
     getInteractionHamIPicture,
