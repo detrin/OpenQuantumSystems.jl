@@ -33,10 +33,10 @@ import OrdinaryDiffEq
     # tests have to be quick enough
     tspan = [0.0:0.1:1.0;]
 
-    T, rho_t = liouvilleVonNeumann(
+    T, rho_t = LvN_SS(
         rho0,
         tspan,
-        Ham;
+        agg;
         reltol = 1e-10,
         abstol = 1e-10,
         alg = OrdinaryDiffEq.Tsit5(),
