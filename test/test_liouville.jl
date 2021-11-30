@@ -26,15 +26,16 @@ import OrdinaryDiffEq
     agg = setupAggregate(aggCore)
 
     Ham = agg.operators.Ham
+    Ham_0 = agg.operators.Ham_0
     basis = agg.tools.basis
 
     ket0 = randstate(basis)
-    rho0 = dm(ket0)
+    W0 = dm(ket0)
     # tests have to be quick enough
     tspan = [0.0:0.1:1.0;]
 
-    T, rho_t = LvN_SS(
-        rho0,
+    _, W_t = LvN_SS(
+        W0,
         tspan,
         agg;
         reltol = 1e-10,
@@ -42,22 +43,30 @@ import OrdinaryDiffEq
         alg = OrdinaryDiffEq.Tsit5(),
     )
     for t_i = 1:length(tspan)
-        U_op = evolutionOperator(Ham, tspan[t_i])
-        rho = U_op * rho0 * U_op'
-        @test 1e-7 > D(rho, rho_t[t_i])
+        t = tspan[t_i]
+        U_op = evolutionOperator(Ham, t)
+        W = U_op * W0 * U_op'
+        @test 1e-7 > D(W, W_t[t_i])
         # println(t_i, " ", D(rho.data, rho_t[t_i].data))
     end
 
-    # diabled for now for, it takes about 20 s to run this simulation
-    #=
-    T, rho_t = liouvilleVonNeumann(rho0, Ham, tspan; reltol=1e-12, abstol=1e-12, alg=OrdinaryDiffEq.Vern7())
-    for t_i in 1:length(tspan)
-        U_op = evolutionOperator(Ham, tspan[t_i])
-        rho = U_op * rho0 * U_op'
-        @test 1e-14 > D(rho, rho_t[t_i])
-        # println(t_i, " ", D(rho.data, rho_t[t_i].data))
+    _, W_int_t = LvN_SI(
+        W0,
+        tspan,
+        agg;
+        reltol = 1e-10,
+        abstol = 1e-10,
+        alg = OrdinaryDiffEq.Tsit5(),
+    )
+    for t_i = 1:length(tspan)
+        t = tspan[t_i]
+        U_op = evolutionOperator(Ham, t)
+        W = U_op * W0 * U_op'
+        U_0_op = evolutionOperator(Ham_0, t)
+        W_int = U_0_op' * W * U_0_op
+        @test 1e-7 > D(W_int, W_int_t[t_i])
+        # println(t_i, " ", D(W_int, W_int_t[t_i]))
     end
-    =#
 
 
 end # testset
