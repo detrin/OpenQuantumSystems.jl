@@ -198,19 +198,20 @@ export
     schroedinger_dynamic,
 
     # liouville.jl
+    LvN_sI
     LvN_sS,
-    LvN_SS,
     LvN_SI,
+    LvN_SS,
 
     # interaction_picture.jl
     getInteractionHamIPicture,
     getInteractionHamIPictureA,
 
     # master_exact.jl
-    QME_SS_exact,
     QME_SI_exact,
-    QME_sS_exact,
+    QME_SS_exact,
     QME_sI_exact,
+    QME_sS_exact,
 
     # trace.jl
     trace_bath,
