@@ -46,10 +46,10 @@ function QME_sI_exact(
     
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
-    dmaster_(t, W::T, dW::T, history_fun, p) = dmaster_sI_exact(
+    dmaster_(t, rho, drho, history_fun, p) = dmaster_sI_exact(
         t,
-        W,
-        dW,
+        rho,
+        drho,
         history_fun,
         tmp1,
         tmp2,
@@ -79,8 +79,8 @@ end
 
 function dmaster_sI_exact(
     t::AbstractFloat,
-    W::T,
-    dW::T,
+    rho::T,
+    drho::T,
     history_fun,
     tmp1::Array,
     tmp2::Array,
@@ -102,9 +102,9 @@ function dmaster_sI_exact(
         atol = int_abstol,
     )    
     kernel_integrated_traced = trace_bath(kernel_integrated, aggCore, aggTools)
-    dW.data[:, :] = -elementtype(im) * K_traced - kernel_integrated_traced
+    drho.data[:, :] = -elementtype(im) * K_traced - kernel_integrated_traced
     
-    return dW
+    return drho
 end
 
 function kernel_sI_exact(t, s, h, p, tmp1, tmp2)
@@ -144,10 +144,10 @@ function QME_sS_exact(
     
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
-    dmaster_(t, W::T, dW::T, history_fun, p) = dmaster_sS_exact(
+    dmaster_(t, rho, drho, history_fun, p) = dmaster_sS_exact(
         t,
-        W,
-        dW,
+        rho,
+        drho,
         history_fun,
         tmp1,
         tmp2,
@@ -177,8 +177,8 @@ end
 
 function dmaster_sS_exact(
     t::AbstractFloat,
-    W::T,
-    dW::T,
+    rho::T,
+    drho::T,
     history_fun,
     tmp1::Array,
     tmp2::Array,
@@ -200,9 +200,9 @@ function dmaster_sS_exact(
         atol = int_abstol,
     )    
     kernel_integrated_traced = trace_bath(kernel_integrated, aggCore, aggTools)
-    dW.data[:, :] = -elementtype(im) * K_traced - kernel_integrated_traced
+    drho.data[:, :] = -elementtype(im) * K_traced - kernel_integrated_traced
     
-    return dW
+    return drho
 end
 
 function kernel_sS_exact(t, s, h, p, tmp1, tmp2)
