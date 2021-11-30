@@ -376,7 +376,7 @@ function dmaster_SI_exact(
     int_abstol::AbstractFloat = 1.0e-5,
 ) where {B<:Basis,T<:Operator{B,B}}
     aggOperators, W0, elementtype = p
-    Ham = aggOperators.Ham.data
+
     Ham_0 = aggOperators.Ham_0.data
     Ham_I = aggOperators.Ham_I.data
     Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
