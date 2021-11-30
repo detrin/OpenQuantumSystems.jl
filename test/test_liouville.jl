@@ -35,6 +35,25 @@ import OrdinaryDiffEq
     # tests have to be quick enough
     tspan = [0.0:0.1:1.0;]
 
+    _, rho_int_t = LvN_sI(
+        W0,
+        tspan,
+        agg;
+        reltol = 1e-10,
+        abstol = 1e-10,
+        alg = OrdinaryDiffEq.Tsit5(),
+    )
+    for t_i = 1:length(tspan)
+        t = tspan[t_i]
+        U_op = evolutionOperator(Ham, t)
+        W = U_op * W0 * U_op'
+        U_0_op = evolutionOperator(Ham_0, t)
+        W_int = U_0_op' * W * U_0_op
+        rho_int = trace_bath(W_int, aggCore, aggTools)
+        @test 1e-7 > D(rho_int, rho_int_t[t_i])
+        # println(t_i, " ", D(W_int, W_int_t[t_i]))
+    end
+
     _, rho_t = LvN_sS(
         W0,
         tspan,
@@ -50,22 +69,6 @@ import OrdinaryDiffEq
         rho = trace_bath(W, aggCore, aggTools)
         @test 1e-7 > D(rho, rho_t[t_i])
         # println(t_i, " ", D(W_int, W_int_t[t_i]))
-    end
-
-    _, W_t = LvN_SS(
-        W0,
-        tspan,
-        agg;
-        reltol = 1e-10,
-        abstol = 1e-10,
-        alg = OrdinaryDiffEq.Tsit5(),
-    )
-    for t_i = 1:length(tspan)
-        t = tspan[t_i]
-        U_op = evolutionOperator(Ham, t)
-        W = U_op * W0 * U_op'
-        @test 1e-7 > D(W, W_t[t_i])
-        # println(t_i, " ", D(rho.data, rho_t[t_i].data))
     end
 
     _, W_int_t = LvN_SI(
@@ -86,5 +89,20 @@ import OrdinaryDiffEq
         # println(t_i, " ", D(W_int, W_int_t[t_i]))
     end
 
+    _, W_t = LvN_SS(
+        W0,
+        tspan,
+        agg;
+        reltol = 1e-10,
+        abstol = 1e-10,
+        alg = OrdinaryDiffEq.Tsit5(),
+    )
+    for t_i = 1:length(tspan)
+        t = tspan[t_i]
+        U_op = evolutionOperator(Ham, t)
+        W = U_op * W0 * U_op'
+        @test 1e-7 > D(W, W_t[t_i])
+        # println(t_i, " ", D(rho.data, rho_t[t_i].data))
+    end
 
 end # testset
