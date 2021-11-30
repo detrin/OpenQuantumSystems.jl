@@ -22,6 +22,57 @@ Integrate Liouville-von Neumann equation to evolve states or compute propagators
         therefore must not be changed.
 * `alg`: Algorithm with which OrdinaryDiffEq will solve LvN equation.
 """
+function LvN_sS(
+    W0::T,
+    tspan::Array,
+    agg::Aggregate;
+    reltol::Float64 = 1.0e-12,
+    abstol::Float64 = 1.0e-12,
+    alg::OrdinaryDiffEq.OrdinaryDiffEqAlgorithm = OrdinaryDiffEq.Tsit5(),
+    fout::Union{Function,Nothing} = nothing,
+    kwargs...,
+) where {B<:Basis,T<:Operator{B,B}}
+    p = (agg.core, agg.tools, agg.operators, W0, eltype(W0))
+    rho0 = trace_bath(W0, agg.core, agg.tools)
+    dLvN_(t, rho, drho, p) = dLvN_sS(t, rho, drho, p)
+
+    tspan_ = convert(Vector{float(eltype(tspan))}, tspan)
+    x0 = rho0.data
+    state = T(rho0.basis_l, rho0.basis_r, rho0.data)
+    dstate = T(rho0.basis_l, rho0.basis_r, rho0.data)
+    OpenQuantumSystems.integrate(
+        tspan_,
+        dLvN_,
+        x0,
+        state,
+        dstate,
+        fout;
+        p = p,
+        reltol = reltol,
+        abstol = abstol,
+        alg = alg,
+        kwargs...,
+    )
+end
+
+function dLvN_sS(
+    t::AbstractFloat,
+    rho::T,
+    drho::T,
+    p
+) where {B<:Basis,T<:Operator{B,B}}
+    aggCore, aggTools, aggOperators, W0, elementtype = p
+    Ham = aggOperators.Ham
+
+    U_t = evolutionOperator(Ham, t)
+    W_t = U_t * W0 * U_t'
+
+    K = -elementtype(im) * (Ham.data * W_t.data - W_t.data * Ham.data)
+    drho.data[:, :] = trace_bath(K, aggCore, aggTools)
+    return drho
+end
+
+
 function LvN_SS(
     W0::T,
     tspan::Array,
@@ -64,7 +115,7 @@ function dLvN_SS(
     aggOperators, elementtype = p
     Ham = aggOperators.Ham.data
     dW.data[:, :] = -elementtype(im) * (Ham * W.data - W.data * Ham)
-    return W
+    return dW
 end
 
 function LvN_SI(
