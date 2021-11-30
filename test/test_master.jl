@@ -56,36 +56,29 @@ import DelayDiffEq
     t_step = (t_max - t0) / (t_count)
     tspan = [t0:t_step:t_max;]
 
-    # TODO: chenge back reltol, abstol after solving QuadGK
-    # TODO: increase precision
-    #=
-    p = (Ham_0, Ham_I, Ham_0_lambda, Ham_0_S, Ham_0_Sinv, Ham_B, W0, W0_bath, agg, FCProd, indices, indicesMap, ComplexF64, aggCore, aggTools)
-    T, rho_t = master_int(
-        rho0,
+    _, W_t = QME_SS_exact(
+        W0,
         tspan,
-        p;
-        reltol = 1e-6,
-        abstol = 1e-6,
-        int_reltol = 1e-8,
-        int_abstol = 0.0,
+        agg;
+        reltol = 1e-3,
+        abstol = 1e-3,
+        int_reltol = 1e-4,
+        int_abstol = 1e-4,
         alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
-    )#, alg=OrdinaryDiffEq.Vern7())
-    # rho_prev = deepcopy(rho0)
-    #=
-    for t_i = 2:length(rho_t)
-        t = T[t_i]
-        rho_I = rho_t[t_i]
-        U_op_S = evolutionOperator(Ham_0, t)
-        rho = U_op_S * rho_I * U_op_S'
-        U_op = evolutionOperator(Ham, t)
-        rho_ref = U_op * rho0 * U_op'
-        # @test 1e-4 > D(rho_ref, rho)
-    end
-    =#
-    =#
+    )
 
-    # TODO: increase precision
-    _, W_t = master(
+    _, W_int_t = QME_SI_exact(
+        W0,
+        tspan,
+        agg;
+        reltol = 1e-3,
+        abstol = 1e-3,
+        int_reltol = 1e-4,
+        int_abstol = 1e-4,
+        alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
+    )
+
+    _, rho_int_t = QME_sI_exact(
         W0,
         tspan,
         agg;
@@ -95,17 +88,6 @@ import DelayDiffEq
         int_abstol = 1.0e-4,
         alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5())
     )
-    # W_prev = deepcopy(W0)
-    #=
-    for t_i = 2:length(W_t)
-        t = tspan[t_i]
-        W = W_t[t_i]
-        U_op = evolutionOperator(Ham, t)
-        W_ref = U_op * W0 * U_op'
-        3 println(t_i, " ", D(W_ref, W))
-        # @test 1e-4 > D(W_ref, W)
-    end
-    =#
 
 
 

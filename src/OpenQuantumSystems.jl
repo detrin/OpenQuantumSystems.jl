@@ -205,8 +205,9 @@ export
     getInteractionHamIPictureA,
 
     # master.jl
-    master_int,
-    master,
+    QME_SI_exact,
+    QME_SS_exact,
+    QME_sI_exact,
 
     # trace.jl
     trace_bath,
