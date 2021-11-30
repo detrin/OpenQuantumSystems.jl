@@ -15,6 +15,10 @@ function evolutionOperator(Hamiltonian::Operator, t::AbstractFloat)::Operator
     return exp(-1im * Hamiltonian * t)
 end
 
+function evolutionOperator(Hamiltonian::Array, t::AbstractFloat)::Array
+    return exp(-1im * Hamiltonian * t)
+end
+
 """
     evolutionOperatorA(H_lambda, S, Sinv, t)
 
