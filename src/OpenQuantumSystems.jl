@@ -204,7 +204,7 @@ export
     getInteractionHamIPicture,
     getInteractionHamIPictureA,
 
-    # master.jl
+    # master_exact.jl
     QME_SS_exact,
     QME_SI_exact,
     QME_sS_exact,
@@ -249,7 +249,7 @@ include("evolution.jl")
 include("schroedinger.jl")
 include("liouville.jl")
 include("interaction_picture.jl")
-include("master.jl")
+include("master_exact.jl")
 include("trace.jl")
 include("initial_state.jl")
 include("memory_kernel.jl")
