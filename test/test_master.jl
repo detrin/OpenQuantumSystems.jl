@@ -78,6 +78,17 @@ import DelayDiffEq
         alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
     )
 
+    _, rho_t = QME_sS_exact(
+        W0,
+        tspan,
+        agg;
+        reltol = 1.0e-3,
+        abstol = 1.0e-3,
+        int_reltol = 1.0e-4,
+        int_abstol = 1.0e-4,
+        alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5())
+    )
+
     _, rho_int_t = QME_sI_exact(
         W0,
         tspan,

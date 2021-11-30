@@ -42,8 +42,7 @@ function QME_sI_exact(
 ) where {B<:Basis,T<:Operator{B,B},U<:Operator{B,B},V<:Operator{B,B}}
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
     rho0 = trace_bath(W0, agg.core, agg.tools)
-    W0_bath = get_rho_bath(W0, agg.core, agg.tools)
-    p = (agg.core, agg.tools, agg.operators, W0, W0_bath, eltype(W0))
+    p = (agg.core, agg.tools, agg.operators, W0, eltype(W0))
     
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
@@ -89,7 +88,7 @@ function dmaster_sI_exact(
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,
 ) where {B<:Basis,T<:Operator{B,B}}
-    aggCore, aggTools, aggOperators, W0, W0_bath, elementtype = p
+    aggCore, aggTools, aggOperators, W0, elementtype = p
     
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
@@ -108,33 +107,117 @@ function dmaster_sI_exact(
     return dW
 end
 
-D(op1::Array, op2::Array) = abs(norm(op1 - op2))
-D(x1::StateVector, x2::StateVector) = norm(x2 - x1)
-D(op1::AbstractOperator, op2::AbstractOperator) = abs(tracedistance_nh(dense(op1), dense(op2)))
-D(op1::AbstractSuperOperator, op2::AbstractSuperOperator) = abs(tracedistance_nh(dense(op1), dense(op2)))
-
 function kernel_sI_exact(t, s, h, p, tmp1, tmp2)
-    aggCore, aggTools, aggOperators, W0, W0_bath, elementtype = p
+    _, _, aggOperators, W0, _ = p
 
     Ham_0 = aggOperators.Ham_0
     Ham_I = aggOperators.Ham_I
     Ham = aggOperators.Ham
     Ham_II_s = getInteractionHamIPicture(Ham_0, Ham_I, s)
     Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
-    rho_s = h(p, s)
-
-    if (typeof(rho_s) <: Operator)
-        rho_s = rho_s.data
-    end
 
     U_0_s = evolutionOperator(Ham, s)
-    W_bath_s = U_0_s * W0 * U_0_s'
+    W_s = U_0_s * W0 * U_0_s'
     U_0_op = evolutionOperator(Ham_0, s)
-    W0_int_s = U_0_op' * W_bath_s * U_0_op
+    W_int_s = U_0_op' * W_s * U_0_op
 
-    tmp2[:, :] = Ham_II_s.data * W0_int_s.data - W0_int_s.data * Ham_II_s.data
+    tmp2[:, :] = Ham_II_s.data * W_int_s.data - W_int_s.data * Ham_II_s.data
     tmp1[:, :] = Ham_II_t.data * tmp2 - tmp2 * Ham_II_t.data
     return tmp1
+end
+
+function QME_sS_exact(
+    W0::T,
+    tspan::Array,
+    agg::Aggregate;
+    reltol::AbstractFloat = 1.0e-12,
+    abstol::AbstractFloat = 1.0e-12,
+    int_reltol::AbstractFloat = 1.0e-4,
+    int_abstol::AbstractFloat = 1.0e-4,
+    alg::Any = DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()),
+    fout::Union{Function,Nothing} = nothing,
+    kwargs...,
+) where {B<:Basis,T<:Operator{B,B},U<:Operator{B,B},V<:Operator{B,B}}
+    history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
+    rho0 = trace_bath(W0, agg.core, agg.tools)
+    p = (agg.core, agg.tools, agg.operators, W0, eltype(W0))
+    
+    tmp1 = copy(W0.data)
+    tmp2 = copy(W0.data)
+    dmaster_(t, W::T, dW::T, history_fun, p) = dmaster_sS_exact(
+        t,
+        W,
+        dW,
+        history_fun,
+        tmp1,
+        tmp2,
+        p,
+        int_reltol,
+        int_abstol,
+    )
+    tspan_ = convert(Vector{float(eltype(tspan))}, tspan)
+    x0 = rho0.data
+    state = T(rho0.basis_l, rho0.basis_r, rho0.data)
+    dstate = T(rho0.basis_l, rho0.basis_r, rho0.data)
+    OpenQuantumSystems.integrate_delayed(
+        tspan_,
+        dmaster_,
+        history_fun,
+        x0,
+        state,
+        dstate,
+        fout;
+        p = p,
+        reltol = reltol,
+        abstol = abstol,
+        alg = alg,
+        kwargs...,
+    )
+end
+
+function dmaster_sS_exact(
+    t::AbstractFloat,
+    W::T,
+    dW::T,
+    history_fun,
+    tmp1::Array,
+    tmp2::Array,
+    p,
+    int_reltol::AbstractFloat,
+    int_abstol::AbstractFloat,
+) where {B<:Basis,T<:Operator{B,B}}
+    aggCore, aggTools, aggOperators, W0, elementtype = p
+    
+    Ham = aggOperators.Ham.data
+    K = Ham * W0.data - W0.data * Ham
+    K_traced = trace_bath(K, aggCore, aggTools)
+
+    kernel_integrated, err = QuadGK.quadgk(
+        s -> kernel_sS_exact(t, s, history_fun, p, tmp1, tmp2),
+        0,
+        t,
+        rtol = int_reltol,
+        atol = int_abstol,
+    )    
+    kernel_integrated_traced = trace_bath(kernel_integrated, aggCore, aggTools)
+    dW.data[:, :] = -elementtype(im) * K_traced - kernel_integrated_traced
+    
+    return dW
+end
+
+function kernel_sS_exact(t, s, h, p, tmp1, tmp2)
+    _, _, aggOperators, W0, _ = p
+
+    Ham_0 = aggOperators.Ham_0
+    Ham = aggOperators.Ham
+
+    U_0_s = evolutionOperator(Ham, s)
+    W_s = U_0_s * W0 * U_0_s'
+
+    tmp1[:, :] = Ham.data * W_s.data - W_s.data * Ham.data
+    tmp2[:, :] = Ham.data * tmp1 - tmp1 * Ham.data
+
+    return tmp2
 end
 
 """
