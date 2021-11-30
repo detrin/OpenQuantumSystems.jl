@@ -22,25 +22,27 @@ Integrate Liouville-von Neumann equation to evolve states or compute propagators
         therefore must not be changed.
 * `alg`: Algorithm with which OrdinaryDiffEq will solve LvN equation.
 """
-function liouvilleVonNeumann(
-    rho0::T,
+function LvN_SS(
+    W0::T,
     tspan::Array,
-    H::AbstractOperator{B,B};
+    agg::Aggregate;
     reltol::Float64 = 1.0e-12,
     abstol::Float64 = 1.0e-12,
-    alg::OrdinaryDiffEq.OrdinaryDiffEqAlgorithm = OrdinaryDiffEq.DP5(),
+    alg::OrdinaryDiffEq.OrdinaryDiffEqAlgorithm = OrdinaryDiffEq.Tsit5(),
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
-    # tmp = copy(rho0)
-    dliouvilleVonNeumann_(t, rho::T, drho::T) = dliouvilleVonNeumann(rho, H, drho)
+    p = (agg.operators, eltype(W0))
+    dLvN_(t, W::T, dW::T) = dLvN_SS(t, W, dW, p)
+
     tspan_ = convert(Vector{float(eltype(tspan))}, tspan)
-    x0 = rho0.data
-    state = T(rho0.basis_l, rho0.basis_r, rho0.data)
-    dstate = T(rho0.basis_l, rho0.basis_r, rho0.data)
+    x0 = W0.data
+    state = T(W0.basis_l, W0.basis_r, W0.data)
+    dstate = T(W0.basis_l, W0.basis_r, W0.data)
+
     OpenQuantumSystems.integrate(
         tspan_,
-        dliouvilleVonNeumann_,
+        dLvN_,
         x0,
         state,
         dstate,
@@ -52,12 +54,14 @@ function liouvilleVonNeumann(
     )
 end
 
-function dliouvilleVonNeumann(
+function dLvN_SS(
+    t::AbstractFloat,
     rho::T,
-    H::AbstractOperator{B,B},
     drho::T,
+    p
 ) where {B<:Basis,T<:Operator{B,B}}
-    QuantumOpticsBase.mul!(drho, H, rho, -eltype(rho)(im), zero(eltype(rho)))
-    QuantumOpticsBase.mul!(drho, rho, H, eltype(rho)(im), one(eltype(rho)))
+    aggOperators, elementtype = p
+    Ham = aggOperators.Ham.data
+    drho.data[:, :] = -elementtype(im) * (Ham * rho.data - rho.data * Ham)
     return drho
 end
