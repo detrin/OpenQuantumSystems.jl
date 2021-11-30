@@ -198,7 +198,7 @@ export
     schroedinger_dynamic,
 
     # liouville.jl
-    liouvilleVonNeumann,
+    LvN_SS,
 
     # interaction_picture.jl
     getInteractionHamIPicture,
