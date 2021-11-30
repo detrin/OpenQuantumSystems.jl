@@ -31,7 +31,7 @@ function schroedinger(
     kwargs...,
 ) where {B<:Basis,T<:Union{AbstractOperator{B,B},StateVector{B}}}
     tspan_ = convert(Vector{float(eltype(tspan))}, tspan)
-    dschroedinger_(t, psi::T, dpsi::T) = dschroedinger(psi, H, dpsi)
+    dschroedinger_(t, psi::T, dpsi::T, p) = dschroedinger(psi, H, dpsi)
     x0 = psi0.data
     state = copy(psi0)
     dstate = copy(psi0)
@@ -81,7 +81,7 @@ function schroedinger_dynamic(
     kwargs...,
 ) where {T<:Union{StateVector,AbstractOperator}}
     tspan_ = convert(Vector{float(eltype(tspan))}, tspan)
-    dschroedinger_(t, psi::T, dpsi::T) = dschroedinger_dynamic(t, psi, f, dpsi)
+    dschroedinger_(t, psi::T, dpsi::T, p) = dschroedinger_dynamic(t, psi, f, dpsi)
     x0 = psi0.data
     state = copy(psi0)
     dstate = copy(psi0)
