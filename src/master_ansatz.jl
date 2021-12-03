@@ -2,26 +2,37 @@
 using OpenQuantumSystems
 import QuantumOpticsBase, LinearAlgebra, OrdinaryDiffEq, QuadGK, DelayDiffEq
 
-function master_ansatz(
-    rho0::T,
+function QME_sI_ansatz_const(
+    W0::T,
     tspan::Array,
-    p;
-    reltol::Float64 = 1.0e-12,
-    abstol::Float64 = 1.0e-12,
+    agg::Aggregate;
+    reltol::AbstractFloat = 1.0e-12,
+    abstol::AbstractFloat = 1.0e-12,
+    int_reltol::AbstractFloat = 1.0e-4,
+    int_abstol::AbstractFloat = 1.0e-4,
     alg::Any = DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()),
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
-    # (du,u,h,p,t)
-    Ham_0, Ham_I, Ham_0_lambda, Ham_0_S, Ham_0_Sinv, Ham_B, W0, W0_bath, agg, FCProd, aggIndices, vibindices, elementtype, aggCore, aggTools = p
+    rho0 = trace_bath(W0, agg.core, agg.tools)
+    W0_bath = get_rho_bath(W0, agg.core, agg.tools)
+    p = (agg.core, agg.tools, agg.operators, W0, W0_bath, eltype(W0))
+
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
-    tmp3 = copy(W0.data)
-    dmaster_(t, rho::T, drho::T, history_fun, p) =
-        dmaster_ansatz(t, rho, drho, history_fun, tmp1, tmp2, tmp3, p, history_fun)
-    # tspan_ = convert(Vector{float(eltype(tspan))}, tspan)
-    tspan_ = deepcopy(tspan)
+    dmaster_(t, rho, drho, history_fun, p) = dQME_sI_ansatz_const(
+        t,
+        rho,
+        drho,
+        history_fun,
+        tmp1,
+        tmp2,
+        p,
+        int_reltol,
+        int_abstol,
+    )
+    tspan_ = convert(Vector{float(eltype(tspan))}, tspan)
     x0 = rho0.data
     state = T(rho0.basis_l, rho0.basis_r, rho0.data)
     dstate = T(rho0.basis_l, rho0.basis_r, rho0.data)
@@ -41,74 +52,76 @@ function master_ansatz(
     )
 end
 
-function dmaster_ansatz(
+function dQME_sI_ansatz_const(
     t::AbstractFloat,
     rho::T,
     drho::T,
     history_fun,
     tmp1::Array,
     tmp2::Array,
-    tmp3::Array,
     p,
-    h
+    int_reltol::AbstractFloat,
+    int_abstol::AbstractFloat,
 ) where {B<:Basis,T<:Operator{B,B}}
-    Ham_0, Ham_I, Ham_0_lambda, Ham_0_S, Ham_0_Sinv, Ham_B, W0, W0_bath, agg, FCProd, aggIndices, vibindices, elementtype, aggCore, aggTools = p
-    # Ham_II_t = getInteractionHamIPicture(Ham_S, Ham_int, t)
-    Ham_II_t = getInteractionHamIPictureA(Ham_I.data, Ham_0_lambda, Ham_0_S, Ham_0_Sinv, t)
-    kernel_integrated, err = QuadGK.quadgk(
-        s -> MemoryKernel(t, s, tmp1, tmp2, tmp3, h, p, Ham_II_t),
+    aggCore, aggTools, aggOperators, W0, _, elementtype = p
+        
+    Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
+    K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
+    K_traced = trace_bath(K, aggCore, aggTools)
+
+    kernel_integrated_traced, err = QuadGK.quadgk(
+        s -> kernel_sI_ansatz_const(t, s, history_fun, p, tmp1, tmp2),
         0,
         t,
-        rtol = 1e-5,
-        atol = 1e-5
-    )
-    
-    tmp2 .= ad(rho.data, W0_bath.data, aggCore, aggTools)
-    LinearAlgebra.mul!(tmp1, Ham_II_t, tmp2, -elementtype(im), zero(elementtype))
-    LinearAlgebra.mul!(tmp1, tmp2, Ham_II_t, elementtype(im), one(elementtype))
-    K_traced = trace_bath(tmp1, aggCore, aggTools)
-    # rho0 = trace_bath(W0, agg, FCProd, aggIndices, vibindices)
-    # println(t)
-    # println(K_traced)
-    # println(K_traced .* rho0.data)
+        rtol = int_reltol,
+        atol = int_abstol,
+    )    
+    drho.data[:, :] = -elementtype(im) * K_traced - kernel_integrated_traced
 
-    # println(data)
-    # LinearAlgebra.mul!(drho.data, one(elementtype), K_traced, -elementtype(im), zero(elementtype))
-    # data = kernel_integrated .* rho.data
-    # LinearAlgebra.mul!(drho.data, one(elementtype), kernel_integrated, -elementtype(1), one(elementtype))
-    # println(-1im * (K_traced .* rho.data))
-    # println(kernel_integrated .* rho.data)
-    drho.data[:, :] = K_traced[:, :] - kernel_integrated[:, :]
-    
     return drho
 end
 
-function MemoryKernel(t, s, tmp1, tmp2, tmp3, h, p, Ham_II_t)
-    Ham_0, Ham_I, Ham_0_lambda, Ham_0_S, Ham_0_Sinv, Ham_B, W0, W0_bath, agg, FCProd, aggIndices, vibindices, elementtype, aggCore, aggTools = p
-    # sprintln(t)
-    # Ham_II_s = getInteractionHamIPictureA(Ham_S, Ham_int, s)
-    tmp3 .= getInteractionHamIPictureA(Ham_I.data, Ham_0_lambda, Ham_0_S, Ham_0_Sinv, s)
-    # LinearAlgebra.mul!(tmp1, H_S, exp(-1im * H_lambda * s), one(elementtype), zero(elementtype))
-    # LinearAlgebra.mul!(tmp3, tmp1, H_Sinv, one(elementtype), zero(elementtype))
-    
-    # LinearAlgebra.mul!(tmp1, adjoint(tmp3), Ham_int.data, one(elementtype), zero(elementtype))
-    # LinearAlgebra.mul!(tmp2, tmp1, tmp3, one(elementtype), zero(elementtype))
-    # println(tmp2)
+function kernel_sI_ansatz_const(t, s, h, p, tmp1, tmp2)
+    aggCore, aggTools, aggOperators, W0, W0_bath, _ = p
+
     rho = h(p, s)
 
     if (typeof(rho) <: Operator)
         rho = rho.data
     end
-    # println("rho", rho)
+
+    Ham_0 = aggOperators.Ham_0
+    Ham_I = aggOperators.Ham_I
+    Ham = aggOperators.Ham
+    Ham_II_s = getInteractionHamIPicture(Ham_0, Ham_I, s)
+    Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
+
+    
     U_0_op = evolutionOperator(Ham_0, s)
     W0_int_s = U_0_op' * W0_bath * U_0_op
-    tmp2 .= ad(rho, W0_int_s.data, aggCore, aggTools)
-    QuantumOpticsBase.mul!(tmp1, tmp3, tmp2, elementtype(1), zero(elementtype))
-    QuantumOpticsBase.mul!(tmp1, tmp2, tmp3, -elementtype(1), one(elementtype))
+    tmp1[:, :] = ad(rho, W0_int_s.data, aggCore, aggTools)
+    
+    #=
+    U_0_s = evolutionOperator(Ham, s)
+    W_s = U_0_s * W0 * U_0_s'
+    U_0_op = evolutionOperator(Ham_0, s)
+    W_int_s = U_0_op' * W_s * U_0_op
 
-    QuantumOpticsBase.mul!(tmp2, Ham_II_t, tmp1, elementtype(1), zero(elementtype))
-    QuantumOpticsBase.mul!(tmp2, tmp1, Ham_II_t, -elementtype(1), one(elementtype))
-    MK_traced = trace_bath(tmp2, aggCore, aggTools)
-    # println(MK_traced)
-    return MK_traced
+    W_bath_s = get_rho_bath(W_int_s, aggCore, aggTools)
+    rho_s = trace_bath(W_int_s, aggCore, aggTools)
+    tmp1[:, :] = ad(rho_s.data, W_bath_s.data, aggCore, aggTools)
+    =#
+    #=
+    U_0_s = evolutionOperator(Ham, s)
+    W_s = U_0_s * W0 * U_0_s'
+    U_0_op = evolutionOperator(Ham_0, s)
+    W_int_s = U_0_op' * W_s * U_0_op
+
+    tmp1[:, :] = W_int_s.data
+    =#
+
+    tmp2[:, :] = Ham_II_s.data * tmp1 - tmp1 * Ham_II_s.data
+    tmp1[:, :] = Ham_II_t.data * tmp2 - tmp2 * Ham_II_t.data
+
+    return trace_bath(tmp1, aggCore, aggTools)
 end

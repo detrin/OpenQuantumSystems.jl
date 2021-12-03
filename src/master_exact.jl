@@ -39,14 +39,14 @@ function QME_sI_exact(
     alg::Any = DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()),
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
-) where {B<:Basis,T<:Operator{B,B},U<:Operator{B,B},V<:Operator{B,B}}
+) where {B<:Basis,T<:Operator{B,B}}
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
     rho0 = trace_bath(W0, agg.core, agg.tools)
     p = (agg.core, agg.tools, agg.operators, W0, eltype(W0))
     
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
-    dmaster_(t, rho, drho, history_fun, p) = dmaster_sI_exact(
+    dmaster_(t, rho, drho, history_fun, p) = dQME_sI_exact(
         t,
         rho,
         drho,
@@ -77,7 +77,7 @@ function QME_sI_exact(
     )
 end
 
-function dmaster_sI_exact(
+function dQME_sI_exact(
     t::AbstractFloat,
     rho::T,
     drho::T,
@@ -144,7 +144,7 @@ function QME_sS_exact(
     
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
-    dmaster_(t, rho, drho, history_fun, p) = dmaster_sS_exact(
+    dmaster_(t, rho, drho, history_fun, p) = dQME_sS_exact(
         t,
         rho,
         drho,
@@ -175,7 +175,7 @@ function QME_sS_exact(
     )
 end
 
-function dmaster_sS_exact(
+function dQME_sS_exact(
     t::AbstractFloat,
     rho::T,
     drho::T,
@@ -263,7 +263,7 @@ function QME_SS_exact(
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
     dmaster_(t, rho::T, drho::T, history_fun, p) =
-        dmaster_SS_exact(t, rho, drho, history_fun, p, tmp1, tmp2, int_reltol, int_abstol)
+        dQME_SS_exact(t, rho, drho, history_fun, p, tmp1, tmp2, int_reltol, int_abstol)
     tspan_ = convert(Vector{float(eltype(tspan))}, tspan)
     x0 = W0.data
     state = T(W0.basis_l, W0.basis_r, W0.data)
@@ -284,7 +284,7 @@ function QME_SS_exact(
     )
 end
 
-function dmaster_SS_exact(
+function dQME_SS_exact(
     t::AbstractFloat,
     W::T,
     dW::T,
@@ -343,7 +343,7 @@ function QME_SI_exact(
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
     dmaster_(t, rho::T, drho::T, history_fun, p) =
-        dmaster_SI_exact(t, rho, drho, history_fun, p, tmp1, tmp2, int_reltol, int_abstol)
+        dQME_SI_exact(t, rho, drho, history_fun, p, tmp1, tmp2, int_reltol, int_abstol)
     tspan_ = convert(Vector{float(eltype(tspan))}, tspan)
     x0 = W0.data
     state = T(W0.basis_l, W0.basis_r, W0.data)
@@ -364,7 +364,7 @@ function QME_SI_exact(
     )
 end
 
-function dmaster_SI_exact(
+function dQME_SI_exact(
     t::AbstractFloat,
     W::T,
     dW::T,
