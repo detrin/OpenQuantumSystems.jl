@@ -236,7 +236,7 @@ export
     MemoryKernel_traced,
 
     # master_ansatz.jl
-    master_ansatz
+    QME_sI_ansatz_const
 
 include("core.jl")
 include("operators_dense.jl")
