@@ -198,7 +198,7 @@ export
     schroedinger_dynamic,
 
     # liouville.jl
-    LvN_sI
+    LvN_sI,
     LvN_sS,
     LvN_SI,
     LvN_SS,
