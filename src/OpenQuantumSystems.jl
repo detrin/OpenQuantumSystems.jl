@@ -239,7 +239,8 @@ export
     # master_ansatz.jl
     QME_sI_ansatz_const_test,
     QME_sI_ansatz_const,
-    QME_sI_ansatz_linear
+    QME_sI_ansatz_linear,
+    QME_sI_ansatz_linear2
 
 include("core.jl")
 include("operators_dense.jl")
