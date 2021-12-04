@@ -236,6 +236,7 @@ export
     MemoryKernel_traced,
 
     # master_ansatz.jl
+    QME_sI_ansatz_const_test,
     QME_sI_ansatz_const
 
 include("core.jl")
