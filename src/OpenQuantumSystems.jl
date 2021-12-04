@@ -192,6 +192,7 @@ export
     evolutionApproximate!,
     evolution_exact,
     evolution_approximate,
+    evolutionOperatorExp,
 
     # schrodinger.jl
     schroedinger,

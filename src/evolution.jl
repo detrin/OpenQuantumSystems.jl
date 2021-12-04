@@ -581,20 +581,25 @@ end
 
 function evolutionOperatorExp(
     Ham::Array, t::AbstractFloat, n::Integer
-)::Array where {B<:Basis,T<:Operator{B,B}}
+)::Array
+    # c = ones(size(Ham))
+    c = one(Ham)
+    Len = size(Ham, 1)
     s = c 
     if n > 0
         for k in 1:n
             c = c * (-1.0im/k * Ham * t)
-            s += c
+            s = s + c
+            # s[:, :] = s + (-1.0im * Ham * t)^k/factorial(big(k))
         end
     end
+    s /= abs(det(s))^(1.0/Len)
     s
 end
 
 function evolutionOperatorExp(
     Ham::T, t::AbstractFloat, n::Integer
-)::T where {B<:Basis,T<:Operator{B,B}}
+) where {B<:Basis,T<:Operator{B,B}}
     data = evolutionOperatorExp(Ham.data, t, n)
-    DenseOperator(Ham.l_basis, Ham.r_basis, data)
+    DenseOperator(Ham.basis_l, Ham.basis_r, data)
 end
