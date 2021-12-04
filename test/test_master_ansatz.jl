@@ -56,6 +56,17 @@ import QuantumOpticsBase
     t_step = (t_max - t0) / (t_count)
     tspan = [t0:t_step:t_max;]
 
+    _, W_t = QME_sI_ansatz_const_test(
+        W0,
+        tspan,
+        agg;
+        reltol = 1e-3,
+        abstol = 1e-3,
+        int_reltol = 1e-4,
+        int_abstol = 1e-4,
+        alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
+    )
+
     _, W_t = QME_sI_ansatz_const(
         W0,
         tspan,
