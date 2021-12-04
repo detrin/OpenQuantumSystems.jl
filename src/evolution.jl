@@ -578,3 +578,23 @@ function evolution_approximate(
     end
     return tspan, rho_t
 end
+
+function evolutionOperatorExp(
+    Ham::Array, t::AbstractFloat, n::Integer
+)::Array where {B<:Basis,T<:Operator{B,B}}
+    s = c 
+    if n > 0
+        for k in 1:n
+            c = c * (-1.0im/k * Ham * t)
+            s += c
+        end
+    end
+    s
+end
+
+function evolutionOperatorExp(
+    Ham::T, t::AbstractFloat, n::Integer
+)::T where {B<:Basis,T<:Operator{B,B}}
+    data = evolutionOperatorExp(Ham.data, t, n)
+    DenseOperator(Ham.l_basis, Ham.r_basis, data)
+end
