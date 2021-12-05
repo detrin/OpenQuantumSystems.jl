@@ -56,7 +56,7 @@ import QuantumOpticsBase
     t_step = (t_max - t0) / (t_count)
     tspan = [t0:t_step:t_max;]
 
-    _, W_t = QME_sI_ansatz_const_test(
+    _, W_t = QME_sI_ansatz_test(
         W0,
         tspan,
         agg;
