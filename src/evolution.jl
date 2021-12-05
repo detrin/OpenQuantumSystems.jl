@@ -3,6 +3,12 @@
 # import ResumableFunctions: @resumable, @yield
 using ResumableFunctions
 
+function get_tspan(t0, t1, count)::Vector{Float64}
+    t_step = (t1 - t0) / count
+    tspan = [t0:t_step:t1;]
+    return tspan
+end
+
 """
     evolutionOperator(Hamiltonian, t)
 

@@ -180,6 +180,7 @@ export
     setupAggregate,
 
     # evolution.jl
+    get_tspan,
     evolutionOperator,
     evolutionOperatorA,
     evolutionSuperOperator,
