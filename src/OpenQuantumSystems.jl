@@ -244,7 +244,10 @@ export
     QME_sI_ansatz_linear,
     QME_sI_ansatz_linear2,
     QME_sI_ansatz_upart1,
-    QME_sI_ansatz_upart2
+    QME_sI_ansatz_upart2,
+
+    # scoring.jl
+    get_rmse_in_time
 
 include("core.jl")
 include("operators_dense.jl")
@@ -265,6 +268,7 @@ include("trace.jl")
 include("initial_state.jl")
 include("memory_kernel.jl")
 include("master_ansatz.jl")
+include("scoring.jl")
 
 end
 
