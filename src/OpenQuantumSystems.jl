@@ -162,6 +162,7 @@ export
     getFranckCondonFactors,
     # getFranckCondonFactorsSparse,
     getFCproduct,
+    take_el_part,
 
     # aggregateOperators.jl
     getAggHamSystemSmall,
@@ -193,6 +194,7 @@ export
     evolution_exact,
     evolution_approximate,
     evolutionOperatorExp,
+    evolution_el_part,
 
     # schrodinger.jl
     schroedinger,
@@ -229,7 +231,6 @@ export
     thermal_state_composite_old,
 
     # memory_kernel.jl
-    take_el_part,
     MemoryKernel_1_traced,
     MemoryKernel_2_traced,
     MemoryKernel_3_traced,

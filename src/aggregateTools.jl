@@ -310,3 +310,18 @@ Base.:(==)(x::AggregateTools, y::AggregateTools) =
     x.FCfactors == y.FCfactors && x.FCproduct == y.FCproduct &&
     x.bSystemSize == y.bSystemSize && x.bBathSize == y.bBathSize && x.bSize == y.bSize &&
     x.basisSystem == y.basisSystem && x.basisBath == y.basisBath && x.basis == y.basis
+
+"""
+    take_el_part(A, a, b, indicesMap)
+
+Take electric part specified by electric indices `a` and `b` from the A (type of Array). 
+
+"""
+function take_el_part(A::Array, a, b, indicesMap)
+    a1 = indicesMap[a][1]
+    a2 = indicesMap[a][end]
+    b1 = indicesMap[b][1]
+    b2 = indicesMap[b][end]
+
+    return A[a1:a2, b1:b2]
+end
