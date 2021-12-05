@@ -94,21 +94,20 @@ function dQME_sI_exact(
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
     K_traced = trace_bath(K, aggCore, aggTools)
 
-    kernel_integrated, err = QuadGK.quadgk(
+    kernel_integrated_traced, err = QuadGK.quadgk(
         s -> kernel_sI_exact(t, s, history_fun, p, tmp1, tmp2),
         0,
         t,
         rtol = int_reltol,
         atol = int_abstol,
     )    
-    kernel_integrated_traced = trace_bath(kernel_integrated, aggCore, aggTools)
     drho.data[:, :] = -elementtype(im) * K_traced - kernel_integrated_traced
     
     return drho
 end
 
 function kernel_sI_exact(t, s, h, p, tmp1, tmp2)
-    _, _, aggOperators, W0, _ = p
+    aggCore, aggTools, aggOperators, W0, _ = p
 
     Ham_0 = aggOperators.Ham_0
     Ham_I = aggOperators.Ham_I
@@ -121,9 +120,9 @@ function kernel_sI_exact(t, s, h, p, tmp1, tmp2)
     U_0_op = evolutionOperator(Ham_0, s)
     W_int_s = U_0_op' * W_s * U_0_op
 
-    tmp2[:, :] = Ham_II_s.data * W_int_s.data - W_int_s.data * Ham_II_s.data
-    tmp1[:, :] = Ham_II_t.data * tmp2 - tmp2 * Ham_II_t.data
-    return tmp1
+    tmp1[:, :] = Ham_II_s.data * W_int_s.data - W_int_s.data * Ham_II_s.data
+    tmp2[:, :] = Ham_II_t.data * tmp1 - tmp1 * Ham_II_t.data
+    return trace_bath(tmp2, aggCore, aggTools)
 end
 
 function QME_sS_exact(
@@ -192,21 +191,20 @@ function dQME_sS_exact(
     K = Ham * W0.data - W0.data * Ham
     K_traced = trace_bath(K, aggCore, aggTools)
 
-    kernel_integrated, err = QuadGK.quadgk(
+    kernel_integrated_traced, err = QuadGK.quadgk(
         s -> kernel_sS_exact(t, s, history_fun, p, tmp1, tmp2),
         0,
         t,
         rtol = int_reltol,
         atol = int_abstol,
     )    
-    kernel_integrated_traced = trace_bath(kernel_integrated, aggCore, aggTools)
     drho.data[:, :] = -elementtype(im) * K_traced - kernel_integrated_traced
     
     return drho
 end
 
 function kernel_sS_exact(t, s, h, p, tmp1, tmp2)
-    _, _, aggOperators, W0, _ = p
+    aggCore, aggTools, aggOperators, W0, _ = p
 
     Ham_0 = aggOperators.Ham_0
     Ham = aggOperators.Ham
@@ -217,7 +215,7 @@ function kernel_sS_exact(t, s, h, p, tmp1, tmp2)
     tmp1[:, :] = Ham.data * W_s.data - W_s.data * Ham.data
     tmp2[:, :] = Ham.data * tmp1 - tmp1 * Ham.data
 
-    return tmp2
+    return trace_bath(tmp2, aggCore, aggTools)
 end
 
 """
