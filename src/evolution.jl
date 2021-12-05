@@ -603,3 +603,26 @@ function evolutionOperatorExp(
     data = evolutionOperatorExp(Ham.data, t, n)
     DenseOperator(Ham.basis_l, Ham.basis_r, data)
 end
+
+function evolution_el_part(
+    Ham::Array, 
+    t::AbstractFloat, 
+    a::Integer, 
+    b::Integer, 
+    indicesMap::IndicesMap
+)
+    data = take_el_part(Ham, a, b, indicesMap)
+    return evolutionOperator(data, t)
+end
+
+function evolution_el_part(
+    Ham::T, 
+    t::AbstractFloat, 
+    a::Integer, 
+    b::Integer, 
+    indicesMap::IndicesMap
+) where {B<:Basis,T<:Operator{B,B}}
+    data = evolution_el_part(Ham.data, t, a, b, indicesMap)
+    b = GenericBasis([size(data, 1)])
+    return DenseOperator(b, b, data)
+end
