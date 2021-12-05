@@ -1,18 +1,5 @@
 
-"""
-    take_el_part(A, a, b, indicesMap)
 
-Take electric part specified by electric indices `a` and `b` from the A (type of Array). 
-
-"""
-function take_el_part(A::Array, a, b, indicesMap)
-    a1 = indicesMap[a][1]
-    a2 = indicesMap[a][end]
-    b1 = indicesMap[b][1]
-    b2 = indicesMap[b][end]
-
-    return A[a1:a2, b1:b2]
-end
 
 """
     MemoryKernel_1_traced(H_II_t, H_II_tau, W_bath, agg, FCProd, aggIndices, indicesMap)
