@@ -71,7 +71,7 @@ function dQME_sI_ansatz_test(
     K_traced = trace_bath(K, aggCore, aggTools)
 
     kernel_integrated_traced, err = QuadGK.quadgk(
-        s -> kernel_sI_ansatz_test(t, s, history_fun, p, tmp1, tmp2),
+        s -> kernel_sI_ansatz_test(t, s, history_fun, p, tmp1, tmp2, Ham_II_t),
         0,
         t,
         rtol = int_reltol,
@@ -82,7 +82,7 @@ function dQME_sI_ansatz_test(
     return drho
 end
 
-function kernel_sI_ansatz_test(t, s, h, p, tmp1, tmp2)
+function kernel_sI_ansatz_test(t, s, h, p, tmp1, tmp2, Ham_II_t)
     aggCore, aggTools, aggOperators, W0, _ = p
 
     rho = h(p, s)
@@ -95,7 +95,6 @@ function kernel_sI_ansatz_test(t, s, h, p, tmp1, tmp2)
     Ham_I = aggOperators.Ham_I
     Ham = aggOperators.Ham
     Ham_II_s = getInteractionHamIPicture(Ham_0, Ham_I, s)
-    Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
 
     U_0_s = evolutionOperator(Ham, s)
     W_s = U_0_s * W0 * U_0_s'
@@ -180,7 +179,7 @@ function dQME_sI_ansatz_const(
     K_traced = trace_bath(K, aggCore, aggTools)
 
     kernel_integrated_traced, err = QuadGK.quadgk(
-        s -> kernel_sI_ansatz_const(t, s, history_fun, p, tmp1, tmp2),
+        s -> kernel_sI_ansatz_const(t, s, history_fun, p, tmp1, tmp2, Ham_II_t),
         0,
         t,
         rtol = int_reltol,
@@ -191,7 +190,7 @@ function dQME_sI_ansatz_const(
     return drho
 end
 
-function kernel_sI_ansatz_const(t, s, h, p, tmp1, tmp2)
+function kernel_sI_ansatz_const(t, s, h, p, tmp1, tmp2, Ham_II_t)
     aggCore, aggTools, aggOperators, W0, W0_bath, _ = p
 
     rho = h(p, s)
@@ -203,7 +202,6 @@ function kernel_sI_ansatz_const(t, s, h, p, tmp1, tmp2)
     Ham_0 = aggOperators.Ham_0
     Ham_I = aggOperators.Ham_I
     Ham_II_s = getInteractionHamIPicture(Ham_0, Ham_I, s)
-    Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
 
     
     U_0_op = evolutionOperator(Ham_0, s)
@@ -286,7 +284,7 @@ function dQME_sI_ansatz_linear(
     K_traced = trace_bath(K, aggCore, aggTools)
 
     kernel_integrated_traced, err = QuadGK.quadgk(
-        s -> kernel_sI_ansatz_linear(t, s, history_fun, p, tmp1, tmp2),
+        s -> kernel_sI_ansatz_linear(t, s, history_fun, p, tmp1, tmp2, Ham_II_t),
         0,
         t,
         rtol = int_reltol,
@@ -297,7 +295,7 @@ function dQME_sI_ansatz_linear(
     return drho
 end
 
-function kernel_sI_ansatz_linear(t, s, h, p, tmp1, tmp2)
+function kernel_sI_ansatz_linear(t, s, h, p, tmp1, tmp2, Ham_II_t)
     aggCore, aggTools, aggOperators, _, W0_bath, elementtype = p
 
     rho = h(p, s)
@@ -310,7 +308,6 @@ function kernel_sI_ansatz_linear(t, s, h, p, tmp1, tmp2)
     Ham_I = aggOperators.Ham_I
     Ham = aggOperators.Ham
     Ham_II_s = getInteractionHamIPicture(Ham_0, Ham_I, s)
-    Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
     
     U_0_op = evolutionOperator(Ham_0, s)
     # linear element
@@ -394,7 +391,7 @@ function dQME_sI_ansatz_linear2(
     K_traced = trace_bath(K, aggCore, aggTools)
 
     kernel_integrated_traced, err = QuadGK.quadgk(
-        s -> kernel_sI_ansatz_linear2(t, s, history_fun, p, tmp1, tmp2),
+        s -> kernel_sI_ansatz_linear2(t, s, history_fun, p, tmp1, tmp2, Ham_II_t),
         0,
         t,
         rtol = int_reltol,
@@ -405,7 +402,7 @@ function dQME_sI_ansatz_linear2(
     return drho
 end
 
-function kernel_sI_ansatz_linear2(t, s, h, p, tmp1, tmp2)
+function kernel_sI_ansatz_linear2(t, s, h, p, tmp1, tmp2, Ham_II_t)
     aggCore, aggTools, aggOperators, _, W0_bath, t_mk_bath_step, elementtype = p
 
     rho = h(p, s)
@@ -418,7 +415,6 @@ function kernel_sI_ansatz_linear2(t, s, h, p, tmp1, tmp2)
     Ham_I = aggOperators.Ham_I
     Ham = aggOperators.Ham
     Ham_II_s = getInteractionHamIPicture(Ham_0, Ham_I, s)
-    Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
     
     U_0_op = evolutionOperator(Ham_0, s)
     # linear element on intervals
@@ -509,7 +505,7 @@ function dQME_sI_ansatz_upart1(
     K_traced = trace_bath(K, aggCore, aggTools)
 
     kernel_integrated_traced, err = QuadGK.quadgk(
-        s -> kernel_sI_ansatz_upart1(t, s, history_fun, p, tmp1, tmp2),
+        s -> kernel_sI_ansatz_upart1(t, s, history_fun, p, tmp1, tmp2, Ham_II_t),
         0,
         t,
         rtol = int_reltol,
@@ -520,7 +516,7 @@ function dQME_sI_ansatz_upart1(
     return drho
 end
 
-function kernel_sI_ansatz_upart1(t, s, h, p, tmp1, tmp2)
+function kernel_sI_ansatz_upart1(t, s, h, p, tmp1, tmp2, Ham_II_t)
     aggCore, aggTools, aggOperators, _, W0_bath, elementtype = p
 
     rho = h(p, s)
@@ -534,7 +530,6 @@ function kernel_sI_ansatz_upart1(t, s, h, p, tmp1, tmp2)
     Ham_I = aggOperators.Ham_I
     Ham = aggOperators.Ham
     Ham_II_s = getInteractionHamIPicture(Ham_0, Ham_I, s)
-    Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
     
     U_0_op = evolutionOperator(Ham_0, s)
     # linear element on intervals
@@ -623,7 +618,7 @@ function dQME_sI_ansatz_upart2(
     K_traced = trace_bath(K, aggCore, aggTools)
 
     kernel_integrated_traced, err = QuadGK.quadgk(
-        s -> kernel_sI_ansatz_upart2(t, s, history_fun, p, tmp1, tmp2),
+        s -> kernel_sI_ansatz_upart2(t, s, history_fun, p, tmp1, tmp2, Ham_II_t),
         0,
         t,
         rtol = int_reltol,
@@ -634,7 +629,7 @@ function dQME_sI_ansatz_upart2(
     return drho
 end
 
-function kernel_sI_ansatz_upart2(t, s, h, p, tmp1, tmp2)
+function kernel_sI_ansatz_upart2(t, s, h, p, tmp1, tmp2, Ham_II_t)
     aggCore, aggTools, aggOperators, _, W0_bath, elementtype = p
 
     rho = h(p, s)
@@ -648,7 +643,6 @@ function kernel_sI_ansatz_upart2(t, s, h, p, tmp1, tmp2)
     Ham_I = aggOperators.Ham_I
     Ham = aggOperators.Ham
     Ham_II_s = getInteractionHamIPicture(Ham_0, Ham_I, s)
-    Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
     
     U_0_op = evolutionOperator(Ham_0, s)
     # linear element on intervals
