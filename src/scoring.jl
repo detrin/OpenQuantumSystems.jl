@@ -31,3 +31,59 @@ function get_rmse_in_time(operator_data_vec1::OperatorDataVectorType, operator_d
     end
     return sqrt(c / t_count)
 end
+
+function compare_rho(rho::Array, rho_ref::Array, smooth_const=1e-9)
+    tspan_len = size(rho, 1)
+    N = size(rho, 2)
+    rho_sum = zeros(Float64, N, N)
+
+    for t_i in 1:tspan_len
+        rho_abs = abs.(rho_ref[t_i, :, :]) 
+        rho_d = rho_abs + smooth_const*ones(size(rho_abs))
+        rho_sum[:, :] += abs.(rho[t_i, :, :] - rho_ref[t_i, :, :]) ./ rho_d
+    end
+    rho_sum /= tspan_len
+    return rho_sum
+end
+
+function compare_rho(rho::Array, rho_ref::OperatorDataVectorType, smooth_const=1e-9)
+    tspan_len = size(rho, 1)
+    N = size(rho, 2)
+    rho_sum = zeros(Float64, N, N)
+
+    for t_i in 1:tspan_len
+        rho_abs = abs.(rho_ref[t_i].data) 
+        rho_d = rho_abs + smooth_const*ones(size(rho_abs))
+        rho_sum[:, :] += abs.(rho[t_i, :, :] - rho_ref[t_i].data) ./ rho_d
+    end
+    rho_sum /= tspan_len
+    return rho_sum
+end
+
+function compare_rho(rho::OperatorDataVectorType, rho_ref::Array, smooth_const=1e-9)
+    tspan_len = length(rho)
+    N = size(rho[1].data, 1)
+    rho_sum = zeros(Float64, N, N)
+
+    for t_i in 1:tspan_len
+        rho_abs = abs.(rho_ref[t_i, :, :]) 
+        rho_d = rho_abs + smooth_const*ones(size(rho_abs))
+        rho_sum[:, :] += abs.(rho[t_i].data[:, :] - rho_ref[t_i, :, :]) ./ rho_d
+    end
+    rho_sum /= tspan_len
+    return rho_sum
+end
+
+function compare_rho(rho::OperatorDataVectorType, rho_ref::OperatorDataVectorType, smooth_const=1e-9)
+    tspan_len = length(rho)
+    N = size(rho[1].data, 1)
+    rho_sum = zeros(Float64, N, N)
+
+    for t_i in 1:tspan_len
+        rho_abs = abs.(rho_ref[t_i].data) 
+        rho_d = rho_abs + smooth_const*ones(size(rho_abs))
+        rho_sum[:, :] += abs.(rho[t_i].data - rho_ref[t_i].data) ./ rho_d
+    end
+    rho_sum /= tspan_len
+    return rho_sum
+end
