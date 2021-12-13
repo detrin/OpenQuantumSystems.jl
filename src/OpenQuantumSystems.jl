@@ -247,7 +247,8 @@ export
     QME_sI_ansatz_upart2,
 
     # scoring.jl
-    get_rmse_in_time
+    get_rmse_in_time,
+    compare_rho
 
 include("core.jl")
 include("operators_dense.jl")
