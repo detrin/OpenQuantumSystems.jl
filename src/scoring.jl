@@ -46,7 +46,8 @@ function compare_rho(rho::Array, rho_ref::Array, smooth_const=1e-9)
     return rho_sum
 end
 
-function compare_rho(rho::Array, rho_ref::OperatorDataVectorType, smooth_const=1e-9)
+
+function compare_rho(rho::Array, rho_ref::OperatorVectorType, smooth_const=1e-9)
     tspan_len = size(rho, 1)
     N = size(rho, 2)
     rho_sum = zeros(Float64, N, N)
@@ -60,7 +61,8 @@ function compare_rho(rho::Array, rho_ref::OperatorDataVectorType, smooth_const=1
     return rho_sum
 end
 
-function compare_rho(rho::OperatorDataVectorType, rho_ref::Array, smooth_const=1e-9)
+
+function compare_rho(rho::OperatorVectorType, rho_ref::Array; smooth_const=1e-9)
     tspan_len = length(rho)
     N = size(rho[1].data, 1)
     rho_sum = zeros(Float64, N, N)
@@ -74,7 +76,7 @@ function compare_rho(rho::OperatorDataVectorType, rho_ref::Array, smooth_const=1
     return rho_sum
 end
 
-function compare_rho(rho::OperatorDataVectorType, rho_ref::OperatorDataVectorType, smooth_const=1e-9)
+function compare_rho(rho::OperatorVectorType, rho_ref::OperatorVectorType; smooth_const=1e-9)
     tspan_len = length(rho)
     N = size(rho[1].data, 1)
     rho_sum = zeros(Float64, N, N)
