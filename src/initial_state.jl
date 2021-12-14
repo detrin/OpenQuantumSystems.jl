@@ -233,3 +233,27 @@ function thermal_state_composite_old(
     normalize!(W0)
     return W0
 end
+
+function ultrafast_laser_excitation(T::AbstractFloat, weights::Array, agg::Aggregate; diagonalize = true)
+    molCount = agg.core.molCount
+    mu_array = [ones(Int64, molCount)]
+
+    mu_array_tmp = deepcopy(mu_array)
+    mu_array_tmp[1][1] = 2
+    W0 = weights[1] * thermal_state(T, mu_array_tmp, agg.core, agg.tools, agg.operators; diagonalize = diagonalize)
+
+    for i in 2:molCount
+        mu_array_tmp = deepcopy(mu_array)
+        mu_array_tmp[1][i] = 2
+        W0.data[:, :] += weights[i] * thermal_state(T, mu_array_tmp, agg.core, agg.tools, agg.operators; diagonalize = diagonalize).data 
+    end
+    normalize!(W0)
+    W0 = DenseOperator(W0.basis_l, W0.basis_r, complex(W0.data))
+
+    rho0 = trace_bath(W0, agg.core, agg.tools)
+    rho0 = DenseOperator(rho0.basis_l, rho0.basis_r, complex(rho0.data))
+
+    W0_bath = get_rho_bath(W0, agg.core, agg.tools)
+    W0_bath = DenseOperator(W0_bath.basis_l, W0_bath.basis_r, complex(W0_bath.data))
+    return W0, rho0, W0_bath
+end

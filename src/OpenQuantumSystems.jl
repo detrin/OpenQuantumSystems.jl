@@ -234,6 +234,7 @@ export
     thermal_state_old,
     thermal_state_composite,
     thermal_state_composite_old,
+    ultrafast_laser_excitation,
 
     # memory_kernel.jl
     MemoryKernel_1_traced,
