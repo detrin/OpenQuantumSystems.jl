@@ -16,7 +16,6 @@ function operator_recast(rho::Array)::Array
     return rho
 end
 
-
 ######
 
 function interaction_pic_to_schroedinger_pic(rho_int::Array, tspan::Array, agg::Aggregate)
@@ -53,9 +52,31 @@ end
 
 #####
 
-function local_st_to_exciton_st(rho::Array)
+function local_st_to_exciton_st(rho_local::Array, agg::Aggregate)
+    N = size(rho_local, 1)
+    rho_exciton = deepcopy(rho_local)
+    Ham_sys = agg.operators.Ham_sys
+    Ham_sys_lambda, Ham_sys_S = eigen(Ham_sys.data)
+    Ham_sys_Sinv = inv(Ham_sys_S)
+    # Ham_sys_lambda = diagm(Ham_sys_lambda)
+
+    for t_i in 1:N
+        rho_exciton[t_i, :, :] = Ham_sys_Sinv * rho_local[t_i, :, :] * Ham_sys_S
+    end
+    return rho_exciton
 end
 
-function local_st_to_exciton_st(rho::OperatorVector)
+function exciton_st_to_local_st(rho_exciton::Array, agg::Aggregate)
+    N = size(rho_exciton, N)
+    rho_local = deepcopy(rho_exciton)
+    Ham_sys = agg.operators.Ham_sys
+    Ham_sys_lambda, Ham_sys_S = eigen(Ham_sys.data)
+    Ham_sys_Sinv = inv(Ham_sys_S)
+    # Ham_sys_lambda = diagm(Ham_sys_lambda)
+
+    for t_i in 1:N
+        rho_local[t_i, :, :] = Ham_sys_S * rho_exciton[t_i, :, :] * Ham_sys_Sinv
+    end
+    return rho_local
 end
 
