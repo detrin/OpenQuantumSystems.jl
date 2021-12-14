@@ -632,3 +632,79 @@ function evolution_el_part(
     b = GenericBasis([size(data, 1)])
     return DenseOperator(b, b, data)
 end
+
+function Evolution_SI_exact(
+    W0::T,
+    tspan::Array,
+    agg::Aggregate
+) where {B<:Basis,T<:Operator{B,B}}
+    W_t_exact = zeros(ComplexF64, length(tspan), agg.tools.bSize, agg.tools.bSize)
+    Ham = agg.operators.Ham
+    Ham_0 = agg.operators.Ham_0
+    for t_i in 1:length(tspan)
+        t = tspan[t_i]
+        U_op = evolutionOperator(Ham, t)
+        W = U_op * W0 * U_op'
+        U_0_op = evolutionOperator(Ham_0, t)
+        W = U_0_op' * W * U_0_op
+        W_t_exact[t_i, :, :] = W.data
+    end
+    return tspan, W_t_exact
+end
+
+function Evolution_sI_exact(
+    W0::T,
+    tspan::Array,
+    agg::Aggregate
+) where {B<:Basis,T<:Operator{B,B}}
+    elLen = agg.core.molCount
+    rho_t_exact = zeros(ComplexF64, length(tspan), elLen+1, elLen+1)
+
+    Ham = agg.operators.Ham
+    Ham_0 = agg.operators.Ham_0
+    for t_i in 1:length(tspan)
+        t = tspan[t_i]
+        U_op = evolutionOperator(Ham, t)
+        W = U_op * W0 * U_op'
+        U_0_op = evolutionOperator(Ham_0, t)
+        W = U_0_op' * W * U_0_op
+        rho_t_exact[t_i, :, :] = trace_bath(W.data[:, :], agg.core, agg.tools)
+    end
+    return tspan, rho_t_exact
+end
+
+function Evolution_SS_exact(
+    W0::T,
+    tspan::Array,
+    agg::Aggregate
+) where {B<:Basis,T<:Operator{B,B}}
+    W_t_exact = zeros(ComplexF64, length(tspan), agg.tools.bSize, agg.tools.bSize)
+    Ham = agg.operators.Ham
+    Ham_0 = agg.operators.Ham_0
+    for t_i in 1:length(tspan)
+        t = tspan[t_i]
+        U_op = evolutionOperator(Ham, t)
+        W = U_op * W0 * U_op'
+        W_t_exact[t_i, :, :] = W.data
+    end
+    return tspan, W_t_exact
+end
+
+function Evolution_sS_exact(
+    W0::T,
+    tspan::Array,
+    agg::Aggregate
+) where {B<:Basis,T<:Operator{B,B}}
+    elLen = agg.core.molCount
+    rho_t_exact = zeros(ComplexF64, length(tspan), elLen+1, elLen+1)
+
+    Ham = agg.operators.Ham
+    Ham_0 = agg.operators.Ham_0
+    for t_i in 1:length(tspan)
+        t = tspan[t_i]
+        U_op = evolutionOperator(Ham, t)
+        W = U_op * W0 * U_op'
+        rho_t_exact[t_i, :, :] = trace_bath(W.data[:, :], agg.core, agg.tools)
+    end
+    return tspan, rho_t_exact
+end
