@@ -71,7 +71,7 @@ function compare_rho_in_time(rho::Array, rho_ref::Array; smooth_const=1e-9)
     for t_i in 1:N
         rho_abs = abs.(rho_ref[t_i, :, :]) 
         rho_d = rho_abs + smooth_const*ones(size(rho_abs))
-        rho_rel[t_i, :, :] = abs.(rho[t_i, :, :] - rho_ref[t_i, :, :]) / rho_d  
+        rho_rel[t_i, :, :] = abs.(rho[t_i, :, :] - rho_ref[t_i, :, :]) ./ rho_d  
     end
     return rho_rel
 end
