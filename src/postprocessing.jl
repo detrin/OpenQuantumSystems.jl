@@ -12,20 +12,46 @@ function operator_recast(rho::OperatorVector)::Array
     return rho_array
 end
 
+function operator_recast(rho::Array)::Array
+    return rho
+end
 
-function interaction_pic_to_schroedinger_pic(rho_int::Array, agg::Aggregate)
+
+######
+
+function interaction_pic_to_schroedinger_pic(rho_int::Array, tspan::Array, agg::Aggregate)
     rho_sch = deepcopy(rho_int)
     Ham_sys = agg.operators.Ham_sys
     for t_i in 1:length(tspan)
         t = tspan[t_i]
         U_op = evolutionOperator(Ham_sys, t)
-        rho_sch[t_i, :, :] = (U_op').data * rho_sch[t_i, :, :].data * U_op.data 
+        rho_sch[t_i, :, :] = U_op.data * rho_int[t_i, :, :] * (U_op').data 
     end
     return rho_sch
 end
 
-function interaction_pic_to_schroedinger_pic(rho_int::OperatorVector)
+function interaction_pic_to_schroedinger_pic(rho_int::OperatorVector, tspan::Array, agg::Aggregate)
+    rho_array = operator_recast(rho)
+    return interaction_pic_to_schroedinger_pic(rho_array, tspan, agg)
 end
+
+function schroedinger_pic_to_interaction_pic(rho_sch::Array, tspan::Array, agg::Aggregate)
+    rho_int = deepcopy(rho_sch)
+    Ham_sys = agg.operators.Ham_sys
+    for t_i in 1:length(tspan)
+        t = tspan[t_i]
+        U_op = evolutionOperator(Ham_sys, t)
+        rho_int[t_i, :, :] = (U_op').data * rho_sch[t_i, :, :] * U_op.data 
+    end
+    return rho_int
+end
+
+function schroedinger_pic_to_interaction_pic(rho_int::OperatorVector, tspan::Array, agg::Aggregate)
+    rho_array = operator_recast(rho)
+    return schroedinger_pic_to_interaction_pic(rho_array, tspan, agg)
+end
+
+#####
 
 function local_st_to_exciton_st(rho::Array)
 end

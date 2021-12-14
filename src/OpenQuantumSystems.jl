@@ -253,6 +253,7 @@ export
     # postprocessing.jl
     operator_recast,
     interaction_pic_to_schroedinger_pic,
+    schroedinger_pic_to_interaction_pic,
     local_st_to_exciton_st,
 
     # scoring.jl
