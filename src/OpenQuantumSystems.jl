@@ -196,6 +196,10 @@ export
     evolution_approximate,
     evolutionOperatorExp,
     evolution_el_part,
+    Evolution_SI_exact,
+    Evolution_sI_exact,
+    Evolution_SS_exact,
+    Evolution_sS_exact,
 
     # schrodinger.jl
     schroedinger,
@@ -246,9 +250,15 @@ export
     QME_sI_ansatz_upart1,
     QME_sI_ansatz_upart2,
 
+    # postprocessing.jl
+    operator_recast,
+    interaction_pic_to_schroedinger_pic,
+    local_st_to_exciton_st,
+
     # scoring.jl
     get_rmse_in_time,
-    compare_rho
+    compare_rho,
+    compare_rho_in_time
 
 include("core.jl")
 include("operators_dense.jl")
@@ -269,6 +279,7 @@ include("trace.jl")
 include("initial_state.jl")
 include("memory_kernel.jl")
 include("master_ansatz.jl")
+include("postprocessing.jl")
 include("scoring.jl")
 
 end
