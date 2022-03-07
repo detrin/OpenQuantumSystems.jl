@@ -19,7 +19,7 @@ StableRNGs = "860ef19b-820b-49d6-a774-d7a799459cd3"
 [compat]
 DelayDiffEq = "5.30"
 DiffEqCallbacks = "2.16"
-OrdinaryDiffEq = "5.53"
+OrdinaryDiffEq = "5.53, 6"
 QuadGK = "2.4"
 QuantumOpticsBase = "0.2, 0.3"
 Reexport = "1.0"
