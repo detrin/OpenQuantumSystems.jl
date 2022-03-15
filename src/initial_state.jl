@@ -66,11 +66,11 @@ function thermal_state(
     else
         H_lambda, H_S = eigen(data)
         H_lambda = diagm(H_lambda)
-        data = H_S * exp(-H_lambda / (T * boltzmann_const)) * inv(H_S)
+        data = H_S * exp(H_lambda / (T * boltzmann_const)) * inv(H_S)
     end
     W0 = DenseOperator(Ham.basis_r, Ham.basis_l, zero(Ham.data))
-    excitedElInd = 1
-    for elInd in 1:length(vibindices)-1
+    excitedElInd = 0
+    for elInd in 1:length(vibindices)
         excitedElInd += elInd * (mu_array[1][elInd] - 1)
     end
     a1 = vibindices[excitedElInd][1]
@@ -176,7 +176,7 @@ function thermal_state_composite(
     else
         H_lambda, H_S = eigen(data)
         H_lambda = diagm(H_lambda)
-        data = H_S * exp(-H_lambda / (T * boltzmann_const)) * inv(H_S)
+        data = H_S * exp(H_lambda / (T * boltzmann_const)) * inv(H_S)
     end
     W0 = DenseOperator(Ham.basis_r, Ham.basis_l, zero(Ham.data))
 
@@ -236,13 +236,13 @@ end
 
 function ultrafast_laser_excitation(T::AbstractFloat, weights::Array, agg::Aggregate; diagonalize = true)
     molCount = agg.core.molCount
-    mu_array = [ones(Int64, molCount)]
+    mu_array = [ones(Int64, molCount+1)]
 
     mu_array_tmp = deepcopy(mu_array)
     mu_array_tmp[1][1] = 2
     W0 = weights[1] * thermal_state(T, mu_array_tmp, agg.core, agg.tools, agg.operators; diagonalize = diagonalize)
 
-    for i in 2:molCount
+    for i in 2:molCount+1
         mu_array_tmp = deepcopy(mu_array)
         mu_array_tmp[1][i] = 2
         W0.data[:, :] += weights[i] * thermal_state(T, mu_array_tmp, agg.core, agg.tools, agg.operators; diagonalize = diagonalize).data 
