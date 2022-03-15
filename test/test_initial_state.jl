@@ -38,13 +38,13 @@ import QuantumOpticsBase
     FCProd = agg.tools.FCproduct
 
     T = 300.0
-    mu_array = [[1, 2]]
-    W0_ref = [0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.2499985624470225 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.2500002875090084 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.24999971248702382 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.25000143755694526]
-
+    mu_array = [[1, 1, 2]]
+    W0_ref = [0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.25000143755694526 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.2499997124870238 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.2500002875090083 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.24999856244702248]
     W0 = thermal_state(T, mu_array, aggCore, aggTools, aggOperators; diagonalize = true)
     @test 1e-15 > D(W0_ref, W0.data)
-    W01 = thermal_state(T, [[2, 1]], aggCore, aggTools, aggOperators; diagonalize = true)
-    W02 = thermal_state(T, [[1, 2]], aggCore, aggTools, aggOperators; diagonalize = true)
+
+    W01 = thermal_state(T, [[1, 2, 1]], aggCore, aggTools, aggOperators; diagonalize = true)
+    W02 = thermal_state(T, [[1, 1, 2]], aggCore, aggTools, aggOperators; diagonalize = true)
     W0_composite_ref = 0.8 * W01 + 0.2 * W02
     normalize!(W0_composite_ref)
     W0 = thermal_state_composite(T, [0.0, 0.8, 0.2], aggCore, aggTools, aggOperators; diagonalize = true)
@@ -53,8 +53,9 @@ import QuantumOpticsBase
     W0_ref = [0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.25029983141333245 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.24993996472850133 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.25005986276494624 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.2497003410932199]
     W0 = thermal_state(T, mu_array, aggCore, aggTools, aggOperators; diagonalize = false, diagonal = true)
     @test 1e-15 > D(W0_ref, W0.data)
-    W01 = thermal_state(T, [[2, 1]], aggCore, aggTools, aggOperators; diagonalize = false, diagonal = true)
-    W02 = thermal_state(T, [[1, 2]], aggCore, aggTools, aggOperators; diagonalize = false, diagonal = true)
+
+    W01 = thermal_state(T, [[1, 2, 1]], aggCore, aggTools, aggOperators; diagonalize = false, diagonal = true)
+    W02 = thermal_state(T, [[1, 1, 2]], aggCore, aggTools, aggOperators; diagonalize = false, diagonal = true)
     W0_composite_ref = 0.8 * W01 + 0.2 * W02
     normalize!(W0_composite_ref)
     W0 = thermal_state_composite(
@@ -68,27 +69,21 @@ import QuantumOpticsBase
     )
     @test 1e-15 > D(W0_composite_ref, W0)
 
-    T = 300.0
-    mu_array = [[1, 2], [2, 1]]
-    W0_ref = [0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.2499985624470225 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.2500002875090084 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.24999971248702382 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.25000143755694526]     
-    
-
-    W0 = thermal_state(T, mu_array, aggCore, aggTools, aggOperators; diagonalize = true)
-    @test 1e-3 > D(W0_ref, W0.data)
-    W01 = thermal_state(T, [[2, 1]], aggCore, aggTools, aggOperators; diagonalize = true)
-    W02 = thermal_state(T, [[1, 2]], aggCore, aggTools, aggOperators; diagonalize = true)
+    W01 = thermal_state(T, [[1, 2, 1]], aggCore, aggTools, aggOperators; diagonalize = true)
+    W02 = thermal_state(T, [[1, 1, 2]], aggCore, aggTools, aggOperators; diagonalize = true)
     W0_composite_ref = 0.8 * W01 + 0.2 * W02
-    normalize!(W0_composite_ref)
+    # normalize!(W0_composite_ref)
     W0 = thermal_state_composite(T, [0.0, 0.8, 0.2], aggCore, aggTools, aggOperators; diagonalize = true)
     @test 1e-15 > D(W0_composite_ref, W0)
 
     W0_ref = [0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.25029983141333245 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.24993996472850133 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.25005986276494624 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.2497003410932199]
     W0 = thermal_state(T, mu_array, aggCore, aggTools, aggOperators; diagonalize = false, diagonal = true)
     @test 1e-15 > D(W0_ref, W0.data)
-    W01 = thermal_state(T, [[2, 1]], aggCore, aggTools, aggOperators; diagonalize = false, diagonal = true)
-    W02 = thermal_state(T, [[1, 2]], aggCore, aggTools, aggOperators; diagonalize = false, diagonal = true)
+    
+    W01 = thermal_state(T, [[1, 2, 1]], aggCore, aggTools, aggOperators; diagonalize = false, diagonal = true)
+    W02 = thermal_state(T, [[1, 1, 2]], aggCore, aggTools, aggOperators; diagonalize = false, diagonal = true)
     W0_composite_ref = 0.8 * W01 + 0.2 * W02
-    normalize!(W0_composite_ref)
+    # normalize!(W0_composite_ref)
     W0 = thermal_state_composite(
         T,
         [0.0, 0.8, 0.2],
