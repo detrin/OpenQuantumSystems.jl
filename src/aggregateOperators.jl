@@ -13,7 +13,7 @@ function getAggHamSystemSmall(
     aggCore::AggregateCore,
     aggTools::AggregateTools;
     groundEnergy::Bool = true,
-) 
+)
     Ham_sys = zeros(Float64, (aggCore.molCount + 1, aggCore.molCount + 1))
 
     agg_shifts = getShifts(aggCore)
@@ -41,7 +41,7 @@ function getAggHamSystemSmall(
         if ind > 1
             E_state += reorganisation_energies[ind-1]
         end
-        Ham_sys[ind, ind] = E_state 
+        Ham_sys[ind, ind] = E_state
     end
 
     Ham_sys[:, :] += aggCore.coupling[:, :]
@@ -67,7 +67,7 @@ function getAggHamSystemBig(
     aggCore::AggregateCore,
     aggTools::AggregateTools;
     groundEnergy::Bool = true,
-) 
+)
     Ham_sys = getAggHamSystemSmall(aggCore, aggTools; groundEnergy = groundEnergy)
     Ham = zeros(Float64, (aggTools.bSize, aggTools.bSize))
     for I = 1:aggTools.bSize
@@ -146,7 +146,7 @@ function getAggHamBathBig(
 end
 
 """
-getAggHamSystemBath(agg, aggTools.indices, 
+getAggHamSystemBath(agg, aggTools.indices,
 \tfranckCondonFactors; groundEnergy = false)
 getAggHamSystemBath(agg, aggTools.indices; groundEnergy = false)
 getAggHamSystemBath(agg; groundEnergy = false)
@@ -241,7 +241,7 @@ function getAggHamInteraction(
 end
 
 """
-getAggHamiltonian(agg, aggTools.indices, franckCondonFactors; 
+getAggHamiltonian(agg, aggTools.indices, franckCondonFactors;
 \t, groundEnergy = true)
 getAggHamiltonian(agg, aggTools.indices; groundEnergy = true)
 getAggHamiltonian(agg; groundEnergy = true)
@@ -260,7 +260,7 @@ function getAggHamiltonian(
 )
     Ham_I = getAggHamInteraction(aggCore, aggTools)
     Ham_0 = getAggHamSystemBath(aggCore, aggTools; groundEnergy = groundEnergy)
-    return Ham_0 + Ham_I 
+    return Ham_0 + Ham_I
 end
 
 ### Sparse versions
@@ -362,10 +362,10 @@ struct AggregateOperators{O_sys, O_bath, O} <: AbstractAggregateOperators
 end
 
 function AggregateOperators(
-    aggCore::AggregateCore, 
+    aggCore::AggregateCore,
     aggTools::AggregateTools;
     groundEnergy::Bool = true
-) 
+)
 
     Ham_sys = getAggHamSystemSmall(aggCore, aggTools; groundEnergy = true)
     Ham_bath = getAggHamBathSmall(aggCore, aggTools; groundEnergy = true)
@@ -386,8 +386,8 @@ function AggregateOperators(
     )
 end
 
-Base.:(==)(x::AggregateOperators, y::AggregateOperators) = 
+Base.:(==)(x::AggregateOperators, y::AggregateOperators) =
     x.Ham_sys == y.Ham_sys && x.Ham_bath == y.Ham_bath &&
     x.Ham_S == y.Ham_S && x.Ham_B == y.Ham_B && x.Ham_0 == y.Ham_0 &&
-    x.Ham_I == y.Ham_I && x.Ham == y.Ham && 
+    x.Ham_I == y.Ham_I && x.Ham == y.Ham &&
     x.groundEnergy == y.groundEnergy

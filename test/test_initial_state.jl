@@ -79,7 +79,7 @@ import QuantumOpticsBase
     W0_ref = [0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.25029983141333245 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.24993996472850133 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.25005986276494624 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.2497003410932199]
     W0 = thermal_state(T, mu_array, aggCore, aggTools, aggOperators; diagonalize = false, diagonal = true)
     @test 1e-15 > D(W0_ref, W0.data)
-    
+
     W01 = thermal_state(T, [[1, 2, 1]], aggCore, aggTools, aggOperators; diagonalize = false, diagonal = true)
     W02 = thermal_state(T, [[1, 1, 2]], aggCore, aggTools, aggOperators; diagonalize = false, diagonal = true)
     W0_composite_ref = 0.8 * W01 + 0.2 * W02

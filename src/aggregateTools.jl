@@ -5,7 +5,7 @@ const ElIndices = Vector{Vector{T}} where T <: Integer
 const VibIndices = Vector{Vector{Vector{Int64}}} where T <: Integer
 # TODO: be more specific for T
 const Indices = Vector{Vector{Vector{T} where T}}
-const IndicesMap = Vector{Vector{T}} where T <: Integer 
+const IndicesMap = Vector{Vector{T}} where T <: Integer
 const FCfactorsT = Matrix{T} where T <: AbstractFloat
 const FCproductT = Matrix{T} where T <: AbstractFloat
 
@@ -83,7 +83,7 @@ end
 """
 getIndicesMap(aggCore)
 
-Get pointers (integers) to the indices of the [`Aggregate`](@ref) separated by 
+Get pointers (integers) to the indices of the [`Aggregate`](@ref) separated by
 electronic states (e.g. [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]).
 
 # Arguments
@@ -209,9 +209,9 @@ Get product of Franck-Condon factors. This way the trace over bath will be faste
 
 """
 function getFCproduct(
-        aggCore::AggregateCore, 
-        indices::Indices, 
-        indicesMap::IndicesMap, 
+        aggCore::AggregateCore,
+        indices::Indices,
+        indicesMap::IndicesMap,
         FCfactors::FCfactorsT
     )::FCproductT
     elLen = length(aggCore.molecules)
@@ -274,7 +274,7 @@ struct AggregateTools <: AbstractAggregateTools
         bSize::Int64,
     )::AggregateTools
         new(
-            elIndices, vibIndices, indices, indicesMap, 
+            elIndices, vibIndices, indices, indicesMap,
             FCfactors, FCproduct,
             basisSystem, basisBath, basis, bSystemSize, bBathSize, bSize
         )
@@ -288,7 +288,7 @@ function AggregateTools(aggCore::AggregateCore)::AggregateTools
     indicesMap = getIndicesMap(aggCore, indices)
     FCfactors = getFranckCondonFactors(aggCore, indices)
     FCproduct = getFCproduct(aggCore, indices, indicesMap, FCfactors)
-    
+
     bSystemSize = length(elIndices)
     bBathSize = length(vibIndices)
     bSize = length(indices)
@@ -296,17 +296,17 @@ function AggregateTools(aggCore::AggregateCore)::AggregateTools
     basisSystem = GenericBasis([bSystemSize])
     basisBath = GenericBasis([bBathSize])
     basis = GenericBasis([bSize])
-    
+
 
     return AggregateTools(
-        elIndices, vibIndices, indices, indicesMap, 
+        elIndices, vibIndices, indices, indicesMap,
         FCfactors, FCproduct,
         basisSystem, basisBath, basis, bSystemSize, bBathSize, bSize
     )
 end
 
-Base.:(==)(x::AggregateTools, y::AggregateTools) = 
-    x.elIndices == y.elIndices && x.vibIndices == y.vibIndices && x.indices == y.indices && 
+Base.:(==)(x::AggregateTools, y::AggregateTools) =
+    x.elIndices == y.elIndices && x.vibIndices == y.vibIndices && x.indices == y.indices &&
     x.FCfactors == y.FCfactors && x.FCproduct == y.FCproduct &&
     x.bSystemSize == y.bSystemSize && x.bBathSize == y.bBathSize && x.bSize == y.bSize &&
     x.basisSystem == y.basisSystem && x.basisBath == y.basisBath && x.basis == y.basis
@@ -314,7 +314,7 @@ Base.:(==)(x::AggregateTools, y::AggregateTools) =
 """
     take_el_part(A, a, b, indicesMap)
 
-Take electric part specified by electric indices `a` and `b` from the A (type of Array). 
+Take electric part specified by electric indices `a` and `b` from the A (type of Array).
 
 """
 function take_el_part(A::Array, a, b, indicesMap)

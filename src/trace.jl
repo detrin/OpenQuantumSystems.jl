@@ -7,7 +7,7 @@
 
 Trace out bath degrees of freedom from `rho`
 
-``\\rho_\\text{tr} = \\operatorname{tr}_B \\{\\rho\\} = 
+``\\rho_\\text{tr} = \\operatorname{tr}_B \\{\\rho\\} =
 \\sum_{k} \\langle k \\vert \\left( \\sum_{ab} \\rho_{am, bn} \\vert am \\rangle \\langle bn \\vert \\right)\\vert k \\rangle``
 
 """
@@ -38,7 +38,7 @@ function trace_bath(
     W::Operator,
     aggCore::AggregateCore,
     aggTools::AggregateTools
-) 
+)
     rho = trace_bath(W.data, aggCore, aggTools)
     return DenseOperator(aggTools.basisSystem, aggTools.basisSystem, rho)
 end
@@ -80,7 +80,7 @@ function trace_bath_slow(
     W::Operator,
     aggCore::AggregateCore,
     aggTools::AggregateTools
-) 
+)
     rho = trace_bath_slow(
         W.data,
         aggCore,
@@ -95,10 +95,10 @@ Trace out bath degrees of freedom from `rho` without the product of Franck-Condo
 The trace will be done only on the Hilber space for electric bra part `a` and ket part `b`.
 Input density matrix `rho` is for the whole Hilber space. This method returns number.
 """
-function trace_bath(    
-    W::Array, 
-    a::N, 
-    b::N, 
+function trace_bath(
+    W::Array,
+    a::N,
+    b::N,
     aggTools::AggregateTools
 ) where {N <: Integer}
     rho = eltype(W)(0)
@@ -113,8 +113,8 @@ end
 
 function trace_bath(
     W::Operator,
-    a::N, 
-    b::N, 
+    a::N,
+    b::N,
     aggTools::AggregateTools
 ) where {N <: Integer}
     rho = trace_bath(W.data, a, b, aggTools)
@@ -129,8 +129,8 @@ Input density matrix `rho` is only for the subspace. This method returns number.
 """
 function trace_bath_part(
     W::Array,
-    a::N, 
-    b::N, 
+    a::N,
+    b::N,
     aggTools::AggregateTools
 ) where {N <: Integer}
     rho_traced = eltype(W)(0)
@@ -147,8 +147,8 @@ end
 
 function trace_bath_part(
     W::Operator,
-    a::N, 
-    b::N, 
+    a::N,
+    b::N,
     aggTools::AggregateTools
 ) where {N <: Integer}
     rho_traced = trace_bath_part(
@@ -237,7 +237,7 @@ end
 """
     ad(rho, rho_bath, agg, FCProd, aggIndices, vibindices)
 
-This is the inverse operation to the trace over bath [`trace_bath`](@ref) and [`get_rho_bath`](@ref) 
+This is the inverse operation to the trace over bath [`trace_bath`](@ref) and [`get_rho_bath`](@ref)
 defined as follows
 
 `` \\rho = \\operatorname{ad}\\{\\rho_\\text{tr}, \\rho_\\text{bath} \\} ``
@@ -270,7 +270,7 @@ function ad(
     W_bath::Array,
     aggCore::AggregateCore,
     aggTools::AggregateTools;
-) 
+)
     W = ad(
         rho.data,
         W_bath,
@@ -285,7 +285,7 @@ function ad(
     W_bath::Operator,
     aggCore::AggregateCore,
     aggTools::AggregateTools
-) 
+)
     W = ad(
         rho,
         W_bath.data,
@@ -300,7 +300,7 @@ function ad(
     W_bath::Operator,
     aggCore::AggregateCore,
     aggTools::AggregateTools;
-) 
+)
     W = ad(
         rho.data,
         W_bath.data,

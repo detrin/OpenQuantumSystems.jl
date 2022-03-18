@@ -1,7 +1,7 @@
 import OrdinaryDiffEq
 
 """
-    schroedinger(psi0, tspan, H; 
+    schroedinger(psi0, tspan, H;
     \treltol=1.0e-12, abstol=1.0e-12, fout=nothing, alg=OrdinaryDiffEq.Tsit5())
 
 Integrate Schroedinger equation to evolve states or compute propagators
@@ -51,7 +51,7 @@ end
 
 
 """
-    schroedinger_dynamic(psi0, tspan, f; 
+    schroedinger_dynamic(psi0, tspan, f;
     \treltol=1.0e-12, abstol=1.0e-12, fout=nothing, alg=OrdinaryDiffEq.Tsit5())
 
 Integrate time-dependent Schroedinger equation to evolve states or compute propagators

@@ -87,7 +87,7 @@ import QuantumOpticsBase
             MemoryKernel_1_ref = H_II_t * H_II_s * W0.data
             rho_ref = trace_bath(
                 MemoryKernel_1_ref,
-                aggCore, 
+                aggCore,
                 aggTools
             )
             @test 1e-6 > D(rho, rho_ref)
@@ -111,7 +111,7 @@ import QuantumOpticsBase
             MemoryKernel_2_ref = H_II_t * W0.data * H_II_s
             rho_ref = trace_bath(
                 MemoryKernel_2_ref,
-                aggCore, 
+                aggCore,
                 aggTools
             )
             @test 1e-6 > D(rho, rho_ref)
@@ -135,7 +135,7 @@ import QuantumOpticsBase
             MemoryKernel_3_ref = H_II_s * W0.data * H_II_t
             rho_ref = trace_bath(
                 MemoryKernel_3_ref,
-                aggCore, 
+                aggCore,
                 aggTools
             )
             @test 1e-6 > D(rho, rho_ref)
@@ -159,7 +159,7 @@ import QuantumOpticsBase
             MemoryKernel_4_ref = W0.data * H_II_s * H_II_t
             rho_ref = trace_bath(
                 MemoryKernel_4_ref,
-                aggCore, 
+                aggCore,
                 aggTools
             )
             @test 1e-6 > D(rho, rho_ref)
@@ -194,7 +194,7 @@ import QuantumOpticsBase
             MemoryKernel_ref = H_II_t * MemoryKernel_ref - MemoryKernel_ref * H_II_t
             rho_ref = trace_bath(
                 MemoryKernel_ref,
-                aggCore, 
+                aggCore,
                 aggTools
             )
             @test 1e-6 > D(rho, rho_ref)

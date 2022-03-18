@@ -11,7 +11,7 @@ using SparseArrays, LinearAlgebra
     D(op1::AbstractSuperOperator, op2::AbstractSuperOperator) =
         abs(tracedistance_nh(dense(op1), dense(op2)))
 
-    # TODO: change to macro 
+    # TODO: change to macro
     mode1 = Mode(0.2, 1.0)
     mode2 = Mode(0.3, 2.0)
     Energy = [0.0, 200.0]

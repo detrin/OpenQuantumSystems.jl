@@ -2,7 +2,7 @@
 
 IF "%1"=="install_dev" (
     julia -e "using Pkg; Pkg.add(path=\"../OpenQuantumSystems.jl\")"
-) 
+)
 IF "%1"=="install_dev2" (
     julia -e "using Pkg; Pkg.develop(path=\"../OpenQuantumSystems.jl\")"
 )

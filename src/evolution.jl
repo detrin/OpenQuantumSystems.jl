@@ -33,7 +33,7 @@ Get evolution operator as Array using the definition
 ``U(t) = S e^{-i H_\\lambda t / \\hbar} S^{-1},``
 
 where ``\\hbar = 1``, ``H_{\\lambda,ii} = \\lambda_i`` are eigenvalues of ``H``,
-so ``H`` has to be non-singular, otherwise ``H_{\\lambda,ij} = 0, i \\neq j``. 
+so ``H`` has to be non-singular, otherwise ``H_{\\lambda,ij} = 0, i \\neq j``.
 ``S`` is obtained from eigendecomposition of ``H``, for example
 
 ```julia
@@ -124,7 +124,7 @@ end
 
 Resumable function that returns evolution operator as Operator type at the time t from tspan.
 See [`evolutionOperator`](@ref). The `diagonalize` argument decompose Hamiltonian into ``\\lambda_i, S, S^{-1}``
-and calculate the exponential using eigenvalue decomposition. The `approximate` option asusmes that tspan is made of 
+and calculate the exponential using eigenvalue decomposition. The `approximate` option asusmes that tspan is made of
 equidistant points, therefore ``U(t)`` has to be calculated for ``t_0`` and ``t_\\text{step}``.
 
 """
@@ -171,12 +171,12 @@ end
 
 
 """
-    evolutionSuperOperatorIterator(Hamiltonian, tspan; 
+    evolutionSuperOperatorIterator(Hamiltonian, tspan;
     \tdiagonalize = true, approximate = false)
 
 Resumable function that returns evolution operator as Operator type at the time t from tspan.
 See [`evolutionSuperOperator`](@ref). The `diagonalize` argument decompose Hamiltonian into ``\\lambda_i, S, S^{-1}``
-and calculate the exponential using eigenvalue decomposition. The `approximate` option asusmes that tspan is made of 
+and calculate the exponential using eigenvalue decomposition. The `approximate` option asusmes that tspan is made of
 equidistant points, therefore ``U(t)`` has to be calculated for ``t_0`` and ``t_\\text{step}``.
 
 """
@@ -229,9 +229,9 @@ end
 """
     evolutionExact(ket0, tspan, Hamiltonian; diagonalize = true, approximate = false)
 
-Calculate exact time evolution of the `ket0` state see [`evolutionOperatorIterator`](@ref). 
+Calculate exact time evolution of the `ket0` state see [`evolutionOperatorIterator`](@ref).
 The `diagonalize` argument decompose Hamiltonian into ``\\lambda_i, S, S^{-1}``
-and calculate the exponential using eigenvalue decomposition. The `approximate` option asusmes that tspan is made of 
+and calculate the exponential using eigenvalue decomposition. The `approximate` option asusmes that tspan is made of
 equidistant points, therefore ``U(t)`` has to be calculated for ``t_0`` and ``t_\\text{step}``.
 
 """
@@ -262,12 +262,12 @@ end
 
 
 """
-    evolutionExact!(ket_array, ket0, tspan, Hamiltonian; 
+    evolutionExact!(ket_array, ket0, tspan, Hamiltonian;
     \tdiagonalize = true, approximate = false)
 
-Calculate exact time evolution of the `ket0` state inplace see [`evolutionOperatorIterator`](@ref). 
+Calculate exact time evolution of the `ket0` state inplace see [`evolutionOperatorIterator`](@ref).
 The `diagonalize` argument decompose Hamiltonian into ``\\lambda_i, S, S^{-1}``
-and calculate the exponential using eigenvalue decomposition. The `approximate` option asusmes that tspan is made of 
+and calculate the exponential using eigenvalue decomposition. The `approximate` option asusmes that tspan is made of
 equidistant points, therefore ``U(t)`` has to be calculated for ``t_0`` and ``t_\\text{step}``.
 
 """
@@ -302,9 +302,9 @@ end
 """
     evolutionExact(op0, tspan, Hamiltonian; diagonalize = true, approximate = false)
 
-Calculate exact time evolution of the `op0` state see [`evolutionOperatorIterator`](@ref). 
+Calculate exact time evolution of the `op0` state see [`evolutionOperatorIterator`](@ref).
 The `diagonalize` argument decompose Hamiltonian into ``\\lambda_i, S, S^{-1}``
-and calculate the exponential using eigenvalue decomposition. The `approximate` option asusmes that tspan is made of 
+and calculate the exponential using eigenvalue decomposition. The `approximate` option asusmes that tspan is made of
 equidistant points, therefore ``U(t)`` has to be calculated for ``t_0`` and ``t_\\text{step}``.
 
 """
@@ -335,12 +335,12 @@ end
 
 
 """
-    evolutionExact!(op_array, op0, tspan, Hamiltonian; 
+    evolutionExact!(op_array, op0, tspan, Hamiltonian;
     \tdiagonalize = true, approximate = false)
 
-Calculate exact time evolution of the `op0` state inplace see [`evolutionOperatorIterator`](@ref). 
+Calculate exact time evolution of the `op0` state inplace see [`evolutionOperatorIterator`](@ref).
 The `diagonalize` argument decompose Hamiltonian into ``\\lambda_i, S, S^{-1}``
-and calculate the exponential using eigenvalue decomposition. The `approximate` option asusmes that tspan is made of 
+and calculate the exponential using eigenvalue decomposition. The `approximate` option asusmes that tspan is made of
 equidistant points, therefore ``U(t)`` has to be calculated for ``t_0`` and ``t_\\text{step}``.
 
 """
@@ -369,7 +369,7 @@ end
 """
     evolutionApproximate(ket0, tspan, Hamiltonian)
 
-Calculate approximate time evolution of the `ket0` based on ``U(t)`` that is 
+Calculate approximate time evolution of the `ket0` based on ``U(t)`` that is
 calculated for ``t_0`` and ``t_\\text{step}``. See [`evolutionOperator`](@ref).
 This method returns Vector of Ket states.
 
@@ -395,7 +395,7 @@ end
 """
     evolutionApproximate!(ket_array, ket0, tspan, Hamiltonian)
 
-Calculate approximate time evolution of the `ket0` inplace based on ``U(t)`` that is 
+Calculate approximate time evolution of the `ket0` inplace based on ``U(t)`` that is
 calculated for ``t_0`` and ``t_\\text{step}``. See [`evolutionOperator`](@ref).
 Argument `ket_array` is Vector of Arrays.
 
@@ -428,7 +428,7 @@ end
 """
     evolutionApproximate(op0, tspan, Hamiltonian)
 
-Calculate approximate time evolution of the `op0` based on ``U(t)`` that is 
+Calculate approximate time evolution of the `op0` based on ``U(t)`` that is
 calculated for ``t_0`` and ``t_\\text{step}``. See [`evolutionOperator`](@ref).
 This method returns Vector of Operators.
 
@@ -455,7 +455,7 @@ end
 """
     evolutionApproximate!(op_array, op0, tspan, Hamiltonian)
 
-Calculate approximate time evolution of the `op0` inplace based on ``U(t)`` that is 
+Calculate approximate time evolution of the `op0` inplace based on ``U(t)`` that is
 calculated for ``t_0`` and ``t_\\text{step}``. See [`evolutionOperator`](@ref).
 This method returns Vector of Arrays.
 
@@ -488,7 +488,7 @@ end
 """
     evolution_exact(rho0, tspan, Hamiltonian; diagonalize = false)
 
-Calculate exact time evolution of the `rho0` inplace based on ``U(t)``. 
+Calculate exact time evolution of the `rho0` inplace based on ``U(t)``.
 The `diagonalize` argument decompose Hamiltonian into ``\\lambda_i, S, S^{-1}``
 and calculate the exponential using eigenvalue decomposition. See [`evolutionOperator`](@ref).
 This method returns tspan and Vector of Operators.
@@ -534,7 +534,7 @@ end
 """
     evolution_exact(rho0, tspan, Hamiltonian; diagonalize = false)
 
-Calculate approximate time evolution of the `rho0` based on ``U(t)`` that is 
+Calculate approximate time evolution of the `rho0` based on ``U(t)`` that is
 calculated for ``t_0`` and ``t_\\text{step}``. The `diagonalize` argument decompose Hamiltonian into ``\\lambda_i, S, S^{-1}``
 and calculate the exponential using eigenvalue decomposition. See [`evolutionOperator`](@ref).
 This method returns tspan and Vector of Operators.
@@ -591,7 +591,7 @@ function evolutionOperatorExp(
     # c = ones(size(Ham))
     c = one(Ham)
     Len = size(Ham, 1)
-    s = c 
+    s = c
     if n > 0
         for k in 1:n
             c = c * (-1.0im/k * Ham * t)
@@ -611,10 +611,10 @@ function evolutionOperatorExp(
 end
 
 function evolution_el_part(
-    Ham::Array, 
-    t::AbstractFloat, 
-    a::Integer, 
-    b::Integer, 
+    Ham::Array,
+    t::AbstractFloat,
+    a::Integer,
+    b::Integer,
     indicesMap::IndicesMap
 )
     data = take_el_part(Ham, a, b, indicesMap)
@@ -622,10 +622,10 @@ function evolution_el_part(
 end
 
 function evolution_el_part(
-    Ham::T, 
-    t::AbstractFloat, 
-    a::Integer, 
-    b::Integer, 
+    Ham::T,
+    t::AbstractFloat,
+    a::Integer,
+    b::Integer,
     indicesMap::IndicesMap
 ) where {B<:Basis,T<:Operator{B,B}}
     data = evolution_el_part(Ham.data, t, a, b, indicesMap)

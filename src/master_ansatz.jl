@@ -65,7 +65,7 @@ function dQME_sI_ansatz_test(
     int_abstol::AbstractFloat,
 ) where {B<:Basis,T<:Operator{B,B}}
     aggCore, aggTools, aggOperators, W0, elementtype = p
-        
+
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
     K_traced = trace_bath(K, aggCore, aggTools)
@@ -76,7 +76,7 @@ function dQME_sI_ansatz_test(
         t,
         rtol = int_reltol,
         atol = int_abstol,
-    )    
+    )
     drho.data[:, :] = -elementtype(im) * K_traced - kernel_integrated_traced
 
     return drho
@@ -173,7 +173,7 @@ function dQME_sI_ansatz_const(
     int_abstol::AbstractFloat,
 ) where {B<:Basis,T<:Operator{B,B}}
     aggCore, aggTools, aggOperators, W0, _, elementtype = p
-        
+
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
     K_traced = trace_bath(K, aggCore, aggTools)
@@ -184,7 +184,7 @@ function dQME_sI_ansatz_const(
         t,
         rtol = int_reltol,
         atol = int_abstol,
-    )    
+    )
     drho.data[:, :] = -elementtype(im) * K_traced - kernel_integrated_traced
 
     return drho
@@ -203,11 +203,11 @@ function kernel_sI_ansatz_const(t, s, h, p, tmp1, tmp2, Ham_II_t)
     Ham_I = aggOperators.Ham_I
     Ham_II_s = getInteractionHamIPicture(Ham_0, Ham_I, s)
 
-    
+
     U_0_op = evolutionOperator(Ham_0, s)
     W0_int_s = U_0_op' * W0_bath * U_0_op
     tmp1[:, :] = ad(rho, W0_int_s.data, aggCore, aggTools)
-    
+
 
     tmp2[:, :] = Ham_II_s.data * tmp1 - tmp1 * Ham_II_s.data
     tmp1[:, :] = Ham_II_t.data * tmp2 - tmp2 * Ham_II_t.data
@@ -278,7 +278,7 @@ function dQME_sI_ansatz_linear(
     int_abstol::AbstractFloat,
 ) where {B<:Basis,T<:Operator{B,B}}
     aggCore, aggTools, aggOperators, W0, _, elementtype = p
-        
+
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
     K_traced = trace_bath(K, aggCore, aggTools)
@@ -289,7 +289,7 @@ function dQME_sI_ansatz_linear(
         t,
         rtol = int_reltol,
         atol = int_abstol,
-    )    
+    )
     drho.data[:, :] = -elementtype(im) * K_traced - kernel_integrated_traced
 
     return drho
@@ -308,7 +308,7 @@ function kernel_sI_ansatz_linear(t, s, h, p, tmp1, tmp2, Ham_II_t)
     Ham_I = aggOperators.Ham_I
     Ham = aggOperators.Ham
     Ham_II_s = getInteractionHamIPicture(Ham_0, Ham_I, s)
-    
+
     U_0_op = evolutionOperator(Ham_0, s)
     # linear element
     W_bath_s = W0_bath - elementtype(im) * (Ham * W0_bath - W0_bath * Ham) * s
@@ -385,7 +385,7 @@ function dQME_sI_ansatz_linear2(
     int_abstol::AbstractFloat,
 ) where {B<:Basis,T<:Operator{B,B}}
     aggCore, aggTools, aggOperators, W0, _, _, elementtype = p
-        
+
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
     K_traced = trace_bath(K, aggCore, aggTools)
@@ -396,7 +396,7 @@ function dQME_sI_ansatz_linear2(
         t,
         rtol = int_reltol,
         atol = int_abstol,
-    )    
+    )
     drho.data[:, :] = -elementtype(im) * K_traced - kernel_integrated_traced
 
     return drho
@@ -415,7 +415,7 @@ function kernel_sI_ansatz_linear2(t, s, h, p, tmp1, tmp2, Ham_II_t)
     Ham_I = aggOperators.Ham_I
     Ham = aggOperators.Ham
     Ham_II_s = getInteractionHamIPicture(Ham_0, Ham_I, s)
-    
+
     U_0_op = evolutionOperator(Ham_0, s)
     # linear element on intervals
     W_bath_s = deepcopy(W0_bath)
@@ -499,7 +499,7 @@ function dQME_sI_ansatz_upart1(
     int_abstol::AbstractFloat,
 ) where {B<:Basis,T<:Operator{B,B}}
     aggCore, aggTools, aggOperators, W0, _, elementtype = p
-        
+
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
     K_traced = trace_bath(K, aggCore, aggTools)
@@ -510,7 +510,7 @@ function dQME_sI_ansatz_upart1(
         t,
         rtol = int_reltol,
         atol = int_abstol,
-    )    
+    )
     drho.data[:, :] = -elementtype(im) * K_traced - kernel_integrated_traced
 
     return drho
@@ -530,7 +530,7 @@ function kernel_sI_ansatz_upart1(t, s, h, p, tmp1, tmp2, Ham_II_t)
     Ham_I = aggOperators.Ham_I
     Ham = aggOperators.Ham
     Ham_II_s = getInteractionHamIPicture(Ham_0, Ham_I, s)
-    
+
     U_0_op = evolutionOperator(Ham_0, s)
     # linear element on intervals
     W_bath_s = deepcopy(W0_bath)
@@ -612,7 +612,7 @@ function dQME_sI_ansatz_upart2(
     int_abstol::AbstractFloat,
 ) where {B<:Basis,T<:Operator{B,B}}
     aggCore, aggTools, aggOperators, W0, _, elementtype = p
-        
+
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
     K_traced = trace_bath(K, aggCore, aggTools)
@@ -623,7 +623,7 @@ function dQME_sI_ansatz_upart2(
         t,
         rtol = int_reltol,
         atol = int_abstol,
-    )    
+    )
     drho.data[:, :] = -elementtype(im) * K_traced - kernel_integrated_traced
 
     return drho
@@ -643,7 +643,7 @@ function kernel_sI_ansatz_upart2(t, s, h, p, tmp1, tmp2, Ham_II_t)
     Ham_I = aggOperators.Ham_I
     Ham = aggOperators.Ham
     Ham_II_s = getInteractionHamIPicture(Ham_0, Ham_I, s)
-    
+
     U_0_op = evolutionOperator(Ham_0, s)
     # linear element on intervals
     W_bath_s = deepcopy(W0_bath)

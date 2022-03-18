@@ -123,4 +123,3 @@ import QuantumOpticsBase
     )
 
 end # testset
-

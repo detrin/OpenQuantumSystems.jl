@@ -62,7 +62,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
         rho_traced_ab = trace_bath(rho, a, b, aggTools)
         @test 1e-7 > abs(rho_traced_ref[a, b] - rho_traced_ab)
     end
-    
+
     rho_bath = get_rho_bath(rho0, aggCore, aggTools)
     rho_traced = trace_bath(rho_bath, aggCore, aggTools)
     rho_traced_ref = [1.0 1.0 1.0; 1.0 1.0 1.0; 1.0 1.0 1.0]
@@ -71,7 +71,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     rho_traced = trace_bath(rho0, aggCore, aggTools)
     rho0_ad = ad(rho_traced, rho_bath, aggCore, aggTools)
     @test 1e-7 > D(rho0, rho0_ad)
-    
+
     t = 1.0
     U_op = evolutionOperator(Ham, t)
     rho = U_op * rho0 * U_op'
@@ -80,7 +80,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     @test 1e-7 > D(rho_traced.data, rho_traced_ref)
     rho_traced = trace_bath_slow(rho.data, aggCore, aggTools)
     @test 1e-7 > D(rho_traced, rho_traced_ref)
-    
+
     rho_traced = trace_bath(rho, aggCore, aggTools)
     @test 1e-7 > D(rho_traced.data, rho_traced_ref)
     rho_traced = trace_bath(rho.data, aggCore, aggTools)
@@ -99,7 +99,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
         )
         @test 1e-7 > abs(rho_traced_ref[a, b] - rho_traced_ab)
     end
-    
+
     rho_bath = get_rho_bath(rho0, aggCore, aggTools)
     rho_traced = trace_bath(rho_bath, aggCore, aggTools)
     rho_traced_ref = [1.0 1.0 1.0; 1.0 1.0 1.0; 1.0 1.0 1.0]
@@ -110,7 +110,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     @test 1e-7 > D(rho0, rho0_ad)
 
     rho_bath = get_rho_bath(rho0, aggCore, aggTools)
-    
+
     t = 0.0
     Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
     prod = Ham_II_t * Ham_I * rho_bath
@@ -120,7 +120,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
         rho_bath,
         Ham_0,
         Ham_I,
-        aggCore, 
+        aggCore,
         aggTools
     )
     @test 1e-7 > D(corr, corr_ref)
@@ -134,9 +134,9 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
         rho_bath,
         Ham_0,
         Ham_I,
-        aggCore, 
+        aggCore,
         aggTools
     )
     @test 1e-7 > D(corr, corr_ref)
-    
+
 end

@@ -79,5 +79,5 @@ using LinearAlgebra
 
     @test getMolShifts(mol1) == [1.0, 2.0]
     @test getMolFrequencies(mol1) == [0.2, 0.4]
-    
+
 end

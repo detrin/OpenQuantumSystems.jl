@@ -53,7 +53,7 @@ end
     aggCore = AggregateCore([mol1, mol2])
     aggCore.coupling[2, 3] = 50
     aggCore.coupling[3, 2] = 50
-    
+
     @test aggCore.molecules == [mol1, mol2]
     @test aggCore.coupling == [0.0 0.0 0.0; 0.0 0.0 50.0; 0.0 50.0 0.0]
     @test aggCore.molCount == 2

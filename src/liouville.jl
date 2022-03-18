@@ -3,7 +3,7 @@ import OrdinaryDiffEq
 import QuantumOpticsBase
 
 """
-    liouvilleVonNeumann(rho0, tspan, H; 
+    liouvilleVonNeumann(rho0, tspan, H;
     \treltol=1.0e-12, abstol=1.0e-12, fout=nothing, alg=OrdinaryDiffEq.Tsit5())
 
 Integrate Liouville-von Neumann equation to evolve states or compute propagators
@@ -169,7 +169,7 @@ function dLvN_SI(
     p
 ) where {B<:Basis,T<:Operator{B,B}}
     aggOperators, elementtype = p
-    
+
     Ham_0 = aggOperators.Ham_0.data
     Ham_I = aggOperators.Ham_I.data
     Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
@@ -223,4 +223,3 @@ function dLvN_SS(
     dW.data[:, :] = -elementtype(im) * (Ham * W.data - W.data * Ham)
     return dW
 end
-
