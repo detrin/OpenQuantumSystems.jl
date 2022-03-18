@@ -15,6 +15,7 @@ function integrate(
     state::T,
     dstate::T,
     fout::Function;
+    p = nothing,
     reltol::Float64 = 1.0e-12,
     abstol::Float64 = 1.0e-12,
     alg::OrdinaryDiffEq.OrdinaryDiffEqAlgorithm = OrdinaryDiffEq.DP5(),
@@ -29,7 +30,7 @@ function integrate(
     function df_(dx::T, x::T, p, t) where {T}
         recast!(x, state)
         recast!(dx, dstate)
-        df(t, state, dstate)
+        df(t, state, dstate, p)
         recast!(dstate, dx)
     end
     function fout_(x, t, integrator)
@@ -49,7 +50,7 @@ function integrate(
         save_start = false,
     )
 
-    prob = OrdinaryDiffEq.ODEProblem{true}(df_, x0, (tspan[1], tspan[end]))
+    prob = OrdinaryDiffEq.ODEProblem{true}(df_, x0, (tspan[1], tspan[end]), p)
 
     if steady_state
         affect! = function (integrator)

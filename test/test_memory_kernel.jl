@@ -16,47 +16,47 @@ import QuantumOpticsBase
         abs(tracedistance_nh(dense(op1), dense(op2)))
 
     # TODO: change to macro
-    HR = 0.01
-    shift = (2.0 * HR)^0.5
-    mode1 = Mode(300.0, shift)
-    Energy = [12500.0, 12800.0]
-    mol1 = Molecule([mode1], 2, Energy)
-    mol2 = Molecule([mode1], 2, Energy)
-    agg = Aggregate([mol1, mol2])
-    agg.coupling[1, 2] = 100
-    agg.coupling[2, 1] = 100
-    aggInds = getIndices(agg)
-    vibindices = getVibIndices(agg, aggInds)
-    aggIndsLen = length(aggInds)
-    basis = GenericBasis([aggIndsLen])
-    FCFact = getFranckCondonFactors(agg, aggInds)
-    FCProd = getFCProd(agg, FCFact, aggInds, vibindices)
-    Ham = getAggHamiltonian(agg, aggInds, FCFact)
+    mode1 = Mode(0.2, 1.0)
+    mode2 = Mode(0.3, 2.0)
+    Energy = [0.0, 200.0]
+    mol1 = Molecule([mode1], 2, [2.0, 200.0])
+    mol2 = Molecule([mode2], 2, [3.0, 300.0])
+    aggCore = AggregateCore([mol1, mol2])
+    aggCore.coupling[2, 3] = 50
+    aggCore.coupling[3, 2] = 50
+    agg = setupAggregate(aggCore)
+    aggTools = agg.tools
+    aggOperators = agg.operators
 
-    Ham_I = getAggHamInteraction(agg, aggInds, FCFact)
-    Ham_0 = getAggHamSystemBath(agg, aggInds, FCFact)
-    Ham = getAggHamiltonian(agg, aggInds, FCFact)
+    Ham_I = agg.operators.Ham_I
+    Ham_0 = agg.operators.Ham_0
+    Ham = agg.operators.Ham
+
+    basis = agg.tools.basis
+    indicesLen = agg.tools.bSize
+    indices = agg.tools.indices
+    indicesMap = agg.tools.indicesMap
+    FCFact = agg.tools.FCfactors
+    FCProd = agg.tools.FCproduct
 
     Ham_0_lambda, Ham_0_S = eigen(Ham_0.data)
     Ham_0_Sinv = inv(Ham_0_S)
     Ham_0_lambda = diagm(Ham_0_lambda)
 
     # T = 300
-    # W0 = thermal_state_composite(T, [0.0, 0.8, 0.2], Ham, aggInds; diagonalize=false, diagonal=true)
-    data = Matrix(Hermitian(rand(ComplexF64, aggIndsLen, aggIndsLen)))
+    # W0 = thermal_state_composite(T, [0.0, 0.8, 0.2], Ham, indices; diagonalize=false, diagonal=true)
+    data = Matrix(Hermitian(rand(ComplexF64, indicesLen, indicesLen)))
     W0 = DenseOperator(basis, basis, data)
     normalize!(W0)
     W0_bath = get_rho_bath(
         W0,
-        agg,
-        FCProd,
-        aggInds,
-        vibindices;
+        aggCore,
+        aggTools;
         justCopy = true,
     )
-    rho0 = trace_bath(W0.data, agg, FCProd, aggInds, vibindices)
+    rho0 = trace_bath(W0.data, aggCore, aggTools)
 
-    W_ab = take_el_part(W0.data, 1, 1, vibindices)
+    W_ab = take_el_part(W0.data, 1, 1, indicesMap)
     W_ab_len = size(W_ab, 1)
     @test 1e-15 > D(W_ab, W0.data[1:W_ab_len, 1:W_ab_len])
 
@@ -73,10 +73,8 @@ import QuantumOpticsBase
                 H_II_t,
                 H_II_s,
                 W0_bath.data,
-                agg,
-                FCProd,
-                aggInds,
-                vibindices
+                aggCore,
+                aggTools
             )
             rho = zero(complex(rho0))
             for a = 1:size(rho, 1),
@@ -89,10 +87,8 @@ import QuantumOpticsBase
             MemoryKernel_1_ref = H_II_t * H_II_s * W0.data
             rho_ref = trace_bath(
                 MemoryKernel_1_ref,
-                agg,
-                FCProd,
-                aggInds,
-                vibindices
+                aggCore, 
+                aggTools
             )
             @test 1e-6 > D(rho, rho_ref)
             # println(D(rho, rho_ref))
@@ -101,10 +97,8 @@ import QuantumOpticsBase
                 H_II_t,
                 H_II_s,
                 W0_bath.data,
-                agg,
-                FCProd,
-                aggInds,
-                vibindices
+                aggCore,
+                aggTools
             )
             rho = zero(complex(rho0))
             for a = 1:size(rho, 1),
@@ -117,10 +111,8 @@ import QuantumOpticsBase
             MemoryKernel_2_ref = H_II_t * W0.data * H_II_s
             rho_ref = trace_bath(
                 MemoryKernel_2_ref,
-                agg,
-                FCProd,
-                aggInds,
-                vibindices
+                aggCore, 
+                aggTools
             )
             @test 1e-6 > D(rho, rho_ref)
             # println(D(rho, rho_ref))
@@ -129,10 +121,8 @@ import QuantumOpticsBase
                 H_II_t,
                 H_II_s,
                 W0_bath.data,
-                agg,
-                FCProd,
-                aggInds,
-                vibindices
+                aggCore,
+                aggTools
             )
             rho = zero(complex(rho0))
             for a = 1:size(rho, 1),
@@ -145,10 +135,8 @@ import QuantumOpticsBase
             MemoryKernel_3_ref = H_II_s * W0.data * H_II_t
             rho_ref = trace_bath(
                 MemoryKernel_3_ref,
-                agg,
-                FCProd,
-                aggInds,
-                vibindices
+                aggCore, 
+                aggTools
             )
             @test 1e-6 > D(rho, rho_ref)
             # println(D(rho, rho_ref))
@@ -157,10 +145,8 @@ import QuantumOpticsBase
                 H_II_t,
                 H_II_s,
                 W0_bath.data,
-                agg,
-                FCProd,
-                aggInds,
-                vibindices
+                aggCore,
+                aggTools
             )
             rho = zero(complex(rho0))
             for a = 1:size(rho, 1),
@@ -173,10 +159,8 @@ import QuantumOpticsBase
             MemoryKernel_4_ref = W0.data * H_II_s * H_II_t
             rho_ref = trace_bath(
                 MemoryKernel_4_ref,
-                agg,
-                FCProd,
-                aggInds,
-                vibindices
+                aggCore, 
+                aggTools
             )
             @test 1e-6 > D(rho, rho_ref)
             # println(D(rho, rho_ref))
@@ -195,10 +179,8 @@ import QuantumOpticsBase
                 H_II_t,
                 H_II_s,
                 W0_bath.data,
-                agg,
-                FCProd,
-                aggInds,
-                vibindices
+                aggCore,
+                aggTools
             )
             rho = zero(complex(rho0))
             for a = 1:size(rho, 1),
@@ -212,10 +194,8 @@ import QuantumOpticsBase
             MemoryKernel_ref = H_II_t * MemoryKernel_ref - MemoryKernel_ref * H_II_t
             rho_ref = trace_bath(
                 MemoryKernel_ref,
-                agg,
-                FCProd,
-                aggInds,
-                vibindices
+                aggCore, 
+                aggTools
             )
             @test 1e-6 > D(rho, rho_ref)
         end

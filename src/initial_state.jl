@@ -45,13 +45,15 @@ Condon approximation.
 function thermal_state(
     T,
     mu_array,
-    Ham,
-    vibindices,
-    aggIndices;
+    aggCore::AggregateCore,
+    aggTools::AggregateTools,
+    aggOperators::AggregateOperators;
     boltzmann_const::Float64 = 0.69503476,
     diagonalize::Bool = false,
     diagonal = false
 )
+    vibindices = aggTools.indicesMap
+    Ham = aggOperators.Ham
     a1 = vibindices[1][1]
     a2 = vibindices[1][end]
     Ham_g = Ham.data[a1:a2, a1:a2]
@@ -64,11 +66,11 @@ function thermal_state(
     else
         H_lambda, H_S = eigen(data)
         H_lambda = diagm(H_lambda)
-        data = H_S * exp(-H_lambda / (T * boltzmann_const)) * inv(H_S)
+        data = H_S * exp(H_lambda / (T * boltzmann_const)) * inv(H_S)
     end
     W0 = DenseOperator(Ham.basis_r, Ham.basis_l, zero(Ham.data))
-    excitedElInd = 1
-    for elInd in 1:length(vibindices)-1
+    excitedElInd = 0
+    for elInd in 1:length(vibindices)
         excitedElInd += elInd * (mu_array[1][elInd] - 1)
     end
     a1 = vibindices[excitedElInd][1]
@@ -82,12 +84,16 @@ end
 function thermal_state_old(
     T,
     mu_array,
-    Ham,
-    aggIndices;
+    aggCore::AggregateCore,
+    aggTools::AggregateTools,
+    aggOperators::AggregateOperators;
     boltzmann_const::Float64 = 0.69503476,
     diagonalize::Bool = false,
-    diagonal = false,
+    diagonal = false
 )
+    vibindices = aggTools.indicesMap
+    aggIndices = aggTools.indices
+    Ham = aggOperators.Ham
     aggIndsLen = length(aggIndices)
     data = -Ham.data / (T * boltzmann_const)
     if diagonal
@@ -148,13 +154,16 @@ thermal_state_composite(T, [0.0, 0.8, 0.2], ...) = 0.8 * thermal_state(T, [1, 2,
 function thermal_state_composite(
     T,
     mu_weighted,
-    Ham,
-    vibindices,
-    aggIndices;
+    aggCore::AggregateCore,
+    aggTools::AggregateTools,
+    aggOperators::AggregateOperators;
     boltzmann_const::Float64 = 0.69503476,
     diagonalize::Bool = false,
     diagonal = false,
 )
+    vibindices = aggTools.indicesMap
+    aggIndices = aggTools.indices
+    Ham = aggOperators.Ham
     a1 = vibindices[1][1]
     a2 = vibindices[1][end]
     Ham_g = Ham.data[a1:a2, a1:a2]
@@ -167,7 +176,7 @@ function thermal_state_composite(
     else
         H_lambda, H_S = eigen(data)
         H_lambda = diagm(H_lambda)
-        data = H_S * exp(-H_lambda / (T * boltzmann_const)) * inv(H_S)
+        data = H_S * exp(H_lambda / (T * boltzmann_const)) * inv(H_S)
     end
     W0 = DenseOperator(Ham.basis_r, Ham.basis_l, zero(Ham.data))
 
@@ -184,12 +193,16 @@ end
 function thermal_state_composite_old(
     T,
     mu_weighted,
-    Ham,
-    aggIndices;
+    aggCore::AggregateCore,
+    aggTools::AggregateTools,
+    aggOperators::AggregateOperators;
     boltzmann_const::Float64 = 0.69503476,
     diagonalize::Bool = false,
     diagonal = false,
 )
+    vibindices = aggTools.indicesMap
+    aggIndices = aggTools.indices
+    Ham = aggOperators.Ham
     aggIndsLen = length(aggIndices)
     data = -Ham.data / (T * boltzmann_const)
     if diagonal
@@ -219,4 +232,28 @@ function thermal_state_composite_old(
     end
     normalize!(W0)
     return W0
+end
+
+function ultrafast_laser_excitation(T::AbstractFloat, weights::Array, agg::Aggregate; diagonalize = true)
+    molCount = agg.core.molCount
+    mu_array = [ones(Int64, molCount+1)]
+
+    mu_array_tmp = deepcopy(mu_array)
+    mu_array_tmp[1][1] = 2
+    W0 = weights[1] * thermal_state(T, mu_array_tmp, agg.core, agg.tools, agg.operators; diagonalize = diagonalize)
+
+    for i in 2:molCount+1
+        mu_array_tmp = deepcopy(mu_array)
+        mu_array_tmp[1][i] = 2
+        W0.data[:, :] += weights[i] * thermal_state(T, mu_array_tmp, agg.core, agg.tools, agg.operators; diagonalize = diagonalize).data 
+    end
+    normalize!(W0)
+    W0 = DenseOperator(W0.basis_l, W0.basis_r, complex(W0.data))
+
+    rho0 = trace_bath(W0, agg.core, agg.tools)
+    rho0 = DenseOperator(rho0.basis_l, rho0.basis_r, complex(rho0.data))
+
+    W0_bath = get_rho_bath(W0, agg.core, agg.tools)
+    W0_bath = DenseOperator(W0_bath.basis_l, W0_bath.basis_r, complex(W0_bath.data))
+    return W0, rho0, W0_bath
 end
