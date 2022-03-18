@@ -1,10 +1,11 @@
 using Test
-using Random, SparseArrays, LinearAlgebra, StableRNGs
 using OpenQuantumSystems
-import DelayDiffEq
+using Random, SparseArrays, LinearAlgebra, StableRNGs
 import QuantumOpticsBase
 
-@testset "master ansatz" begin
+import DelayDiffEq
+
+@testset "master" begin
 
     Random.seed!(StableRNG(0), 1)
 
@@ -15,7 +16,6 @@ import QuantumOpticsBase
     D(op1::AbstractSuperOperator, op2::AbstractSuperOperator) =
         abs(tracedistance_nh(dense(op1), dense(op2)))
 
-    # TODO: change to macro
     mode1 = Mode(0.2, 1.0)
     mode2 = Mode(0.3, 2.0)
     Energy = [0.0, 200.0]
@@ -56,7 +56,7 @@ import QuantumOpticsBase
     t_step = (t_max - t0) / (t_count)
     tspan = [t0:t_step:t_max;]
 
-    _, W_t = QME_sI_ansatz_test(
+    _, W_t = QME_SS_exact(
         W0,
         tspan,
         agg;
@@ -67,7 +67,7 @@ import QuantumOpticsBase
         alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
     )
 
-    _, W_t = QME_sI_ansatz_const(
+    _, W_int_t = QME_SI_exact(
         W0,
         tspan,
         agg;
@@ -78,49 +78,28 @@ import QuantumOpticsBase
         alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
     )
 
-    _, W_t = QME_sI_ansatz_linear(
+    _, rho_t = QME_sS_exact(
         W0,
         tspan,
         agg;
-        reltol = 1e-3,
-        abstol = 1e-3,
-        int_reltol = 1e-4,
-        int_abstol = 1e-4,
-        alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
+        reltol = 1.0e-3,
+        abstol = 1.0e-3,
+        int_reltol = 1.0e-4,
+        int_abstol = 1.0e-4,
+        alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5())
     )
 
-    _, W_t = QME_sI_ansatz_linear2(
+    _, rho_int_t = QME_sI_exact(
         W0,
         tspan,
         agg;
-        reltol = 1e-3,
-        abstol = 1e-3,
-        int_reltol = 1e-4,
-        int_abstol = 1e-4,
-        alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
+        reltol = 1.0e-3,
+        abstol = 1.0e-3,
+        int_reltol = 1.0e-4,
+        int_abstol = 1.0e-4,
+        alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5())
     )
 
-    _, W_t = QME_sI_ansatz_upart1(
-        W0,
-        tspan,
-        agg;
-        reltol = 1e-3,
-        abstol = 1e-3,
-        int_reltol = 1e-4,
-        int_abstol = 1e-4,
-        alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
-    )
 
-    _, W_t = QME_sI_ansatz_upart2(
-        W0,
-        tspan,
-        agg;
-        reltol = 1e-3,
-        abstol = 1e-3,
-        int_reltol = 1e-4,
-        int_abstol = 1e-4,
-        alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
-    )
 
 end # testset
-

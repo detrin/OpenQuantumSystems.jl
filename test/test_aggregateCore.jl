@@ -43,24 +43,32 @@ macro suppress(block)
     end
 end
 
-@testset "aggregate" begin
-
-    # D(op1::Array, op2::Array) = abs(norm(op1 - op2))
+@testset "aggregateCore" begin
 
     mode1 = Mode(0.2, 1.0)
     mode2 = Mode(0.3, 2.0)
     Energy = [0.0, 200.0]
-    mol1 = Molecule([mode1], 3, [2.0, 200.0])
-    mol2 = Molecule([mode2], 3, [3.0, 300.0])
+    mol1 = Molecule([mode1, mode2], 3, [2.0, 200.0])
+    mol2 = Molecule([mode1], 3, [3.0, 300.0])
     aggCore = AggregateCore([mol1, mol2])
     aggCore.coupling[2, 3] = 50
     aggCore.coupling[3, 2] = 50
-    aggTools = AggregateTools(aggCore)
-    aggOperators = AggregateOperators(aggCore, aggTools; groundEnergy=true)
+    
+    @test aggCore.molecules == [mol1, mol2]
+    @test aggCore.coupling == [0.0 0.0 0.0; 0.0 0.0 50.0; 0.0 50.0 0.0]
+    @test aggCore.molCount == 2
 
-    agg = setupAggregate(aggCore; groundEnergy=true)
+    @test getNvib(aggCore) == [[3, 3], [3]]
+    @test getShifts(aggCore) == [[1.0, 2.0], [1.0]]
+    @test getFrequencies(aggCore) == [[0.2, 0.3], [0.2]]
 
-    @test agg.core == aggCore
-    @test agg.tools == aggTools
-    @test agg.operators == aggOperators
+    @test getAggStateEnergy(aggCore, [1, 1], [[1, 1], [1]]) == 5.35
+    @test getAggStateEnergy(aggCore, [1, 1], [[1, 2], [1]]) == 5.65
+    @test getAggStateEnergy(aggCore, [1, 1], [[2, 1], [1]]) == 5.55
+    @test getAggStateEnergy(aggCore, [1, 1], [[1, 1], [2]]) == 5.55
+    @test getAggStateEnergy(aggCore, [2, 1], [[1, 1], [1]]) == 203.35
+
+    @test OpenQuantumSystems.elIndOrder([1, 1, 1]) == 1
+    @test OpenQuantumSystems.elIndOrder([2, 1, 1]) == 2
+    @test OpenQuantumSystems.elIndOrder([1, 2, 1]) == 3
 end

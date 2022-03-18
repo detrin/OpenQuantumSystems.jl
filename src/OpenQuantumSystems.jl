@@ -146,17 +146,25 @@ export
     getMolShifts,
     getMolFrequencies,
 
-    # aggregate.jl
-    Aggregate,
+    # aggregateCore.jl
+    AggregateCore,
     getNvib,
     getShifts,
     getFrequencies,
+    getAggStateEnergy,
+
+    # aggregateTools.jl
+    AggregateTools,
     vibrationalIndices,
     electronicIndices,
     getIndices,
-    getVibIndices,
+    getIndicesMap,
     getFranckCondonFactors,
-    getAggStateEnergy,
+    # getFranckCondonFactorsSparse,
+    getFCproduct,
+    take_el_part,
+
+    # aggregateOperators.jl
     getAggHamSystemSmall,
     getAggHamSystemBig,
     getAggHamBathSmall,
@@ -164,11 +172,15 @@ export
     getAggHamSystemBath,
     getAggHamInteraction,
     getAggHamiltonian,
-    getFranckCondonFactorsSparse,
     # getAggHamiltonianSparse,
+    AggregateOperators,
+
+    # aggregate.jl
+    Aggregate,
     setupAggregate,
 
     # evolution.jl
+    get_tspan,
     evolutionOperator,
     evolutionOperatorA,
     evolutionSuperOperator,
@@ -182,24 +194,34 @@ export
     evolutionApproximate!,
     evolution_exact,
     evolution_approximate,
+    evolutionOperatorExp,
+    evolution_el_part,
+    Evolution_SI_exact,
+    Evolution_sI_exact,
+    Evolution_SS_exact,
+    Evolution_sS_exact,
 
     # schrodinger.jl
     schroedinger,
     schroedinger_dynamic,
 
     # liouville.jl
-    liouvilleVonNeumann,
+    LvN_sI,
+    LvN_sS,
+    LvN_SI,
+    LvN_SS,
 
     # interaction_picture.jl
     getInteractionHamIPicture,
     getInteractionHamIPictureA,
 
-    # master.jl
-    master_int,
-    master,
+    # master_exact.jl
+    QME_SI_exact,
+    QME_SS_exact,
+    QME_sI_exact,
+    QME_sS_exact,
 
     # trace.jl
-    getFCProd,
     trace_bath,
     trace_bath_slow,
     get_rho_bath,
@@ -212,9 +234,9 @@ export
     thermal_state_old,
     thermal_state_composite,
     thermal_state_composite_old,
+    ultrafast_laser_excitation,
 
     # memory_kernel.jl
-    take_el_part,
     MemoryKernel_1_traced,
     MemoryKernel_2_traced,
     MemoryKernel_3_traced,
@@ -222,23 +244,46 @@ export
     MemoryKernel_traced,
 
     # master_ansatz.jl
-    master_ansatz
+    QME_sI_ansatz_test,
+    QME_sI_ansatz_const,
+    QME_sI_ansatz_linear,
+    QME_sI_ansatz_linear2,
+    QME_sI_ansatz_upart1,
+    QME_sI_ansatz_upart2,
+
+    # postprocessing.jl
+    operator_recast,
+    interaction_pic_to_schroedinger_pic,
+    schroedinger_pic_to_interaction_pic,
+    local_st_to_exciton_st,
+    exciton_st_to_local_st,
+
+    # scoring.jl
+    get_rmse_in_time,
+    compare_rho,
+    compare_rho_in_time
 
 include("core.jl")
 include("operators_dense.jl")
 include("superoperators.jl")
 include("metrics.jl")
 include("molecules.jl")
+include("aggregateCore.jl")
+include("aggregateTools.jl")
+include("aggregateOperators.jl")
 include("aggregate.jl")
 include("timeevolution_base.jl")
 include("evolution.jl")
 include("schroedinger.jl")
 include("liouville.jl")
 include("interaction_picture.jl")
-include("master.jl")
+include("master_exact.jl")
 include("trace.jl")
 include("initial_state.jl")
 include("memory_kernel.jl")
 include("master_ansatz.jl")
+include("postprocessing.jl")
+include("scoring.jl")
 
 end
+

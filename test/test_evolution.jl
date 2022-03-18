@@ -13,18 +13,17 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     D(op1::AbstractSuperOperator, op2::AbstractSuperOperator) =
         abs(tracedistance_nh(dense(op1), dense(op2)))
 
-    # TODO: change to macro
     mode1 = Mode(0.2, 1.0)
+    mode2 = Mode(0.3, 2.0)
     Energy = [0.0, 200.0]
-    mol1 = Molecule([mode1], 2, Energy)
-    mol2 = Molecule([mode1], 2, Energy)
-    agg = Aggregate([mol1, mol2])
-    aggInds = getIndices(agg)
-    aggIndsLen = length(aggInds)
-    basis = GenericBasis([aggIndsLen])
-    FCFact = getFranckCondonFactors(agg, aggInds)
-    Ham = getAggHamiltonian(agg, aggInds, FCFact)
+    mol1 = Molecule([mode1], 3, [2.0, 200.0])
+    mol2 = Molecule([mode2], 3, [3.0, 300.0])
+    aggCore = AggregateCore([mol1, mol2])
+    aggCore.coupling[2, 3] = 50
+    aggCore.coupling[3, 2] = 50
+    agg = setupAggregate(aggCore)
 
+    Ham = agg.operators.Ham
     H_lambda, H_S = eigen(Ham.data)
     H_Sinv = inv(H_S)
     H_lambda = diagm(H_lambda)
@@ -58,20 +57,20 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     U_op3 = evolutionOperator(Ham, 1.0)
     @test 1e-12 > D(U_op_array[1], U_op1)
     @test 1e-12 > D(U_op_array[2], U_op2)
-    @test 1e-12 > D(U_op_array[3], U_op3)
+    @test 1e-11 > D(U_op_array[3], U_op3)
 
     U_sop_array = evolutionSuperOperatorArray(Ham, tspan)
     U_sop1 = evolutionSuperOperator(Ham, 0.0)
     U_sop2 = evolutionSuperOperator(Ham, 0.5)
     U_sop3 = evolutionSuperOperator(Ham, 1.0)
     @test 1e-11 > D(U_sop_array[1], U_sop1)
-    @test 1e-11 > D(U_sop_array[2], U_sop2)
-    @test 1e-11 > D(U_sop_array[3], U_sop3)
+    @test 1e-10 > D(U_sop_array[2], U_sop2)
+    @test 1e-10 > D(U_sop_array[3], U_sop3)
 
     t = 0.0
     foreach(evolutionOperatorIterator(Ham, tspan)) do U_op
         U_op_ref = evolutionOperator(Ham, t)
-        @test 1e-12 > D(U_op, U_op_ref)
+        @test 1e-11 > D(U_op, U_op_ref)
         t += 0.5
     end
 
@@ -96,7 +95,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     t = 0.0
     foreach(evolutionSuperOperatorIterator(Ham, tspan)) do U_sop
         U_sop_ref = evolutionSuperOperator(Ham, t)
-        @test 1e-11 > D(U_sop, U_sop_ref)
+        @test 1e-10 > D(U_sop, U_sop_ref)
         t += 0.5
     end
 
@@ -123,7 +122,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
         t += 0.5
     end
 
-    ket = randstate(basis)
+    ket = randstate(agg.tools.basis)
     ket1 = U_op1 * ket
     ket2 = U_op2 * ket
     ket3 = U_op3 * ket
@@ -175,9 +174,8 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     @test 1e-7 > D(op2.data, op_array[2])
     @test 1e-7 > D(op3.data, op_array[3])
 
-
-    data = Matrix(Hermitian(rand(ComplexF64, aggIndsLen, aggIndsLen)))
-    rho0 = DenseOperator(basis, basis, data)
+    data = Matrix(Hermitian(rand(ComplexF64, agg.tools.bSize, agg.tools.bSize)))
+    rho0 = DenseOperator(agg.tools.basis, agg.tools.basis, data)
     normalize!(rho0)
 
     tspan = [0.0:0.1:1.0;]
