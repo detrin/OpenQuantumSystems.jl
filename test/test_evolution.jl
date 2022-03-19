@@ -188,28 +188,39 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     for t_i = 1:length(tspan)
         U_op = U_op_array[t_i]
         rho_ref = U_op * rho0 * U_op'
-        1e-12 > D(rho_t_ref[t_i], rho_t[t_i])
+        @test 1e-12 > D(rho_t_ref[t_i], rho_t[t_i])
     end
 
     T, rho_t = evolution_exact(rho0, tspan, Ham; diagonalize = true)
     for t_i = 1:length(tspan)
         U_op = U_op_array[t_i]
         rho_ref = U_op * rho0 * U_op'
-        1e-12 > D(rho_t_ref[t_i], rho_t[t_i])
+        @test 1e-12 > D(rho_t_ref[t_i], rho_t[t_i])
     end
 
     T, rho_t = evolution_approximate(rho0, tspan, Ham; diagonalize = false)
     for t_i = 1:length(tspan)
         U_op = U_op_array[t_i]
         rho_ref = U_op * rho0 * U_op'
-        1e-12 > D(rho_t_ref[t_i], rho_t[t_i])
+        @test 1e-12 > D(rho_t_ref[t_i], rho_t[t_i])
     end
 
     T, rho_t = evolution_approximate(rho0, tspan, Ham; diagonalize = true)
     for t_i = 1:length(tspan)
         U_op = U_op_array[t_i]
         rho_ref = U_op * rho0 * U_op'
-        1e-12 > D(rho_t_ref[t_i], rho_t[t_i])
+        @test 1e-12 > D(rho_t_ref[t_i], rho_t[t_i])
     end
 
+    t = 1.
+    indicesMap = agg.tools.indicesMap
+    U_part = evolution_el_part(Ham, t, 2, 2, indicesMap)
+    data = take_el_part(Ham.data, 2, 2, indicesMap)
+    b = GenericBasis([size(data, 1)])
+    data = evolutionOperator(data, t)
+    ref = DenseOperator(b, b, data)
+    @test 1e-12 > D(ref, U_part)
+
+
+    Evolution_SI_exact()
 end
