@@ -21,12 +21,12 @@ end
 
 
 """
-    thermal_state(T, mu_array, Ham, aggIndices; 
+    thermal_state(T, mu_array, Ham, aggIndices;
     \tboltzmann_const = 0.69503476, diagonalize = false, diagonal = false)
 
 Get initial state as thermal state excited with ultra-fast laser pulse. In this version
-we suppose that after the thermal state is excited with laser pulse, the whole population 
-of ground state is distributed over electric states in `mu_array`. We assume 
+we suppose that after the thermal state is excited with laser pulse, the whole population
+of ground state is distributed over electric states in `mu_array`. We assume
 Condon approximation.
 
 ``\\rho_\\text{thermal} = \\exp( -\\frac{i}{\\hbar} H ), \\quad \\hbar = 1```.
@@ -94,12 +94,12 @@ thermal_state(T, mu_array, agg::Aggregate; boltzmann_const::Float64 = 0.69503476
 )
 
 """
-    thermal_state_composite(T, mu_weighted, Ham, aggIndices; 
+    thermal_state_composite(T, mu_weighted, Ham, aggIndices;
     \tboltzmann_const::Float64 = 0.69503476, diagonalize::Bool=false, diagonal=false)
 
-Functionality of this method is similar to [`thermal_state`](@ref), but the final 
+Functionality of this method is similar to [`thermal_state`](@ref), but the final
 state is constructed from partial `thermal_states` with weight specified in `mu_weighted`.
-For example 
+For example
 
 ```julia
 thermal_state_composite(T, [0.0, 0.8, 0.2], ...) = 0.8 * thermal_state(T, [1, 2, 1], ...) + 0.2 * thermal_state(T, [1, 1, 2], ...)
@@ -179,7 +179,7 @@ function ultrafast_laser_excitation(T::AbstractFloat, weights::Array, agg::Aggre
     for i in 2:molCount+1
         mu_array_tmp = deepcopy(mu_array)
         mu_array_tmp[1][i] = 2
-        W0.data[:, :] += weights[i] * thermal_state(T, mu_array_tmp, agg.core, agg.tools, agg.operators; diagonalize = diagonalize).data 
+        W0.data[:, :] += weights[i] * thermal_state(T, mu_array_tmp, agg.core, agg.tools, agg.operators; diagonalize = diagonalize).data
     end
     normalize!(W0)
     W0 = DenseOperator(W0.basis_l, W0.basis_r, complex(W0.data))

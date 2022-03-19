@@ -83,7 +83,7 @@ end
 """
 getIndicesMap(aggCore)
 
-Get pointers (integers) to the indices of the [`Aggregate`](@ref) separated by 
+Get pointers (integers) to the indices of the [`Aggregate`](@ref) separated by
 electronic states (e.g. [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]).
 
 # Arguments
@@ -333,7 +333,7 @@ Base.:(==)(x::AggregateTools, y::AggregateTools) =
 """
     take_el_part(A, a, b, indicesMap)
 
-Take electric part specified by electric indices `a` and `b` from the A (type of Array). 
+Take electric part specified by electric indices `a` and `b` from the A (type of Array).
 
 """
 function take_el_part(A::Array, a, b, indicesMap)

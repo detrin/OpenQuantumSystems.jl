@@ -147,7 +147,7 @@ function getAggHamBathBig(
 end
 
 """
-getAggHamSystemBath(agg, aggTools.indices, 
+getAggHamSystemBath(agg, aggTools.indices,
 \tfranckCondonFactors; groundEnergy = false)
 getAggHamSystemBath(agg, aggTools.indices; groundEnergy = false)
 getAggHamSystemBath(agg; groundEnergy = false)
@@ -242,7 +242,7 @@ function getAggHamInteraction(aggCore::AggregateCore, aggTools::AggregateTools)
 end
 
 """
-getAggHamiltonian(agg, aggTools.indices, franckCondonFactors; 
+getAggHamiltonian(agg, aggTools.indices, franckCondonFactors;
 \t, groundEnergy = true)
 getAggHamiltonian(agg, aggTools.indices; groundEnergy = true)
 getAggHamiltonian(agg; groundEnergy = true)
