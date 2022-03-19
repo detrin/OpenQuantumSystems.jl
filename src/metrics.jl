@@ -17,6 +17,7 @@ function tracenorm(rho::DenseSuperOpType)
     ishermitian(rho) ? tracenorm_h(rho) : tracenorm_nh(rho)
 end
 
+#=
 function tracenorm!(rho::DenseSuperOpType)
     if ishermitian(rho)
         rho.data ./= tracenorm_h(rho)
@@ -24,6 +25,7 @@ function tracenorm!(rho::DenseSuperOpType)
         rho.data ./= tracenorm_nh(rho)
     end
 end
+=#
 
 """
     tracenorm_h(rho)
