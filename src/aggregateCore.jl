@@ -11,14 +11,15 @@ Mutable stuct which purpose is to store important information about the whole ag
 * `molecules`: Vector of molecules ([`Molecule`](@ref)).
 * `coupling`: Matrix of couplings ``J_{nm}`` between molecules.
 """
-struct AggregateCore{T<:Integer,C1<:ComputableType,C2<:ComputableType} <: AbstractAggregateCore
+struct AggregateCore{T<:Integer,C1<:ComputableType,C2<:ComputableType} <:
+       AbstractAggregateCore
     molecules::Vector{Molecule{T,C1,C2}}
     coupling::Matrix{C1}
     molCount::Int64
     function AggregateCore{T,C1,C2}(
         molecules::Vector{Molecule{T,C1,C2}},
         coupling::Matrix{C1},
-        molCount::Int64
+        molCount::Int64,
     ) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
         new(molecules, coupling, molCount)
     end
@@ -27,10 +28,14 @@ end
 AggregateCore(molecules::Vector{Molecule{T,C1,C2}}, coupling::Matrix{C1}) where {T,C1,C2} =
     AggregateCore{T,C1,C2}(molecules, coupling, length(molecules))
 AggregateCore(molecules::Vector{Molecule{T,C1,C2}}) where {T,C1,C2} =
-    AggregateCore{T,C1,C2}(molecules, zeros(C1, (length(molecules) + 1, length(molecules) + 1)), length(molecules))
+    AggregateCore{T,C1,C2}(
+        molecules,
+        zeros(C1, (length(molecules) + 1, length(molecules) + 1)),
+        length(molecules),
+    )
 
 
-Base.:(==)(x::AggregateCore, y::AggregateCore) = 
+Base.:(==)(x::AggregateCore, y::AggregateCore) =
     x.molecules == y.molecules && x.coupling == y.coupling && x.molCount == y.molCount
 
 """
