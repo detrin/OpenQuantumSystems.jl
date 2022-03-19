@@ -18,6 +18,8 @@ names = [
     "test_initial_state.jl",
     "test_memory_kernel.jl",
     "test_master_ansatz.jl",
+    "test_postprocessing.jl",
+    "test_scoring.jl",
 ]
 
 #=

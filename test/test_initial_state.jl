@@ -43,11 +43,17 @@ import QuantumOpticsBase
     W0 = thermal_state(T, mu_array, aggCore, aggTools, aggOperators; diagonalize = true)
     @test 1e-15 > D(W0_ref, W0.data)
 
+    W0 = thermal_state(T, mu_array, agg; diagonalize = true)
+    @test 1e-15 > D(W0_ref, W0.data)
+
     W01 = thermal_state(T, [[1, 2, 1]], aggCore, aggTools, aggOperators; diagonalize = true)
     W02 = thermal_state(T, [[1, 1, 2]], aggCore, aggTools, aggOperators; diagonalize = true)
     W0_composite_ref = 0.8 * W01 + 0.2 * W02
     normalize!(W0_composite_ref)
     W0 = thermal_state_composite(T, [0.0, 0.8, 0.2], aggCore, aggTools, aggOperators; diagonalize = true)
+    @test 1e-15 > D(W0_composite_ref, W0)
+
+    W0 = thermal_state_composite(T, [0.0, 0.8, 0.2], agg; diagonalize = true)
     @test 1e-15 > D(W0_composite_ref, W0)
 
     W0_ref = [0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.25029983141333245 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.24993996472850133 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.25005986276494624 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.2497003410932199]
@@ -94,5 +100,32 @@ import QuantumOpticsBase
         diagonal = true,
     )
     @test 1e-15 > D(W0_composite_ref, W0)
+
+    T = 0.5
+    mu_array = [[1, 1, 2]]
+    W0_ref = [0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.7750674418239181 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.06464140010302448 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.1479518276234691 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.012339330449588293]
+    W0 = thermal_state(T, mu_array, aggCore, aggTools, aggOperators; diagonalize = true)
+    @test 1e-15 > D(W0_ref, W0.data)
+
+    W0, rho0, W0_bath = ultrafast_laser_excitation(T, [0.0, 0.8, 0.2], agg; diagonalize = true)
+    W0_ref = thermal_state_composite(
+        T,
+        [0.0, 0.8, 0.2],
+        aggCore,
+        aggTools,
+        aggOperators;
+        diagonalize = true
+    )
+    normalize!(W0_ref)
+    W0_ref = DenseOperator(W0_ref.basis_l, W0_ref.basis_r, complex(W0_ref.data))
+
+    rho0_ref = trace_bath(W0_ref, agg.core, agg.tools)
+    rho0_ref = DenseOperator(rho0_ref.basis_l, rho0_ref.basis_r, complex(rho0_ref.data))
+
+    W0_bath_ref = get_rho_bath(W0_ref, agg.core, agg.tools)
+    W0_bath_ref = DenseOperator(W0_bath_ref.basis_l, W0_bath_ref.basis_r, complex(W0_bath_ref.data))
+    @test 1e-15 > D(W0_ref, W0)
+    @test 1e-15 > D(rho0_ref, rho0)
+    @test 1e-15 > D(W0_bath_ref, W0_bath)
 
 end # testset

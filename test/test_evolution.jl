@@ -13,6 +13,10 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     D(op1::AbstractSuperOperator, op2::AbstractSuperOperator) =
         abs(tracedistance_nh(dense(op1), dense(op2)))
 
+    tspan = get_tspan(0., 1., 10)
+    ref = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+    @test tspan == ref
+
     mode1 = Mode(0.2, 1.0)
     mode2 = Mode(0.3, 2.0)
     Energy = [0.0, 200.0]
@@ -68,7 +72,8 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     @test 1e-10 > D(U_sop_array[3], U_sop3)
 
     t = 0.0
-    foreach(evolutionOperatorIterator(Ham, tspan)) do U_op
+    foreach(evolutionOperatorIterator(Ham, tspan; diagonalize = true, approximate = false)
+    ) do U_op
         U_op_ref = evolutionOperator(Ham, t)
         @test 1e-11 > D(U_op, U_op_ref)
         t += 0.5
@@ -93,7 +98,9 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     end
 
     t = 0.0
-    foreach(evolutionSuperOperatorIterator(Ham, tspan)) do U_sop
+    foreach(
+        evolutionSuperOperatorIterator(Ham, tspan; diagonalize = false, approximate = true)
+    ) do U_sop
         U_sop_ref = evolutionSuperOperator(Ham, t)
         @test 1e-10 > D(U_sop, U_sop_ref)
         t += 0.5
@@ -101,12 +108,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
 
     t = 0.0
     foreach(
-        evolutionSuperOperatorIterator(
-            Ham,
-            tspan;
-            diagonalize = false,
-            approximate = false,
-        ),
+        evolutionSuperOperatorIterator(Ham, tspan; diagonalize = false, approximate = false),
     ) do U_op
         U_op_ref = evolutionSuperOperator(Ham, t)
         @test 1e-12 > D(U_op, U_op_ref)
@@ -186,28 +188,87 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     for t_i = 1:length(tspan)
         U_op = U_op_array[t_i]
         rho_ref = U_op * rho0 * U_op'
-        1e-12 > D(rho_t_ref[t_i], rho_t[t_i])
+        @test 1e-12 > D(rho_t_ref[t_i], rho_t[t_i])
     end
 
     T, rho_t = evolution_exact(rho0, tspan, Ham; diagonalize = true)
     for t_i = 1:length(tspan)
         U_op = U_op_array[t_i]
         rho_ref = U_op * rho0 * U_op'
-        1e-12 > D(rho_t_ref[t_i], rho_t[t_i])
+        @test 1e-12 > D(rho_t_ref[t_i], rho_t[t_i])
     end
 
     T, rho_t = evolution_approximate(rho0, tspan, Ham; diagonalize = false)
     for t_i = 1:length(tspan)
         U_op = U_op_array[t_i]
         rho_ref = U_op * rho0 * U_op'
-        1e-12 > D(rho_t_ref[t_i], rho_t[t_i])
+        @test 1e-12 > D(rho_t_ref[t_i], rho_t[t_i])
     end
 
     T, rho_t = evolution_approximate(rho0, tspan, Ham; diagonalize = true)
     for t_i = 1:length(tspan)
         U_op = U_op_array[t_i]
         rho_ref = U_op * rho0 * U_op'
-        1e-12 > D(rho_t_ref[t_i], rho_t[t_i])
+        @test 1e-12 > D(rho_t_ref[t_i], rho_t[t_i])
     end
 
+    t = 1.
+    indicesMap = agg.tools.indicesMap
+    U_part = evolution_el_part(Ham, t, 2, 2, indicesMap)
+    data = take_el_part(Ham.data, 2, 2, indicesMap)
+    b = GenericBasis([size(data, 1)])
+    data = evolutionOperator(data, t)
+    ref = DenseOperator(b, b, data)
+    @test 1e-12 > D(ref, U_part)
+
+
+    mode1 = Mode(0.2, 1.0)
+    mode2 = Mode(0.3, 2.0)
+    Energy = [0.0, 200.0]
+    mol1 = Molecule([mode1], 2, [2.0, 200.0])
+    mol2 = Molecule([mode2], 2, [3.0, 300.0])
+    aggCore = AggregateCore([mol1, mol2])
+    aggCore.coupling[2, 3] = 50
+    aggCore.coupling[3, 2] = 50
+    agg = setupAggregate(aggCore)
+    aggTools = agg.tools
+    aggOperators = agg.operators
+
+    Ham_I = agg.operators.Ham_I
+    Ham_0 = agg.operators.Ham_0
+    Ham = agg.operators.Ham
+
+    basis = agg.tools.basis
+    indicesLen = agg.tools.bSize
+    indices = agg.tools.indices
+    indicesMap = agg.tools.indicesMap
+    FCFact = agg.tools.FCfactors
+    FCProd = agg.tools.FCproduct
+
+    W0 = [0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.25000143755694526 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.2499997124870238 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.2500002875090083 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.24999856244702248]
+    W0 = DenseOperator(basis, basis, complex(W0))
+
+    t = 1.
+    tspan = get_tspan(0., t, 1)
+    _, W_int_t_ = Evolution_SI_exact(W0, tspan, agg)
+    U_op = evolutionOperator(Ham, t)
+    W = U_op * W0 * U_op'
+    U_0_op = evolutionOperator(Ham_0, t)
+    W = U_0_op' * W * U_0_op
+    W_int_t_ref = W.data
+    @test 1e-12 > D(W_int_t_ref, W_int_t_[2, :, :])
+
+    _, rho_int_t_ = Evolution_sI_exact(W0, tspan, agg)
+    rho_int_t_ref = trace_bath(W_int_t_ref, agg.core, agg.tools)
+    @test 1e-12 > D(rho_int_t_ref, rho_int_t_[2, :, :])
+
+    _, W_t_ = Evolution_SS_exact(W0, tspan, agg)
+    U_op = evolutionOperator(Ham, t)
+    W = U_op * W0 * U_op'
+    W_t_ref = W.data
+    @test 1e-12 > D(W_t_ref, W_t_[2, :, :])
+
+    _, rho_t_ = Evolution_sS_exact(W0, tspan, agg)
+    rho_t_ref = trace_bath(W_t_ref, agg.core, agg.tools)
+    @test 1e-12 > D(rho_t_ref, rho_t_[2, :, :])
 end
