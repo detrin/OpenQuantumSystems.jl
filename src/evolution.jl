@@ -147,11 +147,11 @@ function evolutionOperatorIterator end
         U_diagonal = map(lambda -> exp(-1im * lambda * tspan[1]), Ham_lambda)
         U = S * diagm(U_diagonal) * inv(S)
         U_op = DenseOperator(basis, basis, U)
-    elseif !approximate
-        U_op = evolutionOperator(Hamiltonian, tspan[1])
-    else
+    elseif approximate
         U_op = evolutionOperator(Hamiltonian, tspan[1])
         U_step = evolutionOperator(Hamiltonian, t_step)
+    else
+        U_op = evolutionOperator(Hamiltonian, tspan[1])
     end
     @yield U_op
 
@@ -160,10 +160,10 @@ function evolutionOperatorIterator end
         if diagonalize
             U_diagonal .= map(lambda -> exp(-1im * lambda * t), Ham_lambda)
             U_op.data .= S * diagm(U_diagonal) * inv(S)
-        elseif !approximate
-            U_op = evolutionOperator(Hamiltonian, t)
-        else
+        elseif approximate
             U_op = U_step * U_op
+        else
+            U_op = evolutionOperator(Hamiltonian, t)
         end
         @yield U_op
     end
@@ -199,11 +199,11 @@ function evolutionSuperOperatorIterator end
         U_diagonal = map(lambda -> exp(-1im * lambda * tspan[1]), Ham_lambda)
         U = S * diagm(U_diagonal) * Sinv
         U_op = DenseOperator(basis, basis, U)
-    elseif !approximate
-        U_op = evolutionOperator(Hamiltonian, tspan[1])
-    else
+    elseif approximate
         U_op = evolutionOperator(Hamiltonian, tspan[1])
         U_step = evolutionOperator(Hamiltonian, t_step)
+    else
+        U_op = evolutionOperator(Hamiltonian, tspan[1])
     end
     U_supop = spre(U_op) * spost(U_op')
     @yield U_supop
@@ -214,11 +214,11 @@ function evolutionSuperOperatorIterator end
             U_diagonal .= map(lambda -> exp(-1im * lambda * tspan[t_i]), Ham_lambda)
             U_op.data .= S * diagm(U_diagonal) * Sinv
             U_supop.data .= (spre(U_op)).data * (spost(U_op')).data
-        elseif !approximate
-            U_op = evolutionOperator(Hamiltonian, t)
+        elseif approximate
+            U_op = U_step * U_op
             U_supop = spre(U_op) * spost(U_op')
         else
-            U_op = U_step * U_op
+            U_op = evolutionOperator(Hamiltonian, t)
             U_supop = spre(U_op) * spost(U_op')
         end
         @yield U_supop
@@ -585,48 +585,50 @@ function evolution_approximate(
     return tspan, rho_t
 end
 
-function evolutionOperatorExp(
-    Ham::Array, t::AbstractFloat, n::Integer
-)::Array
+#=
+function evolutionOperatorExp(Ham::Array, t::AbstractFloat, n::Integer)::Array
     # c = ones(size(Ham))
     c = one(Ham)
     Len = size(Ham, 1)
-    s = c 
+    s = c
     if n > 0
-        for k in 1:n
-            c = c * (-1.0im/k * Ham * t)
+        for k = 1:n
+            c = c * (-1.0im / k * Ham * t)
             s = s + c
             # s[:, :] = s + (-1.0im * Ham * t)^k/factorial(big(k))
         end
     end
-    s /= abs(det(s))^(1.0/Len)
+    s /= abs(det(s))^(1.0 / Len)
     s
 end
 
 function evolutionOperatorExp(
-    Ham::T, t::AbstractFloat, n::Integer
+    Ham::T,
+    t::AbstractFloat,
+    n::Integer,
 ) where {B<:Basis,T<:Operator{B,B}}
     data = evolutionOperatorExp(Ham.data, t, n)
     DenseOperator(Ham.basis_l, Ham.basis_r, data)
 end
+=#
 
 function evolution_el_part(
-    Ham::Array, 
-    t::AbstractFloat, 
-    a::Integer, 
-    b::Integer, 
-    indicesMap::IndicesMap
+    Ham::Array,
+    t::AbstractFloat,
+    a::Integer,
+    b::Integer,
+    indicesMap::IndicesMap,
 )
     data = take_el_part(Ham, a, b, indicesMap)
     return evolutionOperator(data, t)
 end
 
 function evolution_el_part(
-    Ham::T, 
-    t::AbstractFloat, 
-    a::Integer, 
-    b::Integer, 
-    indicesMap::IndicesMap
+    Ham::T,
+    t::AbstractFloat,
+    a::Integer,
+    b::Integer,
+    indicesMap::IndicesMap,
 ) where {B<:Basis,T<:Operator{B,B}}
     data = evolution_el_part(Ham.data, t, a, b, indicesMap)
     b = GenericBasis([size(data, 1)])
@@ -636,12 +638,12 @@ end
 function Evolution_SI_exact(
     W0::T,
     tspan::Array,
-    agg::Aggregate
+    agg::Aggregate,
 ) where {B<:Basis,T<:Operator{B,B}}
     W_t_exact = zeros(ComplexF64, length(tspan), agg.tools.bSize, agg.tools.bSize)
     Ham = agg.operators.Ham
     Ham_0 = agg.operators.Ham_0
-    for t_i in 1:length(tspan)
+    for t_i = 1:length(tspan)
         t = tspan[t_i]
         U_op = evolutionOperator(Ham, t)
         W = U_op * W0 * U_op'
@@ -655,14 +657,14 @@ end
 function Evolution_sI_exact(
     W0::T,
     tspan::Array,
-    agg::Aggregate
+    agg::Aggregate,
 ) where {B<:Basis,T<:Operator{B,B}}
     elLen = agg.core.molCount
-    rho_t_exact = zeros(ComplexF64, length(tspan), elLen+1, elLen+1)
+    rho_t_exact = zeros(ComplexF64, length(tspan), elLen + 1, elLen + 1)
 
     Ham = agg.operators.Ham
     Ham_0 = agg.operators.Ham_0
-    for t_i in 1:length(tspan)
+    for t_i = 1:length(tspan)
         t = tspan[t_i]
         U_op = evolutionOperator(Ham, t)
         W = U_op * W0 * U_op'
@@ -676,12 +678,12 @@ end
 function Evolution_SS_exact(
     W0::T,
     tspan::Array,
-    agg::Aggregate
+    agg::Aggregate,
 ) where {B<:Basis,T<:Operator{B,B}}
     W_t_exact = zeros(ComplexF64, length(tspan), agg.tools.bSize, agg.tools.bSize)
     Ham = agg.operators.Ham
     Ham_0 = agg.operators.Ham_0
-    for t_i in 1:length(tspan)
+    for t_i = 1:length(tspan)
         t = tspan[t_i]
         U_op = evolutionOperator(Ham, t)
         W = U_op * W0 * U_op'
@@ -693,14 +695,14 @@ end
 function Evolution_sS_exact(
     W0::T,
     tspan::Array,
-    agg::Aggregate
+    agg::Aggregate,
 ) where {B<:Basis,T<:Operator{B,B}}
     elLen = agg.core.molCount
-    rho_t_exact = zeros(ComplexF64, length(tspan), elLen+1, elLen+1)
+    rho_t_exact = zeros(ComplexF64, length(tspan), elLen + 1, elLen + 1)
 
     Ham = agg.operators.Ham
     Ham_0 = agg.operators.Ham_0
-    for t_i in 1:length(tspan)
+    for t_i = 1:length(tspan)
         t = tspan[t_i]
         U_op = evolutionOperator(Ham, t)
         W = U_op * W0 * U_op'

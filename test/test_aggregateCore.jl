@@ -71,4 +71,7 @@ end
     @test OpenQuantumSystems.elIndOrder([1, 1, 1]) == 1
     @test OpenQuantumSystems.elIndOrder([2, 1, 1]) == 2
     @test OpenQuantumSystems.elIndOrder([1, 2, 1]) == 3
+
+    aggCore_ = AggregateCore([mol1, mol2], [0.0 0.0 0.0; 0.0 0.0 50.0; 0.0 50.0 0.0])
+    @test aggCore_ == aggCore
 end

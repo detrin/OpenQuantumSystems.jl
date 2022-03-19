@@ -81,51 +81,17 @@ function thermal_state(
     return W0
 end
 
-function thermal_state_old(
+thermal_state(T, mu_array, agg::Aggregate; boltzmann_const::Float64 = 0.69503476, diagonalize::Bool = false, diagonal = false
+) = thermal_state(
     T,
     mu_array,
-    aggCore::AggregateCore,
-    aggTools::AggregateTools,
-    aggOperators::AggregateOperators;
-    boltzmann_const::Float64 = 0.69503476,
-    diagonalize::Bool = false,
-    diagonal = false
+    agg.core,
+    agg.tools,
+    agg.operators;
+    boltzmann_const=boltzmann_const,
+    diagonalize=diagonalize,
+    diagonal=diagonal
 )
-    vibindices = aggTools.indicesMap
-    aggIndices = aggTools.indices
-    Ham = aggOperators.Ham
-    aggIndsLen = length(aggIndices)
-    data = -Ham.data / (T * boltzmann_const)
-    if diagonal
-        data = Diagonal(data)
-    end
-    if !diagonalize
-        data = exp(data)
-    else
-        H_lambda, H_S = eigen(data)
-        H_lambda = diagm(H_lambda)
-        data = H_S * exp(-H_lambda / (T * boltzmann_const)) * inv(H_S)
-    end
-    W0 = DenseOperator(Ham.basis_r, Ham.basis_l, data)
-
-    for I = 1:aggIndsLen
-        elind1, vibind1 = aggIndices[I]
-        elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
-        if elind1 in mu_array
-            continue
-        end
-        for J = 1:aggIndsLen
-            elind2, vibind2 = aggIndices[J]
-            elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
-            if elind2 in mu_array
-                continue
-            end
-            W0.data[I, J] = 0.0
-        end
-    end
-    normalize!(W0)
-    return W0
-end
 
 """
     thermal_state_composite(T, mu_weighted, Ham, aggIndices; 
@@ -190,49 +156,17 @@ function thermal_state_composite(
     return W0
 end
 
-function thermal_state_composite_old(
+thermal_state_composite(T, mu_weighted, agg::Aggregate; boltzmann_const::Float64 = 0.69503476, diagonalize::Bool = false, diagonal = false
+) = thermal_state_composite(
     T,
     mu_weighted,
-    aggCore::AggregateCore,
-    aggTools::AggregateTools,
-    aggOperators::AggregateOperators;
-    boltzmann_const::Float64 = 0.69503476,
-    diagonalize::Bool = false,
-    diagonal = false,
+    agg.core,
+    agg.tools,
+    agg.operators;
+    boltzmann_const=boltzmann_const,
+    diagonalize=diagonalize,
+    diagonal=diagonal
 )
-    vibindices = aggTools.indicesMap
-    aggIndices = aggTools.indices
-    Ham = aggOperators.Ham
-    aggIndsLen = length(aggIndices)
-    data = -Ham.data / (T * boltzmann_const)
-    if diagonal
-        data = Diagonal(data)
-    end
-    if !diagonalize
-        data = exp(data)
-    else
-        H_lambda, H_S = eigen(data)
-        H_lambda = diagm(H_lambda)
-        data = H_S * exp(-H_lambda / (T * boltzmann_const)) * inv(H_S)
-    end
-    W0 = DenseOperator(Ham.basis_r, Ham.basis_l, zero(data))
-
-    for I = 1:aggIndsLen
-        elind1, vibind1 = aggIndices[I]
-        elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
-        mu_w = mu_weighted[elOrder1]
-        for J = 1:aggIndsLen
-            elind2, vibind2 = aggIndices[J]
-            elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
-            if elOrder1 != elOrder2
-                continue
-            end
-            W0.data[I, J] = data[I, J] * mu_w
-        end
-    end
-    normalize!(W0)
-    return W0
-end
 
 function ultrafast_laser_excitation(T::AbstractFloat, weights::Array, agg::Aggregate; diagonalize = true)
     molCount = agg.core.molCount
