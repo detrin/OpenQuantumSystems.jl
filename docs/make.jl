@@ -16,9 +16,7 @@ makedocs(
     pages = [
         "Home" => "index.md",
         "Documentation" => "documentation.md",
-        "Tutorials" => [
-            "Dimer" => "tutorials/dimer.md"
-            ]
+        "Tutorials" => ["Dimer" => "tutorials/dimer.md"],
     ],
 )
 
