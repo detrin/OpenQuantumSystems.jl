@@ -13,6 +13,10 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     D(op1::AbstractSuperOperator, op2::AbstractSuperOperator) =
         abs(tracedistance_nh(dense(op1), dense(op2)))
 
+    tspan = get_tspan(0., 1., 10)
+    ref = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+    @test tspan == ref
+
     mode1 = Mode(0.2, 1.0)
     mode2 = Mode(0.3, 2.0)
     Energy = [0.0, 200.0]
@@ -68,7 +72,8 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     @test 1e-10 > D(U_sop_array[3], U_sop3)
 
     t = 0.0
-    foreach(evolutionOperatorIterator(Ham, tspan)) do U_op
+    foreach(evolutionOperatorIterator(Ham, tspan; diagonalize = true, approximate = false)
+    ) do U_op
         U_op_ref = evolutionOperator(Ham, t)
         @test 1e-11 > D(U_op, U_op_ref)
         t += 0.5
@@ -93,7 +98,9 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     end
 
     t = 0.0
-    foreach(evolutionSuperOperatorIterator(Ham, tspan)) do U_sop
+    foreach(
+        evolutionSuperOperatorIterator(Ham, tspan; diagonalize = false, approximate = true)
+    ) do U_sop
         U_sop_ref = evolutionSuperOperator(Ham, t)
         @test 1e-10 > D(U_sop, U_sop_ref)
         t += 0.5
@@ -101,12 +108,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
 
     t = 0.0
     foreach(
-        evolutionSuperOperatorIterator(
-            Ham,
-            tspan;
-            diagonalize = false,
-            approximate = false,
-        ),
+        evolutionSuperOperatorIterator(Ham, tspan; diagonalize = false, approximate = false),
     ) do U_op
         U_op_ref = evolutionSuperOperator(Ham, t)
         @test 1e-12 > D(U_op, U_op_ref)
