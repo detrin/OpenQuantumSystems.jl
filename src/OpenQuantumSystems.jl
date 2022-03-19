@@ -178,6 +178,7 @@ export
     # aggregate.jl
     Aggregate,
     setupAggregate,
+    setupAggregate!,
 
     # evolution.jl
     get_tspan,
