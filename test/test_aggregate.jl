@@ -63,4 +63,22 @@ end
     @test agg.core == aggCore
     @test agg.tools == aggTools
     @test agg.operators == aggOperators
+
+    agg = Aggregate(aggCore, nothing, nothing)
+    agg_ = Aggregate(aggCore)
+    @test agg_ == agg
+
+    agg = setupAggregate(aggCore)
+    aggTools_ = AggregateTools(agg)
+    @test aggTools_ == aggTools
+
+    aggOperators_ = AggregateOperators(agg)
+    @test aggOperators_ == aggOperators
+
+    agg = setupAggregate(aggCore)
+    agg_ = Aggregate(aggCore, nothing, nothing)
+    setupAggregate!(agg_)
+    @test agg_ == agg
+
+
 end
