@@ -178,6 +178,7 @@ export
     # aggregate.jl
     Aggregate,
     setupAggregate,
+    setupAggregate!,
 
     # evolution.jl
     get_tspan,
@@ -252,6 +253,8 @@ export
     QME_sI_ansatz_upart2,
 
     # postprocessing.jl
+    OperatorVector,
+    OperatorVectorArray,
     operator_recast,
     interaction_pic_to_schroedinger_pic,
     schroedinger_pic_to_interaction_pic,
