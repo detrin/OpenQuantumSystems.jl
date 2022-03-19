@@ -41,12 +41,12 @@ function compare_rho(rho::Array, rho_ref::Array; smooth_const=1e-9)
     return rho_sum
 end
 
-function compare_rho(rho::Array, rho_ref::OperatorVector; smooth_const=1e-9)
+function compare_rho(rho::OperatorVectorArray, rho_ref::OperatorVector; smooth_const=1e-9)
     rho_ref_array = operator_recast(rho_ref)
     return compare_rho(rho, rho_ref_array, smooth_const=smooth_const)
 end
 
-function compare_rho(rho::OperatorVector, rho_ref::Array; smooth_const=1e-9)
+function compare_rho(rho::OperatorVector, rho_ref::OperatorVectorArray; smooth_const=1e-9)
     rho_array = operator_recast(rho)
     return compare_rho(rho_array, rho_ref, smooth_const=smooth_const)
 end
@@ -59,7 +59,7 @@ end
 
 ######
 
-function compare_rho_in_time(rho::Array, rho_ref::Array; smooth_const=1e-9)
+function compare_rho_in_time(rho::OperatorVectorArray, rho_ref::OperatorVectorArray; smooth_const=1e-9)
     N, M, K = size(rho)
     rho_rel = zeros(Float64, N, M, K)
 
@@ -71,12 +71,12 @@ function compare_rho_in_time(rho::Array, rho_ref::Array; smooth_const=1e-9)
     return rho_rel
 end
 
-function compare_rho_in_time(rho::Array, rho_ref::OperatorVector; smooth_const=1e-9)
+function compare_rho_in_time(rho::OperatorVectorArray, rho_ref::OperatorVector; smooth_const=1e-9)
     rho_ref_array = operator_recast(rho_ref)
     return compare_rho_in_time(rho, rho_ref_array; smooth_const=smooth_const)
 end
 
-function compare_rho_in_time(rho::OperatorVector, rho_ref::Array; smooth_const=1e-9)
+function compare_rho_in_time(rho::OperatorVector, rho_ref::OperatorVectorArray; smooth_const=1e-9)
     rho_array = operator_recast(rho)
     return compare_rho_in_time(rho_array, rho_ref; smooth_const=smooth_const)
 end
