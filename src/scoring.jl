@@ -1,34 +1,29 @@
 
 ########
 
-function get_rmse_in_time(operator_vec1::OperatorVector, operator_vec2::OperatorVector)
-    t_count = length(operator_vec1)
-    c = 0
-    for t_i in 1:t_count
-        op1 = operator_vec1[t_i]
-        op2 = operator_vec2[t_i]
-        c += norm(op1.data - op2.data)^2
-    end
-    return sqrt(c / t_count)
-end
-
-function get_rmse_in_time(operator_vec1::OperatorVector, operator_data_vec2::Array)
-    t_count = length(operator_vec1)
-    c = 0
-    for t_i in 1:t_count
-        op1 = operator_vec1[t_i]
-        c += norm(op1.data - operator_data_vec2[t_i, :, :])^2
-    end
-    return sqrt(c / t_count)
-end
-
-function get_rmse_in_time(operator_data_vec1::Array, operator_data_vec2::Array)
+function get_rmse_in_time(operator_data_vec1::OperatorVectorArray, operator_data_vec2::OperatorVectorArray)
     t_count, M, K = size(operator_data_vec1)
     c = 0
     for t_i in 1:t_count
         c += norm(operator_data_vec1[t_i, :, :] - operator_data_vec2[t_i, :, :])^2
     end
     return sqrt(c / t_count)
+end
+
+function get_rmse_in_time(operator_data_vec1::OperatorVectorArray, operator_vec2::OperatorVector)
+    operator_data_vec2 = operator_recast(operator_vec2)
+    return get_rmse_in_time(operator_data_vec1, operator_data_vec2)
+end
+
+function get_rmse_in_time(operator_vec1::OperatorVector, operator_data_vec2::OperatorVectorArray)
+    operator_data_vec1 = operator_recast(operator_vec1)
+    return get_rmse_in_time(operator_data_vec1, operator_data_vec2)
+end
+
+function get_rmse_in_time(operator_vec1::OperatorVector, operator_vec2::OperatorVector)
+    operator_data_vec1 = operator_recast(operator_vec1)
+    operator_data_vec2 = operator_recast(operator_vec2)
+    return get_rmse_in_time(operator_data_vec1, operator_data_vec2)
 end
 
 #######

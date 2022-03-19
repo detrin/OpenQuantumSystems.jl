@@ -48,4 +48,91 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     _, W_t_2 = Evolution_SS_exact(W0, tspan, agg)
     rmse = get_rmse_in_time(W_t_1, W_t_2)
     @test rmse == 0.
+
+    _, W_t_3 = LvN_SS(
+        W0,
+        tspan,
+        agg;
+        reltol = 1e-10,
+        abstol = 1e-10,
+        alg = OrdinaryDiffEq.Tsit5(),
+    )
+    rmse = get_rmse_in_time(W_t_3, W_t_3)
+    @test rmse == 0.
+    rmse = get_rmse_in_time(W_t_1, W_t_3)
+    @test rmse < 1e-9
+    rmse = get_rmse_in_time(W_t_3, W_t_1)
+    @test rmse < 1e-9
+
+
+    tspan = get_tspan(0., 0.02, 100)
+    W0, rho0, W0_bath = ultrafast_laser_excitation(10., [0.0, 0.3, 0.7], agg)
+    _, rho_t_1 = Evolution_sS_exact(W0, tspan, agg)
+    _, rho_t_2 = Evolution_sS_exact(W0, tspan, agg)
+    score = compare_rho(rho_t_1, rho_t_2)
+    @test sum(score) == 0.
+
+    _, rho_t_3 = LvN_sS(
+        W0,
+        tspan,
+        agg;
+        reltol = 1e-12,
+        abstol = 1e-12,
+        alg = OrdinaryDiffEq.Tsit5(),
+    )
+    score = compare_rho(rho_t_3, rho_t_3)
+    @test sum(score) == 0.
+
+    score = compare_rho(rho_t_1, rho_t_3)
+    @test sum(score) < 1e-9
+
+    score = compare_rho(rho_t_3, rho_t_1)
+    @test sum(score) < 1e-9
+
+    tspan = get_tspan(0., 0.02, 100)
+    _, rho_t_1 = Evolution_sS_exact(W0, tspan, agg)
+    _, rho_t_2 = LvN_sS(
+        W0,
+        tspan,
+        agg;
+        reltol = 1e-12,
+        abstol = 1e-12,
+        alg = OrdinaryDiffEq.Tsit5(),
+    )
+
+    score_ref = compare_rho(rho_t_2, rho_t_2)
+    score_t = compare_rho_in_time(rho_t_2, rho_t_2; smooth_const=1e-9)
+    N, M, K = size(rho_t_1)
+    score = zeros(Float64, M, K)
+    for t_i in 1:N
+        score[:, :] += score_t[t_i, :, :]
+    end
+    @test D(score_ref, score) == 0.
+
+    score_ref = compare_rho(rho_t_1, rho_t_2)
+    score_t = compare_rho_in_time(rho_t_1, rho_t_2; smooth_const=1e-9)
+    N, M, K = size(rho_t_1)
+    score = zeros(Float64, M, K)
+    for t_i in 1:N
+        score[:, :] += score_t[t_i, :, :]
+    end
+    @test D(score_ref, score) < 1e-8
+
+    score_ref = compare_rho(rho_t_2, rho_t_1)
+    score_t = compare_rho_in_time(rho_t_2, rho_t_1; smooth_const=1e-9)
+    N, M, K = size(rho_t_1)
+    score = zeros(Float64, M, K)
+    for t_i in 1:N
+        score[:, :] += score_t[t_i, :, :]
+    end
+    @test D(score_ref, score) < 1e-8
+
+    score_ref = compare_rho(rho_t_1, rho_t_1)
+    score_t = compare_rho_in_time(rho_t_1, rho_t_1; smooth_const=1e-9)
+    N, M, K = size(rho_t_1)
+    score = zeros(Float64, M, K)
+    for t_i in 1:N
+        score[:, :] += score_t[t_i, :, :]
+    end
+    @test D(score_ref, score) == 0.
 end
