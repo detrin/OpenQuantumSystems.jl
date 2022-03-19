@@ -222,5 +222,53 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     @test 1e-12 > D(ref, U_part)
 
 
-    Evolution_SI_exact()
+    mode1 = Mode(0.2, 1.0)
+    mode2 = Mode(0.3, 2.0)
+    Energy = [0.0, 200.0]
+    mol1 = Molecule([mode1], 2, [2.0, 200.0])
+    mol2 = Molecule([mode2], 2, [3.0, 300.0])
+    aggCore = AggregateCore([mol1, mol2])
+    aggCore.coupling[2, 3] = 50
+    aggCore.coupling[3, 2] = 50
+    agg = setupAggregate(aggCore)
+    aggTools = agg.tools
+    aggOperators = agg.operators
+
+    Ham_I = agg.operators.Ham_I
+    Ham_0 = agg.operators.Ham_0
+    Ham = agg.operators.Ham
+
+    basis = agg.tools.basis
+    indicesLen = agg.tools.bSize
+    indices = agg.tools.indices
+    indicesMap = agg.tools.indicesMap
+    FCFact = agg.tools.FCfactors
+    FCProd = agg.tools.FCproduct
+
+    W0 = [0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.25000143755694526 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.2499997124870238 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.2500002875090083 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.24999856244702248]
+    W0 = DenseOperator(basis, basis, complex(W0))
+
+    t = 1.
+    tspan = get_tspan(0., t, 1)
+    _, W_int_t_ = Evolution_SI_exact(W0, tspan, agg)
+    U_op = evolutionOperator(Ham, t)
+    W = U_op * W0 * U_op'
+    U_0_op = evolutionOperator(Ham_0, t)
+    W = U_0_op' * W * U_0_op
+    W_int_t_ref = W.data
+    @test 1e-12 > D(W_int_t_ref, W_int_t_[2, :, :])
+
+    _, rho_int_t_ = Evolution_sI_exact(W0, tspan, agg)
+    rho_int_t_ref = trace_bath(W_int_t_ref, agg.core, agg.tools)
+    @test 1e-12 > D(rho_int_t_ref, rho_int_t_[2, :, :])
+
+    _, W_t_ = Evolution_SS_exact(W0, tspan, agg)
+    U_op = evolutionOperator(Ham, t)
+    W = U_op * W0 * U_op'
+    W_t_ref = W.data
+    @test 1e-12 > D(W_t_ref, W_t_[2, :, :])
+
+    _, rho_t_ = Evolution_sS_exact(W0, tspan, agg)
+    rho_t_ref = trace_bath(W_t_ref, agg.core, agg.tools)
+    @test 1e-12 > D(rho_t_ref, rho_t_[2, :, :])
 end

@@ -23,7 +23,7 @@ function get_rmse_in_time(operator_vec1::OperatorVector, operator_data_vec2::Arr
 end
 
 function get_rmse_in_time(operator_data_vec1::Array, operator_data_vec2::Array)
-    t_count = length(operator_vec1)
+    t_count, M, K = size(operator_data_vec1)
     c = 0
     for t_i in 1:t_count
         c += norm(operator_data_vec1[t_i, :, :] - operator_data_vec2[t_i, :, :])^2
