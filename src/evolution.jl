@@ -147,11 +147,11 @@ function evolutionOperatorIterator end
         U_diagonal = map(lambda -> exp(-1im * lambda * tspan[1]), Ham_lambda)
         U = S * diagm(U_diagonal) * inv(S)
         U_op = DenseOperator(basis, basis, U)
-    elseif !approximate
-        U_op = evolutionOperator(Hamiltonian, tspan[1])
-    else
+    elseif approximate
         U_op = evolutionOperator(Hamiltonian, tspan[1])
         U_step = evolutionOperator(Hamiltonian, t_step)
+    else
+        U_op = evolutionOperator(Hamiltonian, tspan[1])
     end
     @yield U_op
 
@@ -160,10 +160,10 @@ function evolutionOperatorIterator end
         if diagonalize
             U_diagonal .= map(lambda -> exp(-1im * lambda * t), Ham_lambda)
             U_op.data .= S * diagm(U_diagonal) * inv(S)
-        elseif !approximate
-            U_op = evolutionOperator(Hamiltonian, t)
-        else
+        elseif approximate
             U_op = U_step * U_op
+        else
+            U_op = evolutionOperator(Hamiltonian, t)
         end
         @yield U_op
     end
@@ -199,11 +199,11 @@ function evolutionSuperOperatorIterator end
         U_diagonal = map(lambda -> exp(-1im * lambda * tspan[1]), Ham_lambda)
         U = S * diagm(U_diagonal) * Sinv
         U_op = DenseOperator(basis, basis, U)
-    elseif !approximate
-        U_op = evolutionOperator(Hamiltonian, tspan[1])
-    else
+    elseif approximate
         U_op = evolutionOperator(Hamiltonian, tspan[1])
         U_step = evolutionOperator(Hamiltonian, t_step)
+    else
+        U_op = evolutionOperator(Hamiltonian, tspan[1])
     end
     U_supop = spre(U_op) * spost(U_op')
     @yield U_supop
@@ -214,11 +214,11 @@ function evolutionSuperOperatorIterator end
             U_diagonal .= map(lambda -> exp(-1im * lambda * tspan[t_i]), Ham_lambda)
             U_op.data .= S * diagm(U_diagonal) * Sinv
             U_supop.data .= (spre(U_op)).data * (spost(U_op')).data
-        elseif !approximate
-            U_op = evolutionOperator(Hamiltonian, t)
+        elseif approximate
+            U_op = U_step * U_op
             U_supop = spre(U_op) * spost(U_op')
         else
-            U_op = U_step * U_op
+            U_op = evolutionOperator(Hamiltonian, t)
             U_supop = spre(U_op) * spost(U_op')
         end
         @yield U_supop
