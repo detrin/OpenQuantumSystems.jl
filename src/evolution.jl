@@ -585,6 +585,7 @@ function evolution_approximate(
     return tspan, rho_t
 end
 
+#=
 function evolutionOperatorExp(Ham::Array, t::AbstractFloat, n::Integer)::Array
     # c = ones(size(Ham))
     c = one(Ham)
@@ -609,6 +610,7 @@ function evolutionOperatorExp(
     data = evolutionOperatorExp(Ham.data, t, n)
     DenseOperator(Ham.basis_l, Ham.basis_r, data)
 end
+=#
 
 function evolution_el_part(
     Ham::Array,
