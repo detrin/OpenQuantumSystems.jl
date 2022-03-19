@@ -48,7 +48,7 @@ function getAggHamSystemSmall(
     Ham_sys[:, :] += aggCore.coupling[:, :]
     if !groundEnergy
         E0 = Ham_sys[1, 1]
-        for i = 1:aggTool.bSystemSize
+        for i = 1:aggTools.bSystemSize
             Ham_sys[i, i] -= E0
         end
     end
