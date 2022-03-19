@@ -1,6 +1,6 @@
 
 const OperatorVector = Vector{Operator{GenericBasis{Vector{Int64}}, GenericBasis{Vector{Int64}}, Matrix{ComplexF64}}}
-# const OperatorVectorArray = Array{ComplexF64, 3}
+const OperatorVectorArray = Array{ComplexF64, 3}
 
 function operator_recast(rho::OperatorVector)::Array
     N = length(rho)
