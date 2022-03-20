@@ -263,7 +263,9 @@ export
     normalize_bath,
     QME_sI_iterative_1,
     W_1_bath_2,
+    QME_sI_iterative_2,
     W_1_bath_3,
+    QME_sI_iterative_3,
 
     # postprocessing.jl
     OperatorVector,
