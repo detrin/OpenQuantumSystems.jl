@@ -252,6 +252,14 @@ export
     QME_sI_ansatz_upart1,
     QME_sI_ansatz_upart2,
 
+    # rate_constant.jl
+    M_aabb,
+    K_const_ab,
+    K_ab,
+    W_1_bath_core,
+    W_1_bath,
+    normalize_bath,
+
     # postprocessing.jl
     OperatorVector,
     OperatorVectorArray,
@@ -284,6 +292,7 @@ include("master_exact.jl")
 include("trace.jl")
 include("initial_state.jl")
 include("memory_kernel.jl")
+include("rate_constant.jl")
 include("master_ansatz.jl")
 include("postprocessing.jl")
 include("scoring.jl")
