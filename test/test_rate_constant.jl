@@ -52,9 +52,9 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     t = 1.
     ref = ComplexF64[-0.0 - 0.0im -0.0 - 0.0im -0.0 - 0.0im; -0.0 - 0.0im -0.18273938225938535 - 1.306021685868511e-17im 0.21577199754910487 + 1.4616246752231517e-17im; -0.0 - 0.0im 0.15819521969718034 + 9.680980877691745e-18im -0.19414424150455264 - 8.892877261615866e-18im]
     K_ab_ = K_ab(t, p, tmp1, tmp2)
-    @test D(ref, K_ab_) < 1e-14
+    @test D(ref, K_ab_) < 1e-13
 
     K_ab_ = K_ab(t, W0, W0_bath, agg)
-    @test D(ref, K_ab_) < 1e-14
+    @test D(ref, K_ab_) < 1e-13
 
 end
