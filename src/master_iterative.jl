@@ -1,6 +1,76 @@
 using OpenQuantumSystems
 import QuantumOpticsBase, LinearAlgebra, OrdinaryDiffEq, QuadGK, DelayDiffEq
 
+
+function W_1_bath_core(t, s, p, tmp1, tmp2; K_rtol=1e-12, K_atol=1e-12)
+    aggCore, aggTools, aggOperators, W0, W0_bath, _ = p
+    
+    # W_1_bath = deepcopy(W0_bath.data)
+    elLen = aggCore.molCount+1
+    indicesMap = aggTools.indicesMap
+    Ham_0 = aggOperators.Ham_0
+    Ham = aggOperators.Ham
+    
+    W_1_bath = zeros(ComplexF64, aggTools.bSize, aggTools.bSize)
+    K_ab_s = K_ab(s, p, tmp1, tmp2; rtol=K_rtol, atol=K_atol)
+    for b=1:elLen
+        U_bb_ = evolution_el_part(Ham.data, s, b, b, indicesMap)
+        U_0_bb = evolution_el_part(Ham_0.data, s, b, b, indicesMap)
+        U_bb = U_0_bb * U_bb_
+        for a=1:elLen
+            a1 = indicesMap[a][1]
+            a2 = indicesMap[a][end]
+            b1 = indicesMap[b][1]
+            b2 = indicesMap[b][end]
+            U_aa_ = evolution_el_part(Ham.data, t-s, a, a, indicesMap)
+            U_0_aa = evolution_el_part(Ham_0.data, t-s, a, a, indicesMap)
+            U_aa = U_0_aa * U_aa_
+            U_ = U_aa * U_bb
+            W_1_bath[a1:a2, a1:a2] = W_1_bath[a1:a2, a1:a2] + 
+                K_ab_s[a, b] * U_ * W0_bath.data[b1:b2, b1:b2] * adjoint(U_)
+        end
+    end
+    return W_1_bath
+end
+
+function W_1_bath(t, p, tmp1, tmp2; W_1_rtol=1e-12, W_1_atol=1e-12, K_rtol=1e-12, K_atol=1e-12)
+    aggCore, aggTools, aggOperators, W0, W0_bath, _ = p
+    
+    W_1_diff, err = QuadGK.quadgk(
+        s -> W_1_bath_core(t, s, p, tmp1, tmp2; K_rtol=K_rtol, K_atol=K_atol),
+        0,
+        t,
+        rtol = W_1_rtol,
+        atol = W_1_atol,
+    )
+    
+    W_1_bath = deepcopy(W0_bath.data) + W_1_diff
+    return W_1_bath
+end
+
+function W_1_bath(t, W0, W0_bath, agg::Aggregate; W_1_rtol=1e-12, W_1_atol=1e-12, K_rtol=1e-12, K_atol=1e-12)
+    tmp1 = copy(W0.data)
+    tmp2 = copy(W0.data)
+    p = (agg.core, agg.tools, agg.operators, W0, W0_bath, eltype(W0))
+    return W_1_bath(t, p, tmp1, tmp2; W_1_rtol=W_1_rtol, W_1_atol=W_1_atol, K_rtol=K_rtol, K_atol=K_atol)
+end
+
+function normalize_bath(W_bath, aggCore, aggTools)
+    elLen = aggCore.molCount+1
+    indicesMap = aggTools.indicesMap
+    W_bath_tr = trace_bath(W_bath, aggCore, aggTools)
+    for b=1:elLen
+        for a=1:elLen
+            a1 = indicesMap[a][1]
+            a2 = indicesMap[a][end]
+            b1 = indicesMap[b][1]
+            b2 = indicesMap[b][end]
+            W_bath[a1:a2, b1:b2] /= W_bath_tr[a, b]
+        end
+    end
+    return W_bath
+end
+
 function QME_sI_ansatz_const(
     W0::T,
     tspan::Array,

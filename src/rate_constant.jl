@@ -48,15 +48,15 @@ function K_const_ab(t, p, tmp1, tmp2, Ham_II_t)
     return K_const_ab_
 end
 
-function K_ab(t, p, tmp1, tmp2)
+function K_ab(t, p, tmp1, tmp2; rtol=1e-12, atol=1e-12)
     aggCore, aggTools, aggOperators, W0, W0_bath, elementtype = p
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     M_aabb_integrated, err = QuadGK.quadgk(
         s -> M_aabb(t, s, p, tmp1, tmp2, Ham_II_t),
         0,
         t,
-        rtol = 1e-12,
-        atol = 1e-12,
+        rtol = rtol,
+        atol = atol,
     )
     # K_const_ab_ = K_const_ab(t, p, tmp1, tmp2, Ham_II_t)
     # K_ab_ = -elementtype(im) * K_const_ab_ - M_aabb_integrated
@@ -64,62 +64,9 @@ function K_ab(t, p, tmp1, tmp2)
     return K_ab_
 end
 
-function W_1_bath_core(t, s, p, tmp1, tmp2)
-    aggCore, aggTools, aggOperators, W0, W0_bath, _ = p
-    
-    # W_1_bath = deepcopy(W0_bath.data)
-    indicesMap = aggTools.indicesMap
-    Ham = aggOperators.Ham
-    
-    W_1_bath = zeros(ComplexF64, aggTools.bSize, aggTools.bSize)
-    K_ab_s = K_ab(s, p, tmp1, tmp2)
-    for b=1:elLen
-        U_bb_ = evolution_el_part(Ham.data, s, b, b, indicesMap)
-        U_0_bb = evolution_el_part(Ham_0.data, s, b, b, indicesMap)
-        U_bb = U_0_bb * U_bb_
-        for a=1:elLen
-            a1 = indicesMap[a][1]
-            a2 = indicesMap[a][end]
-            b1 = indicesMap[b][1]
-            b2 = indicesMap[b][end]
-            U_aa_ = evolution_el_part(Ham.data, t-s, a, a, indicesMap)
-            U_0_aa = evolution_el_part(Ham_0.data, t-s, a, a, indicesMap)
-            U_aa = U_0_aa * U_aa_
-            U_ = U_aa * U_bb
-            W_1_bath[a1:a2, a1:a2] = W_1_bath[a1:a2, a1:a2] + 
-                K_ab_s[a, b] * U_ * W0_bath.data[b1:b2, b1:b2] * adjoint(U_)
-        end
-    end
-    return W_1_bath
-end
-
-function W_1_bath(t, p, tmp1, tmp2)
-    aggCore, aggTools, aggOperators, W0, W0_bath, _ = p
-    
-    W_1_diff, err = QuadGK.quadgk(
-        s -> W_1_bath_core(t, s, p, tmp1, tmp2),
-        0,
-        t,
-        rtol = 1e-12,
-        atol = 1e-12,
-    )
-    
-    W_1_bath = deepcopy(W0_bath.data) + W_1_diff
-    return W_1_bath
-end
-
-function normalize_bath(W_bath, aggCore, aggTools)
-    elLen = aggCore.molCount+1
-    indicesMap = aggTools.indicesMap
-    W_bath_tr = trace_bath(W_bath, agg.core, agg.tools)
-    for b=1:elLen
-        for a=1:elLen
-            a1 = indicesMap[a][1]
-            a2 = indicesMap[a][end]
-            b1 = indicesMap[b][1]
-            b2 = indicesMap[b][end]
-            W_bath[a1:a2, b1:b2] /= W_bath[a, b]
-        end
-    end
-    return W_bath
+function K_ab(t, W0, W0_bath, agg::Aggregate; rtol=1e-12, atol=1e-12)
+    tmp1 = copy(W0.data)
+    tmp2 = copy(W0.data)
+    p = (agg.core, agg.tools, agg.operators, W0, W0_bath, eltype(W0))
+    return K_ab(t, p, tmp1, tmp2; rtol=rtol, atol=atol)
 end
