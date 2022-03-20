@@ -89,10 +89,10 @@ function QME_sI_iterative_1(
     abstol::AbstractFloat = 1.0e-12,
     int_reltol::AbstractFloat = 1.0e-4,
     int_abstol::AbstractFloat = 1.0e-4,
-    W_1_rtol=1e-12, 
-    W_1_atol=1e-12, 
-    K_rtol=1e-12, 
-    K_atol=1e-12,
+    W_1_rtol::AbstractFloat = 1e-12, 
+    W_1_atol::AbstractFloat = 1e-12, 
+    K_rtol::AbstractFloat = 1e-12, 
+    K_atol::AbstractFloat = 1e-12,
     alg::Any = DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()),
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
@@ -111,7 +111,7 @@ function QME_sI_iterative_1(
     W_1_bath_t = []
     for t_i=1:length(tspan_)
         t = tspan_[t_i]
-        W_1_bath_ = W_1_bath_1(t, p, tmp1, tmp2; W_1_rtol=1e-12, W_1_atol=1e-12, K_rtol=1e-12, K_atol=1e-12)
+        W_1_bath_ = W_1_bath_1(t, p, tmp1, tmp2; W_1_rtol=W_1_rtol, W_1_atol=W_1_atol, K_rtol=K_rtol, K_atol=K_atol)
         push!(W_1_bath_t, W_1_bath_)
     end
     W_1_bath_itp = Interpolations.interpolate(W_1_bath_t, Interpolations.BSpline(Interpolations.Linear()))
@@ -191,7 +191,6 @@ function kernel_sI_iterative(t, s, h, p, tmp1, tmp2, Ham_II_t)
     Ham_I = aggOperators.Ham_I
     Ham_II_s = getInteractionHamIPicture(Ham_0, Ham_I, s)
 
-    U_0_op = evolutionOperator(Ham_0, s)
     W0_int_s = interpolate_with_tspan(W_1_bath_itp, tspan, s)
     tmp1[:, :] = ad(rho, W0_int_s, aggCore, aggTools)
     
@@ -256,6 +255,75 @@ function W_1_bath_2(t, W0, W0_bath, agg::Aggregate; W_1_rtol=1e-12, W_1_atol=1e-
     return W_1_bath_2(t, p, tmp1, tmp2; W_1_rtol=W_1_rtol, W_1_atol=W_1_atol, K_rtol=K_rtol, K_atol=K_atol)
 end
 
+function QME_sI_iterative_2(
+    W0::T,
+    tspan::Array,
+    agg::Aggregate;
+    w_1_interpolate_count = 100,
+    reltol::AbstractFloat = 1.0e-12,
+    abstol::AbstractFloat = 1.0e-12,
+    int_reltol::AbstractFloat = 1.0e-4,
+    int_abstol::AbstractFloat = 1.0e-4,
+    W_1_rtol::AbstractFloat = 1e-12, 
+    W_1_atol::AbstractFloat = 1e-12, 
+    K_rtol::AbstractFloat = 1e-12, 
+    K_atol::AbstractFloat = 1e-12,
+    alg::Any = DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()),
+    fout::Union{Function,Nothing} = nothing,
+    kwargs...,
+) where {B<:Basis,T<:Operator{B,B}}
+    history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
+    rho0 = trace_bath(W0, agg.core, agg.tools)
+    W0_bath = get_rho_bath(W0, agg.core, agg.tools)
+
+    tmp1 = copy(W0.data)
+    tmp2 = copy(W0.data)
+    
+    # Calculate and interpolate W_1_bath
+    p = (agg.core, agg.tools, agg.operators, W0, W0_bath, eltype(W0))
+    tspan_ = get_tspan(tspan[1], tspan[end], w_1_interpolate_count) 
+    elLen = agg.core.molCount+1
+    W_1_bath_t = []
+    for t_i=1:length(tspan_)
+        t = tspan_[t_i]
+        W_1_bath_ = W_1_bath_2(t, p, tmp1, tmp2; W_1_rtol=W_1_rtol, W_1_atol=W_1_atol, K_rtol=K_rtol, K_atol=K_atol)
+        push!(W_1_bath_t, W_1_bath_)
+    end
+    W_1_bath_itp = Interpolations.interpolate(W_1_bath_t, Interpolations.BSpline(Interpolations.Linear()))
+    
+    p = (agg.core, agg.tools, agg.operators, W0, W0_bath, W_1_bath_itp, tspan_, eltype(W0))
+    
+    dmaster_(t, rho, drho, history_fun, p) = dQME_sI_iterative(
+        t,
+        rho,
+        drho,
+        history_fun,
+        tmp1,
+        tmp2,
+        p,
+        int_reltol,
+        int_abstol,
+    )
+    tspan_ = convert(Vector{float(eltype(tspan))}, tspan)
+    x0 = rho0.data
+    state = T(rho0.basis_l, rho0.basis_r, rho0.data)
+    dstate = T(rho0.basis_l, rho0.basis_r, rho0.data)
+    OpenQuantumSystems.integrate_delayed(
+        tspan_,
+        dmaster_,
+        history_fun,
+        x0,
+        state,
+        dstate,
+        fout;
+        p = p,
+        reltol = reltol,
+        abstol = abstol,
+        alg = alg,
+        kwargs...,
+    )
+end
+
 ###
 
 function W_1_bath_core_3(t, s, p, tmp1, tmp2; K_rtol=1e-12, K_atol=1e-12)
@@ -292,6 +360,8 @@ end
 function W_1_bath_3(t, p, tmp1, tmp2; W_1_rtol=1e-12, W_1_atol=1e-12, K_rtol=1e-12, K_atol=1e-12)
     aggCore, aggTools, aggOperators, W0, W0_bath, _ = p
     
+    Ham_0 = aggOperators.Ham_0
+    
     W_1_diff, err = QuadGK.quadgk(
         s -> W_1_bath_core_3(t, s, p, tmp1, tmp2; K_rtol=K_rtol, K_atol=K_atol),
         0,
@@ -299,8 +369,10 @@ function W_1_bath_3(t, p, tmp1, tmp2; W_1_rtol=1e-12, W_1_atol=1e-12, K_rtol=1e-
         rtol = W_1_rtol,
         atol = W_1_atol,
     )
-    
-    W_1_bath = deepcopy(W0_bath.data) + W_1_diff
+
+    U_0_op = evolutionOperator(Ham_0, t)
+    W_int_t = U_0_op' * W0_bath * U_0_op
+    W_1_bath = W_int_t.data + W_1_diff
     return W_1_bath
 end
 
@@ -309,4 +381,73 @@ function W_1_bath_3(t, W0, W0_bath, agg::Aggregate; W_1_rtol=1e-12, W_1_atol=1e-
     tmp2 = copy(W0.data)
     p = (agg.core, agg.tools, agg.operators, W0, W0_bath, eltype(W0))
     return W_1_bath_3(t, p, tmp1, tmp2; W_1_rtol=W_1_rtol, W_1_atol=W_1_atol, K_rtol=K_rtol, K_atol=K_atol)
+end
+
+function QME_sI_iterative_3(
+    W0::T,
+    tspan::Array,
+    agg::Aggregate;
+    w_1_interpolate_count = 100,
+    reltol::AbstractFloat = 1.0e-12,
+    abstol::AbstractFloat = 1.0e-12,
+    int_reltol::AbstractFloat = 1.0e-4,
+    int_abstol::AbstractFloat = 1.0e-4,
+    W_1_rtol::AbstractFloat = 1e-12, 
+    W_1_atol::AbstractFloat = 1e-12, 
+    K_rtol::AbstractFloat = 1e-12, 
+    K_atol::AbstractFloat = 1e-12,
+    alg::Any = DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()),
+    fout::Union{Function,Nothing} = nothing,
+    kwargs...,
+) where {B<:Basis,T<:Operator{B,B}}
+    history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
+    rho0 = trace_bath(W0, agg.core, agg.tools)
+    W0_bath = get_rho_bath(W0, agg.core, agg.tools)
+
+    tmp1 = copy(W0.data)
+    tmp2 = copy(W0.data)
+    
+    # Calculate and interpolate W_1_bath
+    p = (agg.core, agg.tools, agg.operators, W0, W0_bath, eltype(W0))
+    tspan_ = get_tspan(tspan[1], tspan[end], w_1_interpolate_count) 
+    elLen = agg.core.molCount+1
+    W_1_bath_t = []
+    for t_i=1:length(tspan_)
+        t = tspan_[t_i]
+        W_1_bath_ = W_1_bath_3(t, p, tmp1, tmp2; W_1_rtol=W_1_rtol, W_1_atol=W_1_atol, K_rtol=K_rtol, K_atol=K_atol)
+        push!(W_1_bath_t, W_1_bath_)
+    end
+    W_1_bath_itp = Interpolations.interpolate(W_1_bath_t, Interpolations.BSpline(Interpolations.Linear()))
+    
+    p = (agg.core, agg.tools, agg.operators, W0, W0_bath, W_1_bath_itp, tspan_, eltype(W0))
+    
+    dmaster_(t, rho, drho, history_fun, p) = dQME_sI_iterative(
+        t,
+        rho,
+        drho,
+        history_fun,
+        tmp1,
+        tmp2,
+        p,
+        int_reltol,
+        int_abstol,
+    )
+    tspan_ = convert(Vector{float(eltype(tspan))}, tspan)
+    x0 = rho0.data
+    state = T(rho0.basis_l, rho0.basis_r, rho0.data)
+    dstate = T(rho0.basis_l, rho0.basis_r, rho0.data)
+    OpenQuantumSystems.integrate_delayed(
+        tspan_,
+        dmaster_,
+        history_fun,
+        x0,
+        state,
+        dstate,
+        fout;
+        p = p,
+        reltol = reltol,
+        abstol = abstol,
+        alg = alg,
+        kwargs...,
+    )
 end
