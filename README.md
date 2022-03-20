@@ -27,11 +27,13 @@ for bug fixes, new features, optimisation or unit tests suggest it straight away
 or create a pull request.
 
 ### Motivation
+
 This package is a backbone for calculations for my master thesis supervised by [doc. Tomáš Mančal](http://www.mancal.cz/).
 
 ### Roadmap
 
 What is OpenQuantumSystems.jl capable of right now?
+
 - It only supports systems with a finite basis.
 - Calculate Hamiltonian for Aggregates of molecules. Molecules have system Hamiltonian that consists only of relevant degrees of freedom (electronic basis) and bath degrees of freedom. Bath consists of LHOs with shifted potentials for excited local electronic states.
 - Trace over bath degrees of freedom using Franck-Condon Factors and reduced density matrix.
@@ -43,17 +45,19 @@ What is OpenQuantumSystems.jl capable of right now?
 - OQS can also prepare the initial condition for density matrix as a laser-excited pulse.
 - It can evaluate the remaining part of the bath. The majority of my master thesis proposes various kinds of ansatzes that aim to find a closed-form of QME with RDM.
 - Scoring of obtained RDM in time in comparison to another RDM.
-- Calculate memory kernel as superoperator. 
+- Calculate memory kernel as superoperator.
 
 What can we expect in the near future?
+
 - Iterative approach for bath part of the reduced density matrix.
 - Calculation of rate constants from dynamics and memory kernel.
 - Better documentation with examples of how to use this package.
 - QME with iterative correction of bath part.
 - Calculation of dipoles for molecules given coordinates.
 - Implementation of Foerster and modified Redfield theories of excitation energy transfer for finite systems (and perhaps special infinite cases).
-  
+
 What would be nice to have?
+
 - Decomposition of mixed states into a linear combination of pure states using linear programming.
 - Loading Hamiltonian and data storage for aggregate.
 - GPU support for Schrodinger equation and possibly state decomposition.
@@ -76,9 +80,11 @@ Develop
 [![codecov](https://codecov.io/gh/detrin/OpenQuantumSystems.jl/branch/devel/graph/badge.svg)](https://app.codecov.io/gh/detrin/OpenQuantumSystems.jl/branch/devel)
 
 ### Testing
+
 You can use `make.bat` or `make` file for testing, but it will install all the dependencies before executing tests. I advise using jupyter notebook `src/local_test.ipynb` with julia kernel for tests. Package `Revise.jl` will load all the functions and by using `include("src/test_file.jl")` you can quickly debug and add new tests.
 
 ### Developing
+
 Please use formatting in `make.bat` or `make` file. I suggest using `Revise.jl` with jupyter notebook in `src/local.ipynb` for adding new features. It will spare you of the painful precompilation time.
 
 ### Credit
