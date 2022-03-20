@@ -252,7 +252,8 @@ export
 
     # master_ansatz.jl
     QME_sI_ansatz_test,
-    QME_sI_ansatz_const,
+    QME_sI_ansatz_const_1,
+    QME_sI_ansatz_const_2,
     QME_sI_ansatz_linear,
     QME_sI_ansatz_linear2,
     QME_sI_ansatz_upart1,
