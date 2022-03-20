@@ -1,11 +1,10 @@
 # OpenQuantumSystems.jl
 
-[![Join the chat at https://gitter.im/OpenQuantumSystems-jl/community](https://badges.gitter.im/OpenQuantumSystems-jl/community.svg)](https://gitter.im/OpenQuantumSystems-jl/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://detrin.github.io/OpenQuantumSystems.jl/dev/)
 [![CI](https://github.com/detrin/OpenQuantumSystems.jl/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/detrin/OpenQuantumSystems.jl/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/detrin/OpenQuantumSystems.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/detrin/OpenQuantumSystems.jl)
 
-**OpenQuantumSystems.jl** is a numerical framework written in [Julia] that makes it easy to simulate various kinds of open quantum systems with main focus on quantum biology. It is inspired by the
+**OpenQuantumSystems.jl** is a numerical framework written in Julia that makes it easy to simulate various kinds of open quantum systems with main focus on quantum biology in finite basis. It is inspired by the
 [quantarhei](https://github.com/tmancal74/quantarhei) and
 [QuantumOptics.jl](https://github.com/qojulia/QuantumOptics.jl).
 
@@ -27,25 +26,40 @@ away. Also, contributions of any kind are always welcome! If you have any ideas
 for bug fixes, new features, optimisation or unit tests suggest it straight away
 or create a pull request.
 
+### Motivation
+This package is a backbone for calculations for my master thesis supervised by [doc. Tomáš Mančal](http://www.mancal.cz/).
+
 ### Roadmap
 
-1. - Efficient representation of operators given Hamiltonians in different
-     Hilbert bases. ✓
-   - Vibrational basis, spin basis, exciton basis. ✓
-   - Calculation of Franck-Condon factors for multidimensional linear harmonic
-     oscilators. ✓
-2. - Schrodinger equation for solving dynamics. ✓
-   - Solving dynamics for mixed states using exponentials, Liouville equation,
-     QME. ✓
-   - Aggregate with yml preferences.
-   - Decomposition of mixed states into a linear combination of pure states
-     using linear programming.
-   - Loading Hamiltonian and data storage.
-3. Implementing Foerster and modified Redfield theories of excitation energy
-   transfer.
-4. - GPU support for Schrodinger equation and possibly state decomposition.
-   - Anharmonic oscillators.
-   - Double excited states.
+What is OpenQuantumSystems.jl capable of right now?
+- It only supports systems with a finite basis.
+- Calculate Hamiltonian for Aggregates of molecules. Molecules have system Hamiltonian that consists only of relevant degrees of freedom (electronic basis) and bath degrees of freedom. Bath consists of LHOs with shifted potentials for excited local electronic states.
+- Trace over bath degrees of freedom using Franck-Condon Factors and reduced density matrix.
+- It can calculate dynamics for aggregate named as follows
+  - Exact dynamics (calculate U(t) operator)
+  - Schrodinger dynamics
+  - Liuville-von Neumann dynamics
+  - Quantum Master Equation dynamics
+- OQS can also prepare the initial condition for density matrix as a laser-excited pulse.
+- It can evaluate the remaining part of the bath. The majority of my master thesis proposes various kinds of ansatzes that aim to find a closed-form of QME with RDM.
+- Scoring of obtained RDM in time in comparison to another RDM.
+- Calculate memory kernel as superoperator. 
+
+What can we expect in the near future?
+- Iterative approach for bath part of the reduced density matrix.
+- Calculation of rate constants from dynamics and memory kernel.
+- Better documentation with examples of how to use this package.
+- QME with iterative correction of bath part.
+- Calculation of dipoles for molecules given coordinates.
+- Implementation of Foerster and modified Redfield theories of excitation energy transfer for finite systems (and perhaps special infinite cases).
+  
+What would be nice to have?
+- Decomposition of mixed states into a linear combination of pure states using linear programming.
+- Loading Hamiltonian and data storage for aggregate.
+- GPU support for Schrodinger equation and possibly state decomposition.
+- Anharmonic oscillators.
+- Double excited states.
+- Interface with quantarhei, or creating an interface in quantarhei package.
 
 ### Branches status
 
@@ -60,6 +74,12 @@ Develop
 
 [![CI-short](https://github.com/detrin/OpenQuantumSystems.jl/actions/workflows/ci-short.yml/badge.svg?branch=devel)](https://github.com/detrin/OpenQuantumSystems.jl/actions/workflows/ci-short.yml)
 [![codecov](https://codecov.io/gh/detrin/OpenQuantumSystems.jl/branch/devel/graph/badge.svg)](https://app.codecov.io/gh/detrin/OpenQuantumSystems.jl/branch/devel)
+
+### Testing
+You can use `make.bat` or `make` file for testing, but it will install all the dependencies before executing tests. I advise using jupyter notebook `src/local_test.ipynb` with julia kernel for tests. Package `Revise.jl` will load all the functions and by using `include("src/test_file.jl")` you can quickly debug and add new tests.
+
+### Developing
+Please use formatting in `make.bat` or `make` file. I suggest using `Revise.jl` with jupyter notebook in `src/local.ipynb` for adding new features. It will spare you of the painful precompilation time.
 
 ### Credit
 
