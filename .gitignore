@@ -26,3 +26,5 @@ Manifest.toml
 hamiltonian.csv
 test/hamiltonian.csv
 .vscode/
+# test/local_test.ipynb
+# test/test.ipynb
