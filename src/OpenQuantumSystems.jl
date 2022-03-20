@@ -259,8 +259,11 @@ export
     QME_sI_ansatz_upart2,
 
     # master_iterative
-    W_1_bath,
+    W_1_bath_1,
     normalize_bath,
+    QME_sI_iterative_1,
+    W_1_bath_2,
+    W_1_bath_3,
 
     # postprocessing.jl
     OperatorVector,
