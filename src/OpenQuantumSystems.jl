@@ -244,6 +244,12 @@ export
     MemoryKernel_4_traced,
     MemoryKernel_traced,
 
+    # rate_constant.jl
+    M_aabb,
+    K_const_ab,
+    K_ab,
+    normalize_bath,
+
     # master_ansatz.jl
     QME_sI_ansatz_test,
     QME_sI_ansatz_const,
@@ -252,11 +258,7 @@ export
     QME_sI_ansatz_upart1,
     QME_sI_ansatz_upart2,
 
-    # rate_constant.jl
-    M_aabb,
-    K_const_ab,
-    K_ab,
-    W_1_bath_core,
+    # master_iterative
     W_1_bath,
     normalize_bath,
 
@@ -294,6 +296,7 @@ include("initial_state.jl")
 include("memory_kernel.jl")
 include("rate_constant.jl")
 include("master_ansatz.jl")
+include("master_iterative.jl")
 include("postprocessing.jl")
 include("scoring.jl")
 
