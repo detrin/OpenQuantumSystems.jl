@@ -26,7 +26,7 @@ function Mode(;
     hr_factor = 0.02
 ) 
     # S = d / (2 d hbar)
-    shift = 2 * hr_factor * omega
+    shift = 2 * hr_factor
     return Mode(omega, shift)
 end
 
