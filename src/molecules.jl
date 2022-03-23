@@ -14,9 +14,20 @@ Stuct which purpose is to model vibrational LHO mode in [`Molecule`](@ref).
 struct Mode{T}
     omega::T
     shift::T
-    function Mode(omega::T, shift::T) where {T<:ComputableType}
+    function Mode{T}(omega::T, shift::T) where {T<:ComputableType}
         new{T}(omega, shift)
     end
+end
+
+Mode(omega::T, shift::T) where {T<:ComputableType} = Mode{T}(omega, shift) 
+
+function Mode(;
+    omega = 200.0,
+    hr_factor = 0.02
+) 
+    # S = d / (2 d hbar)
+    shift = 2 * hr_factor * omega
+    return Mode(omega, shift)
 end
 
 Base.:(==)(x::Mode, y::Mode) = x.omega == y.omega && x.shift == y.shift
