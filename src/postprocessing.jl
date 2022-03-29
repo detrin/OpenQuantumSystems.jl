@@ -89,3 +89,13 @@ function exciton_st_to_local_st(rho_exciton::OperatorVector, agg::Aggregate)
     rho_array = operator_recast(rho_exciton)
     return exciton_st_to_local_st(rho_array, agg)
 end
+
+###
+
+function tspan_cm_to_fs(tspan_cm)
+    c_const = 299792458.0
+    pi_const = 3.141592653589793
+    c = 2.0*pi_const*c_const*1e-13
+    tspan_fs = map((x) -> x / c, tspan_cm)
+    return tspan_fs 
+end
