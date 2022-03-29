@@ -1,4 +1,25 @@
 
+function convert_units(E::T; from = "1/cm", to="1/fs")::T where T<:AbstractFloat
+    c_const = 299792458.0
+    pi_const = 3.141592653589793
+    E_new = E
+    if from == "1/cm" && to == "1/fs"
+        c = 2.0*pi_const*c_const*1e-13
+        E_new = E / c
+    end
+    return E_new
+end
+
+function convert_units(E_vec::Vector{T}; from = "1/cm", to="1/fs")::Vector{T} where T<:AbstractFloat
+    c_const = 299792458.0
+    pi_const = 3.141592653589793
+    E_new = deepcopy(E_vec)
+    if from == "1/cm" && to == "1/fs"
+        c = 2.0*pi_const*c_const*1e-13
+        E_new = map((E) -> E/c, E_vec)
+    end
+    return E_new
+end
 
 """
     Mode{T}(omega, shift)
@@ -31,6 +52,12 @@ function Mode(;
 end
 
 Base.:(==)(x::Mode, y::Mode) = x.omega == y.omega && x.shift == y.shift
+
+function convert_units(mode::Mode; from = "1/cm", to="1/fs")::Mode
+    omega_new = convert_units(mode.omega, from=from, to=to)
+    return Mode(omega_new, mode.shift)
+end
+
 
 """
     franckCondonFactors(size, shift)
@@ -127,6 +154,12 @@ Molecule(modes::Vector{Mode{C}}, Nvib::T, E::Array{C,1}) where {C,T} =
 Base.:(==)(x::Molecule, y::Molecule) = 
     x.modes == y.modes && x.Nvib == y.Nvib &&
     x.fcFactors == y.fcFactors && x.E == y.E
+
+function convert_units(molecule::Molecule; from = "1/cm", to="1/fs")::Molecule
+    modes_new = map((mode) -> convert_units(mode; from=from, to=to), molecule.modes)
+    E_new = map((E_vec) -> convert_units(E_vec; from=from, to=to), molecule.E)
+    return Molecule(modes_new, molecule.Nvib, E_new)
+end
 
 """
     getMolStateEnergy(mol, molElState, molVibState)

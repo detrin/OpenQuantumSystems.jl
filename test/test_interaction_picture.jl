@@ -43,7 +43,7 @@ using SparseArrays, LinearAlgebra
         U_II_t = getInteractionHamIPictureA(Ham_0, Ham_I, t)
         @test 1e-14 > D(U_II_t_ref.data, U_II_t)
         U_II_t = getInteractionHamIPictureA(Ham_I.data, Ham_0_lambda, Ham_0_S, Ham_0_Sinv, t)
-        @test 1e-11 > D(U_II_t_ref.data, U_II_t)
+        @test 1e-10 > D(U_II_t_ref.data, U_II_t)
     end
 
 end # testset
