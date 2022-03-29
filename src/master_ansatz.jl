@@ -431,7 +431,7 @@ function QME_sI_ansatz_linear2(
     abstol::AbstractFloat = 1.0e-12,
     int_reltol::AbstractFloat = 1.0e-4,
     int_abstol::AbstractFloat = 1.0e-4,
-    t_mk_bath_step::AbstractFloat = 1.0e-4,
+    t_mk_bath_count::Integer = 100,
     alg::Any = DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()),
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
@@ -439,6 +439,7 @@ function QME_sI_ansatz_linear2(
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
     rho0 = trace_bath(W0, agg.core, agg.tools)
     W0_bath = get_rho_bath(W0, agg.core, agg.tools)
+    t_mk_bath_step = (tspan[end] - tspan[1]) / t_mk_bath_count
     p = (agg.core, agg.tools, agg.operators, W0, W0_bath, t_mk_bath_step, eltype(W0))
 
     tmp1 = copy(W0.data)

@@ -135,6 +135,7 @@ export
 
     # molecules.jl
     Mode,
+    convert_units,
     franckCondonFactors,
     vibrationalIndices,
     electronicIndices,
@@ -276,6 +277,7 @@ export
     schroedinger_pic_to_interaction_pic,
     local_st_to_exciton_st,
     exciton_st_to_local_st,
+    tspan_cm_to_fs,
 
     # scoring.jl
     get_rmse_in_time,
