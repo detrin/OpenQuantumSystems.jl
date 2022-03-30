@@ -252,16 +252,29 @@ function getAggHamInteraction(aggCore::AggregateCore, aggTools::AggregateTools)
                 coeff = agg_coeffs[mol_j][mode_j]
                 Ham_I[I, J] = -coeff * sqrt(min(vib_n, vib_m))
                 =#
+                # TODO: change to this
+                #=
                 coeff = 1.
-                for mol_i = 1:aggCore.molCount
-                    mol = aggCore.molecules[mol_i]
-                    for mode_i = 1:length(mol.modes)
-                        diff_vib = abs(vibind1[mol_i][mode_i] - vibind2[mol_i][mode_i])
-                        if diff_vib == 1
-                            vib_n = vibind1[mol_i][mode_i]
-                            vib_m = vibind2[mol_i][mode_i]
-                            coeff *= agg_coeffs[mol_i][mode_i] * sqrt(min(vib_n, vib_m))
-                        end
+                mol_i = elOrder1 - 1
+                mol = aggCore.molecules[mol_i]
+                for mode_i = 1:length(mol.modes)
+                    diff_vib = abs(vibind1[mol_i][mode_i] - vibind2[mol_i][mode_i])
+                    if diff_vib == 1
+                        vib_n = vibind1[mol_i][mode_i]
+                        vib_m = vibind2[mol_i][mode_i]
+                        coeff *= agg_coeffs[mol_i][mode_i] * sqrt(min(vib_n, vib_m))
+                    end
+                end
+                =#
+                coeff = 1.
+                mol_i = elOrder1 - 1
+                mol = aggCore.molecules[mol_i]
+                for mode_i = 1:length(mol.modes)
+                    diff_vib = abs(vibind1[mol_i][mode_i] - vibind2[mol_i][mode_i])
+                    if diff_vib == 1
+                        vib_n = vibind1[mol_i][mode_i]
+                        vib_m = vibind2[mol_i][mode_i]
+                        coeff *= agg_coeffs[mol_i][mode_i] * sqrt(min(vib_n, vib_m))
                     end
                 end
                 if coeff != 1.
