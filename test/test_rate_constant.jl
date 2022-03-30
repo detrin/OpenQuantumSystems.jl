@@ -50,11 +50,12 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     p = (agg.core, agg.tools, agg.operators, W0, W0_bath, eltype(W0))
 
     t = 1.
+    # TODO: increase accuracy
     ref = ComplexF64[-0.0 - 0.0im -0.0 - 0.0im -0.0 - 0.0im; -0.0 - 0.0im -1650.867437701514 - 2.8084994065805857e-14im 3169.1239758873867 + 5.830113678585023e-14im; -0.0 - 0.0im 1068.1102433043975 + 1.3029592569522712e-14im -1933.8689101103355 - 2.7427570204756514e-14im]
     K_ab_ = K_ab(t, p, tmp1, tmp2)
-    @test D(ref, K_ab_) < 1e-13
+    @test D(ref, K_ab_) < 1e-10
     
     K_ab_ = K_ab(t, W0, W0_bath, agg)
-    @test D(ref, K_ab_) < 1e-13
+    @test D(ref, K_ab_) < 1e-10
 
 end
