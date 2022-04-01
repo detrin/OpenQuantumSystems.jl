@@ -225,7 +225,7 @@ function getAggHamInteraction(aggCore::AggregateCore, aggTools::AggregateTools)
                     Ham_I[I, J] -= Ham_sys.data[elOrder1, elOrder2] 
                 end
             else
-                
+                # permits only one vib change
                 # check all moleciles and all modes, if they differ in max one vib state
                 # calculate the values of \Delta V
                 #=
@@ -252,7 +252,7 @@ function getAggHamInteraction(aggCore::AggregateCore, aggTools::AggregateTools)
                 coeff = agg_coeffs[mol_j][mode_j]
                 Ham_I[I, J] = -coeff * sqrt(min(vib_n, vib_m))
                 =#
-                # TODO: change to this
+                # permits any molecule change
                 #=
                 coeff = 1.
                 mol_i = elOrder1 - 1
@@ -265,7 +265,11 @@ function getAggHamInteraction(aggCore::AggregateCore, aggTools::AggregateTools)
                         coeff *= agg_coeffs[mol_i][mode_i] * sqrt(min(vib_n, vib_m))
                     end
                 end
+                if coeff != 1.
+                    Ham_I[I, J] = - coeff 
+                end
                 =#
+
                 coeff = 1.
                 mol_i = elOrder1 - 1
                 mol = aggCore.molecules[mol_i]
