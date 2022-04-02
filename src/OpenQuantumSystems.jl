@@ -135,6 +135,7 @@ export
 
     # molecules.jl
     Mode,
+    convert_units,
     franckCondonFactors,
     vibrationalIndices,
     electronicIndices,
@@ -244,13 +245,29 @@ export
     MemoryKernel_4_traced,
     MemoryKernel_traced,
 
+    # rate_constant.jl
+    M_aabb,
+    K_const_ab,
+    K_ab,
+    normalize_bath,
+
     # master_ansatz.jl
     QME_sI_ansatz_test,
-    QME_sI_ansatz_const,
+    QME_sI_ansatz_const_1,
+    QME_sI_ansatz_const_2,
     QME_sI_ansatz_linear,
     QME_sI_ansatz_linear2,
     QME_sI_ansatz_upart1,
     QME_sI_ansatz_upart2,
+
+    # master_iterative
+    W_1_bath_1,
+    normalize_bath,
+    QME_sI_iterative_1,
+    W_1_bath_2,
+    QME_sI_iterative_2,
+    W_1_bath_3,
+    QME_sI_iterative_3,
 
     # postprocessing.jl
     OperatorVector,
@@ -260,6 +277,7 @@ export
     schroedinger_pic_to_interaction_pic,
     local_st_to_exciton_st,
     exciton_st_to_local_st,
+    tspan_cm_to_fs,
 
     # scoring.jl
     get_rmse_in_time,
@@ -284,7 +302,9 @@ include("master_exact.jl")
 include("trace.jl")
 include("initial_state.jl")
 include("memory_kernel.jl")
+include("rate_constant.jl")
 include("master_ansatz.jl")
+include("master_iterative.jl")
 include("postprocessing.jl")
 include("scoring.jl")
 

@@ -67,7 +67,18 @@ import QuantumOpticsBase
         alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
     )
 
-    _, W_t = QME_sI_ansatz_const(
+    _, W_t = QME_sI_ansatz_const_1(
+        W0,
+        tspan,
+        agg;
+        reltol = 1e-3,
+        abstol = 1e-3,
+        int_reltol = 1e-4,
+        int_abstol = 1e-4,
+        alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
+    )
+
+    _, W_t = QME_sI_ansatz_const_2(
         W0,
         tspan,
         agg;
