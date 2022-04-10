@@ -670,7 +670,7 @@ function Evolution_sI_exact(
         W = U_op * W0 * U_op'
         U_0_op = evolutionOperator(Ham_0, t)
         W = U_0_op' * W * U_0_op
-        rho_t_exact[t_i, :, :] = trace_bath(W.data[:, :], agg.core, agg.tools)
+        rho_t_exact[t_i, :, :] = trace_bath(W.data[:, :], agg.core, agg.tools; vib_basis=agg.operators.vib_basis)
     end
     return tspan, rho_t_exact
 end
@@ -706,7 +706,7 @@ function Evolution_sS_exact(
         t = tspan[t_i]
         U_op = evolutionOperator(Ham, t)
         W = U_op * W0 * U_op'
-        rho_t_exact[t_i, :, :] = trace_bath(W.data[:, :], agg.core, agg.tools)
+        rho_t_exact[t_i, :, :] = trace_bath(W.data[:, :], agg.core, agg.tools; vib_basis=agg.operators.vib_basis)
     end
     return tspan, rho_t_exact
 end
