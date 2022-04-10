@@ -184,10 +184,10 @@ function ultrafast_laser_excitation(T::AbstractFloat, weights::Array, agg::Aggre
     normalize!(W0)
     W0 = DenseOperator(W0.basis_l, W0.basis_r, complex(W0.data))
 
-    rho0 = trace_bath(W0, agg.core, agg.tools)
+    rho0 = trace_bath(W0, agg.core, agg.tools; vib_basis=agg.operators.vib_basis)
     rho0 = DenseOperator(rho0.basis_l, rho0.basis_r, complex(rho0.data))
 
-    W0_bath = get_rho_bath(W0, agg.core, agg.tools)
+    W0_bath = get_rho_bath(W0, agg.core, agg.tools; vib_basis=agg.operators.vib_basis)
     W0_bath = DenseOperator(W0_bath.basis_l, W0_bath.basis_r, complex(W0_bath.data))
     return W0, rho0, W0_bath
 end

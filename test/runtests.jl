@@ -8,6 +8,8 @@ names = [
     "test_metrics.jl",
     "test_molecules.jl",
     "test_aggregateCore.jl",
+    "test_aggregateTools.jl",
+    "test_aggregateOperators.jl",
     "test_aggregate.jl",
     "test_evolution.jl",
     "test_schroedinger.jl",
@@ -21,7 +23,7 @@ names = [
     "test_master_ansatz.jl",
     "test_master_iterative.jl",
     "test_postprocessing.jl",
-    "test_scoring.jl",
+    "test_scoring.jl"
 ]
 
 #=

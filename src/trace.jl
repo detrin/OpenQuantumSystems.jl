@@ -11,7 +11,7 @@ Trace out bath degrees of freedom from `rho`
 \\sum_{k} \\langle k \\vert \\left( \\sum_{ab} \\rho_{am, bn} \\vert am \\rangle \\langle bn \\vert \\right)\\vert k \\rangle``
 
 """
-function trace_bath(
+function trace_bath_ground_excited(
     W::Array,
     aggCore::AggregateCore,
     aggTools::AggregateTools
@@ -33,13 +33,53 @@ function trace_bath(
     return rho
 end
 
+function trace_bath_ground_ground(
+    W::Array,
+    aggCore::AggregateCore,
+    aggTools::AggregateTools
+)
+    elLen = aggCore.molCount + 1
+    rho = zeros(eltype(W), elLen, elLen)
+    indicesMap = aggTools.indicesMap
+
+    for a=1:length(indicesMap)
+        a1 = indicesMap[a][1]
+        a2 = indicesMap[a][end]
+        for b=1:length(indicesMap)
+            b1 = indicesMap[b][1]
+            b2 = indicesMap[b][end]
+            rho[a, b] = tr(W[a1:a2, b1:b2])
+        end
+    end
+    return rho
+end
+
+function trace_bath(
+    W::Array,
+    aggCore::AggregateCore,
+    aggTools::AggregateTools;
+    vib_basis::Symbol=:ground_excited
+) 
+    if vib_basis ∉ (:ground_ground, :ground_excited)
+        throw(ArgumentError("Optional argument vib_basis has to be selected from (:ground_ground, :ground_excited)"))
+    end
+    rho = nothing
+    if vib_basis == :ground_excited
+        rho = trace_bath_ground_excited(W, aggCore, aggTools)
+    end
+    if vib_basis == :ground_ground
+        rho = trace_bath_ground_ground(W, aggCore, aggTools)
+    end
+    return rho
+end
 
 function trace_bath(
     W::Operator,
     aggCore::AggregateCore,
-    aggTools::AggregateTools
+    aggTools::AggregateTools;
+    vib_basis::Symbol=:ground_excited
 ) 
-    rho = trace_bath(W.data, aggCore, aggTools)
+    rho = trace_bath(W.data, aggCore, aggTools; vib_basis=vib_basis)
     return DenseOperator(aggTools.basisSystem, aggTools.basisSystem, rho)
 end
 
@@ -99,15 +139,29 @@ function trace_bath(
     W::Array, 
     a::N, 
     b::N, 
-    aggTools::AggregateTools
+    aggTools::AggregateTools;
+    vib_basis::Symbol=:ground_excited
 ) where {N <: Integer}
+    if vib_basis ∉ (:ground_ground, :ground_excited)
+        throw(ArgumentError("Optional argument vib_basis has to be selected from (:ground_ground, :ground_excited)"))
+    end
     rho = eltype(W)(0)
 
-    for I in aggTools.indicesMap[a]
-        for J in aggTools.indicesMap[b]
-            rho += W[I, J] * aggTools.FCproduct[I, J]
+    if vib_basis == :ground_excited
+        for I in aggTools.indicesMap[a]
+            for J in aggTools.indicesMap[b]
+                rho += W[I, J] * aggTools.FCproduct[I, J]
+            end
         end
     end
+    if vib_basis == :ground_ground
+        a1 = aggTools.indicesMap[a][1]
+        a2 = aggTools.indicesMap[a][end]
+        b1 = aggTools.indicesMap[b][1]
+        b2 = aggTools.indicesMap[b][end]
+        rho = tr(W[a1:a2, b1:b2])
+    end
+    
     rho
 end
 
@@ -115,9 +169,10 @@ function trace_bath(
     W::Operator,
     a::N, 
     b::N, 
-    aggTools::AggregateTools
+    aggTools::AggregateTools;
+    vib_basis::Symbol=:ground_excited
 ) where {N <: Integer}
-    rho = trace_bath(W.data, a, b, aggTools)
+    rho = trace_bath(W.data, a, b, aggTools; vib_basis=vib_basis)
     return rho
 end
 
@@ -176,8 +231,9 @@ function get_rho_bath(
     aggCore::AggregateCore,
     aggTools::AggregateTools;
     justCopy::Bool = false,
+    vib_basis::Symbol=:ground_excited
 )
-    rho = trace_bath(W, aggCore, aggTools)
+    rho = trace_bath(W, aggCore, aggTools; vib_basis=vib_basis)
     vibindices = aggTools.indicesMap
     vibLen = length(vibindices[end])
     elLen = aggCore.molCount + 1
@@ -222,13 +278,15 @@ function get_rho_bath(
     W::Operator,
     aggCore::AggregateCore,
     aggTools::AggregateTools;
-    justCopy = false
+    justCopy = false,
+    vib_basis::Symbol=:ground_excited
 )
     rho_data = get_rho_bath(
         W.data,
         aggCore,
         aggTools;
-        justCopy = justCopy
+        justCopy = justCopy,
+        vib_basis = vib_basis
     )
     return DenseOperator(W.basis_l, W.basis_r, rho_data)
 end
@@ -325,9 +383,10 @@ function correlation_function(
     Ham_0,
     Ham_I,
     aggCore::AggregateCore,
-    aggTools::AggregateTools
+    aggTools::AggregateTools;
+    vib_basis::Symbol=:ground_excited
 )
     Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
     prod = Ham_II_t * Ham_I * rho0_bath
-    return trace_bath(prod, aggCore, aggTools)
+    return trace_bath(prod, aggCore, aggTools; vib_basis=vib_basis)
 end
