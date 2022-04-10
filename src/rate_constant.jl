@@ -17,7 +17,7 @@ function M_aabb(t, s, p, tmp1, tmp2, Ham_II_t)
         tmp1[:, :] = ad(rho_mantis, W0_int_s.data, aggCore, aggTools)
         tmp2[:, :] = Ham_II_s.data * tmp1 - tmp1 * Ham_II_s.data
         tmp1[:, :] = Ham_II_t.data * tmp2 - tmp2 * Ham_II_t.data
-        M_tr = trace_bath(tmp1, aggCore, aggTools)
+        M_tr = trace_bath(tmp1, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
         for a=1:elLen
             M_aabb_[a, b] = M_tr[a, a]
         end
@@ -40,7 +40,7 @@ function K_const_ab(t, p, tmp1, tmp2, Ham_II_t)
         
         tmp1[:, :] = ad(rho_mantis, W0_bath.data, aggCore, aggTools)
         tmp2[:, :] = Ham_II_t.data * tmp1 - tmp1 * Ham_II_t.data
-        K_const_tr = trace_bath(tmp1, aggCore, aggTools)
+        K_const_tr = trace_bath(tmp1, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
         for a=1:elLen
             K_const_ab_[a, b] = K_const_tr[a, a]
         end

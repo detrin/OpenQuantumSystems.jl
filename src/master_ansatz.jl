@@ -16,8 +16,8 @@ function QME_sI_ansatz_test(
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
-    rho0 = trace_bath(W0, agg.core, agg.tools)
-    W0_bath = get_rho_bath(W0, agg.core, agg.tools)
+    rho0 = trace_bath(W0, agg.core, agg.tools; vib_basis=agg.operators.vib_basis)
+    W0_bath = get_rho_bath(W0, agg.core, agg.tools; vib_basis=agg.operators.vib_basis)
     p = (agg.core, agg.tools, agg.operators, W0, eltype(W0))
 
     tmp1 = copy(W0.data)
@@ -68,7 +68,7 @@ function dQME_sI_ansatz_test(
         
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
-    K_traced = trace_bath(K, aggCore, aggTools)
+    K_traced = trace_bath(K, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
 
     kernel_integrated_traced, err = QuadGK.quadgk(
         s -> kernel_sI_ansatz_test(t, s, history_fun, p, tmp1, tmp2, Ham_II_t),
@@ -101,14 +101,14 @@ function kernel_sI_ansatz_test(t, s, h, p, tmp1, tmp2, Ham_II_t)
     U_0_op = evolutionOperator(Ham_0, s)
     W_int_s = U_0_op' * W_s * U_0_op
 
-    W_bath_s = get_rho_bath(W_int_s, aggCore, aggTools)
-    rho_s = trace_bath(W_int_s, aggCore, aggTools)
+    W_bath_s = get_rho_bath(W_int_s, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
+    rho_s = trace_bath(W_int_s, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
     tmp1[:, :] = ad(rho_s.data, W_bath_s.data, aggCore, aggTools)
 
     tmp2[:, :] = Ham_II_s.data * tmp1 - tmp1 * Ham_II_s.data
     tmp1[:, :] = Ham_II_t.data * tmp2 - tmp2 * Ham_II_t.data
 
-    return trace_bath(tmp1, aggCore, aggTools)
+    return trace_bath(tmp1, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
 end
 
 function QME_sI_ansatz_const_1(
@@ -124,8 +124,8 @@ function QME_sI_ansatz_const_1(
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
-    rho0 = trace_bath(W0, agg.core, agg.tools)
-    W0_bath = get_rho_bath(W0, agg.core, agg.tools)
+    rho0 = trace_bath(W0, agg.core, agg.tools; vib_basis=agg.operators.vib_basis)
+    W0_bath = get_rho_bath(W0, agg.core, agg.tools; vib_basis=agg.operators.vib_basis)
     p = (agg.core, agg.tools, agg.operators, W0, W0_bath, eltype(W0))
 
     tmp1 = copy(W0.data)
@@ -176,7 +176,7 @@ function dQME_sI_ansatz_const_1(
         
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
-    K_traced = trace_bath(K, aggCore, aggTools)
+    K_traced = trace_bath(K, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
 
     kernel_integrated_traced, err = QuadGK.quadgk(
         s -> kernel_sI_ansatz_const_1(t, s, history_fun, p, tmp1, tmp2, Ham_II_t),
@@ -209,7 +209,7 @@ function kernel_sI_ansatz_const_1(t, s, h, p, tmp1, tmp2, Ham_II_t)
     tmp2[:, :] = Ham_II_s.data * tmp1 - tmp1 * Ham_II_s.data
     tmp1[:, :] = Ham_II_t.data * tmp2 - tmp2 * Ham_II_t.data
 
-    return trace_bath(tmp1, aggCore, aggTools)
+    return trace_bath(tmp1, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
 end
 
 function QME_sI_ansatz_const_2(
@@ -225,8 +225,8 @@ function QME_sI_ansatz_const_2(
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
-    rho0 = trace_bath(W0, agg.core, agg.tools)
-    W0_bath = get_rho_bath(W0, agg.core, agg.tools)
+    rho0 = trace_bath(W0, agg.core, agg.tools; vib_basis=agg.operators.vib_basis)
+    W0_bath = get_rho_bath(W0, agg.core, agg.tools; vib_basis=agg.operators.vib_basis)
     p = (agg.core, agg.tools, agg.operators, W0, W0_bath, eltype(W0))
 
     tmp1 = copy(W0.data)
@@ -277,7 +277,7 @@ function dQME_sI_ansatz_const_2(
         
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
-    K_traced = trace_bath(K, aggCore, aggTools)
+    K_traced = trace_bath(K, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
 
     kernel_integrated_traced, err = QuadGK.quadgk(
         s -> kernel_sI_ansatz_const_2(t, s, history_fun, p, tmp1, tmp2, Ham_II_t),
@@ -313,7 +313,7 @@ function kernel_sI_ansatz_const_2(t, s, h, p, tmp1, tmp2, Ham_II_t)
     tmp2[:, :] = Ham_II_s.data * tmp1 - tmp1 * Ham_II_s.data
     tmp1[:, :] = Ham_II_t.data * tmp2 - tmp2 * Ham_II_t.data
 
-    return trace_bath(tmp1, aggCore, aggTools)
+    return trace_bath(tmp1, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
 end
 
 
@@ -330,8 +330,8 @@ function QME_sI_ansatz_linear(
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
-    rho0 = trace_bath(W0, agg.core, agg.tools)
-    W0_bath = get_rho_bath(W0, agg.core, agg.tools)
+    rho0 = trace_bath(W0, agg.core, agg.tools; vib_basis=agg.operators.vib_basis)
+    W0_bath = get_rho_bath(W0, agg.core, agg.tools; vib_basis=agg.operators.vib_basis)
     p = (agg.core, agg.tools, agg.operators, W0, W0_bath, eltype(W0))
 
     tmp1 = copy(W0.data)
@@ -382,7 +382,7 @@ function dQME_sI_ansatz_linear(
         
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
-    K_traced = trace_bath(K, aggCore, aggTools)
+    K_traced = trace_bath(K, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
 
     kernel_integrated_traced, err = QuadGK.quadgk(
         s -> kernel_sI_ansatz_linear(t, s, history_fun, p, tmp1, tmp2, Ham_II_t),
@@ -419,7 +419,7 @@ function kernel_sI_ansatz_linear(t, s, h, p, tmp1, tmp2, Ham_II_t)
     tmp2[:, :] = Ham_II_s.data * tmp1 - tmp1 * Ham_II_s.data
     tmp1[:, :] = Ham_II_t.data * tmp2 - tmp2 * Ham_II_t.data
 
-    return trace_bath(tmp1, aggCore, aggTools)
+    return trace_bath(tmp1, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
 end
 
 
@@ -437,8 +437,8 @@ function QME_sI_ansatz_linear2(
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
-    rho0 = trace_bath(W0, agg.core, agg.tools)
-    W0_bath = get_rho_bath(W0, agg.core, agg.tools)
+    rho0 = trace_bath(W0, agg.core, agg.tools; vib_basis=agg.operators.vib_basis)
+    W0_bath = get_rho_bath(W0, agg.core, agg.tools; vib_basis=agg.operators.vib_basis)
     t_mk_bath_step = (tspan[end] - tspan[1]) / t_mk_bath_count
     p = (agg.core, agg.tools, agg.operators, W0, W0_bath, t_mk_bath_step, eltype(W0))
 
@@ -490,7 +490,7 @@ function dQME_sI_ansatz_linear2(
         
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
-    K_traced = trace_bath(K, aggCore, aggTools)
+    K_traced = trace_bath(K, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
 
     kernel_integrated_traced, err = QuadGK.quadgk(
         s -> kernel_sI_ansatz_linear2(t, s, history_fun, p, tmp1, tmp2, Ham_II_t),
@@ -536,7 +536,7 @@ function kernel_sI_ansatz_linear2(t, s, h, p, tmp1, tmp2, Ham_II_t)
     tmp2[:, :] = Ham_II_s.data * tmp1 - tmp1 * Ham_II_s.data
     tmp1[:, :] = Ham_II_t.data * tmp2 - tmp2 * Ham_II_t.data
 
-    return trace_bath(tmp1, aggCore, aggTools)
+    return trace_bath(tmp1, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
 end
 
 function QME_sI_ansatz_upart1(
@@ -552,8 +552,8 @@ function QME_sI_ansatz_upart1(
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
-    rho0 = trace_bath(W0, agg.core, agg.tools)
-    W0_bath = get_rho_bath(W0, agg.core, agg.tools)
+    rho0 = trace_bath(W0, agg.core, agg.tools; vib_basis=agg.operators.vib_basis)
+    W0_bath = get_rho_bath(W0, agg.core, agg.tools; vib_basis=agg.operators.vib_basis)
     p = (agg.core, agg.tools, agg.operators, W0, W0_bath, eltype(W0))
 
     tmp1 = copy(W0.data)
@@ -604,7 +604,7 @@ function dQME_sI_ansatz_upart1(
         
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
-    K_traced = trace_bath(K, aggCore, aggTools)
+    K_traced = trace_bath(K, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
 
     kernel_integrated_traced, err = QuadGK.quadgk(
         s -> kernel_sI_ansatz_upart1(t, s, history_fun, p, tmp1, tmp2, Ham_II_t),
@@ -649,7 +649,7 @@ function kernel_sI_ansatz_upart1(t, s, h, p, tmp1, tmp2, Ham_II_t)
     tmp2[:, :] = Ham_II_s.data * tmp1 - tmp1 * Ham_II_s.data
     tmp1[:, :] = Ham_II_t.data * tmp2 - tmp2 * Ham_II_t.data
 
-    return trace_bath(tmp1, aggCore, aggTools)
+    return trace_bath(tmp1, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
 end
 
 function QME_sI_ansatz_upart2(
@@ -665,8 +665,8 @@ function QME_sI_ansatz_upart2(
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
-    rho0 = trace_bath(W0, agg.core, agg.tools)
-    W0_bath = get_rho_bath(W0, agg.core, agg.tools)
+    rho0 = trace_bath(W0, agg.core, agg.tools; vib_basis=agg.operators.vib_basis)
+    W0_bath = get_rho_bath(W0, agg.core, agg.tools; vib_basis=agg.operators.vib_basis)
     p = (agg.core, agg.tools, agg.operators, W0, W0_bath, eltype(W0))
 
     tmp1 = copy(W0.data)
@@ -717,7 +717,7 @@ function dQME_sI_ansatz_upart2(
         
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
-    K_traced = trace_bath(K, aggCore, aggTools)
+    K_traced = trace_bath(K, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
 
     kernel_integrated_traced, err = QuadGK.quadgk(
         s -> kernel_sI_ansatz_upart2(t, s, history_fun, p, tmp1, tmp2, Ham_II_t),
@@ -766,5 +766,5 @@ function kernel_sI_ansatz_upart2(t, s, h, p, tmp1, tmp2, Ham_II_t)
     tmp2[:, :] = Ham_II_s.data * tmp1 - tmp1 * Ham_II_s.data
     tmp1[:, :] = Ham_II_t.data * tmp2 - tmp2 * Ham_II_t.data
 
-    return trace_bath(tmp1, aggCore, aggTools)
+    return trace_bath(tmp1, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
 end
