@@ -1,4 +1,13 @@
 
+"""
+convert_units(E::T; from = "1/cm", to="1/fs")::T where T<:AbstractFloat
+convert_units(E_vec::Vector{T}; from = "1/cm", to="1/fs")::Vector{T} where T<:AbstractFloat
+convert_units(mode::Mode; from = "1/cm", to="1/fs")::Mode
+convert_units(molecule::Molecule; from = "1/cm", to="1/fs")::Molecule
+
+Converts number or objects from one units to different units.
+"""
+# TODO: add other units
 function convert_units(E::T; from = "1/cm", to="1/fs")::T where T<:AbstractFloat
     c_const = 299792458.0
     pi_const = 3.141592653589793
