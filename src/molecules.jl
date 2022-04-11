@@ -1,4 +1,13 @@
 
+"""
+convert_units(E::T; from = "1/cm", to="1/fs")::T where T<:AbstractFloat
+convert_units(E_vec::Vector{T}; from = "1/cm", to="1/fs")::Vector{T} where T<:AbstractFloat
+convert_units(mode::Mode; from = "1/cm", to="1/fs")::Mode
+convert_units(molecule::Molecule; from = "1/cm", to="1/fs")::Molecule
+
+Converts number or objects from one units to different units.
+"""
+# TODO: add other units
 function convert_units(E::T; from = "1/cm", to="1/fs")::T where T<:AbstractFloat
     c_const = 299792458.0
     pi_const = 3.141592653589793
@@ -66,7 +75,7 @@ Get Franck-Condon factors for LHO mode calculated using [`ShiftOperator`](@ref).
 
 """
 function franckCondonFactors(size::T, shift::U) where {T<:Integer,U<:ComputableType}
-    b = GenericBasis([size + 100])
+    b = GenericBasis([size + 200])
     shift_op = ShiftOperator(b, shift)
     return shift_op.data[1:size, 1:size]
 end
@@ -180,6 +189,7 @@ function getMolStateEnergy(
     for mode_i = 1:length(mol.modes)
         mode = mol.modes[mode_i]
         energy += mode.omega * (molVibState[mode_i] - 1 + 0.5)
+        # energy += mode.omega * (molVibState[mode_i] - 1)
     end
     return energy
 end
