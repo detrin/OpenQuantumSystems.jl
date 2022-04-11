@@ -33,7 +33,7 @@ function LvN_sI(
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
     p = (agg.core, agg.tools, agg.operators, W0, eltype(W0))
-    rho0 = trace_bath(W0, agg.core, agg.tools)
+    rho0 = trace_bath(W0, agg.core, agg.tools; vib_basis=agg.operators.vib_basis)
     dLvN_(t, rho, drho, p) = dLvN_sI(t, rho, drho, p)
 
     tspan_ = convert(Vector{float(eltype(tspan))}, tspan)
@@ -74,7 +74,7 @@ function dLvN_sI(
     W_int_t = U_0_op' * W_t * U_0_op
 
     K = -elementtype(im) * (Ham_II_t.data * W_int_t.data - W_int_t.data * Ham_II_t.data)
-    drho.data[:, :] = trace_bath(K, aggCore, aggTools)
+    drho.data[:, :] = trace_bath(K, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
     return drho
 end
 
@@ -89,7 +89,7 @@ function LvN_sS(
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
     p = (agg.core, agg.tools, agg.operators, W0, eltype(W0))
-    rho0 = trace_bath(W0, agg.core, agg.tools)
+    rho0 = trace_bath(W0, agg.core, agg.tools; vib_basis=agg.operators.vib_basis)
     dLvN_(t, rho, drho, p) = dLvN_sS(t, rho, drho, p)
 
     tspan_ = convert(Vector{float(eltype(tspan))}, tspan)
@@ -124,7 +124,7 @@ function dLvN_sS(
     W_t = U_t * W0 * U_t'
 
     K = -elementtype(im) * (Ham.data * W_t.data - W_t.data * Ham.data)
-    drho.data[:, :] = trace_bath(K, aggCore, aggTools)
+    drho.data[:, :] = trace_bath(K, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
     return drho
 end
 
