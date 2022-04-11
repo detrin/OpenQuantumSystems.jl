@@ -84,7 +84,7 @@ function getAggHamSystemBig(
 
             # Ham[I, J] = Ham_sys.data[elOrder1, elOrder2] * aggTools.FCfactors[I, J]
             if vibind1 == vibind2
-                Ham[I, J] = Ham_sys.data[elOrder1, elOrder2] 
+                Ham[I, J] = Ham_sys.data[elOrder1, elOrder2]
             end
         end
     end
@@ -154,7 +154,7 @@ function getAggHamBathBig(
 end
 
 """
-getAggHamSystemBath(agg, aggTools.indices, 
+getAggHamSystemBath(agg, aggTools.indices,
 \tfranckCondonFactors; groundEnergy = false)
 getAggHamSystemBath(agg, aggTools.indices; groundEnergy = false)
 getAggHamSystemBath(agg; groundEnergy = false)
@@ -214,14 +214,14 @@ function getAggHamInteraction(aggCore::AggregateCore, aggTools::AggregateTools; 
         for J = 1:aggTools.bSize
             elind2, vibind2 = aggTools.indices[J]
             elOrder2 = elIndOrder(elind2)
-            if elOrder2 == 1 
+            if elOrder2 == 1
                 continue
             end
             if elOrder1 != elOrder2
                 if vib_basis == :ground_excited
                     Ham_I[I, J] = Ham_sys.data[elOrder1, elOrder2] * aggTools.FCfactors[I, J]
                     if vibind1 == vibind2
-                        Ham_I[I, J] -= Ham_sys.data[elOrder1, elOrder2] 
+                        Ham_I[I, J] -= Ham_sys.data[elOrder1, elOrder2]
                     end
                 end
             else
@@ -266,7 +266,7 @@ function getAggHamInteraction(aggCore::AggregateCore, aggTools::AggregateTools; 
                     end
                 end
                 if coeff != 1.
-                    Ham_I[I, J] = - coeff 
+                    Ham_I[I, J] = - coeff
                 end
                 =#
                 # somehing smells here, eigenvals of Ham are not the same in both vib bath bases
@@ -294,7 +294,7 @@ function getAggHamInteraction(aggCore::AggregateCore, aggTools::AggregateTools; 
 end
 
 """
-getAggHamiltonian(agg, aggTools.indices, franckCondonFactors; 
+getAggHamiltonian(agg, aggTools.indices, franckCondonFactors;
 \t, groundEnergy = true)
 getAggHamiltonian(agg, aggTools.indices; groundEnergy = true)
 getAggHamiltonian(agg; groundEnergy = true)

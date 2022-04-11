@@ -1,19 +1,19 @@
 
 function M_aabb(t, s, p, tmp1, tmp2, Ham_II_t)
     aggCore, aggTools, aggOperators, W0, W0_bath, _ = p
-    
+
     Ham_0 = aggOperators.Ham_0
     Ham_I = aggOperators.Ham_I
     Ham_II_s = getInteractionHamIPicture(Ham_0, Ham_I, s)
     U_0_op = evolutionOperator(Ham_0, s)
     W0_int_s = U_0_op' * W0_bath * U_0_op
-    
+
     elLen = aggCore.molCount+1
     M_aabb_ = zeros(ComplexF64, elLen, elLen)
     for b=1:elLen
         rho_mantis = zeros(Float64, elLen, elLen)
         rho_mantis[b, b] = 1.
-        
+
         tmp1[:, :] = ad(rho_mantis, W0_int_s.data, aggCore, aggTools)
         tmp2[:, :] = Ham_II_s.data * tmp1 - tmp1 * Ham_II_s.data
         tmp1[:, :] = Ham_II_t.data * tmp2 - tmp2 * Ham_II_t.data
@@ -27,7 +27,7 @@ end
 
 function K_const_ab(t, p, tmp1, tmp2, Ham_II_t)
     aggCore, aggTools, aggOperators, W0, W0_bath, _ = p
-    
+
     Ham_0 = aggOperators.Ham_0
     Ham_I = aggOperators.Ham_I
     Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
@@ -37,7 +37,7 @@ function K_const_ab(t, p, tmp1, tmp2, Ham_II_t)
     for b=1:elLen
         rho_mantis = zeros(Float64, elLen, elLen)
         rho_mantis[b, b] = 1.
-        
+
         tmp1[:, :] = ad(rho_mantis, W0_bath.data, aggCore, aggTools)
         tmp2[:, :] = Ham_II_t.data * tmp1 - tmp1 * Ham_II_t.data
         K_const_tr = trace_bath(tmp1, aggCore, aggTools; vib_basis=aggOperators.vib_basis)

@@ -49,12 +49,12 @@ struct Mode{T}
     end
 end
 
-Mode(omega::T, shift::T) where {T<:ComputableType} = Mode{T}(omega, shift) 
+Mode(omega::T, shift::T) where {T<:ComputableType} = Mode{T}(omega, shift)
 
 function Mode(;
     omega = 200.0,
     hr_factor = 0.02
-) 
+)
     # S = d / (2 d hbar)
     shift = 2 * hr_factor
     return Mode(omega, shift)
@@ -160,7 +160,7 @@ end
 Molecule(modes::Vector{Mode{C}}, Nvib::T, E::Array{C,1}) where {C,T} =
     Molecule{T,C,C}(modes, Nvib, E)
 
-Base.:(==)(x::Molecule, y::Molecule) = 
+Base.:(==)(x::Molecule, y::Molecule) =
     x.modes == y.modes && x.Nvib == y.Nvib &&
     x.fcFactors == y.fcFactors && x.E == y.E
 

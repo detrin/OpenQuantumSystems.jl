@@ -2,13 +2,13 @@
 import QuantumOpticsBase, LinearAlgebra, OrdinaryDiffEq, QuadGK, DelayDiffEq
 
 """
-    master_int(W0, tspan, Ham_0, Ham_I; 
-    \treltol=1.0e-12, abstol=1.0e-12, int_reltol=1.0e-8, int_abstol=0.0, 
+    master_int(W0, tspan, Ham_0, Ham_I;
+    \treltol=1.0e-12, abstol=1.0e-12, int_reltol=1.0e-8, int_abstol=0.0,
     \tfout=nothing, alg=DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()))
 
-Integrate Quantum Master equation 
+Integrate Quantum Master equation
 
-``\\frac{d}{d t} \\rho^{(I)}(t) = - \\frac{i}{\\hbar} [ \\hat{H}_I^{(I)}(t), \\rho^{(I)}(t_0) ] 
+``\\frac{d}{d t} \\rho^{(I)}(t) = - \\frac{i}{\\hbar} [ \\hat{H}_I^{(I)}(t), \\rho^{(I)}(t_0) ]
 -\\frac{1}{\\hbar^2} \\int_{t_0}^{t_1} \\text{d} \\tau \\: [ \\hat{H}_I^{(I)}(t), [ \\hat{H}_I^{(I)}(\\tau), \\rho^{(I)}(\\tau) ]] ``
 
 ``H = H_S + H_B + H_I = H_0 + H_I, \\quad \\hbar = 1. ``
@@ -43,7 +43,7 @@ function QME_sI_exact(
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
     rho0 = trace_bath(W0, agg.core, agg.tools; vib_basis=agg.operators.vib_basis)
     p = (agg.core, agg.tools, agg.operators, W0, eltype(W0))
-    
+
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
     dmaster_(t, rho, drho, history_fun, p) = dQME_sI_exact(
@@ -89,7 +89,7 @@ function dQME_sI_exact(
     int_abstol::AbstractFloat,
 ) where {B<:Basis,T<:Operator{B,B}}
     aggCore, aggTools, aggOperators, W0, elementtype = p
-    
+
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
     K_traced = trace_bath(K, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
@@ -100,9 +100,9 @@ function dQME_sI_exact(
         t,
         rtol = int_reltol,
         atol = int_abstol,
-    )    
+    )
     drho.data[:, :] = -elementtype(im) * K_traced - kernel_integrated_traced
-    
+
     return drho
 end
 
@@ -140,7 +140,7 @@ function QME_sS_exact(
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
     rho0 = trace_bath(W0, agg.core, agg.tools; vib_basis=agg.operators.vib_basis)
     p = (agg.core, agg.tools, agg.operators, W0, eltype(W0))
-    
+
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
     dmaster_(t, rho, drho, history_fun, p) = dQME_sS_exact(
@@ -186,7 +186,7 @@ function dQME_sS_exact(
     int_abstol::AbstractFloat,
 ) where {B<:Basis,T<:Operator{B,B}}
     aggCore, aggTools, aggOperators, W0, elementtype = p
-    
+
     Ham = aggOperators.Ham.data
     K = Ham * W0.data - W0.data * Ham
     K_traced = trace_bath(K, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
@@ -197,9 +197,9 @@ function dQME_sS_exact(
         t,
         rtol = int_reltol,
         atol = int_abstol,
-    )    
+    )
     drho.data[:, :] = -elementtype(im) * K_traced - kernel_integrated_traced
-    
+
     return drho
 end
 
@@ -219,14 +219,14 @@ function kernel_sS_exact(t, s, h, p, tmp1, tmp2)
 end
 
 """
-    master(W0, tspan, Ham; 
-    \treltol=1.0e-12, abstol=1.0e-12, int_reltol=1.0e-8, int_abstol=0.0, 
+    master(W0, tspan, Ham;
+    \treltol=1.0e-12, abstol=1.0e-12, int_reltol=1.0e-8, int_abstol=0.0,
     \tfout=nothing, alg=DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()))
 
-Integrate Quantum Master equation 
+Integrate Quantum Master equation
 
-``\\frac{d}{d t} \\rho(t) = - \\frac{i}{\\hbar} [ \\hat{H}, \\rho(t_0) ] 
--\\frac{1}{\\hbar^2} \\int_{t_0}^{t_1} \\text{d} \\tau \\: [ \\hat{H}, [ \\hat{H}, \\rho(\\tau) ]] 
+``\\frac{d}{d t} \\rho(t) = - \\frac{i}{\\hbar} [ \\hat{H}, \\rho(t_0) ]
+-\\frac{1}{\\hbar^2} \\int_{t_0}^{t_1} \\text{d} \\tau \\: [ \\hat{H}, [ \\hat{H}, \\rho(\\tau) ]]
 ,\\quad \\hbar = 1. ``
 
 # Arguments
