@@ -253,12 +253,14 @@ export
 
     # master_ansatz.jl
     QME_sI_ansatz_test,
-    QME_sI_ansatz_const_1,
-    QME_sI_ansatz_const_2,
-    QME_sI_ansatz_linear,
-    QME_sI_ansatz_linear2,
-    QME_sI_ansatz_upart1,
-    QME_sI_ansatz_upart2,
+    QME_sI_ansatz_const_int,
+    QME_sI_ansatz_const_sch,
+    QME_sI_ansatz_linear_sch,
+    QME_sI_ansatz_linear2_sch,
+    QME_sI_ansatz_upart1_sch,
+    QME_sI_ansatz_upart1_int,
+    QME_sI_ansatz_upart2_sch,
+    QME_sI_ansatz_upart2_int,
 
     # master_iterative
     W_1_bath_1,
