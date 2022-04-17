@@ -56,7 +56,7 @@ import QuantumOpticsBase
     t_step = (t_max - t0) / (t_count)
     tspan = [t0:t_step:t_max;]
 
-    _, W_t = QME_sI_ansatz_test(
+    _, rho_t = QME_sI_ansatz_test(
         W0,
         tspan,
         agg;
@@ -67,7 +67,7 @@ import QuantumOpticsBase
         alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
     )
 
-    _, W_t = QME_sI_ansatz_const_1(
+    _, rho_t = QME_sI_ansatz_const_int(
         W0,
         tspan,
         agg;
@@ -78,7 +78,7 @@ import QuantumOpticsBase
         alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
     )
 
-    _, W_t = QME_sI_ansatz_const_2(
+    _, rho_t = QME_sI_ansatz_const_sch(
         W0,
         tspan,
         agg;
@@ -89,7 +89,7 @@ import QuantumOpticsBase
         alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
     )
 
-    _, W_t = QME_sI_ansatz_linear(
+    _, rho_t = QME_sI_ansatz_linear_sch(
         W0,
         tspan,
         agg;
@@ -100,7 +100,7 @@ import QuantumOpticsBase
         alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
     )
 
-    _, W_t = QME_sI_ansatz_linear2(
+    _, rho_t = QME_sI_ansatz_linear2_sch(
         W0,
         tspan,
         agg;
@@ -111,7 +111,7 @@ import QuantumOpticsBase
         alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
     )
 
-    _, W_t = QME_sI_ansatz_upart1(
+    _, rho_t = QME_sI_ansatz_upart1_sch(
         W0,
         tspan,
         agg;
@@ -122,7 +122,29 @@ import QuantumOpticsBase
         alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
     )
 
-    _, W_t = QME_sI_ansatz_upart2(
+    _, rho_t = QME_sI_ansatz_upart1_int(
+        W0,
+        tspan,
+        agg;
+        reltol = 1e-3,
+        abstol = 1e-3,
+        int_reltol = 1e-4,
+        int_abstol = 1e-4,
+        alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
+    )
+
+    _, rho_t = QME_sI_ansatz_upart2_sch(
+        W0,
+        tspan,
+        agg;
+        reltol = 1e-3,
+        abstol = 1e-3,
+        int_reltol = 1e-4,
+        int_abstol = 1e-4,
+        alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
+    )
+
+    _, rho_t = QME_sI_ansatz_upart2_int(
         W0,
         tspan,
         agg;
