@@ -270,6 +270,7 @@ export
     QME_sI_iterative_2,
     W_1_bath_3,
     QME_sI_iterative_3,
+    QME_sI_iterative_n_1,
 
     # postprocessing.jl
     OperatorVector,
