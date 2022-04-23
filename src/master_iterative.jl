@@ -451,3 +451,73 @@ function QME_sI_iterative_3(
         kwargs...,
     )
 end
+
+function QME_sI_iterative_n_1(
+    W0::T,
+    tspan::Array,
+    agg::Aggregate;
+    w_1_interpolate_count = 100,
+    reltol::AbstractFloat = 1.0e-12,
+    abstol::AbstractFloat = 1.0e-12,
+    int_reltol::AbstractFloat = 1.0e-4,
+    int_abstol::AbstractFloat = 1.0e-4,
+    W_1_rtol::AbstractFloat = 1e-12, 
+    W_1_atol::AbstractFloat = 1e-12, 
+    K_rtol::AbstractFloat = 1e-12, 
+    K_atol::AbstractFloat = 1e-12,
+    alg::Any = DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()),
+    fout::Union{Function,Nothing} = nothing,
+    kwargs...,
+) where {B<:Basis,T<:Operator{B,B}}
+    history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
+    rho0 = trace_bath(W0, agg.core, agg.tools; vib_basis=agg.operators.vib_basis)
+    W0_bath = get_rho_bath(W0, agg.core, agg.tools; vib_basis=agg.operators.vib_basis)
+
+    tmp1 = copy(W0.data)
+    tmp2 = copy(W0.data)
+    
+    # Calculate and interpolate W_1_bath
+    p = (agg.core, agg.tools, agg.operators, W0, W0_bath, eltype(W0))
+    tspan_ = get_tspan(tspan[1], tspan[end], w_1_interpolate_count) 
+    elLen = agg.core.molCount+1
+    W_1_bath_t = []
+    for t_i=1:length(tspan_)
+        t = tspan_[t_i]
+        W_1_bath_ = W_1_bath_1(t, p, tmp1, tmp2; W_1_rtol=W_1_rtol, W_1_atol=W_1_atol, K_rtol=K_rtol, K_atol=K_atol)
+        W_1_bath__ = normalize_bath(W_1_bath_, agg.core, agg.tools, agg.operators)
+        push!(W_1_bath_t, W_1_bath__)
+    end
+    W_1_bath_itp = Interpolations.interpolate(W_1_bath_t, Interpolations.BSpline(Interpolations.Linear()))
+    
+    p = (agg.core, agg.tools, agg.operators, W0, W0_bath, W_1_bath_itp, tspan_, eltype(W0))
+    
+    dmaster_(t, rho, drho, history_fun, p) = dQME_sI_iterative(
+        t,
+        rho,
+        drho,
+        history_fun,
+        tmp1,
+        tmp2,
+        p,
+        int_reltol,
+        int_abstol,
+    )
+    tspan_ = convert(Vector{float(eltype(tspan))}, tspan)
+    x0 = rho0.data
+    state = T(rho0.basis_l, rho0.basis_r, rho0.data)
+    dstate = T(rho0.basis_l, rho0.basis_r, rho0.data)
+    OpenQuantumSystems.integrate_delayed(
+        tspan_,
+        dmaster_,
+        history_fun,
+        x0,
+        state,
+        dstate,
+        fout;
+        p = p,
+        reltol = reltol,
+        abstol = abstol,
+        alg = alg,
+        kwargs...,
+    )
+end
