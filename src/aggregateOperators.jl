@@ -21,7 +21,7 @@ function getAggHamSystemSmall(
     Ham_sys = zeros(Float64, (aggCore.molCount + 1, aggCore.molCount + 1))
 
     agg_shifts = getShifts(aggCore)
-    agg_frequencies = getShifts(aggCore)
+    agg_frequencies = getFrequencies(aggCore)
     reorganisation_energies = []
     for mol_i = 1:aggCore.molCount
         mol = aggCore.molecules[mol_i]
@@ -204,6 +204,7 @@ function getAggHamInteraction(aggCore::AggregateCore, aggTools::AggregateTools; 
 
     Ham_I = zeros(Float64, (aggTools.bSize, aggTools.bSize))
     agg_shifts = getShifts(aggCore)
+    agg_frequencies = getFrequencies(aggCore)
 
     for I = 1:aggTools.bSize
         elind1, vibind1 = aggTools.indices[I]
@@ -279,7 +280,7 @@ function getAggHamInteraction(aggCore::AggregateCore, aggTools::AggregateTools; 
                         if diff_vib == 1
                             vib_n = vibind1[mol_i][mode_i]
                             vib_m = vibind2[mol_i][mode_i]
-                            coeff *= agg_shifts[mol_i][mode_i] * Float64(min(vib_n, vib_m))^0.5  / sqrt(2.0)
+                            coeff *= agg_frequencies[mol_i][mode_i] * agg_shifts[mol_i][mode_i] * Float64(min(vib_n, vib_m))^0.5  / sqrt(2.0)
                         end
                     end
                     if coeff != 1.
