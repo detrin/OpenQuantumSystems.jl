@@ -66,15 +66,15 @@ function W_aabb_1_bath_core(t, s, p, tmp1, tmp2; bath_evolution=:none, K_rtol=1e
             elseif bath_evolution == :shroedinger_picture
                 U_aa = evolution_el_part(Ham.data, t-s, a, a, indicesMap)
             end
-
+            # 1 / rho_s[a, a] is already in K rate constant
             if rho_s[a, a] != 0.
                 if bath_evolution == :none 
                     W_1_bath[a1:a2, a1:a2] = W_1_bath[a1:a2, a1:a2] + 
-                        K_aabb_s[a, b] * (rho_s[b, b] / rho_s[a, a]) * W_bath_s[b1:b2, b1:b2] 
+                        K_aabb_s[a, b] * rho_s[b, b] * W_bath_s[b1:b2, b1:b2] 
                 else
                     U_ = U_aa * U_bb
                     W_1_bath[a1:a2, a1:a2] = W_1_bath[a1:a2, a1:a2] + 
-                        K_aabb_s[a, b] * (rho_s[b, b] / rho_s[a, a]) * U_ * W_bath_s[b1:b2, b1:b2] * adjoint(U_)
+                        K_aabb_s[a, b] * rho_s[b, b]  * U_ * W_bath_s[b1:b2, b1:b2] * adjoint(U_)
                 end
             end
         end
@@ -120,14 +120,15 @@ function W_abcd_1_bath_core(t, s, p, tmp1, tmp2; bath_evolution=:none, K_rtol=1e
             elseif bath_evolution == :shroedinger_picture
                 U_aa = evolution_el_part(Ham.data, t-s, a, b, indicesMap)
             end
+            # 1 / rho_s[a, b] is already in K rate constant
             if rho_s[a, b] != 0.
                 if bath_evolution == :none 
                     W_1_bath[a1:a2, b1:b2] = W_1_bath[a1:a2, b1:b2] + 
-                        K_abcd_s[a, b, c, d] * (rho_s[c, d] / rho_s[a, b]) * W_bath_s[c1:c2, d1:d2] 
+                        K_abcd_s[a, b, c, d] * rho_s[c, d] * W_bath_s[c1:c2, d1:d2] 
                 else
                     U_ = U_aa * U_bb
                     W_1_bath[a1:a2, a1:a2] = W_1_bath[a1:a2, a1:a2] + 
-                    K_abcd_s[a, b, c, d] * (rho_s[c, d] / rho_s[a, b])  * U_ * W_bath_s[c1:c2, d1:d2]  * adjoint(U_)
+                    K_abcd_s[a, b, c, d] * rho_s[c, d] * U_ * W_bath_s[c1:c2, d1:d2]  * adjoint(U_)
                 end
             end
         end
