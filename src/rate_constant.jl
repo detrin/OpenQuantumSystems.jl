@@ -37,7 +37,7 @@ function M_aabb_W_bath_intp(t, s, p, tmp1, tmp2, Ham_II_t)
                 M_aabb_[a, b] = M_tr[a, a] / rho_t[a, a]
             end
         end
-    ends
+    end
     return M_aabb_
 end
 
