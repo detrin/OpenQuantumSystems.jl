@@ -246,28 +246,26 @@ export
     MemoryKernel_traced,
 
     # rate_constant.jl
-    M_aabb,
-    K_const_ab,
-    K_ab,
-    normalize_bath,
+    M_aabb_W_bath_intp,
+    K_aabb_W_bath_intp,
+    M_abcd_W_bath_intp,
+    K_abcd_W_bath_intp,
 
     # master_ansatz.jl
     QME_sI_ansatz_test,
-    QME_sI_ansatz_const_1,
-    QME_sI_ansatz_const_2,
-    QME_sI_ansatz_linear,
-    QME_sI_ansatz_linear2,
-    QME_sI_ansatz_upart1,
-    QME_sI_ansatz_upart2,
+    QME_sI_ansatz_const_int,
+    QME_sI_ansatz_const_sch,
+    QME_sI_ansatz_linear_sch,
+    QME_sI_ansatz_linear2_sch,
+    QME_sI_ansatz_upart1_sch,
+    QME_sI_ansatz_upart1_int,
+    QME_sI_ansatz_upart2_sch,
+    QME_sI_ansatz_upart2_int,
 
     # master_iterative
-    W_1_bath_1,
+    W_1_bath,
     normalize_bath,
-    QME_sI_iterative_1,
-    W_1_bath_2,
-    QME_sI_iterative_2,
-    W_1_bath_3,
-    QME_sI_iterative_3,
+    QME_sI_iterative,
 
     # postprocessing.jl
     OperatorVector,

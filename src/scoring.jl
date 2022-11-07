@@ -28,33 +28,37 @@ end
 
 #######
 
-function compare_rho(rho::Array, rho_ref::Array; smooth_const=1e-9)
+function compare_rho(rho::Array, rho_ref::Array; relative=false, smooth_const=1e-9)
     N, M, K = size(rho)
     rho_sum = zeros(Float64, M, K)
 
     for t_i in 1:N
-        rho_abs = abs.(rho_ref[t_i, :, :]) 
-        rho_d = rho_abs + smooth_const*ones(size(rho_abs))
-        rho_sum[:, :] += abs.(rho[t_i, :, :] - rho_ref[t_i, :, :]) ./ rho_d
+        if relative
+            rho_abs = abs.(rho_ref[t_i, :, :]) 
+            rho_d = rho_abs + smooth_const*ones(size(rho_abs))
+            rho_sum[:, :] += abs.(rho[t_i, :, :] - rho_ref[t_i, :, :]) ./ rho_d
+        else
+            rho_sum[:, :] += abs.(rho[t_i, :, :] - rho_ref[t_i, :, :])
+        end
     end
     rho_sum /= N
     return rho_sum
 end
 
-function compare_rho(rho::OperatorVectorArray, rho_ref::OperatorVector; smooth_const=1e-9)
+function compare_rho(rho::OperatorVectorArray, rho_ref::OperatorVector; relative=false, smooth_const=1e-9)
     rho_ref_array = operator_recast(rho_ref)
-    return compare_rho(rho, rho_ref_array, smooth_const=smooth_const)
+    return compare_rho(rho, rho_ref_array; relative=relative, smooth_const=smooth_const)
 end
 
-function compare_rho(rho::OperatorVector, rho_ref::OperatorVectorArray; smooth_const=1e-9)
+function compare_rho(rho::OperatorVector, rho_ref::OperatorVectorArray; relative=false, smooth_const=1e-9)
     rho_array = operator_recast(rho)
-    return compare_rho(rho_array, rho_ref, smooth_const=smooth_const)
+    return compare_rho(rho_array, rho_ref; relative=relative, smooth_const=smooth_const)
 end
 
-function compare_rho(rho::OperatorVector, rho_ref::OperatorVector; smooth_const=1e-9)
+function compare_rho(rho::OperatorVector, rho_ref::OperatorVector; relative=false, smooth_const=1e-9)
     rho_array = operator_recast(rho)
     rho_ref_array = operator_recast(rho_ref)
-    return compare_rho(rho_array, rho_ref_array, smooth_const=smooth_const)
+    return compare_rho(rho_array, rho_ref_array; relative=relative, smooth_const=smooth_const)
 end
 
 ######
