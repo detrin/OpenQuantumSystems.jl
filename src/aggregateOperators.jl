@@ -16,12 +16,13 @@ Get Hamiltonian of the system, ``H_S`` only for ``\\mathcal{H}_S``.
 function getAggHamSystemSmall(
     aggCore::AggregateCore,
     aggTools::AggregateTools;
+    vib_basis::Symbol=:ground_excited,
     groundEnergy::Bool = true,
 )
     Ham_sys = zeros(Float64, (aggCore.molCount + 1, aggCore.molCount + 1))
 
     agg_shifts = getShifts(aggCore)
-    agg_frequencies = getShifts(aggCore)
+    agg_frequencies = getFrequencies(aggCore)
     reorganisation_energies = []
     for mol_i = 1:aggCore.molCount
         mol = aggCore.molecules[mol_i]
@@ -42,9 +43,11 @@ function getAggHamSystemSmall(
         for mol_i = 1:aggCore.molCount
             E_state += E_agg[elInd[mol_i], mol_i]
         end
-        # add reorganisation energy
-        if ind > 1
-            E_state += reorganisation_energies[ind-1]
+        if vib_basis == :ground_ground
+            # add reorganisation energy
+            if ind > 1
+                E_state += reorganisation_energies[ind-1]
+            end
         end
         Ham_sys[ind, ind] = E_state
     end
@@ -71,9 +74,10 @@ Get Hamiltonian of the system, ``H_S`` for ``\\mathcal{H}_S \\otimes \\mathcal{H
 function getAggHamSystemBig(
     aggCore::AggregateCore,
     aggTools::AggregateTools;
+    vib_basis::Symbol=:ground_excited,
     groundEnergy::Bool = true,
 )
-    Ham_sys = getAggHamSystemSmall(aggCore, aggTools; groundEnergy = groundEnergy)
+    Ham_sys = getAggHamSystemSmall(aggCore, aggTools; vib_basis = vib_basis, groundEnergy = groundEnergy)
     Ham = zeros(Float64, (aggTools.bSize, aggTools.bSize))
     for I = 1:aggTools.bSize
         elind1, vibind1 = aggTools.indices[I]
@@ -107,12 +111,13 @@ Get Hamiltonian of the bath, ``H_B`` only for ``\\mathcal{H}_B``.
 function getAggHamBathSmall(
     aggCore::AggregateCore,
     aggTools::AggregateTools;
+    vib_basis::Symbol=:ground_excited,
     groundEnergy::Bool = true,
 )
     Ham_bath = zeros(Float64, (aggTools.bBathSize, aggTools.bBathSize))
 
     elind = fill(1, (aggCore.molCount + 1))
-    Ham_sys = getAggHamSystemSmall(aggCore, aggTools; groundEnergy = true)
+    Ham_sys = getAggHamSystemSmall(aggCore, aggTools; vib_basis = vib_basis, groundEnergy = true)
     for I = 1:aggTools.bBathSize
         vibind = aggTools.vibIndices[I]
         Ham_bath[I, I] = getAggStateEnergy(aggCore, elind, vibind) - Ham_sys.data[1, 1]
@@ -169,10 +174,11 @@ Get system and bath Hamiltonian of the [`Aggregate`](@ref) in a form of DenseOpe
 function getAggHamSystemBath(
     aggCore::AggregateCore,
     aggTools::AggregateTools;
+    vib_basis::Symbol=:ground_excited,
     groundEnergy::Bool = true,
 )
     Ham_B = getAggHamBathBig(aggCore, aggTools; groundEnergy = true)
-    Ham_S = getAggHamSystemBig(aggCore, aggTools; groundEnergy = true)
+    Ham_S = getAggHamSystemBig(aggCore, aggTools; vib_basis = vib_basis, groundEnergy = true)
     Ham_0 = Ham_B + Ham_S
     if !groundEnergy
         E0 = Ham_0.data[1, 1]
@@ -200,10 +206,11 @@ function getAggHamInteraction(aggCore::AggregateCore, aggTools::AggregateTools; 
     if vib_basis ∉ (:ground_ground, :ground_excited)
         throw(ArgumentError("Optional argument vib_basis has to be selected from (:ground_ground, :ground_excited)"))
     end
-    Ham_sys = getAggHamSystemSmall(aggCore, aggTools; groundEnergy = true)
+    Ham_sys = getAggHamSystemSmall(aggCore, aggTools; vib_basis=vib_basis, groundEnergy = true)
 
     Ham_I = zeros(Float64, (aggTools.bSize, aggTools.bSize))
     agg_shifts = getShifts(aggCore)
+    agg_frequencies = getFrequencies(aggCore)
 
     for I = 1:aggTools.bSize
         elind1, vibind1 = aggTools.indices[I]
@@ -270,20 +277,28 @@ function getAggHamInteraction(aggCore::AggregateCore, aggTools::AggregateTools; 
                 end
                 =#
                 # somehing smells here, eigenvals of Ham are not the same in both vib bath bases
+                # total hours spent: 11
+                # What are the correct elements of ΔV?
+                # Battle not with monsters, lest ye become a monster, and if you gaze into the abyss, the abyss gazes also into you.
+                #      --Nietzsche
                 if vib_basis == :ground_ground
-                    coeff = 1.
-                    mol_i = elOrder1 - 1
-                    mol = aggCore.molecules[mol_i]
-                    for mode_i = 1:length(mol.modes)
-                        diff_vib = abs(vibind1[mol_i][mode_i] - vibind2[mol_i][mode_i])
-                        if diff_vib == 1
-                            vib_n = vibind1[mol_i][mode_i]
-                            vib_m = vibind2[mol_i][mode_i]
-                            coeff *= agg_shifts[mol_i][mode_i] * Float64(min(vib_n, vib_m))^0.5  / sqrt(2.0)
+                    coeff = 0.
+                    diff_vib_sum = 0
+                    for mol_i = 1:aggCore.molCount
+                        mol = aggCore.molecules[mol_i]
+                        for mode_i = 1:length(mol.modes)
+                            diff_vib = abs(vibind1[mol_i][mode_i] - vibind2[mol_i][mode_i])
+                            diff_vib_sum += diff_vib
+                            if diff_vib == 1 && mol_i == elOrder1 - 1
+                                vib_n = vibind1[mol_i][mode_i]
+                                vib_m = vibind2[mol_i][mode_i]
+                                coeff += agg_frequencies[mol_i][mode_i] * agg_shifts[mol_i][mode_i] / Float64(min(vib_n, vib_m))^0.5 / 2.0
+                                # println(coeff, " ", vibind1, " ", vibind2, " ", mol_i, " ", mode_i, " ", min(vib_n, vib_m))
+                            end # agg_frequencies[mol_i][mode_i] * agg_shifts[mol_i][mode_i] 
                         end
                     end
-                    if coeff != 1.
-                        Ham_I[I, J] = - coeff # -
+                    if diff_vib_sum == 1
+                        Ham_I[I, J] = coeff  # -
                     end
                 end
             end
@@ -420,9 +435,9 @@ function AggregateOperators(
     vib_basis::Symbol=:ground_excited
 )
 
-    Ham_sys = getAggHamSystemSmall(aggCore, aggTools; groundEnergy = true)
+    Ham_sys = getAggHamSystemSmall(aggCore, aggTools; vib_basis = vib_basis, groundEnergy = true)
     Ham_bath = getAggHamBathSmall(aggCore, aggTools; groundEnergy = true)
-    Ham_S = getAggHamSystemBig(aggCore, aggTools; groundEnergy = groundEnergy)
+    Ham_S = getAggHamSystemBig(aggCore, aggTools; vib_basis = vib_basis, groundEnergy = groundEnergy)
     Ham_B = getAggHamBathBig(aggCore, aggTools; groundEnergy = groundEnergy)
     Ham_0 = getAggHamSystemBath(aggCore, aggTools; groundEnergy = groundEnergy)
     Ham_I = getAggHamInteraction(aggCore, aggTools; vib_basis = vib_basis)
