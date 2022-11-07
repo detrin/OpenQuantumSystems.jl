@@ -72,6 +72,9 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     score = compare_rho(rho_t_1, rho_t_2)
     @test sum(score) == 0.
 
+    score = compare_rho(rho_t_1, rho_t_2; relative=true)
+    @test sum(score) == 0.
+
     _, rho_t_3 = LvN_sS(
         W0,
         tspan,
@@ -83,10 +86,19 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     score = compare_rho(rho_t_3, rho_t_3)
     @test sum(score) == 0.
 
+    score = compare_rho(rho_t_3, rho_t_3; relative=true)
+    @test sum(score) == 0.
+
     score = compare_rho(rho_t_1, rho_t_3)
     @test sum(score) < 1e-9
 
+    score = compare_rho(rho_t_1, rho_t_3; relative=true)
+    @test sum(score) < 1e-9
+
     score = compare_rho(rho_t_3, rho_t_1)
+    @test sum(score) < 1e-9
+
+    core = compare_rho(rho_t_3, rho_t_1; relative=true)
     @test sum(score) < 1e-9
 
     tspan = get_tspan(0., 0.02, 100)
