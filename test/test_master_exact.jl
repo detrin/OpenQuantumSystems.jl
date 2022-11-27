@@ -46,8 +46,8 @@ import DelayDiffEq
 
     data = Matrix(Hermitian(rand(ComplexF64, indicesLen, indicesLen)))
     W0 = DenseOperator(basis, basis, data)
-    rho0 = trace_bath(W0, aggCore, aggTools)
-    W0_bath = get_rho_bath(W0, aggCore, aggTools)
+    rho0 = trace_bath(W0, aggCore, aggOperators, aggTools)
+    W0_bath = get_rho_bath(W0, aggCore, aggOperators, aggTools)
     normalize!(rho0)
     # tests have to be quick enough
     t_max = 0.001

@@ -18,7 +18,7 @@ end
 function normalize_bath(W_bath, aggCore, aggTools, aggOperators)
     elLen = aggCore.molCount+1
     indicesMap = aggTools.indicesMap
-    W_bath_tr = trace_bath(W_bath, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
+    W_bath_tr = trace_bath(W_bath, aggCore, aggOperators, aggTools; vib_basis=aggOperators.vib_basis)
     for b=1:elLen
         for a=1:elLen
             a1 = indicesMap[a][1]
@@ -193,8 +193,8 @@ function QME_sI_iterative(
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
-    rho0 = trace_bath(W0, agg.core, agg.tools; vib_basis=agg.operators.vib_basis)
-    W0_bath = get_rho_bath(W0, agg.core, agg.tools; vib_basis=agg.operators.vib_basis)
+    rho0 = trace_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
+    W0_bath = get_rho_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
 
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
@@ -285,7 +285,7 @@ function dQME_sI_iterative(
         
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
-    K_traced = trace_bath(K, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
+    K_traced = trace_bath(K, aggCore, aggOperators, aggTools; vib_basis=aggOperators.vib_basis)
 
     kernel_integrated_traced, err = QuadGK.quadgk(
         s -> kernel_sI_iterative(t, s, history_fun, p, tmp1, tmp2, Ham_II_t),
@@ -318,5 +318,5 @@ function kernel_sI_iterative(t, s, h, p, tmp1, tmp2, Ham_II_t)
     tmp2[:, :] = Ham_II_s.data * tmp1 - tmp1 * Ham_II_s.data
     tmp1[:, :] = Ham_II_t.data * tmp2 - tmp2 * Ham_II_t.data
 
-    return trace_bath(tmp1, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
+    return trace_bath(tmp1, aggCore, aggOperators, aggTools; vib_basis=aggOperators.vib_basis)
 end

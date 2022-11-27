@@ -41,7 +41,7 @@ function QME_sI_exact(
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
-    rho0 = trace_bath(W0, agg.core, agg.tools; vib_basis=agg.operators.vib_basis)
+    rho0 = trace_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
     p = (agg.core, agg.tools, agg.operators, W0, eltype(W0))
     
     tmp1 = copy(W0.data)
@@ -92,7 +92,7 @@ function dQME_sI_exact(
     
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
-    K_traced = trace_bath(K, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
+    K_traced = trace_bath(K, aggCore, aggOperators, aggTools; vib_basis=aggOperators.vib_basis)
 
     kernel_integrated_traced, err = QuadGK.quadgk(
         s -> kernel_sI_exact(t, s, history_fun, p, tmp1, tmp2),
@@ -122,7 +122,7 @@ function kernel_sI_exact(t, s, h, p, tmp1, tmp2)
 
     tmp1[:, :] = Ham_II_s.data * W_int_s.data - W_int_s.data * Ham_II_s.data
     tmp2[:, :] = Ham_II_t.data * tmp1 - tmp1 * Ham_II_t.data
-    return trace_bath(tmp2, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
+    return trace_bath(tmp2, aggCore, aggOperators, aggTools; vib_basis=aggOperators.vib_basis)
 end
 
 function QME_sS_exact(
@@ -138,7 +138,7 @@ function QME_sS_exact(
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B},U<:Operator{B,B},V<:Operator{B,B}}
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
-    rho0 = trace_bath(W0, agg.core, agg.tools; vib_basis=agg.operators.vib_basis)
+    rho0 = trace_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
     p = (agg.core, agg.tools, agg.operators, W0, eltype(W0))
     
     tmp1 = copy(W0.data)
@@ -189,7 +189,7 @@ function dQME_sS_exact(
     
     Ham = aggOperators.Ham.data
     K = Ham * W0.data - W0.data * Ham
-    K_traced = trace_bath(K, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
+    K_traced = trace_bath(K, aggCore, aggOperators, aggTools; vib_basis=aggOperators.vib_basis)
 
     kernel_integrated_traced, err = QuadGK.quadgk(
         s -> kernel_sS_exact(t, s, history_fun, p, tmp1, tmp2),
@@ -215,7 +215,7 @@ function kernel_sS_exact(t, s, h, p, tmp1, tmp2)
     tmp1[:, :] = Ham.data * W_s.data - W_s.data * Ham.data
     tmp2[:, :] = Ham.data * tmp1 - tmp1 * Ham.data
 
-    return trace_bath(tmp2, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
+    return trace_bath(tmp2, aggCore, aggOperators, aggTools; vib_basis=aggOperators.vib_basis)
 end
 
 """

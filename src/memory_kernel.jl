@@ -21,6 +21,7 @@ function MemoryKernel_1_traced(
     H_II_tau::Array,
     W_bath::Array,
     aggCore::AggregateCore,
+    aggOperators::AggregateOperators,
     aggTools::AggregateTools
 )
     indicesMap = aggTools.indicesMap
@@ -35,7 +36,7 @@ function MemoryKernel_1_traced(
                 W_bath_cd = take_el_part(W_bath, c, d, indicesMap)
                 MK_big = H_II_t_tau_ac * W_bath_cd
                 MemoryKernel[a, d, c, d] =
-                    trace_bath_part(MK_big, a, d, aggTools)
+                    trace_bath_part(MK_big, a, d, aggTools; vib_basis=aggOperators.vib_basis)
             end
         end
     end
@@ -63,6 +64,7 @@ function MemoryKernel_2_traced(
     H_II_tau::Array,
     W_bath::Array,
     aggCore::AggregateCore,
+    aggOperators::AggregateOperators,
     aggTools::AggregateTools
 )
     indicesMap = aggTools.indicesMap
@@ -81,7 +83,8 @@ function MemoryKernel_2_traced(
                         MK_big,
                         a,
                         b,
-                        aggTools
+                        aggTools;
+                        vib_basis=aggOperators.vib_basis
                     )
                 end
             end
@@ -111,6 +114,7 @@ function MemoryKernel_3_traced(
     H_II_tau::Array,
     W_bath::Array,
     aggCore::AggregateCore,
+    aggOperators::AggregateOperators,
     aggTools::AggregateTools
 )
     indicesMap = aggTools.indicesMap
@@ -129,7 +133,8 @@ function MemoryKernel_3_traced(
                         MK_big,
                         a,
                         b,
-                        aggTools
+                        aggTools;
+                        vib_basis=aggOperators.vib_basis
                     )
                 end
             end
@@ -159,6 +164,7 @@ function MemoryKernel_4_traced(
     H_II_tau::Array,
     W_bath::Array,
     aggCore::AggregateCore,
+    aggOperators::AggregateOperators,
     aggTools::AggregateTools
 )
     indicesMap = aggTools.indicesMap
@@ -173,7 +179,7 @@ function MemoryKernel_4_traced(
                 H_II_tau_t_db = take_el_part(H_II_tau_t, d, b, indicesMap)
                 MK_big = W_bath_ad * H_II_tau_t_db
                 MemoryKernel[a, b, a, d] =
-                    trace_bath_part(MK_big, a, b, aggTools)
+                    trace_bath_part(MK_big, a, b, aggTools; vib_basis=aggOperators.vib_basis)
             end
         end
     end
@@ -201,6 +207,7 @@ function MemoryKernel_traced(
     H_II_tau::Array,
     W_bath::Array,
     aggCore::AggregateCore,
+    aggOperators::AggregateOperators,
     aggTools::AggregateTools
 )
     indicesMap = aggTools.indicesMap
@@ -238,7 +245,8 @@ function MemoryKernel_traced(
                         MK_big,
                         a,
                         b,
-                        aggTools
+                        aggTools;
+                        vib_basis=aggOperators.vib_basis
                     )
                 end
             end
