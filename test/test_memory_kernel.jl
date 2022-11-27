@@ -24,7 +24,7 @@ import QuantumOpticsBase
     aggCore = AggregateCore([mol1, mol2])
     aggCore.coupling[2, 3] = 50
     aggCore.coupling[3, 2] = 50
-    agg = setupAggregate(aggCore)
+    agg = setupAggregate(aggCore; vib_basis=:ground_ground)
     aggTools = agg.tools
     aggOperators = agg.operators
 
@@ -51,10 +51,11 @@ import QuantumOpticsBase
     W0_bath = get_rho_bath(
         W0,
         aggCore,
+        aggOperators, 
         aggTools;
         justCopy = true,
     )
-    rho0 = trace_bath(W0.data, aggCore, aggTools)
+    rho0 = trace_bath(W0.data, aggCore, aggOperators, aggTools)
 
     W_ab = take_el_part(W0.data, 1, 1, indicesMap)
     W_ab_len = size(W_ab, 1)
@@ -74,6 +75,7 @@ import QuantumOpticsBase
                 H_II_s,
                 W0_bath.data,
                 aggCore,
+                aggOperators,
                 aggTools
             )
             rho = zero(complex(rho0))
@@ -88,6 +90,7 @@ import QuantumOpticsBase
             rho_ref = trace_bath(
                 MemoryKernel_1_ref,
                 aggCore, 
+                aggOperators,
                 aggTools
             )
             @test 1e-6 > D(rho, rho_ref)
@@ -98,6 +101,7 @@ import QuantumOpticsBase
                 H_II_s,
                 W0_bath.data,
                 aggCore,
+                aggOperators,
                 aggTools
             )
             rho = zero(complex(rho0))
@@ -112,6 +116,7 @@ import QuantumOpticsBase
             rho_ref = trace_bath(
                 MemoryKernel_2_ref,
                 aggCore, 
+                aggOperators,
                 aggTools
             )
             @test 1e-6 > D(rho, rho_ref)
@@ -122,6 +127,7 @@ import QuantumOpticsBase
                 H_II_s,
                 W0_bath.data,
                 aggCore,
+                aggOperators,
                 aggTools
             )
             rho = zero(complex(rho0))
@@ -136,6 +142,7 @@ import QuantumOpticsBase
             rho_ref = trace_bath(
                 MemoryKernel_3_ref,
                 aggCore, 
+                aggOperators,
                 aggTools
             )
             @test 1e-6 > D(rho, rho_ref)
@@ -146,6 +153,7 @@ import QuantumOpticsBase
                 H_II_s,
                 W0_bath.data,
                 aggCore,
+                aggOperators,
                 aggTools
             )
             rho = zero(complex(rho0))
@@ -160,6 +168,7 @@ import QuantumOpticsBase
             rho_ref = trace_bath(
                 MemoryKernel_4_ref,
                 aggCore, 
+                aggOperators,
                 aggTools
             )
             @test 1e-6 > D(rho, rho_ref)
@@ -180,6 +189,7 @@ import QuantumOpticsBase
                 H_II_s,
                 W0_bath.data,
                 aggCore,
+                aggOperators,
                 aggTools
             )
             rho = zero(complex(rho0))
@@ -195,6 +205,7 @@ import QuantumOpticsBase
             rho_ref = trace_bath(
                 MemoryKernel_ref,
                 aggCore, 
+                aggOperators,
                 aggTools
             )
             @test 1e-6 > D(rho, rho_ref)

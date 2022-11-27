@@ -57,13 +57,19 @@ end
 function trace_bath(
     W::Array,
     aggCore::AggregateCore,
+    aggOperators::AggregateOperators,
     aggTools::AggregateTools;
-    vib_basis::Symbol=:ground_excited
+    vib_basis::Symbol=:none
 ) 
+    if vib_basis == :none
+        vib_basis = aggOperators.vib_basis
+    end
+
     if vib_basis ∉ (:ground_ground, :ground_excited)
         throw(ArgumentError("Optional argument vib_basis has to be selected from (:ground_ground, :ground_excited)"))
     end
     rho = nothing
+    
     if vib_basis == :ground_excited
         rho = trace_bath_ground_excited(W, aggCore, aggTools)
     end
@@ -74,13 +80,36 @@ function trace_bath(
 end
 
 function trace_bath(
+    W::Array,
+    agg::Aggregate;
+    vib_basis::Symbol=:none
+) 
+    aggCore = agg.core
+    aggOperators = agg.operators
+    aggTools = agg.tools
+    return trace_bath(W, aggCore, aggOperators, aggTools; vib_basis=vib_basis)
+end
+
+function trace_bath(
     W::Operator,
     aggCore::AggregateCore,
+    aggOperators::AggregateOperators,
     aggTools::AggregateTools;
-    vib_basis::Symbol=:ground_excited
+    vib_basis::Symbol=:none
 ) 
-    rho = trace_bath(W.data, aggCore, aggTools; vib_basis=vib_basis)
+    rho = trace_bath(W.data, aggCore, aggOperators, aggTools; vib_basis=vib_basis)
     return DenseOperator(aggTools.basisSystem, aggTools.basisSystem, rho)
+end
+
+function trace_bath(
+    W::Operator,
+    agg::Aggregate;
+    vib_basis::Symbol=:none
+) 
+    aggCore = agg.core
+    aggOperators = agg.operators
+    aggTools = agg.tools
+    return trace_bath(W, aggCore, aggOperators, aggTools; vib_basis=vib_basis)
 end
 
 """
@@ -186,17 +215,28 @@ function trace_bath_part(
     W::Array,
     a::N, 
     b::N, 
-    aggTools::AggregateTools
+    aggTools::AggregateTools;
+    vib_basis::Symbol=:ground_ground
 ) where {N <: Integer}
     rho_traced = eltype(W)(0)
+    if vib_basis ∉ (:ground_ground, :ground_excited)
+        throw(ArgumentError("Optional argument vib_basis has to be selected from (:ground_ground, :ground_excited)"))
+    end
 
-    for a_vib = 1:aggTools.bBathSize
-        I = aggTools.indicesMap[a][a_vib]
-        for b_vib = 1:aggTools.bBathSize
-            J = aggTools.indicesMap[b][b_vib]
-            rho_traced += W[a_vib, b_vib] * aggTools.FCproduct[I, J]
+    if vib_basis == :ground_excited
+        for a_vib = 1:aggTools.bBathSize
+            I = aggTools.indicesMap[a][a_vib]
+            for b_vib = 1:aggTools.bBathSize
+                J = aggTools.indicesMap[b][b_vib]
+                rho_traced += W[a_vib, b_vib] * aggTools.FCproduct[I, J]
+            end
         end
     end
+
+    if vib_basis == :ground_ground && a == b
+        rho_traced = tr(W)
+    end
+    
     return rho_traced
 end
 
@@ -204,13 +244,15 @@ function trace_bath_part(
     W::Operator,
     a::N, 
     b::N, 
-    aggTools::AggregateTools
+    aggTools::AggregateTools;
+    vib_basis::Symbol=:ground_ground
 ) where {N <: Integer}
     rho_traced = trace_bath_part(
         W.data,
         a,
         b,
-        aggTools
+        aggTools;
+        vib_basis=vib_basis
     )
     return rho_traced
 end
@@ -229,11 +271,12 @@ This method will return the bath part of `rho` knowing the result of [`trace_bat
 function get_rho_bath(
     W::Array,
     aggCore::AggregateCore,
+    aggOperators::AggregateOperators,
     aggTools::AggregateTools;
     justCopy::Bool = false,
-    vib_basis::Symbol=:ground_excited
+    vib_basis::Symbol=:none
 )
-    rho = trace_bath(W, aggCore, aggTools; vib_basis=vib_basis)
+    rho = trace_bath(W, aggCore, aggOperators, aggTools; vib_basis=vib_basis)
     vibindices = aggTools.indicesMap
     vibLen = length(vibindices[end])
     elLen = aggCore.molCount + 1
@@ -277,13 +320,15 @@ end
 function get_rho_bath(
     W::Operator,
     aggCore::AggregateCore,
+    aggOperators::AggregateOperators,
     aggTools::AggregateTools;
     justCopy = false,
-    vib_basis::Symbol=:ground_excited
+    vib_basis::Symbol=:none
 )
     rho_data = get_rho_bath(
         W.data,
         aggCore,
+        aggOperators,
         aggTools;
         justCopy = justCopy,
         vib_basis = vib_basis
@@ -383,10 +428,14 @@ function correlation_function(
     Ham_0,
     Ham_I,
     aggCore::AggregateCore,
+    aggOperators::AggregateOperators,
     aggTools::AggregateTools;
-    vib_basis::Symbol=:ground_excited
+    vib_basis::Symbol=:none
 )
     Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
     prod = Ham_II_t * Ham_I * rho0_bath
-    return trace_bath(prod, aggCore, aggTools; vib_basis=vib_basis)
+    if vib_basis == :none
+        vib_basis = aggOperators.vib_basis
+    end
+    return trace_bath(prod, aggCore, aggOperators, aggTools; vib_basis=vib_basis)
 end
