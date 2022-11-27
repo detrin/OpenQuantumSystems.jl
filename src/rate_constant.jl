@@ -31,7 +31,7 @@ function M_aabb_W_bath_intp(t, s, p, tmp1, tmp2, Ham_II_t)
         tmp1[:, :] = ad(rho_mantis, W_bath_s, aggCore, aggTools)
         tmp2[:, :] = Ham_II_s.data * tmp1 - tmp1 * Ham_II_s.data
         tmp1[:, :] = Ham_II_t.data * tmp2 - tmp2 * Ham_II_t.data
-        M_tr = trace_bath(tmp1, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
+        M_tr = trace_bath(tmp1, aggCore, aggOperators, aggTools; vib_basis=aggOperators.vib_basis)
         
         for a=1:elLen
             if rho_t[a, a] != 0.
@@ -83,7 +83,7 @@ function M_abcd_W_bath_intp(t, s, p, tmp1, tmp2, Ham_II_t)
         tmp1[:, :] = ad(rho_mantis, W_bath_s, aggCore, aggTools)
         tmp2[:, :] = Ham_II_s.data * tmp1 - tmp1 * Ham_II_s.data
         tmp1[:, :] = Ham_II_t.data * tmp2 - tmp2 * Ham_II_t.data
-        M_tr = trace_bath(tmp1, aggCore, aggTools; vib_basis=aggOperators.vib_basis)
+        M_tr = trace_bath(tmp1, aggCore, aggOperators, aggTools; vib_basis=aggOperators.vib_basis)
         
         for a=1:elLen, b=1:elLen
             if rho_t[a, b] != 0.
