@@ -262,6 +262,9 @@ export
     QME_sI_ansatz_upart2_sch,
     QME_sI_ansatz_upart2_int,
 
+    # redfield.jl
+    QME_sI_Redfield,
+
     # master_iterative
     W_1_bath,
     normalize_bath,
@@ -302,6 +305,7 @@ include("initial_state.jl")
 include("memory_kernel.jl")
 include("rate_constant.jl")
 include("master_ansatz.jl")
+include("redfield.jl")
 include("master_iterative.jl")
 include("postprocessing.jl")
 include("scoring.jl")
