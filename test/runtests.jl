@@ -20,6 +20,7 @@ names = [
     "test_initial_state.jl",
     # "test_memory_kernel.jl",
     "test_rate_constant.jl",
+    "test_redfield.jl",
     "test_master_ansatz.jl",
     "test_master_iterative.jl",
     "test_postprocessing.jl",
