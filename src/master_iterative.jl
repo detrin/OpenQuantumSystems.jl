@@ -32,7 +32,7 @@ function normalize_bath(W_bath, aggCore, aggTools, aggOperators)
 end
 
 
-function W_aabb_1_bath_core(t, s, p, tmp1, tmp2; bath_evolution=:none, K_rtol=1e-12, K_atol=1e-12)
+function W_aabb_1_bath_core_old(t, s, p, tmp1, tmp2; bath_evolution=:none, K_rtol=1e-12, K_atol=1e-12)
     aggCore, aggTools, aggOperators, W0, W0_bath, tspan, rho_0_int_t_itp, W_0_bath_t_itp, _ = p
     
     # W_1_bath = deepcopy(W0_bath.data)
@@ -80,7 +80,7 @@ function W_aabb_1_bath_core(t, s, p, tmp1, tmp2; bath_evolution=:none, K_rtol=1e
     return W_1_bath
 end
 
-function W_abcd_1_bath_core(t, s, p, tmp1, tmp2; bath_evolution=:none, K_rtol=1e-12, K_atol=1e-12)
+function W_abcd_1_bath_core_old(t, s, p, tmp1, tmp2; bath_evolution=:none, K_rtol=1e-12, K_atol=1e-12)
     aggCore, aggTools, aggOperators, W0, W0_bath, tspan, rho_0_int_t_itp, W_0_bath_t_itp, _ = p
     
     # W_1_bath = deepcopy(W0_bath.data)
@@ -132,7 +132,7 @@ function W_abcd_1_bath_core(t, s, p, tmp1, tmp2; bath_evolution=:none, K_rtol=1e
     return W_1_bath
 end
 
-function W_1_bath(
+function W_1_bath_old(
         t, p, tmp1, tmp2; 
         bath_evolution=:none, bath_ansatz=:population, normalize=false,
         W_1_rtol=1e-12, W_1_atol=1e-12, K_rtol=1e-12, K_atol=1e-12
@@ -141,7 +141,7 @@ function W_1_bath(
     
     if bath_ansatz == :population
         W_1_diff, err = QuadGK.quadgk(
-            s -> W_aabb_1_bath_core(t, s, p, tmp1, tmp2; bath_evolution=bath_evolution, K_rtol=K_rtol, K_atol=K_atol),
+            s -> W_aabb_1_bath_core_old(t, s, p, tmp1, tmp2; bath_evolution=bath_evolution, K_rtol=K_rtol, K_atol=K_atol),
             0,
             t,
             rtol = W_1_rtol,
@@ -149,7 +149,7 @@ function W_1_bath(
         )
     elseif bath_ansatz == :population_coherences
         W_1_diff, err = QuadGK.quadgk(
-            s -> W_abcd_1_bath_core(t, s, p, tmp1, tmp2; bath_evolution=bath_evolution, K_rtol=K_rtol, K_atol=K_atol),
+            s -> W_abcd_1_bath_core_old(t, s, p, tmp1, tmp2; bath_evolution=bath_evolution, K_rtol=K_rtol, K_atol=K_atol),
             0,
             t,
             rtol = W_1_rtol,
@@ -157,21 +157,21 @@ function W_1_bath(
         )
     end
     
-    W_1_bath = deepcopy(W0_bath.data) + W_1_diff
+    W_1_bath = deepcopy(W0_bath.data) - W_1_diff
     if normalize
         W_1_bath = normalize_bath(W_1_bath, aggCore, aggTools, aggOperators)
     end
     return W_1_bath
 end
 
-function W_1_bath(t, W0, W0_bath, agg::Aggregate; W_1_rtol=1e-12, W_1_atol=1e-12, K_rtol=1e-12, K_atol=1e-12)
+function W_1_bath_old(t, W0, W0_bath, agg::Aggregate; W_1_rtol=1e-12, W_1_atol=1e-12, K_rtol=1e-12, K_atol=1e-12)
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
     p = (agg.core, agg.tools, agg.operators, W0, W0_bath, eltype(W0))
     return W_1_bath(t, p, tmp1, tmp2; W_1_rtol=W_1_rtol, W_1_atol=W_1_atol, K_rtol=K_rtol, K_atol=K_atol)
 end
 
-function QME_sI_iterative(
+function QME_sI_iterative_old(
     W0::T,
     rho_0_int_t,
     W_0_bath_t,
@@ -227,7 +227,7 @@ function QME_sI_iterative(
     W_1_bath_t = []
     for t_i=1:length(tspan)
         t = tspan[t_i]
-        W_1_bath_ = W_1_bath(
+        W_1_bath_ = W_1_bath_old(
             t, p, tmp1, tmp2; 
             bath_evolution=bath_evolution, bath_ansatz=bath_ansatz, normalize=normalize,
             W_1_rtol=W_1_rtol, W_1_atol=W_1_atol, K_rtol=K_rtol, K_atol=K_atol
@@ -238,7 +238,7 @@ function QME_sI_iterative(
     
     p = (agg.core, agg.tools, agg.operators, W0, W0_bath, W_1_bath_itp, tspan, eltype(W0))
     
-    dmaster_(t, rho, drho, history_fun, p) = dQME_sI_iterative(
+    dmaster_(t, rho, drho, history_fun, p) = dQME_sI_iterative_old(
         t,
         rho,
         drho,
@@ -270,7 +270,7 @@ function QME_sI_iterative(
     return tspan, rho_int_1_t, W_1_bath_t
 end
 
-function dQME_sI_iterative(
+function dQME_sI_iterative_old(
     t::AbstractFloat,
     rho::T,
     drho::T,
@@ -288,7 +288,7 @@ function dQME_sI_iterative(
     K_traced = trace_bath(K, aggCore, aggOperators, aggTools; vib_basis=aggOperators.vib_basis)
 
     kernel_integrated_traced, err = QuadGK.quadgk(
-        s -> kernel_sI_iterative(t, s, history_fun, p, tmp1, tmp2, Ham_II_t),
+        s -> kernel_sI_iterative_old(t, s, history_fun, p, tmp1, tmp2, Ham_II_t),
         0,
         t,
         rtol = int_reltol,
@@ -299,7 +299,7 @@ function dQME_sI_iterative(
     return drho
 end
 
-function kernel_sI_iterative(t, s, h, p, tmp1, tmp2, Ham_II_t)
+function kernel_sI_iterative_old(t, s, h, p, tmp1, tmp2, Ham_II_t)
     aggCore, aggTools, aggOperators, W0, W0_bath, W_1_bath_itp, tspan, _ = p
 
     rho = h(p, s)

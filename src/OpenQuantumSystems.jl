@@ -266,8 +266,10 @@ export
     QME_sI_Redfield,
 
     # master_iterative
-    W_1_bath,
     normalize_bath,
+    W_1_bath_old,
+    QME_sI_iterative_old,
+    W_1_bath,
     QME_sI_iterative,
 
     # postprocessing.jl
