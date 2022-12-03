@@ -56,9 +56,9 @@ end
     aggCore.coupling[2, 3] = 50
     aggCore.coupling[3, 2] = 50
     aggTools = AggregateTools(aggCore)
-    aggOperators = AggregateOperators(aggCore, aggTools; groundEnergy=true)
+    aggOperators = AggregateOperators(aggCore, aggTools; groundEnergy=true, vib_basis=:ground_ground)
 
-    agg = setupAggregate(aggCore; groundEnergy=true)
+    agg = setupAggregate(aggCore; groundEnergy=true, vib_basis=:ground_ground)
 
     @test agg.core == aggCore
     @test agg.tools == aggTools
@@ -68,11 +68,11 @@ end
     agg_ = Aggregate(aggCore)
     @test agg_ == agg
 
-    agg = setupAggregate(aggCore)
+    agg = setupAggregate(aggCore; vib_basis=:ground_ground)
     aggTools_ = AggregateTools(agg)
     @test aggTools_ == aggTools
 
-    aggOperators_ = AggregateOperators(agg)
+    aggOperators_ = AggregateOperators(agg; vib_basis=:ground_ground)
     @test aggOperators_ == aggOperators
 
     agg = setupAggregate(aggCore)
