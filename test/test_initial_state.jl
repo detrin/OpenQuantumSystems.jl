@@ -119,10 +119,10 @@ import QuantumOpticsBase
     normalize!(W0_ref)
     W0_ref = DenseOperator(W0_ref.basis_l, W0_ref.basis_r, complex(W0_ref.data))
 
-    rho0_ref = trace_bath(W0_ref, agg.core, agg.tools)
+    rho0_ref = trace_bath(W0_ref, agg.core, agg.operators, agg.tools)
     rho0_ref = DenseOperator(rho0_ref.basis_l, rho0_ref.basis_r, complex(rho0_ref.data))
 
-    W0_bath_ref = get_rho_bath(W0_ref, agg.core, agg.tools)
+    W0_bath_ref = get_rho_bath(W0_ref, agg.core, agg.operators, agg.tools)
     W0_bath_ref = DenseOperator(W0_bath_ref.basis_l, W0_bath_ref.basis_r, complex(W0_bath_ref.data))
     @test 1e-15 > D(W0_ref, W0)
     @test 1e-15 > D(rho0_ref, rho0)

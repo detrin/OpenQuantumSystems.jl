@@ -262,10 +262,21 @@ export
     QME_sI_ansatz_upart2_sch,
     QME_sI_ansatz_upart2_int,
 
+    # redfield.jl
+    QME_sI_Redfield,
+
     # master_iterative
-    W_1_bath,
     normalize_bath,
+    W_1_bath_old,
+    QME_sI_iterative_old,
+    W_1_bath,
     QME_sI_iterative,
+    W_1_markov0_bath,
+    QME_sI_iterative_markov0,
+    W_1_markov1_bath,
+    QME_sI_iterative_markov1,
+    W_1_markov2_bath,
+    QME_sI_iterative_markov2,
 
     # postprocessing.jl
     OperatorVector,
@@ -302,6 +313,7 @@ include("initial_state.jl")
 include("memory_kernel.jl")
 include("rate_constant.jl")
 include("master_ansatz.jl")
+include("redfield.jl")
 include("master_iterative.jl")
 include("postprocessing.jl")
 include("scoring.jl")

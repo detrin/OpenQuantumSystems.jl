@@ -259,7 +259,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     @test 1e-12 > D(W_int_t_ref, W_int_t_[2, :, :])
 
     _, rho_int_t_ = Evolution_sI_exact(W0, tspan, agg)
-    rho_int_t_ref = trace_bath(W_int_t_ref, agg.core, agg.tools)
+    rho_int_t_ref = trace_bath(W_int_t_ref, agg.core, agg.operators, agg.tools)
     @test 1e-12 > D(rho_int_t_ref, rho_int_t_[2, :, :])
 
     _, W_t_ = Evolution_SS_exact(W0, tspan, agg)
@@ -269,6 +269,6 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     @test 1e-12 > D(W_t_ref, W_t_[2, :, :])
 
     _, rho_t_ = Evolution_sS_exact(W0, tspan, agg)
-    rho_t_ref = trace_bath(W_t_ref, agg.core, agg.tools)
+    rho_t_ref = trace_bath(W_t_ref, agg.core, agg.operators, agg.tools)
     @test 1e-12 > D(rho_t_ref, rho_t_[2, :, :])
 end
