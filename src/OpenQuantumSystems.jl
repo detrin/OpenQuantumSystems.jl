@@ -271,6 +271,12 @@ export
     QME_sI_iterative_old,
     W_1_bath,
     QME_sI_iterative,
+    W_1_markov0_bath,
+    QME_sI_iterative_markov0,
+    W_1_markov1_bath,
+    QME_sI_iterative_markov1,
+    W_1_markov2_bath,
+    QME_sI_iterative_markov2,
 
     # postprocessing.jl
     OperatorVector,
