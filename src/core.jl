@@ -1,3 +1,3 @@
 
 const ComputableType = Union{AbstractFloat,Complex}
-const version = "0.1.7"
+const version = "0.2.0"
