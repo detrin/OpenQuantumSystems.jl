@@ -24,6 +24,7 @@ import OrdinaryDiffEq
     aggCore.coupling[2, 3] = 50
     aggCore.coupling[3, 2] = 50
     agg = setupAggregate(aggCore)
+    aggOperators = agg.operators
     aggTools = agg.tools
 
     Ham = agg.operators.Ham
@@ -49,7 +50,7 @@ import OrdinaryDiffEq
         W = U_op * W0 * U_op'
         U_0_op = evolutionOperator(Ham_0, t)
         W_int = U_0_op' * W * U_0_op
-        rho_int = trace_bath(W_int, aggCore, aggTools)
+        rho_int = trace_bath(W_int, aggCore, aggOperators, aggTools)
         @test 1e-7 > D(rho_int, rho_int_t[t_i])
         # println(t_i, " ", D(W_int, W_int_t[t_i]))
     end
@@ -66,7 +67,7 @@ import OrdinaryDiffEq
         t = tspan[t_i]
         U_op = evolutionOperator(Ham, t)
         W = U_op * W0 * U_op'
-        rho = trace_bath(W, aggCore, aggTools)
+        rho = trace_bath(W, aggCore, aggOperators, aggTools)
         @test 1e-7 > D(rho, rho_t[t_i])
         # println(t_i, " ", D(W_int, W_int_t[t_i]))
     end
