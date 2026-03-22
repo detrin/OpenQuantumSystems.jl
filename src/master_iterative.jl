@@ -20,7 +20,7 @@ end
 
 
 function W_aabb_1_bath_core_old(t, s, p, tmp1, tmp2; bath_evolution=:none, K_rtol=1e-12, K_atol=1e-12)
-    aggCore, aggTools, aggOperators, W0, W0_bath, tspan, rho_0_int_t_itp, W_0_bath_t_itp, _ = p
+    (; aggCore, aggTools, aggOperators, W0, W0_bath, tspan, rho_0_int_t_itp, W_0_bath_t_itp) = p
     
     # W_1_bath = deepcopy(W0_bath.data)
     elLen = aggCore.molCount+1
@@ -68,7 +68,7 @@ function W_aabb_1_bath_core_old(t, s, p, tmp1, tmp2; bath_evolution=:none, K_rto
 end
 
 function W_abcd_1_bath_core_old(t, s, p, tmp1, tmp2; bath_evolution=:none, K_rtol=1e-12, K_atol=1e-12)
-    aggCore, aggTools, aggOperators, W0, W0_bath, tspan, rho_0_int_t_itp, W_0_bath_t_itp, _ = p
+    (; aggCore, aggTools, aggOperators, W0, W0_bath, tspan, rho_0_int_t_itp, W_0_bath_t_itp) = p
     
     # W_1_bath = deepcopy(W0_bath.data)
     elLen = aggCore.molCount+1
@@ -124,7 +124,7 @@ function W_1_bath_old(
         bath_evolution=:none, bath_ansatz=:population, normalize=false,
         W_1_rtol=1e-12, W_1_atol=1e-12, K_rtol=1e-12, K_atol=1e-12
     )
-    aggCore, aggTools, aggOperators, W0, W0_bath, _ = p
+    (; aggCore, aggTools, aggOperators, W0, W0_bath) = p
     
     if bath_ansatz == :population
         W_1_diff, err = QuadGK.quadgk(
@@ -154,7 +154,7 @@ end
 function W_1_bath_old(t, W0, W0_bath, agg::Aggregate; W_1_rtol=1e-12, W_1_atol=1e-12, K_rtol=1e-12, K_atol=1e-12)
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
-    p = (agg.core, agg.tools, agg.operators, W0, W0_bath, eltype(W0))
+    p = (aggCore=agg.core, aggTools=agg.tools, aggOperators=agg.operators, W0=W0, W0_bath=W0_bath, elementtype=eltype(W0))
     return W_1_bath(t, p, tmp1, tmp2; W_1_rtol=W_1_rtol, W_1_atol=W_1_atol, K_rtol=K_rtol, K_atol=K_atol)
 end
 
@@ -213,7 +213,7 @@ function QME_sI_iterative_old(
         Interpolations.BSpline(Interpolations.Linear())
     )
     
-    p = (agg.core, agg.tools, agg.operators, W0, W0_bath, tspan, rho_0_int_t_itp, W_0_bath_t_itp, eltype(W0))
+    p = (aggCore=agg.core, aggTools=agg.tools, aggOperators=agg.operators, W0=W0, W0_bath=W0_bath, tspan=tspan, rho_0_int_t_itp=rho_0_int_t_itp, W_0_bath_t_itp=W_0_bath_t_itp, elementtype=eltype(W0))
     elLen = agg.core.molCount+1
     W_1_bath_t = []
     for t_i=1:length(tspan)
@@ -227,7 +227,7 @@ function QME_sI_iterative_old(
     end
     W_1_bath_itp = Interpolations.interpolate(W_1_bath_t, Interpolations.BSpline(Interpolations.Linear()))
     
-    p = (agg.core, agg.tools, agg.operators, W0, W0_bath, W_1_bath_itp, tspan, eltype(W0))
+    p = (aggCore=agg.core, aggTools=agg.tools, aggOperators=agg.operators, W0=W0, W0_bath=W0_bath, W_1_bath_itp=W_1_bath_itp, tspan=tspan, elementtype=eltype(W0))
     
     dmaster_(t, rho, drho, history_fun, p) = dQME_sI_iterative_old(
         t,
@@ -272,7 +272,7 @@ function dQME_sI_iterative_old(
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,
 ) where {B<:Basis,T<:Operator{B,B}}
-    aggCore, aggTools, aggOperators, W0, _, _, _, elementtype = p
+    (; aggCore, aggTools, aggOperators, W0, elementtype) = p
         
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
@@ -291,7 +291,7 @@ function dQME_sI_iterative_old(
 end
 
 function kernel_sI_iterative_old(t, s, h, p, tmp1, tmp2, Ham_II_t)
-    aggCore, aggTools, aggOperators, W0, W0_bath, W_1_bath_itp, tspan, _ = p
+    (; aggCore, aggTools, aggOperators, W0, W0_bath, W_1_bath_itp, tspan) = p
 
     rho = h(p, s)
 
@@ -311,7 +311,7 @@ function kernel_sI_iterative_old(t, s, h, p, tmp1, tmp2, Ham_II_t)
 end
 
 function W_abcd_1_bath_core(t, t1, t2, p, tmp1, tmp2)
-    aggCore, aggTools, aggOperators, W0, W0_bath, tspan, rho_0_int_t_itp, W_0_bath_t_itp, _ = p
+    (; aggCore, aggTools, aggOperators, W0, W0_bath, tspan, rho_0_int_t_itp, W_0_bath_t_itp) = p
     
     # W_1_bath = deepcopy(W0_bath.data)
     elLen = aggCore.molCount+1
@@ -353,7 +353,7 @@ function W_1_bath(
         normalize=false,
         W_1_rtol=1e-12, W_1_atol=1e-12
     )
-    aggCore, aggTools, aggOperators, W0, W0_bath, tspan, rho_0_int_t_itp, W_0_bath_t_itp, _ = p
+    (; aggCore, aggTools, aggOperators, W0, W0_bath, tspan, rho_0_int_t_itp, W_0_bath_t_itp) = p
     
     W_1_diff, err = QuadGK.quadgk(
         t1 -> begin
@@ -383,7 +383,7 @@ end
 function W_1_bath(t, W0, W0_bath, agg::Aggregate; W_1_rtol=1e-12, W_1_atol=1e-12, K_rtol=1e-12, K_atol=1e-12)
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
-    p = (agg.core, agg.tools, agg.operators, W0, W0_bath, eltype(W0))
+    p = (aggCore=agg.core, aggTools=agg.tools, aggOperators=agg.operators, W0=W0, W0_bath=W0_bath, elementtype=eltype(W0))
     return W_1_bath(t, p, tmp1, tmp2; W_1_rtol=W_1_rtol, W_1_atol=W_1_atol, K_rtol=K_rtol, K_atol=K_atol)
 end
 
@@ -438,7 +438,7 @@ function QME_sI_iterative(
         Interpolations.BSpline(Interpolations.Linear())
     )
     println("running W_1_bath")
-    p = (agg.core, agg.tools, agg.operators, W0, W0_bath, tspan, rho_0_int_t_itp, W_0_bath_t_itp, eltype(W0))
+    p = (aggCore=agg.core, aggTools=agg.tools, aggOperators=agg.operators, W0=W0, W0_bath=W0_bath, tspan=tspan, rho_0_int_t_itp=rho_0_int_t_itp, W_0_bath_t_itp=W_0_bath_t_itp, elementtype=eltype(W0))
     elLen = agg.core.molCount+1
     W_1_bath_t = []
     for t_i=1:length(tspan)
@@ -453,7 +453,7 @@ function QME_sI_iterative(
     W_1_bath_itp = Interpolations.interpolate(W_1_bath_t, Interpolations.BSpline(Interpolations.Linear()))
     
     println("running dQME_sI_iterative")
-    p = (agg.core, agg.tools, agg.operators, W0, W0_bath, rho_0_int_t_itp, W_1_bath_itp, tspan, eltype(W0))
+    p = (aggCore=agg.core, aggTools=agg.tools, aggOperators=agg.operators, W0=W0, W0_bath=W0_bath, rho_0_int_t_itp=rho_0_int_t_itp, W_1_bath_itp=W_1_bath_itp, tspan=tspan, elementtype=eltype(W0))
     dmaster_(t, rho, drho, history_fun, p) = dQME_sI_iterative(
         t,
         rho,
@@ -497,7 +497,7 @@ function dQME_sI_iterative(
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,
 ) where {B<:Basis,T<:Operator{B,B}}
-    aggCore, aggTools, aggOperators, W0, _, _, _, _, elementtype = p
+    (; aggCore, aggTools, aggOperators, W0, elementtype) = p
         
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
@@ -516,7 +516,7 @@ function dQME_sI_iterative(
 end
 
 function kernel_sI_iterative(t, s, h, p, tmp1, tmp2, Ham_II_t)
-    aggCore, aggTools, aggOperators, W0, W0_bath, rho_0_int_t_itp, W_1_bath_itp, tspan, _ = p
+    (; aggCore, aggTools, aggOperators, W0, W0_bath, rho_0_int_t_itp, W_1_bath_itp, tspan) = p
 
     rho = h(p, s)
 
@@ -535,7 +535,7 @@ function kernel_sI_iterative(t, s, h, p, tmp1, tmp2, Ham_II_t)
 end
 
 function W_abcd_1_markov0_bath_core(t, t1, t2, p, tmp1, tmp2)
-    aggCore, aggTools, aggOperators, W0, W0_bath, tspan, rho_0_int_t_itp, W_0_bath_t_itp, _ = p
+    (; aggCore, aggTools, aggOperators, W0, W0_bath, tspan, rho_0_int_t_itp, W_0_bath_t_itp) = p
     
     # W_1_bath = deepcopy(W0_bath.data)
     # elLen = aggCore.molCount+1
@@ -563,7 +563,7 @@ function W_1_markov0_bath(
         normalize=false,
         W_1_rtol=1e-12, W_1_atol=1e-12
     )
-    aggCore, aggTools, aggOperators, W0, W0_bath, tspan, rho_0_int_t_itp, W_0_bath_t_itp, _ = p
+    (; aggCore, aggTools, aggOperators, W0, W0_bath, tspan, rho_0_int_t_itp, W_0_bath_t_itp) = p
     elLen = aggCore.molCount+1
     indicesMap = aggTools.indicesMap
     
@@ -654,7 +654,7 @@ function QME_sI_iterative_markov0(
         Interpolations.BSpline(Interpolations.Linear())
     )
     println("running W_1_bath")
-    p = (agg.core, agg.tools, agg.operators, W0, W0_bath, tspan, rho_0_int_t_itp, W_0_bath_t_itp, eltype(W0))
+    p = (aggCore=agg.core, aggTools=agg.tools, aggOperators=agg.operators, W0=W0, W0_bath=W0_bath, tspan=tspan, rho_0_int_t_itp=rho_0_int_t_itp, W_0_bath_t_itp=W_0_bath_t_itp, elementtype=eltype(W0))
     W_1_bath_t = []
     for t_i=1:length(tspan)
         t = tspan[t_i]
@@ -668,7 +668,7 @@ function QME_sI_iterative_markov0(
     W_1_bath_itp = Interpolations.interpolate(W_1_bath_t, Interpolations.BSpline(Interpolations.Linear()))
     
     println("running dQME_sI_iterative")
-    p = (agg.core, agg.tools, agg.operators, W0, W0_bath, rho_0_int_t_itp, W_1_bath_itp, tspan, eltype(W0))
+    p = (aggCore=agg.core, aggTools=agg.tools, aggOperators=agg.operators, W0=W0, W0_bath=W0_bath, rho_0_int_t_itp=rho_0_int_t_itp, W_1_bath_itp=W_1_bath_itp, tspan=tspan, elementtype=eltype(W0))
     dmaster_(t, rho, drho, history_fun, p) = dQME_sI_iterative(
         t,
         rho,
@@ -702,7 +702,7 @@ function QME_sI_iterative_markov0(
 end
 
 function W_abcd_1_markov1_bath_core(t, t1, t2, p, tmp1, tmp2)
-    aggCore, aggTools, aggOperators, W0, W0_bath, tspan, rho_0_int_t_itp, W_0_bath_t_itp, _ = p
+    (; aggCore, aggTools, aggOperators, W0, W0_bath, tspan, rho_0_int_t_itp, W_0_bath_t_itp) = p
     
     # W_1_bath = deepcopy(W0_bath.data)
     # elLen = aggCore.molCount+1
@@ -731,7 +731,7 @@ function W_1_markov1_bath(
         normalize=false,
         W_1_rtol=1e-12, W_1_atol=1e-12
     )
-    aggCore, aggTools, aggOperators, W0, W0_bath, tspan, rho_0_int_t_itp, W_0_bath_t_itp, _ = p
+    (; aggCore, aggTools, aggOperators, W0, W0_bath, tspan, rho_0_int_t_itp, W_0_bath_t_itp) = p
     elLen = aggCore.molCount+1
     indicesMap = aggTools.indicesMap
     
@@ -822,7 +822,7 @@ function QME_sI_iterative_markov1(
         Interpolations.BSpline(Interpolations.Linear())
     )
     println("running W_1_bath")
-    p = (agg.core, agg.tools, agg.operators, W0, W0_bath, tspan, rho_0_int_t_itp, W_0_bath_t_itp, eltype(W0))
+    p = (aggCore=agg.core, aggTools=agg.tools, aggOperators=agg.operators, W0=W0, W0_bath=W0_bath, tspan=tspan, rho_0_int_t_itp=rho_0_int_t_itp, W_0_bath_t_itp=W_0_bath_t_itp, elementtype=eltype(W0))
     W_1_bath_t = []
     for t_i=1:length(tspan)
         t = tspan[t_i]
@@ -836,7 +836,7 @@ function QME_sI_iterative_markov1(
     W_1_bath_itp = Interpolations.interpolate(W_1_bath_t, Interpolations.BSpline(Interpolations.Linear()))
     
     println("running dQME_sI_iterative")
-    p = (agg.core, agg.tools, agg.operators, W0, W0_bath, rho_0_int_t_itp, W_1_bath_itp, tspan, eltype(W0))
+    p = (aggCore=agg.core, aggTools=agg.tools, aggOperators=agg.operators, W0=W0, W0_bath=W0_bath, rho_0_int_t_itp=rho_0_int_t_itp, W_1_bath_itp=W_1_bath_itp, tspan=tspan, elementtype=eltype(W0))
     dmaster_(t, rho, drho, history_fun, p) = dQME_sI_iterative(
         t,
         rho,
