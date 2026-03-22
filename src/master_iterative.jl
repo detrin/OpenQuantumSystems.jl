@@ -326,8 +326,7 @@ function W_abcd_1_bath_core(t, t1, t2, p, tmp1, tmp2)
     rho_t2 = OpenQuantumSystems.interpolate_with_tspan(rho_0_int_t_itp, tspan, t2)
     W_bath_t2 = OpenQuantumSystems.interpolate_with_tspan(W_0_bath_t_itp, tspan, t2)
     rho_t1 = OpenQuantumSystems.interpolate_with_tspan(rho_0_int_t_itp, tspan, t1)
-    rho_t1[:, :] = rho_t1[:, :] .+ 1e-10
-    rho_t1[:, :] = 1 ./ rho_t1[:, :]
+    rho_t1[:, :] = map(x -> abs(x) < 1e-10 ? zero(x) : 1 / x, rho_t1)
 
     tmp1[:, :] = ad(rho_t2, W_bath_t2, aggCore, aggTools)
     tmp1[:, :] = W_bath_t2[:, :]
