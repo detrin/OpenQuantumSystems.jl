@@ -18,7 +18,7 @@ function QME_sI_ansatz_test(
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
     rho0 = trace_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
     W0_bath = get_rho_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
-    p = (agg.core, agg.tools, agg.operators, W0, eltype(W0))
+    p = (aggCore=agg.core, aggTools=agg.tools, aggOperators=agg.operators, W0=W0, elementtype=eltype(W0))
 
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
@@ -64,7 +64,7 @@ function dQME_sI_ansatz_test(
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,
 ) where {B<:Basis,T<:Operator{B,B}}
-    aggCore, aggTools, aggOperators, W0, elementtype = p
+    (; aggCore, aggTools, aggOperators, W0, elementtype) = p
         
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
@@ -83,7 +83,7 @@ function dQME_sI_ansatz_test(
 end
 
 function kernel_sI_ansatz_test(t, s, h, p, tmp1, tmp2, Ham_II_t)
-    aggCore, aggTools, aggOperators, W0, _ = p
+    (; aggCore, aggTools, aggOperators, W0) = p
 
     rho = h(p, s)
 
@@ -124,7 +124,7 @@ function QME_sI_ansatz_const_int(
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
     rho0 = trace_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
     W0_bath = get_rho_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
-    p = (agg.core, agg.tools, agg.operators, W0, W0_bath, eltype(W0))
+    p = (aggCore=agg.core, aggTools=agg.tools, aggOperators=agg.operators, W0=W0, W0_bath=W0_bath, elementtype=eltype(W0))
 
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
@@ -170,7 +170,7 @@ function dQME_sI_ansatz_const_int(
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,
 ) where {B<:Basis,T<:Operator{B,B}}
-    aggCore, aggTools, aggOperators, W0, _, elementtype = p
+    (; aggCore, aggTools, aggOperators, W0, elementtype) = p
         
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
@@ -189,7 +189,7 @@ function dQME_sI_ansatz_const_int(
 end
 
 function kernel_sI_ansatz_const_int(t, s, h, p, tmp1, tmp2, Ham_II_t)
-    aggCore, aggTools, aggOperators, W0, W0_bath, _ = p
+    (; aggCore, aggTools, aggOperators, W0, W0_bath) = p
 
     rho = h(p, s)
 
@@ -222,7 +222,7 @@ function QME_sI_ansatz_const_sch(
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
     rho0 = trace_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
     W0_bath = get_rho_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
-    p = (agg.core, agg.tools, agg.operators, W0, W0_bath, eltype(W0))
+    p = (aggCore=agg.core, aggTools=agg.tools, aggOperators=agg.operators, W0=W0, W0_bath=W0_bath, elementtype=eltype(W0))
 
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
@@ -268,7 +268,7 @@ function dQME_sI_ansatz_const_sch(
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,
 ) where {B<:Basis,T<:Operator{B,B}}
-    aggCore, aggTools, aggOperators, W0, _, elementtype = p
+    (; aggCore, aggTools, aggOperators, W0, elementtype) = p
         
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
@@ -287,7 +287,7 @@ function dQME_sI_ansatz_const_sch(
 end
 
 function kernel_sI_ansatz_const_sch(t, s, h, p, tmp1, tmp2, Ham_II_t)
-    aggCore, aggTools, aggOperators, W0, W0_bath, _ = p
+    (; aggCore, aggTools, aggOperators, W0, W0_bath) = p
 
     rho = h(p, s)
 
@@ -325,7 +325,7 @@ function QME_sI_ansatz_linear_sch(
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
     rho0 = trace_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
     W0_bath = get_rho_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
-    p = (agg.core, agg.tools, agg.operators, W0, W0_bath, eltype(W0))
+    p = (aggCore=agg.core, aggTools=agg.tools, aggOperators=agg.operators, W0=W0, W0_bath=W0_bath, elementtype=eltype(W0))
 
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
@@ -371,7 +371,7 @@ function dQME_sI_ansatz_linear_sch(
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,
 ) where {B<:Basis,T<:Operator{B,B}}
-    aggCore, aggTools, aggOperators, W0, _, elementtype = p
+    (; aggCore, aggTools, aggOperators, W0, elementtype) = p
         
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
@@ -390,7 +390,7 @@ function dQME_sI_ansatz_linear_sch(
 end
 
 function kernel_sI_ansatz_linear_sch(t, s, h, p, tmp1, tmp2, Ham_II_t)
-    aggCore, aggTools, aggOperators, _, W0_bath, elementtype = p
+    (; aggCore, aggTools, aggOperators, W0_bath, elementtype) = p
 
     rho = h(p, s)
 
@@ -431,7 +431,7 @@ function QME_sI_ansatz_linear2_sch(
     rho0 = trace_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
     W0_bath = get_rho_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
     t_mk_bath_step = (tspan[end] - tspan[1]) / t_mk_bath_count
-    p = (agg.core, agg.tools, agg.operators, W0, W0_bath, t_mk_bath_step, eltype(W0))
+    p = (aggCore=agg.core, aggTools=agg.tools, aggOperators=agg.operators, W0=W0, W0_bath=W0_bath, t_mk_bath_step=t_mk_bath_step, elementtype=eltype(W0))
 
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
@@ -477,7 +477,7 @@ function dQME_sI_ansatz_linear2_sch(
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,
 ) where {B<:Basis,T<:Operator{B,B}}
-    aggCore, aggTools, aggOperators, W0, _, _, elementtype = p
+    (; aggCore, aggTools, aggOperators, W0, elementtype) = p
         
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
@@ -496,7 +496,7 @@ function dQME_sI_ansatz_linear2_sch(
 end
 
 function kernel_sI_ansatz_linear2_sch(t, s, h, p, tmp1, tmp2, Ham_II_t)
-    aggCore, aggTools, aggOperators, _, W0_bath, t_mk_bath_step, elementtype = p
+    (; aggCore, aggTools, aggOperators, W0_bath, t_mk_bath_step, elementtype) = p
 
     rho = h(p, s)
 
@@ -543,7 +543,7 @@ function QME_sI_ansatz_upart1_sch(
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
     rho0 = trace_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
     W0_bath = get_rho_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
-    p = (agg.core, agg.tools, agg.operators, W0, W0_bath, eltype(W0))
+    p = (aggCore=agg.core, aggTools=agg.tools, aggOperators=agg.operators, W0=W0, W0_bath=W0_bath, elementtype=eltype(W0))
 
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
@@ -589,7 +589,7 @@ function dQME_sI_ansatz_upart1_sch(
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,
 ) where {B<:Basis,T<:Operator{B,B}}
-    aggCore, aggTools, aggOperators, W0, _, elementtype = p
+    (; aggCore, aggTools, aggOperators, W0, elementtype) = p
         
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
@@ -608,7 +608,7 @@ function dQME_sI_ansatz_upart1_sch(
 end
 
 function kernel_sI_ansatz_upart1_sch(t, s, h, p, tmp1, tmp2, Ham_II_t)
-    aggCore, aggTools, aggOperators, _, W0_bath, elementtype = p
+    (; aggCore, aggTools, aggOperators, W0_bath, elementtype) = p
 
     rho = h(p, s)
 
@@ -654,7 +654,7 @@ function QME_sI_ansatz_upart1_int(
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
     rho0 = trace_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
     W0_bath = get_rho_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
-    p = (agg.core, agg.tools, agg.operators, W0, W0_bath, eltype(W0))
+    p = (aggCore=agg.core, aggTools=agg.tools, aggOperators=agg.operators, W0=W0, W0_bath=W0_bath, elementtype=eltype(W0))
 
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
@@ -700,7 +700,7 @@ function dQME_sI_ansatz_upart1_int(
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,
 ) where {B<:Basis,T<:Operator{B,B}}
-    aggCore, aggTools, aggOperators, W0, _, elementtype = p
+    (; aggCore, aggTools, aggOperators, W0, elementtype) = p
         
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
@@ -719,7 +719,7 @@ function dQME_sI_ansatz_upart1_int(
 end
 
 function kernel_sI_ansatz_upart1_int(t, s, h, p, tmp1, tmp2, Ham_II_t)
-    aggCore, aggTools, aggOperators, _, W0_bath, elementtype = p
+    (; aggCore, aggTools, aggOperators, W0_bath, elementtype) = p
 
     rho = h(p, s)
 
@@ -763,7 +763,7 @@ function QME_sI_ansatz_upart2_sch(
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
     rho0 = trace_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
     W0_bath = get_rho_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
-    p = (agg.core, agg.tools, agg.operators, W0, W0_bath, eltype(W0))
+    p = (aggCore=agg.core, aggTools=agg.tools, aggOperators=agg.operators, W0=W0, W0_bath=W0_bath, elementtype=eltype(W0))
 
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
@@ -809,7 +809,7 @@ function dQME_sI_ansatz_upart2_sch(
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,
 ) where {B<:Basis,T<:Operator{B,B}}
-    aggCore, aggTools, aggOperators, W0, _, elementtype = p
+    (; aggCore, aggTools, aggOperators, W0, elementtype) = p
         
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
@@ -828,7 +828,7 @@ function dQME_sI_ansatz_upart2_sch(
 end
 
 function kernel_sI_ansatz_upart2_sch(t, s, h, p, tmp1, tmp2, Ham_II_t)
-    aggCore, aggTools, aggOperators, _, W0_bath, elementtype = p
+    (; aggCore, aggTools, aggOperators, W0_bath, elementtype) = p
 
     rho = h(p, s)
 
@@ -878,7 +878,7 @@ function QME_sI_ansatz_upart2_int(
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
     rho0 = trace_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
     W0_bath = get_rho_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
-    p = (agg.core, agg.tools, agg.operators, W0, W0_bath, eltype(W0))
+    p = (aggCore=agg.core, aggTools=agg.tools, aggOperators=agg.operators, W0=W0, W0_bath=W0_bath, elementtype=eltype(W0))
 
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
@@ -924,7 +924,7 @@ function dQME_sI_ansatz_upart2_int(
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,
 ) where {B<:Basis,T<:Operator{B,B}}
-    aggCore, aggTools, aggOperators, W0, _, elementtype = p
+    (; aggCore, aggTools, aggOperators, W0, elementtype) = p
         
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
@@ -943,7 +943,7 @@ function dQME_sI_ansatz_upart2_int(
 end
 
 function kernel_sI_ansatz_upart2_int(t, s, h, p, tmp1, tmp2, Ham_II_t)
-    aggCore, aggTools, aggOperators, _, W0_bath, elementtype = p
+    (; aggCore, aggTools, aggOperators, W0_bath, elementtype) = p
 
     rho = h(p, s)
 
