@@ -252,6 +252,7 @@ export
     K_abcd_W_bath_intp,
 
     # master_ansatz.jl
+    QME_sI_ansatz,
     QME_sI_ansatz_test,
     QME_sI_ansatz_const_int,
     QME_sI_ansatz_const_sch,
