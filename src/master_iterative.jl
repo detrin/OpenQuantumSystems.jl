@@ -1,6 +1,9 @@
 using OpenQuantumSystems
 import QuantumOpticsBase, LinearAlgebra, OrdinaryDiffEq, QuadGK, DelayDiffEq, Interpolations
 
+_to_matrix(x::Operator) = x.data
+_to_matrix(x) = x
+
 function normalize_bath(W_bath, aggCore, aggTools, aggOperators)
     elLen = aggCore.molCount+1
     indicesMap = aggTools.indicesMap
@@ -186,7 +189,7 @@ function QME_sI_iterative_old(
     tmp2 = copy(W0.data)
     
     # Calculate and interpolate rho_0_int_t, W_0_bath_t, W_1_bath_t    
-    if ndims(rho_0_int_t) == 1 && typeof(rho_0_int_t[1]) <: Operator
+    if ndims(rho_0_int_t) == 1 && rho_0_int_t[1] isa Operator
         rho_0_int_t = operator_recast(rho_0_int_t)
     end
     if ndims(rho_0_int_t) == 3
@@ -197,7 +200,7 @@ function QME_sI_iterative_old(
         Interpolations.BSpline(Interpolations.Linear())
     )
     
-    if ndims(rho_0_int_t) == 1 && typeof(rho_0_int_t[1]) <: Operator
+    if ndims(rho_0_int_t) == 1 && rho_0_int_t[1] isa Operator
         W_0_bath_t = operator_recast(W_0_bath_t)
     end
     if ndims(W_0_bath_t) == 3
@@ -290,9 +293,7 @@ function kernel_sI_iterative_old(t, s, h, p, tmp1, tmp2, Ham_II_t)
 
     rho = h(p, s)
 
-    if (typeof(rho) <: Operator)
-        rho = rho.data
-    end
+    rho = _to_matrix(rho)
 
     Ham_0 = aggOperators.Ham_0
     Ham_I = aggOperators.Ham_I
@@ -410,7 +411,7 @@ function QME_sI_iterative(
     tmp2 = copy(W0.data)
     
     # Calculate and interpolate rho_0_int_t, W_0_bath_t, W_1_bath_t    
-    if ndims(rho_0_int_t) == 1 && typeof(rho_0_int_t[1]) <: Operator
+    if ndims(rho_0_int_t) == 1 && rho_0_int_t[1] isa Operator
         rho_0_int_t = operator_recast(rho_0_int_t)
     end
     if ndims(rho_0_int_t) == 3
@@ -421,7 +422,7 @@ function QME_sI_iterative(
         Interpolations.BSpline(Interpolations.Linear())
     )
     
-    if ndims(W_0_bath_t) == 1 && typeof(W_0_bath_t[1]) <: Operator
+    if ndims(W_0_bath_t) == 1 && W_0_bath_t[1] isa Operator
         W_0_bath_t = operator_recast(W_0_bath_t)
     end
     if ndims(W_0_bath_t) == 3
@@ -514,9 +515,7 @@ function kernel_sI_iterative(t, s, h, p, tmp1, tmp2, Ham_II_t)
 
     rho = h(p, s)
 
-    if (typeof(rho) <: Operator)
-        rho = rho.data
-    end
+    rho = _to_matrix(rho)
 
     Ham_0 = aggOperators.Ham_0
     Ham_I = aggOperators.Ham_I
@@ -624,7 +623,7 @@ function QME_sI_iterative_markov0(
     tmp2 = copy(W0.data)
     
     # Calculate and interpolate rho_0_int_t, W_0_bath_t, W_1_bath_t    
-    if ndims(rho_0_int_t) == 1 && typeof(rho_0_int_t[1]) <: Operator
+    if ndims(rho_0_int_t) == 1 && rho_0_int_t[1] isa Operator
         rho_0_int_t = operator_recast(rho_0_int_t)
     end
     if ndims(rho_0_int_t) == 3
@@ -635,7 +634,7 @@ function QME_sI_iterative_markov0(
         Interpolations.BSpline(Interpolations.Linear())
     )
     
-    if ndims(W_0_bath_t) == 1 && typeof(W_0_bath_t[1]) <: Operator
+    if ndims(W_0_bath_t) == 1 && W_0_bath_t[1] isa Operator
         W_0_bath_t = operator_recast(W_0_bath_t)
     end
     if ndims(W_0_bath_t) == 3
@@ -788,7 +787,7 @@ function QME_sI_iterative_markov1(
     tmp2 = copy(W0.data)
     
     # Calculate and interpolate rho_0_int_t, W_0_bath_t, W_1_bath_t    
-    if ndims(rho_0_int_t) == 1 && typeof(rho_0_int_t[1]) <: Operator
+    if ndims(rho_0_int_t) == 1 && rho_0_int_t[1] isa Operator
         rho_0_int_t = operator_recast(rho_0_int_t)
     end
     if ndims(rho_0_int_t) == 3
@@ -799,7 +798,7 @@ function QME_sI_iterative_markov1(
         Interpolations.BSpline(Interpolations.Linear())
     )
     
-    if ndims(W_0_bath_t) == 1 && typeof(W_0_bath_t[1]) <: Operator
+    if ndims(W_0_bath_t) == 1 && W_0_bath_t[1] isa Operator
         W_0_bath_t = operator_recast(W_0_bath_t)
     end
     if ndims(W_0_bath_t) == 3
