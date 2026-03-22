@@ -28,7 +28,7 @@ function LvN_sI(
     agg::Aggregate;
     reltol::Float64 = 1.0e-12,
     abstol::Float64 = 1.0e-12,
-    alg::OrdinaryDiffEq.OrdinaryDiffEqAlgorithm = OrdinaryDiffEq.Tsit5(),
+    alg::OrdinaryDiffEq.OrdinaryDiffEqCore.OrdinaryDiffEqAlgorithm = OrdinaryDiffEq.Tsit5(),
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
@@ -84,7 +84,7 @@ function LvN_sS(
     agg::Aggregate;
     reltol::Float64 = 1.0e-12,
     abstol::Float64 = 1.0e-12,
-    alg::OrdinaryDiffEq.OrdinaryDiffEqAlgorithm = OrdinaryDiffEq.Tsit5(),
+    alg::OrdinaryDiffEq.OrdinaryDiffEqCore.OrdinaryDiffEqAlgorithm = OrdinaryDiffEq.Tsit5(),
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
@@ -135,7 +135,7 @@ function LvN_SI(
     agg::Aggregate;
     reltol::Float64 = 1.0e-12,
     abstol::Float64 = 1.0e-12,
-    alg::OrdinaryDiffEq.OrdinaryDiffEqAlgorithm = OrdinaryDiffEq.Tsit5(),
+    alg::OrdinaryDiffEq.OrdinaryDiffEqCore.OrdinaryDiffEqAlgorithm = OrdinaryDiffEq.Tsit5(),
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
@@ -185,7 +185,7 @@ function LvN_SS(
     agg::Aggregate;
     reltol::Float64 = 1.0e-12,
     abstol::Float64 = 1.0e-12,
-    alg::OrdinaryDiffEq.OrdinaryDiffEqAlgorithm = OrdinaryDiffEq.Tsit5(),
+    alg::OrdinaryDiffEq.OrdinaryDiffEqCore.OrdinaryDiffEqAlgorithm = OrdinaryDiffEq.Tsit5(),
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
