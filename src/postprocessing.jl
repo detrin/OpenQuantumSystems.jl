@@ -18,7 +18,7 @@ end
 
 ######
 
-function interaction_pic_to_schroedinger_pic(rho_int::OperatorVectorArray, tspan::Array, agg::Aggregate)
+function interaction_pic_to_schroedinger_pic(rho_int::OperatorVectorArray, tspan::AbstractVector, agg::Aggregate)
     rho_sch = deepcopy(rho_int)
     Ham_sys = agg.operators.Ham_sys
     for t_i in 1:length(tspan)
@@ -29,12 +29,12 @@ function interaction_pic_to_schroedinger_pic(rho_int::OperatorVectorArray, tspan
     return rho_sch
 end
 
-function interaction_pic_to_schroedinger_pic(rho_int::OperatorVector, tspan::Array, agg::Aggregate)
+function interaction_pic_to_schroedinger_pic(rho_int::OperatorVector, tspan::AbstractVector, agg::Aggregate)
     rho_array = operator_recast(rho_int)
     return interaction_pic_to_schroedinger_pic(rho_array, tspan, agg)
 end
 
-function schroedinger_pic_to_interaction_pic(rho_sch::OperatorVectorArray, tspan::Array, agg::Aggregate)
+function schroedinger_pic_to_interaction_pic(rho_sch::OperatorVectorArray, tspan::AbstractVector, agg::Aggregate)
     rho_int = deepcopy(rho_sch)
     Ham_sys = agg.operators.Ham_sys
     for t_i in 1:length(tspan)
@@ -45,7 +45,7 @@ function schroedinger_pic_to_interaction_pic(rho_sch::OperatorVectorArray, tspan
     return rho_int
 end
 
-function schroedinger_pic_to_interaction_pic(rho_sch::OperatorVector, tspan::Array, agg::Aggregate)
+function schroedinger_pic_to_interaction_pic(rho_sch::OperatorVector, tspan::AbstractVector, agg::Aggregate)
     rho_array = operator_recast(rho_sch)
     return schroedinger_pic_to_interaction_pic(rho_array, tspan, agg)
 end

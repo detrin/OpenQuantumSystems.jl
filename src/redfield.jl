@@ -3,7 +3,7 @@ import QuantumOpticsBase, LinearAlgebra, OrdinaryDiffEq, QuadGK, DelayDiffEq
 
 function QME_sI_Redfield(
     W0::T,
-    tspan::Array,
+    tspan::AbstractVector,
     agg::Aggregate;
     reltol::AbstractFloat = 1.0e-12,
     abstol::AbstractFloat = 1.0e-12,
@@ -56,8 +56,8 @@ function dQME_sI_Redfield(
     rho::T,
     drho::T,
     history_fun,
-    tmp1::Array,
-    tmp2::Array,
+    tmp1::AbstractMatrix,
+    tmp2::AbstractMatrix,
     p,
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,
