@@ -146,7 +146,6 @@ function getAggHamBathBig(
 
     Ham_bath = getAggHamBathSmall(aggCore, aggTools)
     one_sys = OneDenseOperator(aggTools.basisSystem)
-    # TODO: optimise types in future
     one_sys = DenseOperator(aggTools.basisSystem, aggTools.basisSystem, real(one_sys.data))
     Ham_bath = tensor(Ham_bath, one_sys)
     if !groundEnergy
@@ -404,7 +403,6 @@ nothing
 )
 =#
 
-# TODO: add docs and proper types
 struct AggregateOperators{O_sys,O_bath,O} <: AbstractAggregateOperators
     Ham_sys::O_sys
     Ham_bath::O_bath
