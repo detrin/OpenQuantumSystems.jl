@@ -1,20 +1,6 @@
 using OpenQuantumSystems
 import QuantumOpticsBase, LinearAlgebra, OrdinaryDiffEq, QuadGK, DelayDiffEq, Interpolations
 
-function interpolate_with_tspan(itp, tspan, t)
-    t0 = tspan[1]
-    t1 = tspan[end]
-    N = length(tspan)
-    if t < t0
-        t_i = 1
-    elseif t > t1
-        t_i = N
-    else
-        t_i = (t-t0)/t1 * (N-1) + 1
-    end
-    return itp[t_i]
-end
-
 function normalize_bath(W_bath, aggCore, aggTools, aggOperators)
     elLen = aggCore.molCount+1
     indicesMap = aggTools.indicesMap
