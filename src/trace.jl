@@ -65,18 +65,13 @@ function trace_bath(
         vib_basis = aggOperators.vib_basis
     end
 
-    if vib_basis ∉ (:ground_ground, :ground_excited)
-        throw(ArgumentError("Optional argument vib_basis has to be selected from (:ground_ground, :ground_excited)"))
-    end
-    rho = nothing
-    
     if vib_basis == :ground_excited
-        rho = trace_bath_ground_excited(W, aggCore, aggTools)
+        return trace_bath_ground_excited(W, aggCore, aggTools)
+    elseif vib_basis == :ground_ground
+        return trace_bath_ground_ground(W, aggCore, aggTools)
+    else
+        throw(ArgumentError("vib_basis must be :ground_excited or :ground_ground, got :$vib_basis"))
     end
-    if vib_basis == :ground_ground
-        rho = trace_bath_ground_ground(W, aggCore, aggTools)
-    end
-    return rho
 end
 
 function trace_bath(
