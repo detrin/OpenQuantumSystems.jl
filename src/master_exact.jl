@@ -42,7 +42,7 @@ function QME_sI_exact(
 ) where {B<:Basis,T<:Operator{B,B}}
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
     rho0 = trace_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
-    p = (agg.core, agg.tools, agg.operators, W0, eltype(W0))
+    p = (aggCore=agg.core, aggTools=agg.tools, aggOperators=agg.operators, W0=W0, elementtype=eltype(W0))
     
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
@@ -88,7 +88,7 @@ function dQME_sI_exact(
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,
 ) where {B<:Basis,T<:Operator{B,B}}
-    aggCore, aggTools, aggOperators, W0, elementtype = p
+    (; aggCore, aggTools, aggOperators, W0, elementtype) = p
     
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
@@ -107,7 +107,7 @@ function dQME_sI_exact(
 end
 
 function kernel_sI_exact(t, s, h, p, tmp1, tmp2)
-    aggCore, aggTools, aggOperators, W0, _ = p
+    (; aggCore, aggTools, aggOperators, W0) = p
 
     Ham_0 = aggOperators.Ham_0
     Ham_I = aggOperators.Ham_I
@@ -139,7 +139,7 @@ function QME_sS_exact(
 ) where {B<:Basis,T<:Operator{B,B},U<:Operator{B,B},V<:Operator{B,B}}
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
     rho0 = trace_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
-    p = (agg.core, agg.tools, agg.operators, W0, eltype(W0))
+    p = (aggCore=agg.core, aggTools=agg.tools, aggOperators=agg.operators, W0=W0, elementtype=eltype(W0))
     
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
@@ -185,7 +185,7 @@ function dQME_sS_exact(
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,
 ) where {B<:Basis,T<:Operator{B,B}}
-    aggCore, aggTools, aggOperators, W0, elementtype = p
+    (; aggCore, aggTools, aggOperators, W0, elementtype) = p
     
     Ham = aggOperators.Ham.data
     K = Ham * W0.data - W0.data * Ham
@@ -204,7 +204,7 @@ function dQME_sS_exact(
 end
 
 function kernel_sS_exact(t, s, h, p, tmp1, tmp2)
-    aggCore, aggTools, aggOperators, W0, _ = p
+    (; aggCore, aggTools, aggOperators, W0) = p
 
     Ham_0 = aggOperators.Ham_0
     Ham = aggOperators.Ham
@@ -255,7 +255,7 @@ function QME_SS_exact(
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
-    p = (agg.operators, W0, eltype(W0))
+    p = (aggOperators=agg.operators, W0=W0, elementtype=eltype(W0))
     history_fun(p, t) = T(W0.basis_l, W0.basis_r, zeros(ComplexF64, size(W0.data)))
     # (du,u,h,p,t)
     tmp1 = copy(W0.data)
@@ -293,7 +293,7 @@ function dQME_SS_exact(
     int_reltol::AbstractFloat = 1.0e-5,
     int_abstol::AbstractFloat = 1.0e-5,
 ) where {B<:Basis,T<:Operator{B,B}}
-    aggOperators, W0, elementtype = p
+    (; aggOperators, W0, elementtype) = p
     Ham = aggOperators.Ham.data
 
     kernel_integrated, err = QuadGK.quadgk(
@@ -310,7 +310,7 @@ function dQME_SS_exact(
 end
 
 function kernel_SS_exact(t, s, h, p, tmp1, tmp2)
-    aggOperators, _, _ = p
+    (; aggOperators) = p
     Ham = aggOperators.Ham.data
     W = h(p, s)
     if (typeof(W) <: Operator)
@@ -335,7 +335,7 @@ function QME_SI_exact(
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
-    p = (agg.operators, W0, eltype(W0))
+    p = (aggOperators=agg.operators, W0=W0, elementtype=eltype(W0))
     history_fun(p, t) = T(W0.basis_l, W0.basis_r, zeros(ComplexF64, size(W0.data)))
     # (du,u,h,p,t)
     tmp1 = copy(W0.data)
@@ -373,7 +373,7 @@ function dQME_SI_exact(
     int_reltol::AbstractFloat = 1.0e-5,
     int_abstol::AbstractFloat = 1.0e-5,
 ) where {B<:Basis,T<:Operator{B,B}}
-    aggOperators, W0, elementtype = p
+    (; aggOperators, W0, elementtype) = p
 
     Ham_0 = aggOperators.Ham_0.data
     Ham_I = aggOperators.Ham_I.data
@@ -393,7 +393,7 @@ function dQME_SI_exact(
 end
 
 function kernel_SI_exact(t, s, h, p, tmp1, tmp2)
-    aggOperators, _, _ = p
+    (; aggOperators) = p
 
     Ham_0 = aggOperators.Ham_0.data
     Ham_I = aggOperators.Ham_I.data
