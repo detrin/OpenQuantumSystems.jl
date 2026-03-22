@@ -285,7 +285,7 @@ Base.:(==)(x::AggregateTools, y::AggregateTools) =
 Take electric part specified by electric indices `a` and `b` from the A (type of Array). 
 
 """
-function take_el_part(A::Array, a, b, indicesMap)
+function take_el_part(A::AbstractMatrix, a, b, indicesMap)
     a1 = indicesMap[a][1]
     a2 = indicesMap[a][end]
     b1 = indicesMap[b][1]

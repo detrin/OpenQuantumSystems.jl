@@ -1,9 +1,9 @@
 
 function getInteractionHamIPicture(
-    Ham_0::Array,
-    Ham_I::Array,
+    Ham_0::AbstractMatrix,
+    Ham_I::AbstractMatrix,
     t::AbstractFloat,
-)::Array
+)::AbstractMatrix
     U_array = evolutionOperator(Ham_0, t)
     return adjoint(U_array) * Ham_I * U_array
 end
@@ -21,16 +21,16 @@ function getInteractionHamIPictureA(
     Ham_0::Operator,
     Ham_I::Operator,
     t::AbstractFloat,
-)::Array
+)::AbstractMatrix
     U_op = evolutionOperator(Ham_0, t)
     return (U_op' * Ham_I * U_op).data
 end
 
 function getInteractionHamIPictureA(
-    Ham_int::Array,
-    H_lambda::Array,
-    H_S::Array,
-    H_Sinv::Array,
+    Ham_int::AbstractMatrix,
+    H_lambda::AbstractMatrix,
+    H_S::AbstractMatrix,
+    H_Sinv::AbstractMatrix,
     t::AbstractFloat,
 )
     U_op = evolutionOperatorA(H_lambda, H_S, H_Sinv, t)

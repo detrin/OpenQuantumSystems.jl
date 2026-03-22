@@ -30,7 +30,7 @@ Integrate Quantum Master equation
 """
 function QME_sI_exact(
     W0::T,
-    tspan::Array,
+    tspan::AbstractVector,
     agg::Aggregate;
     reltol::AbstractFloat = 1.0e-12,
     abstol::AbstractFloat = 1.0e-12,
@@ -82,8 +82,8 @@ function dQME_sI_exact(
     rho::T,
     drho::T,
     history_fun,
-    tmp1::Array,
-    tmp2::Array,
+    tmp1::AbstractMatrix,
+    tmp2::AbstractMatrix,
     p,
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,
@@ -127,7 +127,7 @@ end
 
 function QME_sS_exact(
     W0::T,
-    tspan::Array,
+    tspan::AbstractVector,
     agg::Aggregate;
     reltol::AbstractFloat = 1.0e-12,
     abstol::AbstractFloat = 1.0e-12,
@@ -179,8 +179,8 @@ function dQME_sS_exact(
     rho::T,
     drho::T,
     history_fun,
-    tmp1::Array,
-    tmp2::Array,
+    tmp1::AbstractMatrix,
+    tmp2::AbstractMatrix,
     p,
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,
@@ -288,8 +288,8 @@ function dQME_SS_exact(
     dW::T,
     history_fun,
     p,
-    tmp1::Array,
-    tmp2::Array,
+    tmp1::AbstractMatrix,
+    tmp2::AbstractMatrix,
     int_reltol::AbstractFloat = 1.0e-5,
     int_abstol::AbstractFloat = 1.0e-5,
 ) where {B<:Basis,T<:Operator{B,B}}
@@ -368,8 +368,8 @@ function dQME_SI_exact(
     dW::T,
     history_fun,
     p,
-    tmp1::Array,
-    tmp2::Array,
+    tmp1::AbstractMatrix,
+    tmp2::AbstractMatrix,
     int_reltol::AbstractFloat = 1.0e-5,
     int_abstol::AbstractFloat = 1.0e-5,
 ) where {B<:Basis,T<:Operator{B,B}}

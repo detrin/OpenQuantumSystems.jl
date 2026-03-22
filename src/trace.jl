@@ -2,6 +2,9 @@
 
 
 
+_to_matrix(x::Operator) = x.data
+_to_matrix(x) = x
+
 """
     trace_bath(rho, agg, FCProd, aggIndices, vibindices)
 
@@ -12,7 +15,7 @@ Trace out bath degrees of freedom from `rho`
 
 """
 function trace_bath_ground_excited(
-    W::Array,
+    W::AbstractMatrix,
     aggCore::AggregateCore,
     aggTools::AggregateTools
 )
@@ -34,7 +37,7 @@ function trace_bath_ground_excited(
 end
 
 function trace_bath_ground_ground(
-    W::Array,
+    W::AbstractMatrix,
     aggCore::AggregateCore,
     aggTools::AggregateTools
 )
@@ -55,7 +58,7 @@ function trace_bath_ground_ground(
 end
 
 function trace_bath(
-    W::Array,
+    W::AbstractMatrix,
     aggCore::AggregateCore,
     aggOperators::AggregateOperators,
     aggTools::AggregateTools;
@@ -75,7 +78,7 @@ function trace_bath(
 end
 
 function trace_bath(
-    W::Array,
+    W::AbstractMatrix,
     agg::Aggregate;
     vib_basis::Symbol=:none
 ) 
@@ -114,7 +117,7 @@ Trace out bath degrees of freedom from `rho` without the product of Franck-Condo
 
 """
 function trace_bath_slow(
-    W::Array,
+    W::AbstractMatrix,
     aggCore::AggregateCore,
     aggTools::AggregateTools
 )
@@ -160,7 +163,7 @@ The trace will be done only on the Hilber space for electric bra part `a` and ke
 Input density matrix `rho` is for the whole Hilber space. This method returns number.
 """
 function trace_bath(    
-    W::Array, 
+    W::AbstractMatrix, 
     a::N, 
     b::N, 
     aggTools::AggregateTools;
@@ -207,7 +210,7 @@ The trace will be done only on the Hilber space for electric bra part `a` and ke
 Input density matrix `rho` is only for the subspace. This method returns number.
 """
 function trace_bath_part(
-    W::Array,
+    W::AbstractMatrix,
     a::N, 
     b::N, 
     aggTools::AggregateTools;
@@ -264,7 +267,7 @@ This method will return the bath part of `rho` knowing the result of [`trace_bat
 
 """
 function get_rho_bath(
-    W::Array,
+    W::AbstractMatrix,
     aggCore::AggregateCore,
     aggOperators::AggregateOperators,
     aggTools::AggregateTools;
@@ -342,8 +345,8 @@ defined as follows
 
 """
 function ad(
-    rho::Array,
-    rho_bath::Array,
+    rho::AbstractMatrix,
+    rho_bath::AbstractMatrix,
     aggCore::AggregateCore,
     aggTools::AggregateTools
 )
@@ -365,7 +368,7 @@ end
 
 function ad(
     rho::Operator,
-    W_bath::Array,
+    W_bath::AbstractMatrix,
     aggCore::AggregateCore,
     aggTools::AggregateTools;
 ) 
@@ -379,7 +382,7 @@ function ad(
 end
 
 function ad(
-    rho::Array,
+    rho::AbstractMatrix,
     W_bath::Operator,
     aggCore::AggregateCore,
     aggTools::AggregateTools
