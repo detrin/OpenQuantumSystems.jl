@@ -1,8 +1,6 @@
 using OpenQuantumSystems
 import QuantumOpticsBase, LinearAlgebra, OrdinaryDiffEq, QuadGK, DelayDiffEq, Interpolations
 
-_to_matrix(x::Operator) = x.data
-_to_matrix(x) = x
 
 function normalize_bath(W_bath, aggCore, aggTools, aggOperators)
     elLen = aggCore.molCount+1
@@ -164,7 +162,7 @@ function QME_sI_iterative_old(
     W0::T,
     rho_0_int_t,
     W_0_bath_t,
-    tspan::Array,
+    tspan::AbstractVector,
     agg::Aggregate;
     bath_evolution=:none, 
     bath_ansatz=:population, 
@@ -268,8 +266,8 @@ function dQME_sI_iterative_old(
     rho::T,
     drho::T,
     history_fun,
-    tmp1::Array,
-    tmp2::Array,
+    tmp1::AbstractMatrix,
+    tmp2::AbstractMatrix,
     p,
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,
@@ -394,7 +392,7 @@ function QME_sI_iterative(
     W0::T,
     rho_0_int_t,
     W_0_bath_t,
-    tspan::Array,
+    tspan::AbstractVector,
     agg::Aggregate;
     normalize=false,
     reltol::AbstractFloat = 1.0e-12,
@@ -494,8 +492,8 @@ function dQME_sI_iterative(
     rho::T,
     drho::T,
     history_fun,
-    tmp1::Array,
-    tmp2::Array,
+    tmp1::AbstractMatrix,
+    tmp2::AbstractMatrix,
     p,
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,
@@ -610,7 +608,7 @@ function QME_sI_iterative_markov0(
     W0::T,
     rho_0_int_t,
     W_0_bath_t,
-    tspan::Array,
+    tspan::AbstractVector,
     agg::Aggregate;
     normalize=false,
     reltol::AbstractFloat = 1.0e-12,
@@ -778,7 +776,7 @@ function QME_sI_iterative_markov1(
     W0::T,
     rho_0_int_t,
     W_0_bath_t,
-    tspan::Array,
+    tspan::AbstractVector,
     agg::Aggregate;
     normalize=false,
     reltol::AbstractFloat = 1.0e-12,

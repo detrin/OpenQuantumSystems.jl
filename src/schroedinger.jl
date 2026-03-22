@@ -22,7 +22,7 @@ Integrate Schroedinger equation to evolve states or compute propagators
 """
 function schroedinger(
     psi0::T,
-    tspan::Array,
+    tspan::AbstractVector,
     H::AbstractOperator{B,B};
     reltol::Float64 = 1.0e-12,
     abstol::Float64 = 1.0e-12,
@@ -79,7 +79,7 @@ Integrate time-dependent Schroedinger equation to evolve states or compute propa
 """
 function schroedinger_dynamic(
     psi0::T,
-    tspan::Array,
+    tspan::AbstractVector,
     f::Function;
     reltol::Float64 = 1.0e-6,
     abstol::Float64 = 1.0e-8,

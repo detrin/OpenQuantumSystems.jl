@@ -2,13 +2,10 @@
 using OpenQuantumSystems
 import QuantumOpticsBase, LinearAlgebra, OrdinaryDiffEq, QuadGK, DelayDiffEq
 
-_to_matrix(x::Operator) = x.data
-_to_matrix(x) = x
-
 
 function QME_sI_ansatz_test(
     W0::T,
-    tspan::Array,
+    tspan::AbstractVector,
     agg::Aggregate;
     reltol::AbstractFloat = 1.0e-12,
     abstol::AbstractFloat = 1.0e-12,
@@ -61,8 +58,8 @@ function dQME_sI_ansatz_test(
     rho::T,
     drho::T,
     history_fun,
-    tmp1::Array,
-    tmp2::Array,
+    tmp1::AbstractMatrix,
+    tmp2::AbstractMatrix,
     p,
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,
@@ -114,7 +111,7 @@ end
 
 function QME_sI_ansatz_const_int(
     W0::T,
-    tspan::Array,
+    tspan::AbstractVector,
     agg::Aggregate;
     reltol::AbstractFloat = 1.0e-12,
     abstol::AbstractFloat = 1.0e-12,
@@ -167,8 +164,8 @@ function dQME_sI_ansatz_const_int(
     rho::T,
     drho::T,
     history_fun,
-    tmp1::Array,
-    tmp2::Array,
+    tmp1::AbstractMatrix,
+    tmp2::AbstractMatrix,
     p,
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,
@@ -212,7 +209,7 @@ end
 
 function QME_sI_ansatz_const_sch(
     W0::T,
-    tspan::Array,
+    tspan::AbstractVector,
     agg::Aggregate;
     reltol::AbstractFloat = 1.0e-12,
     abstol::AbstractFloat = 1.0e-12,
@@ -265,8 +262,8 @@ function dQME_sI_ansatz_const_sch(
     rho::T,
     drho::T,
     history_fun,
-    tmp1::Array,
-    tmp2::Array,
+    tmp1::AbstractMatrix,
+    tmp2::AbstractMatrix,
     p,
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,
@@ -315,7 +312,7 @@ end
 
 function QME_sI_ansatz_linear_sch(
     W0::T,
-    tspan::Array,
+    tspan::AbstractVector,
     agg::Aggregate;
     reltol::AbstractFloat = 1.0e-12,
     abstol::AbstractFloat = 1.0e-12,
@@ -368,8 +365,8 @@ function dQME_sI_ansatz_linear_sch(
     rho::T,
     drho::T,
     history_fun,
-    tmp1::Array,
-    tmp2::Array,
+    tmp1::AbstractMatrix,
+    tmp2::AbstractMatrix,
     p,
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,
@@ -419,7 +416,7 @@ end
 
 function QME_sI_ansatz_linear2_sch(
     W0::T,
-    tspan::Array,
+    tspan::AbstractVector,
     agg::Aggregate;
     reltol::AbstractFloat = 1.0e-12,
     abstol::AbstractFloat = 1.0e-12,
@@ -474,8 +471,8 @@ function dQME_sI_ansatz_linear2_sch(
     rho::T,
     drho::T,
     history_fun,
-    tmp1::Array,
-    tmp2::Array,
+    tmp1::AbstractMatrix,
+    tmp2::AbstractMatrix,
     p,
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,
@@ -533,7 +530,7 @@ end
 
 function QME_sI_ansatz_upart1_sch(
     W0::T,
-    tspan::Array,
+    tspan::AbstractVector,
     agg::Aggregate;
     reltol::AbstractFloat = 1.0e-12,
     abstol::AbstractFloat = 1.0e-12,
@@ -586,8 +583,8 @@ function dQME_sI_ansatz_upart1_sch(
     rho::T,
     drho::T,
     history_fun,
-    tmp1::Array,
-    tmp2::Array,
+    tmp1::AbstractMatrix,
+    tmp2::AbstractMatrix,
     p,
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,
@@ -644,7 +641,7 @@ end
 
 function QME_sI_ansatz_upart1_int(
     W0::T,
-    tspan::Array,
+    tspan::AbstractVector,
     agg::Aggregate;
     reltol::AbstractFloat = 1.0e-12,
     abstol::AbstractFloat = 1.0e-12,
@@ -697,8 +694,8 @@ function dQME_sI_ansatz_upart1_int(
     rho::T,
     drho::T,
     history_fun,
-    tmp1::Array,
-    tmp2::Array,
+    tmp1::AbstractMatrix,
+    tmp2::AbstractMatrix,
     p,
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,
@@ -753,7 +750,7 @@ end
 
 function QME_sI_ansatz_upart2_sch(
     W0::T,
-    tspan::Array,
+    tspan::AbstractVector,
     agg::Aggregate;
     reltol::AbstractFloat = 1.0e-12,
     abstol::AbstractFloat = 1.0e-12,
@@ -806,8 +803,8 @@ function dQME_sI_ansatz_upart2_sch(
     rho::T,
     drho::T,
     history_fun,
-    tmp1::Array,
-    tmp2::Array,
+    tmp1::AbstractMatrix,
+    tmp2::AbstractMatrix,
     p,
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,
@@ -868,7 +865,7 @@ end
 
 function QME_sI_ansatz_upart2_int(
     W0::T,
-    tspan::Array,
+    tspan::AbstractVector,
     agg::Aggregate;
     reltol::AbstractFloat = 1.0e-12,
     abstol::AbstractFloat = 1.0e-12,
@@ -921,8 +918,8 @@ function dQME_sI_ansatz_upart2_int(
     rho::T,
     drho::T,
     history_fun,
-    tmp1::Array,
-    tmp2::Array,
+    tmp1::AbstractMatrix,
+    tmp2::AbstractMatrix,
     p,
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,

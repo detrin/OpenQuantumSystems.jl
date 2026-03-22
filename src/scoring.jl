@@ -28,7 +28,7 @@ end
 
 #######
 
-function compare_rho(rho::Array, rho_ref::Array; relative=false, smooth_const=1e-9)
+function compare_rho(rho::AbstractArray{<:Number,3}, rho_ref::AbstractArray{<:Number,3}; relative=false, smooth_const=1e-9)
     N, M, K = size(rho)
     rho_sum = zeros(Float64, M, K)
 

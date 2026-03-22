@@ -24,7 +24,7 @@ Integrate Liouville-von Neumann equation to evolve states or compute propagators
 """
 function LvN_sI(
     W0::T,
-    tspan::Array,
+    tspan::AbstractVector,
     agg::Aggregate;
     reltol::Float64 = 1.0e-12,
     abstol::Float64 = 1.0e-12,
@@ -80,7 +80,7 @@ end
 
 function LvN_sS(
     W0::T,
-    tspan::Array,
+    tspan::AbstractVector,
     agg::Aggregate;
     reltol::Float64 = 1.0e-12,
     abstol::Float64 = 1.0e-12,
@@ -131,7 +131,7 @@ end
 
 function LvN_SI(
     W0::T,
-    tspan::Array,
+    tspan::AbstractVector,
     agg::Aggregate;
     reltol::Float64 = 1.0e-12,
     abstol::Float64 = 1.0e-12,
@@ -181,7 +181,7 @@ end
 
 function LvN_SS(
     W0::T,
-    tspan::Array,
+    tspan::AbstractVector,
     agg::Aggregate;
     reltol::Float64 = 1.0e-12,
     abstol::Float64 = 1.0e-12,
