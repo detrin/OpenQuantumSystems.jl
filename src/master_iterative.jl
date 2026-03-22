@@ -181,14 +181,18 @@ function QME_sI_iterative_old(
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
+    bath_evolution ∈ (:none, :interaction_picture, :shroedinger_picture) ||
+        throw(ArgumentError("bath_evolution must be :none, :interaction_picture, or :shroedinger_picture, got :$bath_evolution"))
+    bath_ansatz ∈ (:population, :population_coherences) ||
+        throw(ArgumentError("bath_ansatz must be :population or :population_coherences, got :$bath_ansatz"))
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
     rho0 = trace_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
     W0_bath = get_rho_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
 
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
-    
-    # Calculate and interpolate rho_0_int_t, W_0_bath_t, W_1_bath_t    
+
+    # Calculate and interpolate rho_0_int_t, W_0_bath_t, W_1_bath_t
     if ndims(rho_0_int_t) == 1 && rho_0_int_t[1] isa Operator
         rho_0_int_t = operator_recast(rho_0_int_t)
     end
@@ -403,14 +407,18 @@ function QME_sI_iterative(
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
+    bath_evolution ∈ (:none, :interaction_picture, :shroedinger_picture) ||
+        throw(ArgumentError("bath_evolution must be :none, :interaction_picture, or :shroedinger_picture, got :$bath_evolution"))
+    bath_ansatz ∈ (:population, :population_coherences) ||
+        throw(ArgumentError("bath_ansatz must be :population or :population_coherences, got :$bath_ansatz"))
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
     rho0 = trace_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
     W0_bath = get_rho_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
 
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
-    
-    # Calculate and interpolate rho_0_int_t, W_0_bath_t, W_1_bath_t    
+
+    # Calculate and interpolate rho_0_int_t, W_0_bath_t, W_1_bath_t
     if ndims(rho_0_int_t) == 1 && rho_0_int_t[1] isa Operator
         rho_0_int_t = operator_recast(rho_0_int_t)
     end
@@ -615,14 +623,18 @@ function QME_sI_iterative_markov0(
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
+    bath_evolution ∈ (:none, :interaction_picture, :shroedinger_picture) ||
+        throw(ArgumentError("bath_evolution must be :none, :interaction_picture, or :shroedinger_picture, got :$bath_evolution"))
+    bath_ansatz ∈ (:population, :population_coherences) ||
+        throw(ArgumentError("bath_ansatz must be :population or :population_coherences, got :$bath_ansatz"))
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
     rho0 = trace_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
     W0_bath = get_rho_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
 
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
-    
-    # Calculate and interpolate rho_0_int_t, W_0_bath_t, W_1_bath_t    
+
+    # Calculate and interpolate rho_0_int_t, W_0_bath_t, W_1_bath_t
     if ndims(rho_0_int_t) == 1 && rho_0_int_t[1] isa Operator
         rho_0_int_t = operator_recast(rho_0_int_t)
     end
@@ -779,14 +791,18 @@ function QME_sI_iterative_markov1(
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
+    bath_evolution ∈ (:none, :interaction_picture, :shroedinger_picture) ||
+        throw(ArgumentError("bath_evolution must be :none, :interaction_picture, or :shroedinger_picture, got :$bath_evolution"))
+    bath_ansatz ∈ (:population, :population_coherences) ||
+        throw(ArgumentError("bath_ansatz must be :population or :population_coherences, got :$bath_ansatz"))
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
     rho0 = trace_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
     W0_bath = get_rho_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
 
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
-    
-    # Calculate and interpolate rho_0_int_t, W_0_bath_t, W_1_bath_t    
+
+    # Calculate and interpolate rho_0_int_t, W_0_bath_t, W_1_bath_t
     if ndims(rho_0_int_t) == 1 && rho_0_int_t[1] isa Operator
         rho_0_int_t = operator_recast(rho_0_int_t)
     end
