@@ -19,6 +19,8 @@ function getAggHamSystemSmall(
     vib_basis::Symbol=:ground_ground,
     groundEnergy::Bool = true,
 )
+    vib_basis ∈ (:ground_ground, :ground_excited) ||
+        throw(ArgumentError("vib_basis must be :ground_ground or :ground_excited, got :$vib_basis"))
     Ham_sys = zeros(Float64, (aggCore.molCount + 1, aggCore.molCount + 1))
 
     agg_shifts = getShifts(aggCore)
