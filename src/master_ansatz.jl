@@ -2,6 +2,9 @@
 using OpenQuantumSystems
 import QuantumOpticsBase, LinearAlgebra, OrdinaryDiffEq, QuadGK, DelayDiffEq
 
+_to_matrix(x::Operator) = x.data
+_to_matrix(x) = x
+
 
 function QME_sI_ansatz_test(
     W0::T,
@@ -87,9 +90,7 @@ function kernel_sI_ansatz_test(t, s, h, p, tmp1, tmp2, Ham_II_t)
 
     rho = h(p, s)
 
-    if (typeof(rho) <: Operator)
-        rho = rho.data
-    end
+    rho = _to_matrix(rho)
 
     Ham_0 = aggOperators.Ham_0
     Ham_I = aggOperators.Ham_I
@@ -195,9 +196,7 @@ function kernel_sI_ansatz_const_int(t, s, h, p, tmp1, tmp2, Ham_II_t)
 
     rho = h(p, s)
 
-    if (typeof(rho) <: Operator)
-        rho = rho.data
-    end
+    rho = _to_matrix(rho)
 
     Ham_0 = aggOperators.Ham_0
     Ham_I = aggOperators.Ham_I
@@ -295,9 +294,7 @@ function kernel_sI_ansatz_const_sch(t, s, h, p, tmp1, tmp2, Ham_II_t)
 
     rho = h(p, s)
 
-    if (typeof(rho) <: Operator)
-        rho = rho.data
-    end
+    rho = _to_matrix(rho)
 
     Ham_0 = aggOperators.Ham_0
     Ham_I = aggOperators.Ham_I
@@ -400,9 +397,7 @@ function kernel_sI_ansatz_linear_sch(t, s, h, p, tmp1, tmp2, Ham_II_t)
 
     rho = h(p, s)
 
-    if (typeof(rho) <: Operator)
-        rho = rho.data
-    end
+    rho = _to_matrix(rho)
 
     Ham_0 = aggOperators.Ham_0
     Ham_I = aggOperators.Ham_I
@@ -508,9 +503,7 @@ function kernel_sI_ansatz_linear2_sch(t, s, h, p, tmp1, tmp2, Ham_II_t)
 
     rho = h(p, s)
 
-    if (typeof(rho) <: Operator)
-        rho = rho.data
-    end
+    rho = _to_matrix(rho)
 
     Ham_0 = aggOperators.Ham_0
     Ham_I = aggOperators.Ham_I
@@ -622,9 +615,7 @@ function kernel_sI_ansatz_upart1_sch(t, s, h, p, tmp1, tmp2, Ham_II_t)
 
     rho = h(p, s)
 
-    if (typeof(rho) <: Operator)
-        rho = rho.data
-    end
+    rho = _to_matrix(rho)
 
     indicesMap = aggTools.indicesMap
     Ham_0 = aggOperators.Ham_0
@@ -735,9 +726,7 @@ function kernel_sI_ansatz_upart1_int(t, s, h, p, tmp1, tmp2, Ham_II_t)
 
     rho = h(p, s)
 
-    if (typeof(rho) <: Operator)
-        rho = rho.data
-    end
+    rho = _to_matrix(rho)
 
     indicesMap = aggTools.indicesMap
     Ham_0 = aggOperators.Ham_0
@@ -846,9 +835,7 @@ function kernel_sI_ansatz_upart2_sch(t, s, h, p, tmp1, tmp2, Ham_II_t)
 
     rho = h(p, s)
 
-    if (typeof(rho) <: Operator)
-        rho = rho.data
-    end
+    rho = _to_matrix(rho)
 
     indicesMap = aggTools.indicesMap
     Ham_0 = aggOperators.Ham_0
@@ -963,9 +950,7 @@ function kernel_sI_ansatz_upart2_int(t, s, h, p, tmp1, tmp2, Ham_II_t)
 
     rho = h(p, s)
 
-    if (typeof(rho) <: Operator)
-        rho = rho.data
-    end
+    rho = _to_matrix(rho)
 
     indicesMap = aggTools.indicesMap
     Ham_0 = aggOperators.Ham_0
