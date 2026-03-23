@@ -69,7 +69,7 @@ Modified Redfield theory improves on standard Redfield by treating diagonal (pop
 ---
 
 ### #80 - Compute transition dipole moments from molecular coordinates
-**Status:** BACKLOG
+**Status:** IN PROGRESS (on devel)
 **Severity:** Feature (near-future roadmap)
 
 Currently, electronic couplings must be set manually in the coupling matrix. For realistic simulations, dipole-dipole couplings should be computed automatically from molecular geometry.
@@ -192,7 +192,7 @@ Enable data exchange with [quantarhei](https://github.com/tmancal74/quantarhei),
 |---|-------|----------|----------|--------|
 | #78 | Förster theory for EET rates | Feature | Near-future | BACKLOG |
 | #79 | Modified Redfield theory | Feature | Near-future | BACKLOG |
-| #80 | Dipole moments from coordinates | Feature | Near-future | BACKLOG |
+| #80 | Dipole moments from coordinates | Feature | Near-future | IN PROGRESS |
 | #81 | Mixed state decomposition via LP | Feature | Nice-to-have | BACKLOG |
 | #82 | Hamiltonian loading/storage | Feature | Nice-to-have | BACKLOG |
 | #83 | Anharmonic oscillators | Feature | Nice-to-have | BACKLOG |
