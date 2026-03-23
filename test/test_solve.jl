@@ -29,24 +29,28 @@ import OrdinaryDiffEq
     tspan = [0.0:0.1:1.0;]
 
     @testset "lvn_si dispatches to LvN_sI" begin
-        t1, rho1 = solve(W0, tspan, agg; method=:lvn_si,
+        result = solve(W0, tspan, agg; method=:lvn_si,
             reltol=1e-10, abstol=1e-10, alg=OrdinaryDiffEq.Tsit5())
         t2, rho2 = LvN_sI(W0, tspan, agg;
             reltol=1e-10, abstol=1e-10, alg=OrdinaryDiffEq.Tsit5())
-        @test length(rho1) == length(rho2)
-        for i in 1:length(rho1)
-            @test D(rho1[i], rho2[i]) < 1e-12
+        @test result isa SimulationResult
+        @test result.method == :lvn_si
+        @test length(result) == length(rho2)
+        for i in 1:length(result)
+            @test D(result[i], rho2[i]) < 1e-12
         end
     end
 
     @testset "lvn_SS dispatches to LvN_SS" begin
-        t1, W1 = solve(W0, tspan, agg; method=:lvn_SS,
+        result = solve(W0, tspan, agg; method=:lvn_SS,
             reltol=1e-10, abstol=1e-10, alg=OrdinaryDiffEq.Tsit5())
         t2, W2 = LvN_SS(W0, tspan, agg;
             reltol=1e-10, abstol=1e-10, alg=OrdinaryDiffEq.Tsit5())
-        @test length(W1) == length(W2)
-        for i in 1:length(W1)
-            @test D(W1[i], W2[i]) < 1e-12
+        @test result isa SimulationResult
+        @test result.method == :lvn_SS
+        @test length(result) == length(W2)
+        for i in 1:length(result)
+            @test D(result[i], W2[i]) < 1e-12
         end
     end
 

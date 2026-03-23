@@ -25,6 +25,7 @@ names = [
     "test_master_iterative.jl",
     "test_postprocessing.jl",
     "test_scoring.jl",
+    "test_simulation_result.jl",
     "test_solve.jl",
     "test_convenience.jl"
 ]
