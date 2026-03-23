@@ -226,7 +226,7 @@ A new user following the docs will immediately get errors.
 ---
 
 ### #68 / UX-2: No SimulationResult type -- inconsistent return values
-**Status:** BACKLOG
+**Status:** IN PROGRESS (on devel)
 **Severity:** High (API confusion, overload explosion)
 
 Every solver returns something different:
@@ -394,7 +394,7 @@ These are thin wrappers -- they don't change the core, just provide a friendlier
 ---
 
 ### #76 / UX-10: Adopt Julia-idiomatic patterns to replace ad-hoc dispatch and parameter passing
-**Status:** BACKLOG
+**Status:** IN PROGRESS (on devel) — vib_basis type dispatch done, ansatz/callable struct patterns remaining
 **Severity:** High (architectural -- enables all future extensibility)
 
 The codebase uses OOP-influenced patterns (symbol dispatch tables, bare parameter tuples, Union{Nothing} builders) where Julia-native patterns would be simpler and more extensible.
@@ -535,8 +535,8 @@ to_array(r::SimulationResult) = stack(s.data for s in r.states)
 | Priority | Issue | Impact | Status |
 |----------|-------|--------|--------|
 | 1 | **#67** Fix tutorial to use current API | Unblocks all new users | IN PROGRESS |
-| 2 | **#76** Adopt Julia-idiomatic patterns | Architectural foundation for everything below | BACKLOG |
-| 3 | **#68** Add `SimulationResult` type | Eliminates overload explosion, consistent API | BACKLOG |
+| 2 | **#76** Adopt Julia-idiomatic patterns | Architectural foundation for everything below | IN PROGRESS |
+| 3 | **#68** Add `SimulationResult` type | Eliminates overload explosion, consistent API | IN PROGRESS |
 | 4 | **#69** Molecule-count coupling matrix | Removes biggest physicist confusion | IN PROGRESS |
 | 5 | **#71** Unified `solve()` entry point | Discoverable API, reduced cognitive load | IN PROGRESS |
 | 6 | **#70** Document naming conventions + glossary | Helps existing users read the code | IN PROGRESS |
