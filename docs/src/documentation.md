@@ -11,6 +11,20 @@ Modules = [OpenQuantumSystems]
 Pages   = ["aggregate.jl"]
 ```
 
+## Aggregate Core
+
+```@autodocs
+Modules = [OpenQuantumSystems]
+Pages   = ["aggregateCore.jl"]
+```
+
+## Aggregate Operators
+
+```@autodocs
+Modules = [OpenQuantumSystems]
+Pages   = ["aggregateOperators.jl"]
+```
+
 ## Aggregate Tools
 
 ```@autodocs
@@ -46,11 +60,25 @@ Modules = [OpenQuantumSystems]
 Pages   = ["liouville.jl"]
 ```
 
-## Quantum Master Equation
+## Quantum Master Equation — Exact
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["master.jl"]
+Pages   = ["master_exact.jl"]
+```
+
+## Quantum Master Equation — Iterative
+
+```@autodocs
+Modules = [OpenQuantumSystems]
+Pages   = ["master_iterative.jl"]
+```
+
+## Quantum Master Equation — Ansatz
+
+```@autodocs
+Modules = [OpenQuantumSystems]
+Pages   = ["master_ansatz.jl"]
 ```
 
 ## Memory Kernel
