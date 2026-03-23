@@ -219,8 +219,8 @@ function QME_sI_ansatz(
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
     _bath_state_fn(ansatz)  # validate ansatz early
-    rho0 = trace_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
-    history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
+    setup = _setup_delayed_integration(W0, tspan, agg)
+    (; rho0, history_fun, tmp1, tmp2, tspan_, x0, state, dstate) = setup
     W0_bath = get_rho_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
     t_mk_bath_step = (tspan[end] - tspan[1]) / t_mk_bath_count
     p = (
@@ -228,15 +228,9 @@ function QME_sI_ansatz(
         W0=W0, W0_bath=W0_bath, t_mk_bath_step=t_mk_bath_step, elementtype=eltype(W0),
     )
 
-    tmp1 = copy(W0.data)
-    tmp2 = copy(W0.data)
     dmaster_(t, rho, drho, history_fun, p) = dQME_sI_ansatz(
         t, rho, drho, history_fun, tmp1, tmp2, p, int_reltol, int_abstol, ansatz,
     )
-    tspan_ = convert(Vector{float(eltype(tspan))}, tspan)
-    x0 = rho0.data
-    state = T(rho0.basis_l, rho0.basis_r, rho0.data)
-    dstate = T(rho0.basis_l, rho0.basis_r, rho0.data)
     tspan, rho_t = integrate_delayed(
         tspan_,
         dmaster_,
