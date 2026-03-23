@@ -49,7 +49,7 @@ end
 
 Calculate the second part of Memory Kernel with the definition
 
-`` \\mathcal{M}_1(t, \\tau) = \\operatorname{tr}_B \\{ \\hat{H}_I^{(I)}(t) W_\\text{bath} \\hat{H}_I^{(I)}(\\tau) \\}``.
+`` \\mathcal{M}_2(t, \\tau) = \\operatorname{tr}_B \\{ \\hat{H}_I^{(I)}(t) W_\\text{bath} \\hat{H}_I^{(I)}(\\tau) \\}``.
 
 # Arguments
 * `H_II_t`: Interaction Hamiltonian in interaction picutre at the time t, ``\\hat{H}_I^{(I)}(t)``.
@@ -99,7 +99,7 @@ end
 
 Calculate the third part of Memory Kernel with the definition
 
-`` \\mathcal{M}_1(t, \\tau) = \\operatorname{tr}_B \\{ \\hat{H}_I^{(I)}(\\tau) W_\\text{bath} \\hat{H}_I^{(I)}(t) \\}``.
+`` \\mathcal{M}_3(t, \\tau) = \\operatorname{tr}_B \\{ \\hat{H}_I^{(I)}(\\tau) W_\\text{bath} \\hat{H}_I^{(I)}(t) \\}``.
 
 # Arguments
 * `H_II_t`: Interaction Hamiltonian in interaction picutre at the time t, ``\\hat{H}_I^{(I)}(t)``.
@@ -149,7 +149,7 @@ end
 
 Calculate the fourth part of Memory Kernel with the definition
 
-`` \\mathcal{M}_1(t, \\tau) = \\operatorname{tr}_B \\{ W_\\text{bath} \\hat{H}_I^{(I)}(t) \\hat{H}_I^{(I)}(\\tau) \\}``.
+`` \\mathcal{M}_4(t, \\tau) = \\operatorname{tr}_B \\{ W_\\text{bath} \\hat{H}_I^{(I)}(\\tau) \\hat{H}_I^{(I)}(t) \\}``.
 
 # Arguments
 * `H_II_t`: Interaction Hamiltonian in interaction picutre at the time t, ``\\hat{H}_I^{(I)}(t)``.

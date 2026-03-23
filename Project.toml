@@ -1,6 +1,6 @@
 name = "OpenQuantumSystems"
 uuid = "90e503ea-487f-4e8e-81fe-8dcc9db25ac5"
-version = "0.5.0"
+version = "0.6.0"
 authors = ["Daniel Herman <daniel.herman@pm.me>"]
 
 [deps]
