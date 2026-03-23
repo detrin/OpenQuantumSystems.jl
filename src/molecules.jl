@@ -9,22 +9,18 @@ Converts number or objects from one units to different units.
 """
 # TODO: add other units
 function convert_units(E::T; from = "1/cm", to="1/fs")::T where T<:AbstractFloat
-    c_const = 299792458.0
-    pi_const = 3.141592653589793
     E_new = E
     if from == "1/cm" && to == "1/fs"
-        c = 2.0*pi_const*c_const*1e-13
+        c = 2.0 * pi * 299792458.0 * 1e-13
         E_new = E / c
     end
     return E_new
 end
 
 function convert_units(E_vec::Vector{T}; from = "1/cm", to="1/fs")::Vector{T} where T<:AbstractFloat
-    c_const = 299792458.0
-    pi_const = 3.141592653589793
     E_new = deepcopy(E_vec)
     if from == "1/cm" && to == "1/fs"
-        c = 2.0*pi_const*c_const*1e-13
+        c = 2.0 * pi * 299792458.0 * 1e-13
         E_new = map((E) -> E/c, E_vec)
     end
     return E_new
