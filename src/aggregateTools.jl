@@ -3,7 +3,6 @@ abstract type AbstractAggregateTools end
 
 const ElIndices = Vector{Vector{T}} where {T<:Integer}
 const VibIndices = Vector{Vector{Vector{Int64}}} where {T<:Integer}
-# TODO: be more specific for T
 const Indices = Vector{Vector{Vector{T} where T}}
 const IndicesMap = Vector{Vector{T}} where {T<:Integer}
 const FCfactorsT = Matrix{T} where {T<:AbstractFloat}
@@ -18,7 +17,7 @@ Get all electronic indices of the [`Aggregate`](@ref).
 * `aggCore`: Instance of [`Aggregate`](@ref).
 """
 function electronicIndices(aggCore::AggregateCore)::ElIndices
-    # TODO: add typeofs
+
     vibInds = Array{Array{Int64,1},1}(undef, 0)
     molCount = length(aggCore.molecules)
     currentInds = fill(1, (molCount))
@@ -38,7 +37,7 @@ Get all vibrational indices of the [`Aggregate`](@ref).
 
 """
 function vibrationalIndices(aggCore::AggregateCore)::VibIndices
-    # TODO: add typeofs
+
     NvibMols = getNvib(aggCore)
     molLen = length(aggCore.molecules)
     NvibIndMols = Array{Array{Array{Int64,1},1},1}(undef, 0)
@@ -145,56 +144,6 @@ getFranckCondonFactors(aggCore::AggregateCore)::FCfactorsT =
     (aggIndices = getIndices(aggCore);
     getFranckCondonFactors(aggCore, aggIndices))
 
-# TODO: resurrect sparse version
-#=
-"""
-    getFranckCondonFactorsSparse(agg, aggIndices)
-    getFranckCondonFactorsSparse(agg)
-
-Sparse version of [`getFranckCondonFactors`](@ref).
-
-"""
-function getFranckCondonFactorsSparse(
-    agg::C,
-    aggIndices::Any
-) where {C<:AbstractAggregateCore}
-    if aggIndices === nothing
-        aggIndices = getIndices(agg)
-    end
-    aggIndLen = length(aggIndices)
-    molLen = length(agg.molecules)
-    FC = spzeros(C2, aggIndLen, aggIndLen)
-    for I = 1:aggIndLen
-        elind1, vibind1 = aggIndices[I]
-        for J = 1:aggIndLen
-            elind2, vibind2 = aggIndices[J]
-            if elind1 == elind2
-                if vibind1 == vibind2
-                    FC[I, J] = 1.0
-                end
-            else
-                fc = 1.0::C2
-                for mi = 1:molLen
-                    mol = agg.molecules[mi]
-                    fc *=
-                        getMolStateFC(mol, elind1[mi], vibind1[mi], elind2[mi], vibind2[mi])
-                end
-                if fc != 0.0
-                    FC[I, J] = fc
-                end
-            end
-        end
-    end
-    return FC
-end
-
-getFranckCondonFactorsSparse(
-    agg::C
-) where {C<:AbstractAggregateCore} = getFranckCondonFactorsSparse(
-    agg::C,
-    nothing
-)
-=#
 
 """
     getFCProd(agg, FCFact, aggIndices, vibindices)
@@ -336,7 +285,7 @@ Base.:(==)(x::AggregateTools, y::AggregateTools) =
 Take electric part specified by electric indices `a` and `b` from the A (type of Array). 
 
 """
-function take_el_part(A::Array, a, b, indicesMap)
+function take_el_part(A::AbstractMatrix, a, b, indicesMap)
     a1 = indicesMap[a][1]
     a2 = indicesMap[a][end]
     b1 = indicesMap[b][1]

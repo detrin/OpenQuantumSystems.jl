@@ -18,7 +18,7 @@ function integrate(
     p = nothing,
     reltol::Float64 = 1.0e-12,
     abstol::Float64 = 1.0e-12,
-    alg::OrdinaryDiffEq.OrdinaryDiffEqAlgorithm = OrdinaryDiffEq.DP5(),
+    alg::OrdinaryDiffEq.OrdinaryDiffEqCore.OrdinaryDiffEqAlgorithm = OrdinaryDiffEq.DP5(),
     steady_state = false,
     tol = 1e-3,
     save_everystep = false,
