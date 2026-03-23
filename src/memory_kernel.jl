@@ -17,9 +17,9 @@ Calculate the first part of Memory Kernel with the definition
 * `indicesMap`: Aggregate vibrational indices, see [`getVibIndices`](@ref).
 """
 function MemoryKernel_1_traced(
-    H_II_t::Array,
-    H_II_tau::Array,
-    W_bath::Array,
+    H_II_t::AbstractMatrix,
+    H_II_tau::AbstractMatrix,
+    W_bath::AbstractMatrix,
     aggCore::AggregateCore,
     aggOperators::AggregateOperators,
     aggTools::AggregateTools
@@ -60,9 +60,9 @@ Calculate the second part of Memory Kernel with the definition
 * `indicesMap`: Aggregate vibrational indices, see [`getVibIndices`](@ref).
 """
 function MemoryKernel_2_traced(
-    H_II_t::Array,
-    H_II_tau::Array,
-    W_bath::Array,
+    H_II_t::AbstractMatrix,
+    H_II_tau::AbstractMatrix,
+    W_bath::AbstractMatrix,
     aggCore::AggregateCore,
     aggOperators::AggregateOperators,
     aggTools::AggregateTools
@@ -110,9 +110,9 @@ Calculate the third part of Memory Kernel with the definition
 * `indicesMap`: Aggregate vibrational indices, see [`getVibIndices`](@ref).
 """
 function MemoryKernel_3_traced(
-    H_II_t::Array,
-    H_II_tau::Array,
-    W_bath::Array,
+    H_II_t::AbstractMatrix,
+    H_II_tau::AbstractMatrix,
+    W_bath::AbstractMatrix,
     aggCore::AggregateCore,
     aggOperators::AggregateOperators,
     aggTools::AggregateTools
@@ -160,9 +160,9 @@ Calculate the fourth part of Memory Kernel with the definition
 * `indicesMap`: Aggregate vibrational indices, see [`getVibIndices`](@ref).
 """
 function MemoryKernel_4_traced(
-    H_II_t::Array,
-    H_II_tau::Array,
-    W_bath::Array,
+    H_II_t::AbstractMatrix,
+    H_II_tau::AbstractMatrix,
+    W_bath::AbstractMatrix,
     aggCore::AggregateCore,
     aggOperators::AggregateOperators,
     aggTools::AggregateTools
@@ -203,9 +203,9 @@ Calculate Memory Kernel with the definition
 * `indicesMap`: Aggregate vibrational indices, see [`getVibIndices`](@ref).
 """
 function MemoryKernel_traced(
-    H_II_t::Array,
-    H_II_tau::Array,
-    W_bath::Array,
+    H_II_t::AbstractMatrix,
+    H_II_tau::AbstractMatrix,
+    W_bath::AbstractMatrix,
     aggCore::AggregateCore,
     aggOperators::AggregateOperators,
     aggTools::AggregateTools

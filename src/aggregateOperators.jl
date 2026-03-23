@@ -19,6 +19,8 @@ function getAggHamSystemSmall(
     vib_basis::Symbol=:ground_ground,
     groundEnergy::Bool = true,
 )
+    vib_basis ∈ (:ground_ground, :ground_excited) ||
+        throw(ArgumentError("vib_basis must be :ground_ground or :ground_excited, got :$vib_basis"))
     Ham_sys = zeros(Float64, (aggCore.molCount + 1, aggCore.molCount + 1))
 
     agg_shifts = getShifts(aggCore)
@@ -146,7 +148,6 @@ function getAggHamBathBig(
 
     Ham_bath = getAggHamBathSmall(aggCore, aggTools)
     one_sys = OneDenseOperator(aggTools.basisSystem)
-    # TODO: optimise types in future
     one_sys = DenseOperator(aggTools.basisSystem, aggTools.basisSystem, real(one_sys.data))
     Ham_bath = tensor(Ham_bath, one_sys)
     if !groundEnergy
@@ -404,7 +405,6 @@ nothing
 )
 =#
 
-# TODO: add docs and proper types
 struct AggregateOperators{O_sys,O_bath,O} <: AbstractAggregateOperators
     Ham_sys::O_sys
     Ham_bath::O_bath

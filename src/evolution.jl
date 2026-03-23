@@ -21,7 +21,7 @@ function evolutionOperator(Hamiltonian::Operator, t::AbstractFloat)::Operator
     return exp(-1im * Hamiltonian * t)
 end
 
-function evolutionOperator(Hamiltonian::Array, t::AbstractFloat)::Array
+function evolutionOperator(Hamiltonian::AbstractMatrix, t::AbstractFloat)::AbstractMatrix
     return exp(-1im * Hamiltonian * t)
 end
 
@@ -44,7 +44,7 @@ H_lambda = diagm(H_lambda)
 and arguments have to be Arrays.
 
 """
-function evolutionOperatorA(H_lambda::Array, S::Array, Sinv::Array, t::AbstractFloat)::Array
+function evolutionOperatorA(H_lambda::AbstractMatrix, S::AbstractMatrix, Sinv::AbstractMatrix, t::AbstractFloat)::AbstractMatrix
     return S * exp(-1im * H_lambda * t) * Sinv
 end
 
@@ -69,7 +69,7 @@ Get evolution operators as Vector or Operators using the definition
 ``U(t) = e^{-i H t / \\hbar}, \\quad \\hbar = 1``.
 
 """
-function evolutionOperatorArray(Hamiltonian::Operator, tspan::Array)::Array
+function evolutionOperatorArray(Hamiltonian::Operator, tspan::AbstractVector)::AbstractVector
     N = length(tspan)
     Ham_lambda, S = eigen(Hamiltonian.data)
     Sinv = inv(S)
@@ -97,7 +97,7 @@ Get evolution superoperators as Vector or SuperOperators using the definition
 ``\\mathcal{U}(t) \\:\\cdot\\: = U(t) \\:\\cdot\\: U^\\dagger(t) = e^{-i H t / \\hbar} \\:\\cdot\\: e^{i H t / \\hbar}, \\quad \\hbar = 1``.
 
 """
-function evolutionSuperOperatorArray(Hamiltonian::Operator, tspan::Array)::Array
+function evolutionSuperOperatorArray(Hamiltonian::Operator, tspan::AbstractVector)::AbstractVector
     N = length(tspan)
     Ham_lambda, S = eigen(Hamiltonian.data)
     basis = GenericBasis([size(Ham_lambda, 1)])
@@ -132,7 +132,7 @@ function evolutionOperatorIterator end
 
 @resumable function evolutionOperatorIterator(
     Hamiltonian::Operator,
-    tspan::Array;
+    tspan::AbstractVector;
     diagonalize = true,
     approximate = false,
 )
@@ -184,7 +184,7 @@ function evolutionSuperOperatorIterator end
 
 @resumable function evolutionSuperOperatorIterator(
     Hamiltonian::Operator,
-    tspan::Array;
+    tspan::AbstractVector;
     diagonalize = true,
     approximate = false,
 )
@@ -237,7 +237,7 @@ equidistant points, therefore ``U(t)`` has to be calculated for ``t_0`` and ``t_
 """
 function evolutionExact(
     ket0::Ket,
-    tspan::Array,
+    tspan::AbstractVector,
     Hamiltonian::Operator;
     diagonalize = true,
     approximate = false,
@@ -274,7 +274,7 @@ equidistant points, therefore ``U(t)`` has to be calculated for ``t_0`` and ``t_
 function evolutionExact!(
     ket_array::Array{Array{C,1},1},
     ket0::Ket,
-    tspan::Array,
+    tspan::AbstractVector,
     Hamiltonian::Operator;
     diagonalize = true,
     approximate = false,
@@ -310,7 +310,7 @@ equidistant points, therefore ``U(t)`` has to be calculated for ``t_0`` and ``t_
 """
 function evolutionExact(
     op0::Operator,
-    tspan::Array,
+    tspan::AbstractVector,
     Hamiltonian::Operator;
     diagonalize = true,
     approximate = false,
@@ -347,7 +347,7 @@ equidistant points, therefore ``U(t)`` has to be calculated for ``t_0`` and ``t_
 function evolutionExact!(
     op_array::Array{Array{C,2},1},
     op0::Operator,
-    tspan::Array,
+    tspan::AbstractVector,
     Hamiltonian::Operator,
 ) where {C<:ComputableType}
     N = length(tspan)
@@ -374,7 +374,7 @@ calculated for ``t_0`` and ``t_\\text{step}``. See [`evolutionOperator`](@ref).
 This method returns Vector of Ket states.
 
 """
-function evolutionApproximate(ket0::Ket, tspan::Array, Hamiltonian::Operator)
+function evolutionApproximate(ket0::Ket, tspan::AbstractVector, Hamiltonian::Operator)
     N = length(tspan)
     ket_array = Array{typeof(ket0),1}(undef, 0)
     t_step = tspan[2] - tspan[1]
@@ -403,7 +403,7 @@ Argument `ket_array` is Vector of Arrays.
 function evolutionApproximate!(
     ket_array::Array{Array{C,1},1},
     ket0::Ket,
-    tspan::Array,
+    tspan::AbstractVector,
     Hamiltonian::Operator,
 ) where {C<:ComputableType}
     N = length(tspan)
@@ -433,7 +433,7 @@ calculated for ``t_0`` and ``t_\\text{step}``. See [`evolutionOperator`](@ref).
 This method returns Vector of Operators.
 
 """
-function evolutionApproximate(op0::Operator, tspan::Array, Hamiltonian::Operator)
+function evolutionApproximate(op0::Operator, tspan::AbstractVector, Hamiltonian::Operator)
     N = length(tspan)
     op_array = Array{typeof(op0),1}(undef, 0)
     t_step = tspan[2] - tspan[1]
@@ -463,7 +463,7 @@ This method returns Vector of Arrays.
 function evolutionApproximate!(
     op_array::Array{Array{C,2},1},
     op0::Operator,
-    tspan::Array,
+    tspan::AbstractVector,
     Hamiltonian::Operator,
 ) where {C<:ComputableType}
     N = length(tspan)
@@ -496,7 +496,7 @@ This method returns tspan and Vector of Operators.
 """
 function evolution_exact(
     rho0::T,
-    tspan::Array,
+    tspan::AbstractVector,
     Hamiltonian::U;
     diagonalize = false,
 ) where {B<:Basis,T<:Operator{B,B},U<:Operator{B,B}}
@@ -542,7 +542,7 @@ This method returns tspan and Vector of Operators.
 """
 function evolution_approximate(
     rho0::T,
-    tspan::Array,
+    tspan::AbstractVector,
     Ham::U;
     diagonalize = false,
 ) where {B<:Basis,T<:Operator{B,B},U<:Operator{B,B}}
@@ -586,7 +586,7 @@ function evolution_approximate(
 end
 
 #=
-function evolutionOperatorExp(Ham::Array, t::AbstractFloat, n::Integer)::Array
+function evolutionOperatorExp(Ham::AbstractMatrix, t::AbstractFloat, n::Integer)::AbstractMatrix
     # c = ones(size(Ham))
     c = one(Ham)
     Len = size(Ham, 1)
@@ -613,7 +613,7 @@ end
 =#
 
 function evolution_el_part(
-    Ham::Array,
+    Ham::AbstractMatrix,
     t::AbstractFloat,
     a::Integer,
     b::Integer,
@@ -637,7 +637,7 @@ end
 
 function Evolution_SI_exact(
     W0::T,
-    tspan::Array,
+    tspan::AbstractVector,
     agg::Aggregate,
 ) where {B<:Basis,T<:Operator{B,B}}
     W_t_exact = zeros(ComplexF64, length(tspan), agg.tools.bSize, agg.tools.bSize)
@@ -656,7 +656,7 @@ end
 
 function Evolution_sI_exact(
     W0::T,
-    tspan::Array,
+    tspan::AbstractVector,
     agg::Aggregate,
 ) where {B<:Basis,T<:Operator{B,B}}
     elLen = agg.core.molCount
@@ -677,7 +677,7 @@ end
 
 function Evolution_SS_exact(
     W0::T,
-    tspan::Array,
+    tspan::AbstractVector,
     agg::Aggregate,
 ) where {B<:Basis,T<:Operator{B,B}}
     W_t_exact = zeros(ComplexF64, length(tspan), agg.tools.bSize, agg.tools.bSize)
@@ -694,7 +694,7 @@ end
 
 function Evolution_sS_exact(
     W0::T,
-    tspan::Array,
+    tspan::AbstractVector,
     agg::Aggregate,
 ) where {B<:Basis,T<:Operator{B,B}}
     elLen = agg.core.molCount
