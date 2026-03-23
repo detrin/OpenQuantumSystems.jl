@@ -321,12 +321,16 @@ export
 
     # correlation.jl
     analytic_correlation_nn,
+    analytic_correlation_nn_high_T,
+    is_high_temperature,
     exciton_correlation,
 
     # corrected_memory_kernel.jl
     equilibrium_bath_state,
     zeroth_order_memory_kernel_cf,
+    zeroth_order_memory_kernel_high_T,
     first_order_memory_kernel_cf,
+    first_order_memory_kernel_high_T,
     corrected_rates_cf,
     corrected_qme_rdm,
     site_to_exciton_kernel,
