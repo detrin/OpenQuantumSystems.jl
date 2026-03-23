@@ -89,7 +89,7 @@ Currently, electronic couplings must be set manually in the coupling matrix. For
 ## Bug Fixes
 
 ### #86 - Fix missing rho factor in default iterative QME bath correction
-**Status:** IN PROGRESS
+**Status:** DONE
 **Severity:** Bug
 
 In `master_iterative.jl`, the default I ansatz (`method=:default`) had a line that overwrote the correctly computed `ad(rho_t2, W_bath_t2, ...)` with just `W_bath_t2`, dropping the ρ_{cd}(t₂) weighting required by thesis Eq. 3.28. The I.M1 and I.M2 variants were not affected (the overwrite was already commented out there).
@@ -99,7 +99,7 @@ In `master_iterative.jl`, the default I ansatz (`method=:default`) had a line th
 ---
 
 ### #87 - Fix docstring labels and type parameters in memory_kernel.jl and master_exact.jl
-**Status:** IN PROGRESS
+**Status:** DONE
 **Severity:** Bug (minor)
 
 Two minor issues found during thesis verification:
@@ -156,7 +156,7 @@ Implement the first-order correction to the memory kernel M_abcd(t₁, t₂; ŵ�
 ---
 
 ### #90 - High-temperature limit of corrected memory kernel
-**Status:** BACKLOG
+**Status:** IN PROGRESS
 **Severity:** Feature (thesis core contribution)
 **Blocked by:** #89
 
@@ -267,11 +267,11 @@ Enable data exchange with [quantarhei](https://github.com/tmancal74/quantarhei),
 | #83 | Anharmonic oscillators | Feature | Nice-to-have | BACKLOG |
 | #84 | Double excited states | Feature | Nice-to-have | BACKLOG |
 | #85 | quantarhei interoperability | Feature | Nice-to-have | BACKLOG |
-| #86 | Fix missing rho factor in iterative QME | Bug | Critical | IN PROGRESS |
-| #87 | Fix docstring labels and type params | Bug | Minor | IN PROGRESS |
+| #86 | Fix missing rho factor in iterative QME | Bug | Critical | DONE |
+| #87 | Fix docstring labels and type params | Bug | Minor | DONE |
 | #88 | Zeroth-order memory kernel via correlation functions | Feature | Near-future | DONE |
 | #89 | First-order corrected memory kernel | Feature | Near-future | DONE |
-| #90 | High-temperature limit of corrected memory kernel | Feature | Near-future | BACKLOG |
+| #90 | High-temperature limit of corrected memory kernel | Feature | Near-future | IN PROGRESS |
 
 ## Priority Order
 
