@@ -29,6 +29,7 @@ makedocs(
         "Tutorials" => [
             "Dimer" => "tutorials/dimer.md",
             "Förster Theory & Dipole Couplings" => "tutorials/forster.md",
+            "Comparing Simulation Methods" => "tutorials/comparison.md",
         ],
     ],
 )
