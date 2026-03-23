@@ -50,7 +50,24 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     p = (agg.core, agg.tools, agg.operators, W0, W0_bath, eltype(W0))
 
     t = 0.01
-    
+
+    @test true
+
+    @testset "ad produces rho-weighted result" begin
+        W_bath = W0_bath.data
+        elLen = aggCore.molCount + 1
+        rho_uniform = ones(ComplexF64, elLen, elLen)
+        rho_nonuniform = ones(ComplexF64, elLen, elLen)
+        rho_nonuniform[2, 2] = 0.7 + 0.0im
+        rho_nonuniform[3, 3] = 0.3 + 0.0im
+
+        result_uniform = ad(rho_uniform, W_bath, aggCore, aggTools)
+        result_nonuniform = ad(rho_nonuniform, W_bath, aggCore, aggTools)
+
+        @test norm(result_uniform - W_bath) < 1e-10
+        @test norm(result_nonuniform - W_bath) > 1e-10
+        @test all(isfinite, result_nonuniform)
+    end
 
 end
 
