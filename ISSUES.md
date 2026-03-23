@@ -62,7 +62,7 @@ Related: #50, #51
 ---
 
 ### #62 - Refactor deeply nested getAggHamInteraction in aggregateOperators.jl
-**Status:** BACKLOG
+**Status:** IN PROGRESS
 **Severity:** Moderate (readability/maintainability)
 
 `getAggHamInteraction` in `aggregateOperators.jl:206-312` is 107 lines long with 5 levels of nesting:
@@ -179,7 +179,7 @@ The codebase mixes camelCase and snake_case inconsistently:
 | #58 | Clean up technical debt: TODOs, dead code, commented-out tests | Debt | Moderate | DONE |
 | #60 | Fix unsafe divisions in trace.jl and rate_constant.jl | Correctness | Moderate | IN PROGRESS |
 | #61 | Extract shared integration setup boilerplate | DRY | Moderate | BACKLOG |
-| #62 | Refactor deeply nested aggregateOperators.jl | Quality | Moderate | BACKLOG |
+| #62 | Refactor deeply nested aggregateOperators.jl | Quality | Moderate | IN PROGRESS |
 | #63 | Remove Union{T, Nothing} from Aggregate struct | SOLID | Moderate | BACKLOG |
 | #64 | Replace hardcoded 2-level system assumptions | Extensibility | Moderate | IN PROGRESS |
 | #65 | Remove hardcoded module self-references | Code smell | Minor | IN PROGRESS |
