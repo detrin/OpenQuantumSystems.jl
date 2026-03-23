@@ -112,25 +112,6 @@ Two minor issues found during thesis verification:
 
 ## Nice-to-Have Features
 
-### #81 - Mixed state decomposition via linear programming
-**Status:** BACKLOG
-**Severity:** Feature (nice-to-have)
-
-Decompose a mixed density matrix into a convex combination of pure states using linear programming. Useful for physical interpretation of simulation results.
-
-**What needs to be implemented:**
-1. **LP formulation** — express ρ = Σ_i p_i |ψ_i⟩⟨ψ_i| as a convex optimization problem
-2. **Solver integration** — use JuMP.jl + HiGHS.jl (free LP solver) as optional dependencies
-3. **API** — `decompose(rho; max_terms=10)` returning weights and pure states
-
-**New dependency:** JuMP.jl, HiGHS.jl (consider making this a package extension to keep core lightweight)
-
-**Proposed files:**
-- `ext/MixedStateDecompositionExt.jl` — package extension (loaded when JuMP is available)
-- `test/test_decomposition.jl` — tests
-
----
-
 ### #82 - Hamiltonian loading and data storage
 **Status:** BACKLOG
 **Severity:** Feature (nice-to-have)
@@ -217,7 +198,6 @@ Enable data exchange with [quantarhei](https://github.com/tmancal74/quantarhei),
 | #78 | Förster theory for EET rates | Feature | Near-future | DONE |
 | #79 | Modified Redfield theory | Feature | Near-future | DONE |
 | #80 | Dipole moments from coordinates | Feature | Near-future | DONE |
-| #81 | Mixed state decomposition via LP | Feature | Nice-to-have | BACKLOG |
 | #82 | Hamiltonian loading/storage | Feature | Nice-to-have | BACKLOG |
 | #83 | Anharmonic oscillators | Feature | Nice-to-have | BACKLOG |
 | #84 | Double excited states | Feature | Nice-to-have | BACKLOG |
@@ -233,8 +213,7 @@ Enable data exchange with [quantarhei](https://github.com/tmancal74/quantarhei),
 3. **#79** — Modified Redfield (depends on #78)
 
 **Nice-to-have (future releases):**
-4. **#81** — Hamiltonian loading/storage (practical, low effort)
+4. **#82** — Hamiltonian loading/storage (practical, low effort)
 5. **#84** — Double excited states (enables nonlinear spectroscopy)
-6. **#82** — Anharmonic oscillators (physics extension)
-7. **#81** — Mixed state decomposition (niche use case)
-8. **#85** — quantarhei interop (ecosystem)
+6. **#83** — Anharmonic oscillators (physics extension)
+7. **#85** — quantarhei interop (ecosystem)
