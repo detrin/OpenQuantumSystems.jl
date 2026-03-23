@@ -37,7 +37,7 @@ Related: #52
 ## Additional Issues
 
 ### #61 - Extract shared integration setup boilerplate into helper function
-**Status:** BACKLOG
+**Status:** IN PROGRESS
 **Severity:** Moderate (DRY -- ~150 duplicated lines)
 
 The integration setup pattern is duplicated across 4 files:
@@ -178,7 +178,7 @@ The codebase mixes camelCase and snake_case inconsistently:
 | #57 | Improve type annotations throughout | Quality | Moderate | DONE |
 | #58 | Clean up technical debt: TODOs, dead code, commented-out tests | Debt | Moderate | DONE |
 | #60 | Fix unsafe divisions in trace.jl and rate_constant.jl | Correctness | Moderate | IN PROGRESS |
-| #61 | Extract shared integration setup boilerplate | DRY | Moderate | BACKLOG |
+| #61 | Extract shared integration setup boilerplate | DRY | Moderate | IN PROGRESS |
 | #62 | Refactor deeply nested aggregateOperators.jl | Quality | Moderate | IN PROGRESS |
 | #63 | Remove Union{T, Nothing} from Aggregate struct | SOLID | Moderate | BACKLOG |
 | #64 | Replace hardcoded 2-level system assumptions | Extensibility | Moderate | IN PROGRESS |
