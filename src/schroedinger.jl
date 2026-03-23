@@ -22,19 +22,26 @@ Integrate Schroedinger equation to evolve states or compute propagators
 """
 function schroedinger(
     psi0::T,
-    tspan::Array,
+    tspan::AbstractVector,
     H::AbstractOperator{B,B};
     reltol::Float64 = 1.0e-12,
     abstol::Float64 = 1.0e-12,
-    alg::OrdinaryDiffEq.OrdinaryDiffEqAlgorithm = OrdinaryDiffEq.Tsit5(),
+    alg::OrdinaryDiffEq.OrdinaryDiffEqCore.OrdinaryDiffEqAlgorithm = OrdinaryDiffEq.Tsit5(),
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
 ) where {B<:Basis,T<:Union{AbstractOperator{B,B},StateVector{B}}}
     tspan_ = convert(Vector{float(eltype(tspan))}, tspan)
-    dschroedinger_(t, psi::T, dpsi::T, p) = dschroedinger(psi, H, dpsi)
-    x0 = psi0.data
-    state = copy(psi0)
-    dstate = copy(psi0)
+    dschroedinger_(t, psi, dpsi, p) = dschroedinger(psi, H, dpsi)
+    if psi0 isa AbstractOperator
+        _data = Matrix{ComplexF64}(psi0.data)
+        x0 = _data
+        state = Operator(psi0.basis_l, psi0.basis_r, copy(_data))
+        dstate = Operator(psi0.basis_l, psi0.basis_r, copy(_data))
+    else
+        x0 = psi0.data
+        state = copy(psi0)
+        dstate = copy(psi0)
+    end
     OpenQuantumSystems.integrate(
         tspan_,
         dschroedinger_,
@@ -72,19 +79,26 @@ Integrate time-dependent Schroedinger equation to evolve states or compute propa
 """
 function schroedinger_dynamic(
     psi0::T,
-    tspan::Array,
+    tspan::AbstractVector,
     f::Function;
     reltol::Float64 = 1.0e-6,
     abstol::Float64 = 1.0e-8,
-    alg::OrdinaryDiffEq.OrdinaryDiffEqAlgorithm = OrdinaryDiffEq.DP5(),
+    alg::OrdinaryDiffEq.OrdinaryDiffEqCore.OrdinaryDiffEqAlgorithm = OrdinaryDiffEq.DP5(),
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
 ) where {T<:Union{StateVector,AbstractOperator}}
     tspan_ = convert(Vector{float(eltype(tspan))}, tspan)
-    dschroedinger_(t, psi::T, dpsi::T, p) = dschroedinger_dynamic(t, psi, f, dpsi)
-    x0 = psi0.data
-    state = copy(psi0)
-    dstate = copy(psi0)
+    dschroedinger_(t, psi, dpsi, p) = dschroedinger_dynamic(t, psi, f, dpsi)
+    if psi0 isa AbstractOperator
+        _data = Matrix{ComplexF64}(psi0.data)
+        x0 = _data
+        state = Operator(psi0.basis_l, psi0.basis_r, copy(_data))
+        dstate = Operator(psi0.basis_l, psi0.basis_r, copy(_data))
+    else
+        x0 = psi0.data
+        state = copy(psi0)
+        dstate = copy(psi0)
+    end
     OpenQuantumSystems.integrate(
         tspan_,
         dschroedinger_,

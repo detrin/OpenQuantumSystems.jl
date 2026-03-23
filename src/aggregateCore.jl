@@ -45,7 +45,7 @@ Get maximum number of vibrational states of each molecule in the [`Aggregate`](@
 
 """
 function getNvib(aggCore::AggregateCore)
-    # TODO: add typeofs
+
     NvibMols = Array{Array{Int64,1},1}(undef, 0)
     for mol in aggCore.molecules
         push!(NvibMols, fill(mol.Nvib, length(mol.modes)))
@@ -60,7 +60,7 @@ Get shifts for every mode on each molecule in the [`Aggregate`](@ref).
 
 """
 function getShifts(aggCore::AggregateCore)
-    # TODO: add typeofs
+
     shifts = Array{Array{Float64,1},1}(undef, 0)
     for mol in aggCore.molecules
         push!(shifts, getMolShifts(mol))
@@ -75,7 +75,7 @@ Get frequencies for every mode on each molecule in the [`Aggregate`](@ref).
 
 """
 function getFrequencies(aggCore::AggregateCore)
-    # TODO: add typeofs
+
     frequencies = Array{Array{Float64,1},1}(undef, 0)
     for mol in aggCore.molecules
         push!(frequencies, getMolFrequencies(mol))
@@ -98,7 +98,6 @@ function getAggStateEnergy(
     aggElState::Vector{U},
     aggVibState::Vector{Vector{U}},
 )::Float64 where {U<:Integer}
-    # TODO: typeof
     energy = 0.0::Float64
     for mol_i = 1:length(aggCore.molecules)
         molElState = aggElState[mol_i]

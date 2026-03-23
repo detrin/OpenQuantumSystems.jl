@@ -168,7 +168,7 @@ thermal_state_composite(T, mu_weighted, agg::Aggregate; boltzmann_const::Float64
     diagonal=diagonal
 )
 
-function ultrafast_laser_excitation(T::AbstractFloat, weights::Array, agg::Aggregate; diagonalize = true)
+function ultrafast_laser_excitation(T::AbstractFloat, weights::AbstractVector, agg::Aggregate; diagonalize = true)
     molCount = agg.core.molCount
     mu_array = [ones(Int64, molCount+1)]
 

@@ -3,7 +3,7 @@ import QuantumOpticsBase, LinearAlgebra, OrdinaryDiffEq, QuadGK, DelayDiffEq
 
 function QME_sI_Redfield(
     W0::T,
-    tspan::Array,
+    tspan::AbstractVector,
     agg::Aggregate;
     reltol::AbstractFloat = 1.0e-12,
     abstol::AbstractFloat = 1.0e-12,
@@ -16,7 +16,7 @@ function QME_sI_Redfield(
     history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
     rho0 = trace_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
     W0_bath = get_rho_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
-    p = (agg.core, agg.tools, agg.operators, W0, W0_bath, eltype(W0))
+    p = (aggCore=agg.core, aggTools=agg.tools, aggOperators=agg.operators, W0=W0, W0_bath=W0_bath, elementtype=eltype(W0))
 
     tmp1 = copy(W0.data)
     tmp2 = copy(W0.data)
@@ -56,13 +56,13 @@ function dQME_sI_Redfield(
     rho::T,
     drho::T,
     history_fun,
-    tmp1::Array,
-    tmp2::Array,
+    tmp1::AbstractMatrix,
+    tmp2::AbstractMatrix,
     p,
     int_reltol::AbstractFloat,
     int_abstol::AbstractFloat,
 ) where {B<:Basis,T<:Operator{B,B}}
-    aggCore, aggTools, aggOperators, W0, _, elementtype = p
+    (; aggCore, aggTools, aggOperators, W0, elementtype) = p
         
     Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
@@ -81,7 +81,7 @@ function dQME_sI_Redfield(
 end
 
 function kernel_sI_Redfield(t, s, h, p, tmp1, tmp2, Ham_II_t)
-    aggCore, aggTools, aggOperators, W0, W0_bath, _ = p
+    (; aggCore, aggTools, aggOperators, W0, W0_bath) = p
 
     rho = h(p, t)
 
