@@ -114,6 +114,11 @@ using Reexport
 using SparseArrays, LinearAlgebra
 
 export
+    # core.jl
+    AbstractVibBasis,
+    GroundGround,
+    GroundExcited,
+
     # operators_dense.jl
     AnnihilationOperator,
     CreationOperator,
