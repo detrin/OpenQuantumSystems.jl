@@ -297,6 +297,14 @@ export
     # solve.jl
     solve,
 
+    # forster.jl
+    BOLTZMANN_CM,
+    LineshapeResult,
+    absorption_spectrum,
+    emission_spectrum,
+    spectral_overlap,
+    forster_rate,
+
     # dipole.jl
     DIPOLE_COUPLING_FACTOR,
     TransitionDipole,
@@ -369,6 +377,7 @@ include("postprocessing.jl")
 include("scoring.jl")
 include("simulation_result.jl")
 include("solve.jl")
+include("forster.jl")
 include("dipole.jl")
 include("convenience.jl")
 include("deprecated_aliases.jl")
