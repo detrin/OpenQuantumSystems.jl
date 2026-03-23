@@ -14,7 +14,7 @@ Calculate the first part of Memory Kernel with the definition
 * `W_bath`: Density matrix representing bath part of the density matrix, see [`get_rho_bath`](@ref).
 * `agg`: Aggregate of molecules, see [`Aggregate`](@ref).
 * `aggIndices`: Aggregate indices, see [`getIndices`](@ref).
-* `indicesMap`: Aggregate vibrational indices, see [`getVibIndices`](@ref).
+* `indicesMap`: Aggregate vibrational indices, see [`getIndicesMap`](@ref).
 """
 function MemoryKernel_1_traced(
     H_II_t::AbstractMatrix,
@@ -57,7 +57,7 @@ Calculate the second part of Memory Kernel with the definition
 * `W_bath`: Density matrix representing bath part of the density matrix, see [`get_rho_bath`](@ref).
 * `agg`: Aggregate of molecules, see [`Aggregate`](@ref).
 * `aggIndices`: Aggregate indices, see [`getIndices`](@ref).
-* `indicesMap`: Aggregate vibrational indices, see [`getVibIndices`](@ref).
+* `indicesMap`: Aggregate vibrational indices, see [`getIndicesMap`](@ref).
 """
 function MemoryKernel_2_traced(
     H_II_t::AbstractMatrix,
@@ -107,7 +107,7 @@ Calculate the third part of Memory Kernel with the definition
 * `W_bath`: Density matrix representing bath part of the density matrix, see [`get_rho_bath`](@ref).
 * `agg`: Aggregate of molecules, see [`Aggregate`](@ref).
 * `aggIndices`: Aggregate indices, see [`getIndices`](@ref).
-* `indicesMap`: Aggregate vibrational indices, see [`getVibIndices`](@ref).
+* `indicesMap`: Aggregate vibrational indices, see [`getIndicesMap`](@ref).
 """
 function MemoryKernel_3_traced(
     H_II_t::AbstractMatrix,
@@ -157,7 +157,7 @@ Calculate the fourth part of Memory Kernel with the definition
 * `W_bath`: Density matrix representing bath part of the density matrix, see [`get_rho_bath`](@ref).
 * `agg`: Aggregate of molecules, see [`Aggregate`](@ref).
 * `aggIndices`: Aggregate indices, see [`getIndices`](@ref).
-* `indicesMap`: Aggregate vibrational indices, see [`getVibIndices`](@ref).
+* `indicesMap`: Aggregate vibrational indices, see [`getIndicesMap`](@ref).
 """
 function MemoryKernel_4_traced(
     H_II_t::AbstractMatrix,
@@ -200,7 +200,7 @@ Calculate Memory Kernel with the definition
 * `W_bath`: Density matrix representing bath part of the density matrix, see [`get_rho_bath`](@ref).
 * `agg`: Aggregate of molecules, see [`Aggregate`](@ref).
 * `aggIndices`: Aggregate indices, see [`getIndices`](@ref).
-* `indicesMap`: Aggregate vibrational indices, see [`getVibIndices`](@ref).
+* `indicesMap`: Aggregate vibrational indices, see [`getIndicesMap`](@ref).
 """
 function MemoryKernel_traced(
     H_II_t::AbstractMatrix,
