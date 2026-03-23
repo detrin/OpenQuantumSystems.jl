@@ -34,9 +34,9 @@ function W_abcd_1_bath_core(t, t1, t2, p, tmp1, tmp2)
     Ham_II_t2 = getInteractionHamIPicture(Ham_0, Ham_I, t2)
 
     W_1_bath = zeros(ComplexF64, aggTools.bSize, aggTools.bSize)
-    rho_t2 = OpenQuantumSystems.interpolate_with_tspan(rho_0_int_t_itp, tspan, t2)
-    W_bath_t2 = OpenQuantumSystems.interpolate_with_tspan(W_0_bath_t_itp, tspan, t2)
-    rho_t1 = OpenQuantumSystems.interpolate_with_tspan(rho_0_int_t_itp, tspan, t1)
+    rho_t2 = interpolate_with_tspan(rho_0_int_t_itp, tspan, t2)
+    W_bath_t2 = interpolate_with_tspan(W_0_bath_t_itp, tspan, t2)
+    rho_t1 = interpolate_with_tspan(rho_0_int_t_itp, tspan, t1)
     rho_t1[:, :] = map(_safe_inv, rho_t1)
 
     tmp1[:, :] = ad(rho_t2, W_bath_t2, aggCore, aggTools)
@@ -82,8 +82,8 @@ function W_1_bath(
         rtol = W_1_rtol,
         atol = W_1_atol,
     )
-    rho_t = OpenQuantumSystems.interpolate_with_tspan(rho_0_int_t_itp, tspan, t)
-    W_bath_t = OpenQuantumSystems.interpolate_with_tspan(W_0_bath_t_itp, tspan, t)
+    rho_t = interpolate_with_tspan(rho_0_int_t_itp, tspan, t)
+    W_bath_t = interpolate_with_tspan(W_0_bath_t_itp, tspan, t)
     W_1_bath = deepcopy(W_bath_t) - W_1_diff
     if normalize
         W_1_bath = normalize_bath(W_1_bath, aggCore, aggTools, aggOperators)
@@ -180,7 +180,7 @@ function QME_sI_iterative(
     x0 = rho0.data
     state = T(rho0.basis_l, rho0.basis_r, rho0.data)
     dstate = T(rho0.basis_l, rho0.basis_r, rho0.data)
-    tspan, rho_int_1_t = OpenQuantumSystems.integrate_delayed(
+    tspan, rho_int_1_t = integrate_delayed(
         tspan_,
         dmaster_,
         history_fun,
@@ -244,7 +244,7 @@ function kernel_sI_iterative(t, s, h, p, tmp1, tmp2, Ham_II_t)
     Ham_0 = aggOperators.Ham_0
     Ham_I = aggOperators.Ham_I
     Ham_II_s = getInteractionHamIPicture(Ham_0, Ham_I, s)
-    W_bath_s = OpenQuantumSystems.interpolate_with_tspan(W_1_bath_itp, tspan, s)
+    W_bath_s = interpolate_with_tspan(W_1_bath_itp, tspan, s)
 
     tmp1[:, :] = ad(rho, W_bath_s, aggCore, aggTools)
     tmp2[:, :] = Ham_II_s.data * tmp1 - tmp1 * Ham_II_s.data
@@ -266,8 +266,8 @@ function W_abcd_1_markov0_bath_core(t, t1, t2, p, tmp1, tmp2)
     Ham_II_t2 = getInteractionHamIPicture(Ham_0, Ham_I, t2)
 
     W_1_bath = zeros(ComplexF64, aggTools.bSize, aggTools.bSize)
-    rho_t2 = OpenQuantumSystems.interpolate_with_tspan(rho_0_int_t_itp, tspan, t2)
-    W_bath_t2 = OpenQuantumSystems.interpolate_with_tspan(W_0_bath_t_itp, tspan, t2)
+    rho_t2 = interpolate_with_tspan(rho_0_int_t_itp, tspan, t2)
+    W_bath_t2 = interpolate_with_tspan(W_0_bath_t_itp, tspan, t2)
 
     tmp1[:, :] = ad(rho_t2, W_bath_t2, aggCore, aggTools)
     # tmp1[:, :] = W_bath_t2[:, :]
@@ -302,8 +302,8 @@ function W_1_markov0_bath(
         rtol = W_1_rtol,
         atol = W_1_atol,
     )
-    rho_t = OpenQuantumSystems.interpolate_with_tspan(rho_0_int_t_itp, tspan, t)
-    W_bath_t = OpenQuantumSystems.interpolate_with_tspan(W_0_bath_t_itp, tspan, t)
+    rho_t = interpolate_with_tspan(rho_0_int_t_itp, tspan, t)
+    W_bath_t = interpolate_with_tspan(W_0_bath_t_itp, tspan, t)
     for a=2:elLen, b=1:elLen
         a1 = indicesMap[a][1]
         a2 = indicesMap[a][end]
@@ -335,9 +335,9 @@ function W_abcd_1_markov1_bath_core(t, t1, t2, p, tmp1, tmp2)
     Ham_II_t2 = getInteractionHamIPicture(Ham_0, Ham_I, t2)
 
     W_1_bath = zeros(ComplexF64, aggTools.bSize, aggTools.bSize)
-    rho_t2 = OpenQuantumSystems.interpolate_with_tspan(rho_0_int_t_itp, tspan, t2)
+    rho_t2 = interpolate_with_tspan(rho_0_int_t_itp, tspan, t2)
     # W_bath_t1 instead of W_bath_t2
-    W_bath_t1 = OpenQuantumSystems.interpolate_with_tspan(W_0_bath_t_itp, tspan, t1)
+    W_bath_t1 = interpolate_with_tspan(W_0_bath_t_itp, tspan, t1)
 
     tmp1[:, :] = ad(rho_t2, W_bath_t1, aggCore, aggTools)
     # tmp1[:, :] = W_bath_t2[:, :]
@@ -372,8 +372,8 @@ function W_1_markov1_bath(
         rtol = W_1_rtol,
         atol = W_1_atol,
     )
-    rho_t = OpenQuantumSystems.interpolate_with_tspan(rho_0_int_t_itp, tspan, t)
-    W_bath_t = OpenQuantumSystems.interpolate_with_tspan(W_0_bath_t_itp, tspan, t)
+    rho_t = interpolate_with_tspan(rho_0_int_t_itp, tspan, t)
+    W_bath_t = interpolate_with_tspan(W_0_bath_t_itp, tspan, t)
     for a=2:elLen, b=1:elLen
         a1 = indicesMap[a][1]
         a2 = indicesMap[a][end]
