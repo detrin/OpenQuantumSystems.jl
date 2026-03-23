@@ -12,7 +12,7 @@ Tracking issue: [#49](https://github.com/detrin/OpenQuantumSystems.jl/issues/49)
 
 ## Near-Future Features
 
-### #77 - Implement Förster theory for excitation energy transfer rates
+### #78 - Implement Förster theory for excitation energy transfer rates
 **Status:** BACKLOG
 **Severity:** Feature (near-future roadmap)
 
@@ -31,7 +31,7 @@ Förster theory provides excitation energy transfer (EET) rates in the weak elec
 4. **Förster rate matrix** — compute pairwise rates for all molecules in an aggregate
 
 **Proposed files:**
-- `src/spectral_density.jl` — spectral density and line shape functions (shared with #78)
+- `src/spectral_density.jl` — spectral density and line shape functions (shared with #79)
 - `src/forster.jl` — Förster rate calculation
 - `test/test_forster.jl` — tests
 
@@ -39,7 +39,7 @@ Förster theory provides excitation energy transfer (EET) rates in the weak elec
 
 ---
 
-### #78 - Implement modified Redfield theory
+### #79 - Implement modified Redfield theory
 **Status:** BACKLOG
 **Severity:** Feature (near-future roadmap)
 
@@ -49,7 +49,7 @@ Modified Redfield theory improves on standard Redfield by treating diagonal (pop
 - Standard Redfield solver (`QME_sI_Redfield` in `redfield.jl`)
 - Aggregate Hamiltonians in site and exciton basis
 - Evolution operators and interaction picture transformations
-- Spectral density infrastructure (to be added in #77)
+- Spectral density infrastructure (to be added in #78)
 
 **What needs to be implemented:**
 1. **Spectral density in exciton basis** — transform site-basis spectral densities using exciton coefficients: `C_mn(ω) = Σ_k |c_mk|² |c_nk|² J_k(ω)`
@@ -58,17 +58,17 @@ Modified Redfield theory improves on standard Redfield by treating diagonal (pop
 4. **Solver integration** — either a standalone `QME_sI_modified_redfield` solver or an option in the existing Redfield solver
 
 **Proposed files:**
-- `src/spectral_density.jl` — shared with #77 (spectral density, lineshape functions, `g(t)` and derivatives)
+- `src/spectral_density.jl` — shared with #78 (spectral density, lineshape functions, `g(t)` and derivatives)
 - `src/modified_redfield.jl` — modified Redfield tensor and solver
 - `test/test_modified_redfield.jl` — tests, compare against standard Redfield in weak-coupling limit
 
-**Blocked by:** #77 (spectral density infrastructure)
+**Blocked by:** #78 (spectral density infrastructure)
 
 **Reference:** Thesis sections on modified Redfield; Zhang et al. J. Chem. Phys. 108, 7763 (1998)
 
 ---
 
-### #79 - Compute transition dipole moments from molecular coordinates
+### #80 - Compute transition dipole moments from molecular coordinates
 **Status:** BACKLOG
 **Severity:** Feature (near-future roadmap)
 
@@ -88,7 +88,7 @@ Currently, electronic couplings must be set manually in the coupling matrix. For
 
 ## Nice-to-Have Features
 
-### #80 - Mixed state decomposition via linear programming
+### #81 - Mixed state decomposition via linear programming
 **Status:** BACKLOG
 **Severity:** Feature (nice-to-have)
 
@@ -107,7 +107,7 @@ Decompose a mixed density matrix into a convex combination of pure states using 
 
 ---
 
-### #81 - Hamiltonian loading and data storage
+### #82 - Hamiltonian loading and data storage
 **Status:** BACKLOG
 **Severity:** Feature (nice-to-have)
 
@@ -127,7 +127,7 @@ Serialize and deserialize aggregates, Hamiltonians, and simulation results to di
 
 ---
 
-### #82 - Anharmonic oscillators
+### #83 - Anharmonic oscillators
 **Status:** BACKLOG
 **Severity:** Feature (nice-to-have, physics extension)
 
@@ -147,7 +147,7 @@ Replace or supplement LHO modes with anharmonic potentials (e.g., Morse oscillat
 
 ---
 
-### #83 - Double excited electronic states
+### #84 - Double excited electronic states
 **Status:** BACKLOG
 **Severity:** Feature (nice-to-have, physics extension)
 
@@ -167,7 +167,7 @@ Currently the system supports ground + singly excited electronic states (N+1 sta
 
 ---
 
-### #84 - quantarhei interoperability
+### #85 - quantarhei interoperability
 **Status:** BACKLOG
 **Severity:** Feature (nice-to-have, ecosystem)
 
@@ -190,25 +190,25 @@ Enable data exchange with [quantarhei](https://github.com/tmancal74/quantarhei),
 
 | # | Title | Category | Priority | Status |
 |---|-------|----------|----------|--------|
-| #77 | Förster theory for EET rates | Feature | Near-future | BACKLOG |
-| #78 | Modified Redfield theory | Feature | Near-future | BACKLOG |
-| #79 | Dipole moments from coordinates | Feature | Near-future | BACKLOG |
-| #80 | Mixed state decomposition via LP | Feature | Nice-to-have | BACKLOG |
-| #81 | Hamiltonian loading/storage | Feature | Nice-to-have | BACKLOG |
-| #82 | Anharmonic oscillators | Feature | Nice-to-have | BACKLOG |
-| #83 | Double excited states | Feature | Nice-to-have | BACKLOG |
-| #84 | quantarhei interoperability | Feature | Nice-to-have | BACKLOG |
+| #78 | Förster theory for EET rates | Feature | Near-future | BACKLOG |
+| #79 | Modified Redfield theory | Feature | Near-future | BACKLOG |
+| #80 | Dipole moments from coordinates | Feature | Near-future | BACKLOG |
+| #81 | Mixed state decomposition via LP | Feature | Nice-to-have | BACKLOG |
+| #82 | Hamiltonian loading/storage | Feature | Nice-to-have | BACKLOG |
+| #83 | Anharmonic oscillators | Feature | Nice-to-have | BACKLOG |
+| #84 | Double excited states | Feature | Nice-to-have | BACKLOG |
+| #85 | quantarhei interoperability | Feature | Nice-to-have | BACKLOG |
 
 ## Priority Order
 
 **Near-future (target for next release):**
-1. **#79** — Dipole moments (standalone, no dependencies)
-2. **#77** — Förster theory (provides spectral density infrastructure for #78)
-3. **#78** — Modified Redfield (depends on #77)
+1. **#80** — Dipole moments (standalone, no dependencies)
+2. **#78** — Förster theory (provides spectral density infrastructure for #79)
+3. **#79** — Modified Redfield (depends on #78)
 
 **Nice-to-have (future releases):**
 4. **#81** — Hamiltonian loading/storage (practical, low effort)
-5. **#83** — Double excited states (enables nonlinear spectroscopy)
+5. **#84** — Double excited states (enables nonlinear spectroscopy)
 6. **#82** — Anharmonic oscillators (physics extension)
-7. **#80** — Mixed state decomposition (niche use case)
-8. **#84** — quantarhei interop (ecosystem)
+7. **#81** — Mixed state decomposition (niche use case)
+8. **#85** — quantarhei interop (ecosystem)
