@@ -100,4 +100,39 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     rho_t = exciton_st_to_local_st(rho_t_exc, agg)
     rho_t_ref = operator_recast(rho_t_ref)
     @test D(rho_t_ref, rho_t) < 1e-14
+
+    # validate_state
+    b = GenericBasis([2])
+    valid_rho = Operator(b, b, ComplexF64[0.5 0.0; 0.0 0.5])
+    @test validate_state(valid_rho) == true
+
+    bad_trace = Operator(b, b, ComplexF64[0.5 0.0; 0.0 0.0])
+    @test_logs (:warn, r"trace deviates") validate_state(bad_trace) == false
+    @test validate_state(bad_trace) == false
+
+    nan_rho = Operator(b, b, ComplexF64[NaN 0.0; 0.0 0.5])
+    @test_logs (:warn, r"Inf or NaN") validate_state(nan_rho) == false
+    @test validate_state(nan_rho) == false
+
+    inf_rho = Operator(b, b, ComplexF64[Inf 0.0; 0.0 0.5])
+    @test_logs (:warn, r"Inf or NaN") (:warn, r"trace deviates") validate_state(inf_rho) == false
+    @test validate_state(inf_rho) == false
+
+    # validate_trajectory with OperatorVector
+    valid_vec = [valid_rho, valid_rho]
+    @test validate_trajectory(valid_vec) == true
+
+    bad_vec = [valid_rho, nan_rho]
+    @test validate_trajectory(bad_vec) == false
+
+    # validate_trajectory with OperatorVectorArray
+    valid_array = zeros(ComplexF64, 2, 2, 2)
+    valid_array[1, :, :] = valid_rho.data
+    valid_array[2, :, :] = valid_rho.data
+    @test validate_trajectory(valid_array) == true
+
+    bad_array = zeros(ComplexF64, 2, 2, 2)
+    bad_array[1, :, :] = valid_rho.data
+    bad_array[2, :, :] = nan_rho.data
+    @test validate_trajectory(bad_array) == false
 end

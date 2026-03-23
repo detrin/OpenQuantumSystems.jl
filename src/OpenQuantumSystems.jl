@@ -284,6 +284,8 @@ export
     local_st_to_exciton_st,
     exciton_st_to_local_st,
     tspan_cm_to_fs,
+    validate_state,
+    validate_trajectory,
 
     # scoring.jl
     get_rmse_in_time,
