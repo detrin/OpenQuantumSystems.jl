@@ -1,0 +1,8 @@
+#!/bin/sh
+# Reject commits that contain Co-Authored-By: Claude / Anthropic attribution.
+
+if grep -qiE "^Co-Authored-By:.*claude|^Co-Authored-By:.*anthropic" "$1"; then
+    echo "ERROR: Commit message contains Co-Authored-By: Claude attribution."
+    echo "Remove the 'Co-Authored-By' line and try again."
+    exit 1
+fi
