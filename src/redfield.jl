@@ -35,7 +35,7 @@ function QME_sI_Redfield(
     x0 = rho0.data
     state = T(rho0.basis_l, rho0.basis_r, rho0.data)
     dstate = T(rho0.basis_l, rho0.basis_r, rho0.data)
-    OpenQuantumSystems.integrate_delayed(
+    integrate_delayed(
         tspan_,
         dmaster_,
         history_fun,

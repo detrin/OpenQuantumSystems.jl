@@ -61,7 +61,7 @@ function QME_sI_exact(
     x0 = rho0.data
     state = T(rho0.basis_l, rho0.basis_r, rho0.data)
     dstate = T(rho0.basis_l, rho0.basis_r, rho0.data)
-    OpenQuantumSystems.integrate_delayed(
+    integrate_delayed(
         tspan_,
         dmaster_,
         history_fun,
@@ -158,7 +158,7 @@ function QME_sS_exact(
     x0 = rho0.data
     state = T(rho0.basis_l, rho0.basis_r, rho0.data)
     dstate = T(rho0.basis_l, rho0.basis_r, rho0.data)
-    OpenQuantumSystems.integrate_delayed(
+    integrate_delayed(
         tspan_,
         dmaster_,
         history_fun,
@@ -266,7 +266,7 @@ function QME_SS_exact(
     x0 = W0.data
     state = T(W0.basis_l, W0.basis_r, W0.data)
     dstate = T(W0.basis_l, W0.basis_r, W0.data)
-    OpenQuantumSystems.integrate_delayed(
+    integrate_delayed(
         tspan_,
         dmaster_,
         history_fun,
@@ -346,7 +346,7 @@ function QME_SI_exact(
     x0 = W0.data
     state = T(W0.basis_l, W0.basis_r, W0.data)
     dstate = T(W0.basis_l, W0.basis_r, W0.data)
-    OpenQuantumSystems.integrate_delayed(
+    integrate_delayed(
         tspan_,
         dmaster_,
         history_fun,

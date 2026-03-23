@@ -40,7 +40,7 @@ function getAggHamSystemSmall(
     E_agg[1, :] = map(mol -> mol.E[1], aggCore.molecules)
     E_agg[2, :] = map(mol -> mol.E[2], aggCore.molecules)
     for elInd in aggTools.elIndices
-        ind = OpenQuantumSystems.elIndOrder(elInd)
+        ind = elIndOrder(elInd)
         E_state = 0
         for mol_i = 1:aggCore.molCount
             E_state += E_agg[elInd[mol_i], mol_i]

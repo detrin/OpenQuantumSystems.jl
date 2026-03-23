@@ -98,7 +98,7 @@ function getIndicesMap(aggCore::AggregateCore, aggIndices::Indices)::IndicesMap
 
     for I = 1:aggIndLen
         elind1, vibind1 = aggIndices[I]
-        elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
+        elOrder1 = elIndOrder(elind1)
         push!(indicesMap[elOrder1], I)
     end
     return indicesMap
@@ -165,11 +165,11 @@ function getFCproduct(
 
     for I = 1:aggIndLen
         elind1, vibind1 = indices[I]
-        elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
+        elOrder1 = elIndOrder(elind1)
 
         for J = 1:aggIndLen
             elind2, vibind2 = indices[J]
-            elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
+            elOrder2 = elIndOrder(elind2)
             #=
             K1 = vibindices[elOrder1][1]
             K2 = vibindices[elOrder1][end]
