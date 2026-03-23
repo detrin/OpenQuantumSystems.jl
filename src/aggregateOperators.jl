@@ -36,9 +36,9 @@ function getAggHamSystemSmall(
         push!(reorganisation_energies, reorganisation_energy)
     end
 
-    E_agg = zeros(Float64, (2, aggCore.molCount))
-    E_agg[1, :] = map(mol -> mol.E[1], aggCore.molecules)
-    E_agg[2, :] = map(mol -> mol.E[2], aggCore.molecules)
+    E_agg = zeros(Float64, (N_ELECTRONIC_LEVELS, aggCore.molCount))
+    E_agg[ELECTRONIC_GROUND, :] = map(mol -> mol.E[ELECTRONIC_GROUND], aggCore.molecules)
+    E_agg[ELECTRONIC_EXCITED, :] = map(mol -> mol.E[ELECTRONIC_EXCITED], aggCore.molecules)
     for elInd in aggTools.elIndices
         ind = elIndOrder(elInd)
         E_state = 0
