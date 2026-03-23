@@ -31,32 +31,34 @@ This package is a backbone for calculations for my master thesis supervised by [
 
 ### Roadmap
 
-What is OpenQuantumSystems.jl capable of right now?
-- It only supports systems with a finite basis.
-- Calculate Hamiltonian for Aggregates of molecules. Molecules have system Hamiltonian that consists only of relevant degrees of freedom (electronic basis) and bath degrees of freedom. Bath consists of LHOs with shifted potentials for excited local electronic states.
-- Trace over bath degrees of freedom using Franck-Condon Factors and reduced density matrix.
-- It can calculate dynamics for aggregate named as follows
-  - Exact dynamics (calculate U(t) operator)
-  - Schrodinger dynamics
-  - Liuville-von Neumann dynamics
-  - Quantum Master Equation dynamics
-- OQS can also prepare the initial condition for density matrix as a laser-excited pulse.
-- It can evaluate the remaining part of the bath. The majority of my master thesis proposes various kinds of ansatzes that aim to find a closed-form of QME with RDM.
-- Scoring of obtained RDM in time in comparison to another RDM.
-- Calculate memory kernel as superoperator. 
+What is OpenQuantumSystems.jl capable of right now (v0.5.0)?
+- Supports systems with a finite basis.
+- Construct Hamiltonians for aggregates of molecules. Bath degrees of freedom are modelled as LHOs with shifted potentials for excited local electronic states.
+- Trace over bath degrees of freedom using Franck-Condon factors and reduced density matrix.
+- Dynamics solvers:
+  - Exact dynamics (U(t) operator)
+  - Schrödinger equation
+  - Liouville-von Neumann equation
+  - Quantum Master Equation — ansatz, iterative, and Redfield variants
+- Unified `solve()` entry point with `SimulationResult` return type.
+- Prepare initial density matrix from a laser-excited pulse.
+- Evaluate the bath part of the density matrix using various ansatzes (closed-form QME with RDM).
+- Iterative correction of the bath part of the reduced density matrix.
+- Memory kernel as superoperator.
+- Rate constants from dynamics and memory kernel.
+- Physical validation of simulation results (trace, positivity).
+- Scoring and comparison of reduced density matrices over time.
+- Convenience constructors for common systems (dimer, trimer, linear chain).
+- Solver selection guide and API glossary in documentation.
 
 What can we expect in the near future?
-- Iterative approach for bath part of the reduced density matrix.
-- Calculation of rate constants from dynamics and memory kernel.
-- Better documentation with examples of how to use this package.
-- QME with iterative correction of bath part.
-- Calculation of dipoles for molecules given coordinates.
-- Implementation of Foerster and modified Redfield theories of excitation energy transfer for finite systems (and perhaps special infinite cases).
-  
+- Calculation of dipole moments for molecules given coordinates.
+- Implementation of Förster and modified Redfield theories of excitation energy transfer.
+
 What would be nice to have?
 - Decomposition of mixed states into a linear combination of pure states using linear programming.
 - Loading Hamiltonian and data storage for aggregate.
-- GPU support for Schrodinger equation and possibly state decomposition.
+- GPU support for Schrödinger equation and possibly state decomposition.
 - Anharmonic oscillators.
 - Double excited states.
 - Interface with quantarhei, or creating an interface in quantarhei package.
