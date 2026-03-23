@@ -210,7 +210,7 @@ mols = [
 agg = Aggregate(mols)
 agg.coupling[2, 3] = 100.0
 agg.coupling[3, 2] = 100.0
-setupAggregate!(agg)
+setup_aggregate!(agg)
 
 # --- Initial state ---
 T = 300.0  # temperature in K

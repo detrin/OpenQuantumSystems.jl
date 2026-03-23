@@ -67,17 +67,17 @@ bath state is approximated during time integration:
 
 ## Aggregate Hamiltonian components
 
-`getAggHam*` functions build different parts of the aggregate Hamiltonian:
+`get_agg_ham_*` functions build different parts of the aggregate Hamiltonian:
 
 | Function | Returns |
 |----------|---------|
-| `getAggHamSystemSmall` | Electronic-only system Hamiltonian (small basis). |
-| `getAggHamSystemBig` | System Hamiltonian in the full electronic+vibrational basis. |
-| `getAggHamBathSmall` | Bath (vibrational) Hamiltonian in the small basis. |
-| `getAggHamBathBig` | Bath Hamiltonian in the full basis. |
-| `getAggHamSystemBath` | System-bath coupling Hamiltonian. |
-| `getAggHamInteraction` | Interaction Hamiltonian (off-diagonal electronic couplings). |
-| `getAggHamiltonian` | Total Hamiltonian of the aggregate. |
+| `get_agg_ham_system_small` | Electronic-only system Hamiltonian (small basis). |
+| `get_agg_ham_system_big` | System Hamiltonian in the full electronic+vibrational basis. |
+| `get_agg_ham_bath_small` | Bath (vibrational) Hamiltonian in the small basis. |
+| `get_agg_ham_bath_big` | Bath Hamiltonian in the full basis. |
+| `get_agg_ham_system_bath` | System-bath coupling Hamiltonian. |
+| `get_agg_ham_interaction` | Interaction Hamiltonian (off-diagonal electronic couplings). |
+| `get_agg_hamiltonian` | Total Hamiltonian of the aggregate. |
 
 ## Function name decoding examples
 
@@ -91,5 +91,5 @@ Here are some fully decoded function names:
 - **`Evolution_SI_exact`** -- Time evolution, full system, interaction picture, exact propagation.
 - **`K_aabb_W_bath_intp`** -- Rate constant with `aa`/`bb` electronic index pattern, computed from full `W` bath state with interpolation.
 - **`M_abcd_W_bath_intp`** -- Memory kernel element with `abcd` electronic index pattern, computed from full `W` bath state with interpolation.
-- **`getAggHamBathBig`** -- Get aggregate bath Hamiltonian in the full (big) basis.
-- **`getFCproduct`** -- Get Franck-Condon factor product.
+- **`get_agg_ham_bath_big`** -- Get aggregate bath Hamiltonian in the full (big) basis.
+- **`get_fc_product`** -- Get Franck-Condon factor product.
