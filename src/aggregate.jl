@@ -4,20 +4,10 @@
 abstract type AbstractAggregate end
 
 mutable struct Aggregate <: AbstractAggregate
-    core::Union{AggregateCore,Nothing}
-    tools::Union{AggregateTools,Nothing}
-    operators::Union{AggregateOperators,Nothing}
-    function Aggregate(
-        core::Union{AggregateCore,Nothing},
-        tools::Union{AggregateTools,Nothing},
-        operators::Union{AggregateOperators,Nothing},
-    )::Aggregate
-        new(core, tools, operators)
-    end
+    core::AggregateCore
+    tools::AggregateTools
+    operators::AggregateOperators
 end
-
-Aggregate(aggCore::AggregateCore)::Aggregate =
-    Aggregate(aggCore, nothing, nothing)::Aggregate
 
 AggregateTools(agg::Aggregate)::AggregateTools = AggregateTools(agg.core)
 
