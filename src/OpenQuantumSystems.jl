@@ -304,6 +304,20 @@ export
     emission_spectrum,
     spectral_overlap,
     forster_rate,
+    forster_rate_matrix,
+
+    # spectral_density.jl
+    SpectralDensity,
+    spectral_density,
+    reorganization_energy,
+    lineshape_function,
+    lineshape_derivative,
+    lineshape_second_derivative,
+
+    # modified_redfield.jl
+    exciton_basis,
+    modified_redfield_rates,
+    modified_redfield_dynamics,
 
     # dipole.jl
     DIPOLE_COUPLING_FACTOR,
@@ -378,6 +392,8 @@ include("scoring.jl")
 include("simulation_result.jl")
 include("solve.jl")
 include("forster.jl")
+include("spectral_density.jl")
+include("modified_redfield.jl")
 include("dipole.jl")
 include("convenience.jl")
 include("deprecated_aliases.jl")
