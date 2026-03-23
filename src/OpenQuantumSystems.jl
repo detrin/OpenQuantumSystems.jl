@@ -292,8 +292,12 @@ export
     compare_rho,
     compare_rho_in_time,
 
-    # solve.jl
+# solve.jl
     solve
+# convenience.jl
+    setup_dimer,
+    setup_trimer,
+    setup_linear_chain
 
 include("core.jl")
 include("operators_dense.jl")
@@ -320,6 +324,7 @@ include("master_iterative.jl")
 include("postprocessing.jl")
 include("scoring.jl")
 include("solve.jl")
+include("convenience.jl")
 
 end
 
