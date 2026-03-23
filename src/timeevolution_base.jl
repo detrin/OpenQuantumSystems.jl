@@ -225,6 +225,22 @@ end
 
 Base.@pure pure_inference(fout, T) = Core.Compiler.return_type(fout, T)
 
+function _setup_delayed_integration(
+    W0::T,
+    tspan::AbstractVector,
+    agg::Aggregate,
+) where {B<:Basis,T<:Operator{B,B}}
+    rho0 = trace_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
+    history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
+    tmp1 = copy(W0.data)
+    tmp2 = copy(W0.data)
+    tspan_ = convert(Vector{float(eltype(tspan))}, tspan)
+    x0 = rho0.data
+    state = T(rho0.basis_l, rho0.basis_r, rho0.data)
+    dstate = T(rho0.basis_l, rho0.basis_r, rho0.data)
+    return (; rho0, history_fun, tmp1, tmp2, tspan_, x0, state, dstate)
+end
+
 function recast!(x::Union{Vector,SubArray}, rho::Operator{B,B,T}) where {B<:Basis,T}
     rho.data = reshape(x, size(rho.data))
 end
