@@ -27,4 +27,5 @@ hamiltonian.csv
 test/hamiltonian.csv
 .vscode/
 # test/local_test.ipynb
-# test/local.ipynbthesis.pdf
+# test/local.ipynb
+thesis.pdf
