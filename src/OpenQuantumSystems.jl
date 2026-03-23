@@ -292,9 +292,10 @@ export
     compare_rho,
     compare_rho_in_time,
 
-# solve.jl
-    solve
-# convenience.jl
+    # solve.jl
+    solve,
+
+    # convenience.jl
     setup_dimer,
     setup_trimer,
     setup_linear_chain
