@@ -14,6 +14,16 @@ before making a change. You can contribute with
 We use GitHub issues to track public bugs. Please ensure your description is
 clear and has sufficient instructions to be able to reproduce the issue.
 
+## Setup
+
+After cloning the repository, configure git to use the project's hooks:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+This enables a `commit-msg` hook that blocks commits containing AI co-author attribution (e.g. `Co-Authored-By: Claude`).
+
 ## Coding Style
 
 - 4 spaces for indentation rather than tabs
