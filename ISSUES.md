@@ -3,12 +3,17 @@
 Issue tracker for code quality, refactoring, and technical debt.
 Tracking issue: [#49](https://github.com/detrin/OpenQuantumSystems.jl/issues/49)
 
+**Status definitions:**
+- **BACKLOG** — Not started
+- **IN PROGRESS** — Committed in `devel` branch
+- **DONE** — Merged into `master`
+
 ---
 
 ## Existing Issues
 
 ### #60 - Fix unsafe divisions in trace.jl and rate_constant.jl
-**Status:** Open
+**Status:** IN PROGRESS
 **Severity:** Correctness risk
 
 Issue #52 covers risky division in `master_iterative.jl:340`, but similar unsafe division patterns exist in other files:
@@ -32,6 +37,7 @@ Related: #52
 ## Additional Issues
 
 ### #61 - Extract shared integration setup boilerplate into helper function
+**Status:** BACKLOG
 **Severity:** Moderate (DRY -- ~150 duplicated lines)
 
 The integration setup pattern is duplicated across 4 files:
@@ -56,6 +62,7 @@ Related: #50, #51
 ---
 
 ### #62 - Refactor deeply nested getAggHamInteraction in aggregateOperators.jl
+**Status:** BACKLOG
 **Severity:** Moderate (readability/maintainability)
 
 `getAggHamInteraction` in `aggregateOperators.jl:206-312` is 107 lines long with 5 levels of nesting:
@@ -77,6 +84,7 @@ if vib_basis == :ground_ground
 ---
 
 ### #63 - Remove Union{T, Nothing} fields from Aggregate struct
+**Status:** BACKLOG
 **Severity:** Moderate (SOLID -- Liskov Substitution)
 
 The `Aggregate` struct (`aggregate.jl:6-16`) uses `Union{T, Nothing}` for its fields:
@@ -99,6 +107,7 @@ Every function that accepts `Aggregate` must check for `nothing` before accessin
 ---
 
 ### #64 - Replace hardcoded 2-level system assumptions in molecules.jl
+**Status:** BACKLOG
 **Severity:** Moderate (extensibility)
 
 `molecules.jl` and `aggregateOperators.jl` hardcode magic numbers assuming a 2-level system (ground + excited):
@@ -117,7 +126,7 @@ This prevents extension to 3-level or N-level systems.
 ---
 
 ### #65 - Remove hardcoded OpenQuantumSystems module self-references
-**Status:** Done (devel)
+**Status:** IN PROGRESS
 **Severity:** Minor (code smell)
 
 Several files explicitly reference the module name instead of using direct function calls:
@@ -134,6 +143,7 @@ These should be direct calls since they are within the same module.
 ---
 
 ### #66 - Standardize naming conventions across codebase
+**Status:** BACKLOG
 **Severity:** Minor (breaking change -- plan for major version)
 
 The codebase mixes camelCase and snake_case inconsistently:
@@ -155,25 +165,25 @@ The codebase mixes camelCase and snake_case inconsistently:
 
 ## Summary of All Open Issues
 
-| # | Title | Category | Severity |
-|---|-------|----------|----------|
-| #49 | Code quality tracking | Meta | -- |
-| #50 | Refactor master_ansatz.jl: eliminate 8-way duplication | DRY | Critical |
-| #51 | Refactor master_iterative.jl: consolidate duplicated solvers | DRY | Critical |
-| #52 | ~~Fix risky division in master_iterative.jl:340~~ | Correctness | Critical |
-| #53 | Replace typeof(rho) <: Operator anti-pattern with dispatch | SOLID | Moderate |
-| #54 | Replace bare parameter tuples with NamedTuple or struct | SOLID | Moderate |
-| #55 | Replace magic symbol strings with @enum | SOLID | Moderate |
-| #56 | Fix potential nothing return in trace.jl:71-79 | Correctness | Moderate |
-| #57 | Improve type annotations throughout | Quality | Moderate |
-| #58 | Clean up technical debt: TODOs, dead code, commented-out tests | Debt | Moderate |
-| #60 | Fix unsafe divisions in trace.jl and rate_constant.jl | Correctness | Moderate |
-| #61 | Extract shared integration setup boilerplate | DRY | Moderate |
-| #62 | Refactor deeply nested aggregateOperators.jl | Quality | Moderate |
-| #63 | Remove Union{T, Nothing} from Aggregate struct | SOLID | Moderate |
-| #64 | Replace hardcoded 2-level system assumptions | Extensibility | Moderate |
-| #65 | ~~Remove hardcoded module self-references~~ | Code smell | Minor |
-| #66 | Standardize naming conventions | Convention | Minor |
+| # | Title | Category | Severity | Status |
+|---|-------|----------|----------|--------|
+| #49 | Code quality tracking | Meta | -- | -- |
+| #50 | Refactor master_ansatz.jl: eliminate 8-way duplication | DRY | Critical | DONE |
+| #51 | Refactor master_iterative.jl: consolidate duplicated solvers | DRY | Critical | DONE |
+| #52 | Fix risky division in master_iterative.jl:340 | Correctness | Critical | IN PROGRESS |
+| #53 | Replace typeof(rho) <: Operator anti-pattern with dispatch | SOLID | Moderate | DONE |
+| #54 | Replace bare parameter tuples with NamedTuple or struct | SOLID | Moderate | DONE |
+| #55 | Replace magic symbol strings with @enum | SOLID | Moderate | DONE |
+| #56 | Fix potential nothing return in trace.jl:71-79 | Correctness | Moderate | DONE |
+| #57 | Improve type annotations throughout | Quality | Moderate | DONE |
+| #58 | Clean up technical debt: TODOs, dead code, commented-out tests | Debt | Moderate | DONE |
+| #60 | Fix unsafe divisions in trace.jl and rate_constant.jl | Correctness | Moderate | IN PROGRESS |
+| #61 | Extract shared integration setup boilerplate | DRY | Moderate | BACKLOG |
+| #62 | Refactor deeply nested aggregateOperators.jl | Quality | Moderate | BACKLOG |
+| #63 | Remove Union{T, Nothing} from Aggregate struct | SOLID | Moderate | BACKLOG |
+| #64 | Replace hardcoded 2-level system assumptions | Extensibility | Moderate | BACKLOG |
+| #65 | Remove hardcoded module self-references | Code smell | Minor | IN PROGRESS |
+| #66 | Standardize naming conventions | Convention | Minor | BACKLOG |
 
 ## Priority Order (Internal Quality)
 
@@ -193,6 +203,7 @@ The codebase mixes camelCase and snake_case inconsistently:
 The 17 issues above fix **internal** code quality. The issues below address the **external** experience -- how physicists and developers actually interact with the library.
 
 ### #67 / UX-1: Tutorial uses old API and does not work
+**Status:** BACKLOG
 **Severity:** Critical (blocks all new users)
 
 The only tutorial (`docs/src/tutorials/dimer.md`) uses an API that no longer exists:
@@ -215,6 +226,7 @@ A new user following the docs will immediately get errors.
 ---
 
 ### #68 / UX-2: No SimulationResult type -- inconsistent return values
+**Status:** BACKLOG
 **Severity:** High (API confusion, overload explosion)
 
 Every solver returns something different:
@@ -248,6 +260,7 @@ This eliminates the `OperatorVector` / `OperatorVectorArray` duality and collaps
 ---
 
 ### #69 / UX-3: Coupling matrix includes ground state index -- confusing for physicists
+**Status:** BACKLOG
 **Severity:** High (domain confusion)
 
 The coupling matrix is `(molCount+1) x (molCount+1)` because index 1 = ground state:
@@ -272,6 +285,7 @@ AggregateCore([mol1, mol2]; coupling=[0 100; 100 0])
 ---
 
 ### #70 / UX-4: Function names are cryptic abbreviations
+**Status:** BACKLOG
 **Severity:** Moderate (discoverability)
 
 | Name | Decoded meaning |
@@ -291,6 +305,7 @@ Compare with QuantumOptics.jl's `timeevolution.master` -- immediately clear.
 ---
 
 ### #71 / UX-5: No unified solver entry point
+**Status:** BACKLOG
 **Severity:** Moderate (API discoverability)
 
 Users must discover and remember 8+ top-level solver functions:
@@ -307,6 +322,7 @@ The individual functions remain for advanced use, but `solve` provides discovera
 ---
 
 ### #72 / UX-6: No physical validation
+**Status:** BACKLOG
 **Severity:** Moderate (silent numerical errors)
 
 If a solver produces a non-physical state (trace != 1, not positive semidefinite), the user gets no warning. Silent `Inf`/`NaN` propagation is possible.
@@ -325,6 +341,7 @@ end
 ---
 
 ### #73 / UX-7: Unit conversion is fragile and duplicated
+**Status:** BACKLOG
 **Severity:** Minor
 
 `convert_units(E; from="1/cm", to="1/fs")` supports only one conversion path. Constants `c`, `pi` are redefined locally instead of using Julia's `pi`. The same conversion is duplicated in `tspan_cm_to_fs` in `postprocessing.jl`.
@@ -337,6 +354,7 @@ end
 ---
 
 ### #74 / UX-8: No solver selection guide in docs
+**Status:** BACKLOG
 **Severity:** Minor (onboarding)
 
 A new user has no guidance on which solver to use. Proposed decision tree for documentation:
@@ -357,6 +375,7 @@ Which solver should I use?
 ---
 
 ### #75 / UX-9: Convenience constructors for common systems
+**Status:** BACKLOG
 **Severity:** Low (quality of life)
 
 Common systems (dimer, trimer, linear chain) require 15+ lines of boilerplate. A convenience layer would lower the barrier to entry:
@@ -375,6 +394,7 @@ These are thin wrappers -- they don't change the core, just provide a friendlier
 ---
 
 ### #76 / UX-10: Adopt Julia-idiomatic patterns to replace ad-hoc dispatch and parameter passing
+**Status:** BACKLOG
 **Severity:** High (architectural -- enables all future extensibility)
 
 The codebase uses OOP-influenced patterns (symbol dispatch tables, bare parameter tuples, Union{Nothing} builders) where Julia-native patterns would be simpler and more extensible.
@@ -512,15 +532,15 @@ to_array(r::SimulationResult) = stack(s.data for s in r.states)
 
 ## UX Priority Order
 
-| Priority | Issue | Impact |
-|----------|-------|--------|
-| 1 | **#67** Fix tutorial to use current API | Unblocks all new users |
-| 2 | **#76** Adopt Julia-idiomatic patterns | Architectural foundation for everything below |
-| 3 | **#68** Add `SimulationResult` type | Eliminates overload explosion, consistent API |
-| 4 | **#69** Molecule-count coupling matrix | Removes biggest physicist confusion |
-| 5 | **#71** Unified `solve()` entry point | Discoverable API, reduced cognitive load |
-| 6 | **#70** Document naming conventions + glossary | Helps existing users read the code |
-| 7 | **#72** Physical validation | Catches silent numerical errors |
-| 8 | **#74** Solver selection guide in docs | Guides new users |
-| 9 | **#73** Fix unit conversion | Small cleanup |
-| 10 | **#75** Convenience constructors | Lowers barrier for common cases |
+| Priority | Issue | Impact | Status |
+|----------|-------|--------|--------|
+| 1 | **#67** Fix tutorial to use current API | Unblocks all new users | BACKLOG |
+| 2 | **#76** Adopt Julia-idiomatic patterns | Architectural foundation for everything below | BACKLOG |
+| 3 | **#68** Add `SimulationResult` type | Eliminates overload explosion, consistent API | BACKLOG |
+| 4 | **#69** Molecule-count coupling matrix | Removes biggest physicist confusion | BACKLOG |
+| 5 | **#71** Unified `solve()` entry point | Discoverable API, reduced cognitive load | BACKLOG |
+| 6 | **#70** Document naming conventions + glossary | Helps existing users read the code | BACKLOG |
+| 7 | **#72** Physical validation | Catches silent numerical errors | BACKLOG |
+| 8 | **#74** Solver selection guide in docs | Guides new users | BACKLOG |
+| 9 | **#73** Fix unit conversion | Small cleanup | BACKLOG |
+| 10 | **#75** Convenience constructors | Lowers barrier for common cases | BACKLOG |
