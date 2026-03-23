@@ -143,7 +143,7 @@ These should be direct calls since they are within the same module.
 ---
 
 ### #66 - Standardize naming conventions across codebase
-**Status:** IN PROGRESS (on devel)
+**Status:** DONE (v0.5.0)
 **Severity:** Minor (breaking change -- plan for major version)
 
 The codebase mixes camelCase and snake_case inconsistently:
@@ -183,7 +183,7 @@ The codebase mixes camelCase and snake_case inconsistently:
 | #63 | Remove Union{T, Nothing} from Aggregate struct | SOLID | Moderate | DONE |
 | #64 | Replace hardcoded 2-level system assumptions | Extensibility | Moderate | DONE |
 | #65 | Remove hardcoded module self-references | Code smell | Minor | DONE |
-| #66 | Standardize naming conventions | Convention | Minor | IN PROGRESS |
+| #66 | Standardize naming conventions | Convention | Minor | DONE |
 
 ## Priority Order (Internal Quality)
 
@@ -203,7 +203,7 @@ The codebase mixes camelCase and snake_case inconsistently:
 The 17 issues above fix **internal** code quality. The issues below address the **external** experience -- how physicists and developers actually interact with the library.
 
 ### #67 / UX-1: Tutorial uses old API and does not work
-**Status:** IN PROGRESS (on devel)
+**Status:** DONE (v0.5.0)
 **Severity:** Critical (blocks all new users)
 
 The only tutorial (`docs/src/tutorials/dimer.md`) uses an API that no longer exists:
@@ -226,7 +226,7 @@ A new user following the docs will immediately get errors.
 ---
 
 ### #68 / UX-2: No SimulationResult type -- inconsistent return values
-**Status:** IN PROGRESS (on devel)
+**Status:** DONE (v0.5.0)
 **Severity:** High (API confusion, overload explosion)
 
 Every solver returns something different:
@@ -260,7 +260,7 @@ This eliminates the `OperatorVector` / `OperatorVectorArray` duality and collaps
 ---
 
 ### #69 / UX-3: Coupling matrix includes ground state index -- confusing for physicists
-**Status:** IN PROGRESS (on devel)
+**Status:** DONE (v0.5.0)
 **Severity:** High (domain confusion)
 
 The coupling matrix is `(molCount+1) x (molCount+1)` because index 1 = ground state:
@@ -285,7 +285,7 @@ AggregateCore([mol1, mol2]; coupling=[0 100; 100 0])
 ---
 
 ### #70 / UX-4: Function names are cryptic abbreviations
-**Status:** IN PROGRESS (on devel)
+**Status:** DONE (v0.5.0)
 **Severity:** Moderate (discoverability)
 
 | Name | Decoded meaning |
@@ -305,7 +305,7 @@ Compare with QuantumOptics.jl's `timeevolution.master` -- immediately clear.
 ---
 
 ### #71 / UX-5: No unified solver entry point
-**Status:** IN PROGRESS (on devel)
+**Status:** DONE (v0.5.0)
 **Severity:** Moderate (API discoverability)
 
 Users must discover and remember 8+ top-level solver functions:
@@ -322,7 +322,7 @@ The individual functions remain for advanced use, but `solve` provides discovera
 ---
 
 ### #72 / UX-6: No physical validation
-**Status:** IN PROGRESS (on devel)
+**Status:** DONE (v0.5.0)
 **Severity:** Moderate (silent numerical errors)
 
 If a solver produces a non-physical state (trace != 1, not positive semidefinite), the user gets no warning. Silent `Inf`/`NaN` propagation is possible.
@@ -341,7 +341,7 @@ end
 ---
 
 ### #73 / UX-7: Unit conversion is fragile and duplicated
-**Status:** IN PROGRESS (on devel)
+**Status:** DONE (v0.5.0)
 **Severity:** Minor
 
 `convert_units(E; from="1/cm", to="1/fs")` supports only one conversion path. Constants `c`, `pi` are redefined locally instead of using Julia's `pi`. The same conversion is duplicated in `tspan_cm_to_fs` in `postprocessing.jl`.
@@ -354,7 +354,7 @@ end
 ---
 
 ### #74 / UX-8: No solver selection guide in docs
-**Status:** IN PROGRESS (on devel)
+**Status:** DONE (v0.5.0)
 **Severity:** Minor (onboarding)
 
 A new user has no guidance on which solver to use. Proposed decision tree for documentation:
@@ -375,7 +375,7 @@ Which solver should I use?
 ---
 
 ### #75 / UX-9: Convenience constructors for common systems
-**Status:** IN PROGRESS (on devel)
+**Status:** DONE (v0.5.0)
 **Severity:** Low (quality of life)
 
 Common systems (dimer, trimer, linear chain) require 15+ lines of boilerplate. A convenience layer would lower the barrier to entry:
@@ -394,7 +394,7 @@ These are thin wrappers -- they don't change the core, just provide a friendlier
 ---
 
 ### #76 / UX-10: Adopt Julia-idiomatic patterns to replace ad-hoc dispatch and parameter passing
-**Status:** IN PROGRESS (on devel) — vib_basis type dispatch done, ansatz/callable struct patterns remaining
+**Status:** DONE (v0.5.0)
 **Severity:** High (architectural -- enables all future extensibility)
 
 The codebase uses OOP-influenced patterns (symbol dispatch tables, bare parameter tuples, Union{Nothing} builders) where Julia-native patterns would be simpler and more extensible.
@@ -534,13 +534,13 @@ to_array(r::SimulationResult) = stack(s.data for s in r.states)
 
 | Priority | Issue | Impact | Status |
 |----------|-------|--------|--------|
-| 1 | **#67** Fix tutorial to use current API | Unblocks all new users | IN PROGRESS |
-| 2 | **#76** Adopt Julia-idiomatic patterns | Architectural foundation for everything below | IN PROGRESS |
-| 3 | **#68** Add `SimulationResult` type | Eliminates overload explosion, consistent API | IN PROGRESS |
-| 4 | **#69** Molecule-count coupling matrix | Removes biggest physicist confusion | IN PROGRESS |
-| 5 | **#71** Unified `solve()` entry point | Discoverable API, reduced cognitive load | IN PROGRESS |
-| 6 | **#70** Document naming conventions + glossary | Helps existing users read the code | IN PROGRESS |
-| 7 | **#72** Physical validation | Catches silent numerical errors | IN PROGRESS |
-| 8 | **#74** Solver selection guide in docs | Guides new users | IN PROGRESS |
-| 9 | **#73** Fix unit conversion | Small cleanup | IN PROGRESS |
-| 10 | **#75** Convenience constructors | Lowers barrier for common cases | IN PROGRESS |
+| 1 | **#67** Fix tutorial to use current API | Unblocks all new users | DONE (v0.5.0) |
+| 2 | **#76** Adopt Julia-idiomatic patterns | Architectural foundation for everything below | DONE (v0.5.0) |
+| 3 | **#68** Add `SimulationResult` type | Eliminates overload explosion, consistent API | DONE (v0.5.0) |
+| 4 | **#69** Molecule-count coupling matrix | Removes biggest physicist confusion | DONE (v0.5.0) |
+| 5 | **#71** Unified `solve()` entry point | Discoverable API, reduced cognitive load | DONE (v0.5.0) |
+| 6 | **#70** Document naming conventions + glossary | Helps existing users read the code | DONE (v0.5.0) |
+| 7 | **#72** Physical validation | Catches silent numerical errors | DONE (v0.5.0) |
+| 8 | **#74** Solver selection guide in docs | Guides new users | DONE (v0.5.0) |
+| 9 | **#73** Fix unit conversion | Small cleanup | DONE (v0.5.0) |
+| 10 | **#75** Convenience constructors | Lowers barrier for common cases | DONE (v0.5.0) |
