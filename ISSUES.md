@@ -110,6 +110,71 @@ Two minor issues found during thesis verification:
 
 ---
 
+## Corrected Memory Kernel (Thesis Section 3.7)
+
+### #88 - Zeroth-order memory kernel via correlation functions
+**Status:** IN PROGRESS
+**Severity:** Feature (thesis core contribution)
+**Blocked by:** None
+
+Express the memory kernel M_abcd(t₁, t₂; ŵ⁰⁽ᴵ⁾) using first-order correlation functions C_nn(t) instead of explicit operator products. This enables use with infinite baths where explicit bath operators cannot be constructed.
+
+**Thesis reference:** Section 3.7.1, Equations 3.53–3.55
+
+**What needs to be implemented:**
+1. **Analytic first-order correlation function** `C_nn(t₁, t₂)` — closed-form from Eq. 1.36 using Bose-Einstein distribution, mode frequencies, and Huang-Rhys factors
+2. **Exciton transformation coefficients** `K^nm_ab,cd` from Eq. 3.62
+3. **Multi-frequency phase factor** `Ω_ab,cd,ef,gh` from Eq. 3.61
+4. **Zeroth-order memory kernel** `M_abcd(t₁, t₂; ŵ⁰)` from Eq. 3.55
+
+**Proposed files:**
+- `src/evolution/correlation.jl` — analytic correlation function C_nn(t₁,t₂) and helpers (K, Ω)
+- `src/evolution/corrected_memory_kernel.jl` — corrected memory kernel
+- `test/test_corrected_memory_kernel.jl` — tests, verify against existing `MemoryKernel_traced` for finite systems
+
+---
+
+### #89 - First-order corrected memory kernel
+**Status:** BACKLOG
+**Severity:** Feature (thesis core contribution)
+**Blocked by:** #88
+
+Implement the first-order correction to the memory kernel M_abcd(t₁, t₂; ŵ¹⁽ᴵ⁾) which accounts for the non-equilibrium evolution of the relative bath part. This is the central theoretical result of the thesis.
+
+**Thesis reference:** Section 3.7.1, Equations 3.56–3.66
+
+**What needs to be implemented:**
+1. **General corrected memory kernel** `M_abcd(t₁, t₂; ŵ¹)` from Eq. 3.59 — 16 terms (M_1a..M_4d) involving double integrals over t₃, t₄ with second-order correlation functions decomposed into first-order ones
+2. **Population-only version** `M_aabb(t₁, t₂; ŵ¹)` from Eq. 3.66 — simplified form for population transfer rates
+3. **Markov approximation** ρ^{1,(I)}(t₄) ≈ ρ^{1,(I)}(t₂) for numerical feasibility (thesis page 75)
+4. **QME-RDM iterative solver** using corrected memory kernel — the iterative scheme ŵ⁰ → ρ¹ → ρ² → ... (Eq. 3.65)
+
+**Proposed files:**
+- `src/evolution/corrected_memory_kernel.jl` — extend with first-order correction
+- `test/test_corrected_memory_kernel.jl` — extend tests
+
+---
+
+### #90 - High-temperature limit of corrected memory kernel
+**Status:** BACKLOG
+**Severity:** Feature (thesis core contribution)
+**Blocked by:** #89
+
+In the high-temperature limit, correlation functions become real (Eq. 1.55), reducing the 16 terms of the corrected memory kernel to 5 unique groups (Eq. 3.75). This simplification makes the corrected kernel more practical for numerical use.
+
+**Thesis reference:** Section 3.7.3, Equations 3.75 and surrounding discussion
+
+**What needs to be implemented:**
+1. **High-temperature correlation function** — real-valued C_nn(t₁,t₂) from Eq. 1.55
+2. **Grouped memory kernel terms** — 5 unique second-order correlation function groups from Eq. 3.75
+3. **Simplified corrected memory kernel** — exploit symmetry C_{n,m}(t₁,t₂) = C_{cd,ab}(t₂,t₁) (Eq. 1.56) to halve the computation
+
+**Proposed files:**
+- `src/evolution/corrected_memory_kernel.jl` — high-temperature specializations
+- `test/test_corrected_memory_kernel.jl` — extend tests, verify high-T limit matches general case
+
+---
+
 ## Nice-to-Have Features
 
 ### #82 - Hamiltonian loading and data storage
@@ -204,6 +269,9 @@ Enable data exchange with [quantarhei](https://github.com/tmancal74/quantarhei),
 | #85 | quantarhei interoperability | Feature | Nice-to-have | BACKLOG |
 | #86 | Fix missing rho factor in iterative QME | Bug | Critical | IN PROGRESS |
 | #87 | Fix docstring labels and type params | Bug | Minor | IN PROGRESS |
+| #88 | Zeroth-order memory kernel via correlation functions | Feature | Near-future | IN PROGRESS |
+| #89 | First-order corrected memory kernel | Feature | Near-future | BACKLOG |
+| #90 | High-temperature limit of corrected memory kernel | Feature | Near-future | BACKLOG |
 
 ## Priority Order
 
@@ -212,8 +280,13 @@ Enable data exchange with [quantarhei](https://github.com/tmancal74/quantarhei),
 2. **#78** — Förster theory (provides spectral density infrastructure for #79)
 3. **#79** — Modified Redfield (depends on #78)
 
+**Corrected memory kernel (thesis Section 3.7):**
+4. **#88** — Zeroth-order memory kernel via correlation functions (foundation for #89)
+5. **#89** — First-order corrected memory kernel (depends on #88)
+6. **#90** — High-temperature limit (depends on #89)
+
 **Nice-to-have (future releases):**
-4. **#82** — Hamiltonian loading/storage (practical, low effort)
-5. **#84** — Double excited states (enables nonlinear spectroscopy)
-6. **#83** — Anharmonic oscillators (physics extension)
-7. **#85** — quantarhei interop (ecosystem)
+7. **#82** — Hamiltonian loading/storage (practical, low effort)
+8. **#84** — Double excited states (enables nonlinear spectroscopy)
+9. **#83** — Anharmonic oscillators (physics extension)
+10. **#85** — quantarhei interop (ecosystem)
