@@ -9,112 +9,112 @@ CurrentModule=OpenQuantumSystems
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["molecules.jl"]
+Pages   = ["aggregate/molecules.jl"]
 ```
 
 ## Aggregate Core
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["aggregateCore.jl"]
+Pages   = ["aggregate/aggregateCore.jl"]
 ```
 
 ## Aggregate Tools
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["aggregateTools.jl"]
+Pages   = ["aggregate/aggregateTools.jl"]
 ```
 
 ## Aggregate Operators
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["aggregateOperators.jl"]
+Pages   = ["aggregate/aggregateOperators.jl"]
 ```
 
 ## Aggregate
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["aggregate.jl"]
+Pages   = ["aggregate/aggregate.jl"]
 ```
 
 ## Convenience Constructors
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["convenience.jl"]
+Pages   = ["aggregate/convenience.jl"]
 ```
 
 ## Evolution
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["evolution.jl"]
+Pages   = ["evolution/evolution.jl"]
 ```
 
-## Schrödinger Equation
+## Schrodinger Equation
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["schroedinger.jl"]
+Pages   = ["evolution/schroedinger.jl"]
 ```
 
 ## Liouville-von Neumann Equation
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["liouville.jl"]
+Pages   = ["evolution/liouville.jl"]
 ```
 
 ## Interaction Picture
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["interaction_picture.jl"]
+Pages   = ["evolution/interaction_picture.jl"]
 ```
 
 ## Quantum Master Equation — Exact
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["master_exact.jl"]
+Pages   = ["evolution/master_exact.jl"]
 ```
 
 ## Quantum Master Equation — Ansatz
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["master_ansatz.jl"]
+Pages   = ["evolution/master_ansatz.jl"]
 ```
 
 ## Redfield
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["redfield.jl"]
+Pages   = ["evolution/redfield.jl"]
 ```
 
 ## Quantum Master Equation — Iterative
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["master_iterative.jl"]
+Pages   = ["evolution/master_iterative.jl"]
 ```
 
-## Förster Theory
+## Forster Theory
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["forster.jl"]
+Pages   = ["spectroscopy/forster.jl"]
 ```
 
 ## Spectral Density
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["spectral_density.jl"]
+Pages   = ["spectroscopy/spectral_density.jl"]
 ```
 
 ## Modified Redfield Theory
@@ -130,89 +130,89 @@ modified_redfield_dynamics
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["dipole.jl"]
+Pages   = ["aggregate/dipole.jl"]
 ```
 
 ## Trace
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["trace.jl"]
+Pages   = ["evolution/trace.jl"]
 ```
 
 ## Initial State
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["initial_state.jl"]
+Pages   = ["utils/initial_state.jl"]
 ```
 
 ## Memory Kernel
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["memory_kernel.jl"]
+Pages   = ["evolution/memory_kernel.jl"]
 ```
 
 ## Rate Constants
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["rate_constant.jl"]
+Pages   = ["evolution/rate_constant.jl"]
 ```
 
 ## Post-processing
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["postprocessing.jl"]
+Pages   = ["utils/postprocessing.jl"]
 ```
 
 ## Scoring
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["scoring.jl"]
+Pages   = ["utils/scoring.jl"]
 ```
 
 ## Simulation Result
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["simulation_result.jl"]
+Pages   = ["utils/simulation_result.jl"]
 ```
 
 ## Unified Solver
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["solve.jl"]
+Pages   = ["utils/solve.jl"]
 ```
 
 ## Dense Operators
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["operators_dense.jl"]
+Pages   = ["base/operators_dense.jl"]
 ```
 
 ## Superoperators
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["superoperators.jl"]
+Pages   = ["base/superoperators.jl"]
 ```
 
 ## Metrics
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["metrics.jl"]
+Pages   = ["base/metrics.jl"]
 ```
 
 ## Time-evolution Base
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
-Pages   = ["timeevolution_base.jl"]
+Pages   = ["base/timeevolution_base.jl"]
 ```
