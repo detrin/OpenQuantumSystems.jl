@@ -292,6 +292,10 @@ export
     compare_rho,
     compare_rho_in_time,
 
+    # simulation_result.jl
+    SimulationResult,
+    populations,
+
     # solve.jl
     solve,
 
@@ -324,6 +328,7 @@ include("redfield.jl")
 include("master_iterative.jl")
 include("postprocessing.jl")
 include("scoring.jl")
+include("simulation_result.jl")
 include("solve.jl")
 include("convenience.jl")
 

@@ -45,22 +45,38 @@ function solve(
     iterative_args::Union{Tuple,Nothing} = nothing,
     kwargs...,
 )
-    method == :lvn_si       && return LvN_sI(W0, tspan, agg; kwargs...)
-    method == :lvn_ss       && return LvN_sS(W0, tspan, agg; kwargs...)
-    method == :lvn_SI       && return LvN_SI(W0, tspan, agg; kwargs...)
-    method == :lvn_SS       && return LvN_SS(W0, tspan, agg; kwargs...)
-    method == :qme_exact_si && return QME_sI_exact(W0, tspan, agg; kwargs...)
-    method == :qme_exact_ss && return QME_sS_exact(W0, tspan, agg; kwargs...)
-    method == :qme_exact_SI && return QME_SI_exact(W0, tspan, agg; kwargs...)
-    method == :qme_exact_SS && return QME_SS_exact(W0, tspan, agg; kwargs...)
-    method == :qme_redfield && return QME_sI_Redfield(W0, tspan, agg; kwargs...)
-    method == :qme_ansatz   && return QME_sI_ansatz(W0, tspan, agg; kwargs...)
     if method == :qme_iterative
         iterative_args === nothing &&
             throw(ArgumentError("method=:qme_iterative requires iterative_args=(rho_0_int_t, W_0_bath_t)"))
-        return QME_sI_iterative(W0, iterative_args[1], iterative_args[2], tspan, agg; kwargs...)
+        t, rho_t, W_1_bath_t = QME_sI_iterative(W0, iterative_args[1], iterative_args[2], tspan, agg; kwargs...)
+        extra = Dict{Symbol,Any}(:W_1_bath_t => W_1_bath_t)
+        return SimulationResult(t, rho_t, method, extra)
     end
-    throw(ArgumentError(
-        "Unknown method :$method. Supported methods: $(join(_SOLVE_METHODS, ", :"))"
-    ))
+    raw = if method == :lvn_si
+        LvN_sI(W0, tspan, agg; kwargs...)
+    elseif method == :lvn_ss
+        LvN_sS(W0, tspan, agg; kwargs...)
+    elseif method == :lvn_SI
+        LvN_SI(W0, tspan, agg; kwargs...)
+    elseif method == :lvn_SS
+        LvN_SS(W0, tspan, agg; kwargs...)
+    elseif method == :qme_exact_si
+        QME_sI_exact(W0, tspan, agg; kwargs...)
+    elseif method == :qme_exact_ss
+        QME_sS_exact(W0, tspan, agg; kwargs...)
+    elseif method == :qme_exact_SI
+        QME_SI_exact(W0, tspan, agg; kwargs...)
+    elseif method == :qme_exact_SS
+        QME_SS_exact(W0, tspan, agg; kwargs...)
+    elseif method == :qme_redfield
+        QME_sI_Redfield(W0, tspan, agg; kwargs...)
+    elseif method == :qme_ansatz
+        QME_sI_ansatz(W0, tspan, agg; kwargs...)
+    else
+        throw(ArgumentError(
+            "Unknown method :$method. Supported methods: $(join(_SOLVE_METHODS, ", :"))"
+        ))
+    end
+    t, rho_t = raw
+    return SimulationResult(t, rho_t, method)
 end
