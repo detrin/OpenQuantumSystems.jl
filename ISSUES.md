@@ -135,7 +135,7 @@ Express the memory kernel M_abcd(t₁, t₂; ŵ⁰⁽ᴵ⁾) using first-order c
 ---
 
 ### #89 - First-order corrected memory kernel
-**Status:** BACKLOG
+**Status:** IN PROGRESS
 **Severity:** Feature (thesis core contribution)
 **Blocked by:** #88
 
@@ -270,7 +270,7 @@ Enable data exchange with [quantarhei](https://github.com/tmancal74/quantarhei),
 | #86 | Fix missing rho factor in iterative QME | Bug | Critical | IN PROGRESS |
 | #87 | Fix docstring labels and type params | Bug | Minor | IN PROGRESS |
 | #88 | Zeroth-order memory kernel via correlation functions | Feature | Near-future | DONE |
-| #89 | First-order corrected memory kernel | Feature | Near-future | BACKLOG |
+| #89 | First-order corrected memory kernel | Feature | Near-future | IN PROGRESS |
 | #90 | High-temperature limit of corrected memory kernel | Feature | Near-future | BACKLOG |
 
 ## Priority Order
