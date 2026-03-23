@@ -93,9 +93,5 @@ end
 ###
 
 function tspan_cm_to_fs(tspan_cm)
-    c_const = 299792458.0
-    pi_const = 3.141592653589793
-    c = 2.0*pi_const*c_const*1e-13
-    tspan_fs = map((x) -> x / c, tspan_cm)
-    return tspan_fs 
+    return convert_units(convert(Vector{Float64}, tspan_cm); from="1/cm", to="1/fs")
 end

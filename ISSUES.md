@@ -341,7 +341,7 @@ end
 ---
 
 ### #73 / UX-7: Unit conversion is fragile and duplicated
-**Status:** BACKLOG
+**Status:** IN PROGRESS
 **Severity:** Minor
 
 `convert_units(E; from="1/cm", to="1/fs")` supports only one conversion path. Constants `c`, `pi` are redefined locally instead of using Julia's `pi`. The same conversion is duplicated in `tspan_cm_to_fs` in `postprocessing.jl`.
@@ -542,5 +542,5 @@ to_array(r::SimulationResult) = stack(s.data for s in r.states)
 | 6 | **#70** Document naming conventions + glossary | Helps existing users read the code | BACKLOG |
 | 7 | **#72** Physical validation | Catches silent numerical errors | BACKLOG |
 | 8 | **#74** Solver selection guide in docs | Guides new users | BACKLOG |
-| 9 | **#73** Fix unit conversion | Small cleanup | BACKLOG |
+| 9 | **#73** Fix unit conversion | Small cleanup | IN PROGRESS |
 | 10 | **#75** Convenience constructors | Lowers barrier for common cases | BACKLOG |
