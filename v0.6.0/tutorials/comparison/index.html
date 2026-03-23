@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Comparing Simulation Methods · OpenQuantumSystems.jl</title><meta name="title" content="Comparing Simulation Methods · OpenQuantumSystems.jl"/><meta property="og:title" content="Comparing Simulation Methods · OpenQuantumSystems.jl"/><meta property="twitter:title" content="Comparing Simulation Methods · OpenQuantumSystems.jl"/><meta name="description" content="Documentation for OpenQuantumSystems.jl."/><meta property="og:description" content="Documentation for OpenQuantumSystems.jl."/><meta property="twitter:description" content="Documentation for OpenQuantumSystems.jl."/><meta property="og:url" content="https://detrin.github.io/OpenQuantumSystems.jl/latest/tutorials/comparison/"/><meta property="twitter:url" content="https://detrin.github.io/OpenQuantumSystems.jl/latest/tutorials/comparison/"/><link rel="canonical" href="https://detrin.github.io/OpenQuantumSystems.jl/latest/tutorials/comparison/"/><script async src="https://www.googletagmanager.com/gtag/js?id=G-F12F2Y92VY"></script><script>  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-F12F2Y92VY', {'page_path': location.pathname + location.search + location.hash});
+</script><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">OpenQuantumSystems.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Theory</span><ul><li><a class="tocitem" href="../../theory/hamiltonian/">Hamiltonian &amp; Bath Model</a></li><li><a class="tocitem" href="../../theory/qme/">Quantum Master Equation</a></li><li><a class="tocitem" href="../../theory/redfield/">Redfield Equations</a></li><li><a class="tocitem" href="../../theory/ansatz/">Bath State Ansatze</a></li><li><a class="tocitem" href="../../theory/iterative/">Iterative QME</a></li><li><a class="tocitem" href="../../theory/memory_kernel/">Corrected Memory Kernel</a></li></ul></li><li><a class="tocitem" href="../../solver_guide/">Solver Guide</a></li><li><a class="tocitem" href="../../documentation/">API Reference</a></li><li><a class="tocitem" href="../../glossary/">Naming Conventions &amp; Glossary</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../dimer/">Dimer</a></li><li><a class="tocitem" href="../forster/">Förster Theory &amp; Dipole Couplings</a></li><li class="is-active"><a class="tocitem" href>Comparing Simulation Methods</a><ul class="internal"><li><a class="tocitem" href="#Benchmark-System"><span>Benchmark System</span></a></li><li><a class="tocitem" href="#Setup"><span>Setup</span></a></li><li><a class="tocitem" href="#Method-1:-Exact-Evolution-(Reference)"><span>Method 1: Exact Evolution (Reference)</span></a></li><li><a class="tocitem" href="#Method-2:-QME-with-Redfield-Approximation"><span>Method 2: QME with Redfield Approximation</span></a></li><li><a class="tocitem" href="#Method-3:-QME-with-Bath-Ansatz"><span>Method 3: QME with Bath Ansatz</span></a></li><li><a class="tocitem" href="#Method-4:-Modified-Redfield-Theory"><span>Method 4: Modified Redfield Theory</span></a></li><li><a class="tocitem" href="#Method-5:-Förster-Theory"><span>Method 5: Förster Theory</span></a></li><li><a class="tocitem" href="#Method-6:-Corrected-Memory-Kernel"><span>Method 6: Corrected Memory Kernel</span></a></li><li><a class="tocitem" href="#Results"><span>Results</span></a></li><li><a class="tocitem" href="#Full-Comparison-Script"><span>Full Comparison Script</span></a></li><li><a class="tocitem" href="#Method-Summary"><span>Method Summary</span></a></li><li><a class="tocitem" href="#References"><span>References</span></a></li></ul></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Comparing Simulation Methods</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Comparing Simulation Methods</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/detrin/OpenQuantumSystems.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/detrin/OpenQuantumSystems.jl/blob/master/docs/src/tutorials/comparison.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Comparing-Simulation-Methods"><a class="docs-heading-anchor" href="#Comparing-Simulation-Methods">Comparing Simulation Methods</a><a id="Comparing-Simulation-Methods-1"></a><a class="docs-heading-anchor-permalink" href="#Comparing-Simulation-Methods" title="Permalink"></a></h1><p>This tutorial compares the different simulation methods available in OpenQuantumSystems.jl on a standard molecular dimer benchmark. The system parameters follow Section 3.4 of [Her23] and allow direct comparison of population dynamics across approaches.</p><h2 id="Benchmark-System"><a class="docs-heading-anchor" href="#Benchmark-System">Benchmark System</a><a id="Benchmark-System-1"></a><a class="docs-heading-anchor-permalink" href="#Benchmark-System" title="Permalink"></a></h2><p>We use a homodimer with one vibrational mode per molecule:</p><table><tr><th style="text-align: right">Parameter</th><th style="text-align: right">Value</th></tr><tr><td style="text-align: right">Site energies</td><td style="text-align: right"><span>$E_1 = 12\,500$</span>, <span>$E_2 = 12\,700$</span> cm⁻¹</td></tr><tr><td style="text-align: right">Electronic coupling</td><td style="text-align: right"><span>$J = 100$</span> cm⁻¹</td></tr><tr><td style="text-align: right">Vibrational frequency</td><td style="text-align: right"><span>$\omega = 200$</span> cm⁻¹</td></tr><tr><td style="text-align: right">Temperature</td><td style="text-align: right"><span>$T = 300$</span> K</td></tr><tr><td style="text-align: right">Huang-Rhys factor</td><td style="text-align: right">varied: <span>$S = 0.01, 0.05, 0.1$</span></td></tr></table><p>The Huang-Rhys factor <span>$S$</span> controls the system-bath coupling strength. Small <span>$S$</span> (weak coupling) favours Redfield-type approaches, while larger <span>$S$</span> tests their limits.</p><h2 id="Setup"><a class="docs-heading-anchor" href="#Setup">Setup</a><a id="Setup-1"></a><a class="docs-heading-anchor-permalink" href="#Setup" title="Permalink"></a></h2><pre><code class="language-julia hljs">using OpenQuantumSystems
+using LinearAlgebra
+
+function make_dimer(S; nvib=3, J=100.0, T=300.0)
+    mode = Mode(; omega=200.0, hr_factor=S)
+    mol1 = Molecule([mode], nvib, [0.0, 12500.0])
+    mol2 = Molecule([mode], nvib, [0.0, 12700.0])
+    aggCore = AggregateCore([mol1, mol2])
+    aggCore.coupling[2, 3] = J
+    aggCore.coupling[3, 2] = J
+    return aggCore
+end</code></pre><h2 id="Method-1:-Exact-Evolution-(Reference)"><a class="docs-heading-anchor" href="#Method-1:-Exact-Evolution-(Reference)">Method 1: Exact Evolution (Reference)</a><a id="Method-1:-Exact-Evolution-(Reference)-1"></a><a class="docs-heading-anchor-permalink" href="#Method-1:-Exact-Evolution-(Reference)" title="Permalink"></a></h2><p>The exact evolution propagates the full system+bath density matrix via <span>$W(t) = U(t) W(0) U^\dagger(t)$</span> and traces over the bath. This is the reference against which all approximate methods are compared.</p><pre><code class="language-julia hljs">S = 0.05
+nvib = 5
+mode = Mode(; omega=200.0, hr_factor=S)
+mol1 = Molecule([mode], nvib, [0.0, 12500.0])
+mol2 = Molecule([mode], nvib, [0.0, 12700.0])
+aggCore = AggregateCore([mol1, mol2])
+aggCore.coupling[2, 3] = 100.0
+aggCore.coupling[3, 2] = 100.0
+
+agg = setup_aggregate(aggCore)
+Ham = agg.operators.Ham
+
+T = 300.0
+W0 = thermal_state_composite(T, [0.0, 1.0, 0.0], agg)
+
+t_max = 0.5
+tspan = collect(0.0:0.001:t_max)
+tspan_out, W_t = evolution_approximate(W0, tspan, Ham)
+
+elLen = aggCore.molCount + 1
+rho_exact = zeros(Float64, length(tspan), elLen)
+for t_i in 1:length(tspan)
+    rho_traced = trace_bath(W_t[t_i].data, agg)
+    for n in 1:elLen
+        rho_exact[t_i, n] = real(rho_traced[n, n])
+    end
+end
+# rho_exact[:, 2] is site 1 population, rho_exact[:, 3] is site 2</code></pre><p>The exact evolution is limited by the vibrational basis size: computation scales as <span>$O(N_\text{vib}^{2N_\text{mol}})$</span> per time step.</p><h2 id="Method-2:-QME-with-Redfield-Approximation"><a class="docs-heading-anchor" href="#Method-2:-QME-with-Redfield-Approximation">Method 2: QME with Redfield Approximation</a><a id="Method-2:-QME-with-Redfield-Approximation-1"></a><a class="docs-heading-anchor-permalink" href="#Method-2:-QME-with-Redfield-Approximation" title="Permalink"></a></h2><p>The Redfield equation replaces the density matrix inside the memory integral with its current-time value, yielding a time-local master equation. It works well for weak coupling (small <span>$S$</span>).</p><pre><code class="language-julia hljs">agg = setup_aggregate(aggCore)
+W0 = thermal_state_composite(T, [0.0, 1.0, 0.0], agg)
+
+tspan = collect(0.0:0.001:0.5)
+tspan_out, rho_int_t = QME_sI_Redfield(W0, tspan, agg)
+
+rho_redfield = zeros(Float64, length(tspan_out), elLen)
+rho_sch_t = interaction_pic_to_schroedinger_pic(rho_int_t, agg.operators.Ham_0, tspan_out)
+for t_i in 1:length(tspan_out)
+    for n in 1:elLen
+        rho_redfield[t_i, n] = real(rho_sch_t[t_i].data[n, n])
+    end
+end</code></pre><p><strong>When to use:</strong> Weak coupling (<span>$S \lesssim 0.05$</span>), Markovian-like bath (short correlation time relative to system dynamics).</p><h2 id="Method-3:-QME-with-Bath-Ansatz"><a class="docs-heading-anchor" href="#Method-3:-QME-with-Bath-Ansatz">Method 3: QME with Bath Ansatz</a><a id="Method-3:-QME-with-Bath-Ansatz-1"></a><a class="docs-heading-anchor-permalink" href="#Method-3:-QME-with-Bath-Ansatz" title="Permalink"></a></h2><p>The ansatz approach approximates the bath state inside the memory integral with various levels of sophistication. The simplest ansatz (<code>:const_sch</code>) freezes the bath at its initial value.</p><pre><code class="language-julia hljs">tspan_out, rho_int_t = QME_sI_ansatz(W0, tspan, agg; ansatz=:const_sch)
+
+rho_ansatz = zeros(Float64, length(tspan_out), elLen)
+rho_sch_t = interaction_pic_to_schroedinger_pic(rho_int_t, agg.operators.Ham_0, tspan_out)
+for t_i in 1:length(tspan_out)
+    for n in 1:elLen
+        rho_ansatz[t_i, n] = real(rho_sch_t[t_i].data[n, n])
+    end
+end</code></pre><p><strong>When to use:</strong> General-purpose; the <code>:const_sch</code> ansatz is the cheapest nontrivial option. For better accuracy, try <code>:upart1_sch</code> or <code>:upart2_sch</code>.</p><h2 id="Method-4:-Modified-Redfield-Theory"><a class="docs-heading-anchor" href="#Method-4:-Modified-Redfield-Theory">Method 4: Modified Redfield Theory</a><a id="Method-4:-Modified-Redfield-Theory-1"></a><a class="docs-heading-anchor-permalink" href="#Method-4:-Modified-Redfield-Theory" title="Permalink"></a></h2><p>Modified Redfield treats diagonal fluctuations non-perturbatively. It works in the exciton basis and produces time-independent population transfer rates.</p><pre><code class="language-julia hljs">aggCore = make_dimer(0.05; nvib=3)
+
+tspan = collect(0.0:0.001:0.5)
+ts, pop_mr = modified_redfield_dynamics(aggCore, [1.0, 0.0], tspan; T=300.0)
+# pop_mr[:, 1] = lower exciton population
+# pop_mr[:, 2] = upper exciton population</code></pre><div class="admonition is-info" id="Note-ff313bdf4e0ad2e8"><header class="admonition-header">Note<a class="admonition-anchor" href="#Note-ff313bdf4e0ad2e8" title="Permalink"></a></header><div class="admonition-body"><p>Modified Redfield produces exciton-basis populations. To compare with exact (site-basis) results, transform using the exciton coefficients: <span>$\rho_k^{(\text{site})} = \sum_m |c_{mk}|^2 \rho_m^{(\text{exc})}$</span>.</p></div></div><p><strong>When to use:</strong> Intermediate coupling where standard Redfield breaks down but full QME is too expensive. Provides rates, not full coherence dynamics.</p><h2 id="Method-5:-Förster-Theory"><a class="docs-heading-anchor" href="#Method-5:-Förster-Theory">Method 5: Förster Theory</a><a id="Method-5:-Förster-Theory-1"></a><a class="docs-heading-anchor-permalink" href="#Method-5:-Förster-Theory" title="Permalink"></a></h2><p>Förster theory computes EET rates from the spectral overlap of donor emission and acceptor absorption. Valid in the weak electronic coupling limit.</p><pre><code class="language-julia hljs">aggCore = make_dimer(0.05; nvib=5)
+
+K = forster_rate_matrix(aggCore; T=300.0, sigma=30.0)
+# K[1,2] = rate from mol 2 to mol 1
+# K[2,1] = rate from mol 1 to mol 2
+
+# Propagate with Förster rates (simple forward Euler)
+tspan = collect(0.0:0.001:0.5)
+p = [1.0, 0.0]
+pop_forster = zeros(Float64, length(tspan), 2)
+pop_forster[1, :] .= p
+for i in 2:length(tspan)
+    dt = tspan[i] - tspan[i-1]
+    dp = K * p
+    p .= p .+ dt .* dp
+    clamp!(p, 0.0, 1.0)
+    s = sum(p); s &gt; 0 &amp;&amp; (p ./= s)
+    pop_forster[i, :] .= p
+end</code></pre><p><strong>When to use:</strong> Weak electronic coupling (<span>$|J| \ll \lambda$</span>), incoherent energy transfer regime. Does not capture coherent oscillations.</p><h2 id="Method-6:-Corrected-Memory-Kernel"><a class="docs-heading-anchor" href="#Method-6:-Corrected-Memory-Kernel">Method 6: Corrected Memory Kernel</a><a id="Method-6:-Corrected-Memory-Kernel-1"></a><a class="docs-heading-anchor-permalink" href="#Method-6:-Corrected-Memory-Kernel" title="Permalink"></a></h2><p>The corrected memory kernel (thesis Section 3.7) improves on standard Redfield by accounting for the bath&#39;s response to the system evolution, without explicitly constructing the bath state. The zeroth-order kernel reproduces standard Redfield-type rates; the first-order correction includes the non-equilibrium bath relaxation.</p><pre><code class="language-julia hljs">aggCore = make_dimer(0.05; nvib=3)
+
+# Zeroth-order corrected rates (Redfield-like)
+r0 = corrected_rates_cf(aggCore; T=300.0, t_ref=0.1, order=0)
+
+# First-order corrected rates (includes bath correction)
+r1 = corrected_rates_cf(aggCore; T=300.0, t_ref=0.1, order=1,
+    rtol=1e-3, atol=1e-5)
+
+# Full iterative QME-RDM dynamics
+tspan = collect(0.0:0.001:0.5)
+t_out, pop_corr, all_iters = corrected_qme_rdm(aggCore, [1.0, 0.0], tspan;
+    T=300.0, t_ref=0.1, max_iter=3, rtol=1e-3, atol=1e-5)
+
+# all_iters[1] = zeroth-order populations
+# all_iters[2] = first-order corrected populations
+# all_iters[3] = second iteration (further refined)</code></pre><div class="admonition is-info" id="Note-ea0c277f38d41208"><header class="admonition-header">Note<a class="admonition-anchor" href="#Note-ea0c277f38d41208" title="Permalink"></a></header><div class="admonition-body"><p>The corrected kernel works in the exciton basis. The <code>t_ref</code> parameter sets the reference time for rate extraction. For short-time dynamics, use a small <code>t_ref</code>; for steady-state rates, use a larger value.</p></div></div><p><strong>When to use:</strong> When you need systematic improvement over Redfield without the cost of full QME. Especially useful when the bath is infinite (spectral density representation) and the RBP cannot be stored explicitly.</p><h2 id="Results"><a class="docs-heading-anchor" href="#Results">Results</a><a id="Results-1"></a><a class="docs-heading-anchor-permalink" href="#Results" title="Permalink"></a></h2><p>All simulations start from the <strong>upper exciton eigenstate</strong> <span>$|\psi_2\rangle$</span>, which ensures all methods agree on the initial condition <span>$\rho_{22}^{\mathrm{exc}}(0) = 1$</span>. For the exact evolution, the full system+bath initial state is <span>$|\psi_2\rangle\langle\psi_2| \otimes \rho_{\mathrm{bath}}^{\mathrm{eq}}$</span>.</p><h3 id="Weak-coupling-(S-0.01)"><a class="docs-heading-anchor" href="#Weak-coupling-(S-0.01)">Weak coupling (<span>$S = 0.01$</span>)</a><a id="Weak-coupling-(S-0.01)-1"></a><a class="docs-heading-anchor-permalink" href="#Weak-coupling-(S-0.01)" title="Permalink"></a></h3><p><img src="../../assets/comparison_S0p01.png" alt="Comparison S=0.01"/></p><p>At weak coupling the upper exciton is nearly stationary — there is very little population transfer. All methods agree that the population remains close to 1. The exact solution shows tiny oscillations from coherent beating. Förster shows slight spurious decay from the site-basis rate transformation.</p><h3 id="Moderate-coupling-(S-0.05)"><a class="docs-heading-anchor" href="#Moderate-coupling-(S-0.05)">Moderate coupling (<span>$S = 0.05$</span>)</a><a id="Moderate-coupling-(S-0.05)-1"></a><a class="docs-heading-anchor-permalink" href="#Moderate-coupling-(S-0.05)" title="Permalink"></a></h3><p><img src="../../assets/comparison_S0p05.png" alt="Comparison S=0.05"/></p><p>At <span>$S = 0.05$</span> the dynamics become more interesting:</p><ul><li>The <strong>exact</strong> evolution shows slow relaxation with coherent oscillations, remaining near <span>$\rho_{22} \approx 0.95$</span> over the simulation window</li><li><strong>Modified Redfield</strong> overestimates the decay rate, relaxing to ~0.5</li><li><strong>Förster</strong> also decays too fast, reaching ~0.6</li><li>The <strong>corrected kernel (0th order)</strong> produces no transfer — the zeroth-order rates are too small</li><li>The <strong>corrected kernel (1st order)</strong> overcorrects and decays unphysically fast</li></ul><h3 id="Intermediate-coupling-(S-0.1)"><a class="docs-heading-anchor" href="#Intermediate-coupling-(S-0.1)">Intermediate coupling (<span>$S = 0.1$</span>)</a><a id="Intermediate-coupling-(S-0.1)-1"></a><a class="docs-heading-anchor-permalink" href="#Intermediate-coupling-(S-0.1)" title="Permalink"></a></h3><p><img src="../../assets/comparison_S0p1.png" alt="Comparison S=0.1"/></p><p>At <span>$S = 0.1$</span>:</p><ul><li>The <strong>exact</strong> solution shows damped oscillations relaxing to ~0.75</li><li><strong>Förster</strong> captures the early relaxation well but settles to ~0.57 (close to the thermal equilibrium value)</li><li><strong>Modified Redfield</strong> and <strong>corrected (0th)</strong> both show no significant transfer</li><li><strong>Corrected (1st)</strong> again overshoots</li></ul><h3 id="Discussion"><a class="docs-heading-anchor" href="#Discussion">Discussion</a><a id="Discussion-1"></a><a class="docs-heading-anchor-permalink" href="#Discussion" title="Permalink"></a></h3><p>The comparison reveals several important points:</p><ol><li><p><strong>Rate-based methods only capture the envelope.</strong> Methods that compute population transfer rates (modified Redfield, Förster, corrected kernel) solve <span>$d\mathbf{p}/dt = R\mathbf{p}$</span> and cannot reproduce the coherent oscillations visible in the exact solution.</p></li><li><p><strong>Förster theory works surprisingly well</strong> for the relaxation timescale at moderate-to-intermediate coupling, though it predicts too much transfer (it doesn&#39;t account for the exciton delocalization that protects population).</p></li><li><p><strong>The corrected memory kernel</strong> is a perturbative correction. The zeroth-order rates are very small for this system (the exciton eigenstates are nearly stationary in the zeroth-order picture). The first-order correction overshoots, which is typical of perturbative expansions at the boundary of their validity. The <code>t_ref</code> parameter (here 0.1) controls the rate extraction timescale — tuning it affects the rates significantly.</p></li><li><p><strong>Modified Redfield</strong> overestimates rates here because the system is in an intermediate regime where the perturbative treatment of off-diagonal fluctuations is not fully converged.</p></li></ol><div class="admonition is-info" id="Redfield-and-QME-Ansatz-e62bbf44f6d0c00b"><header class="admonition-header">Redfield and QME Ansatz<a class="admonition-anchor" href="#Redfield-and-QME-Ansatz-e62bbf44f6d0c00b" title="Permalink"></a></header><div class="admonition-body"><p>The <code>QME_sI_Redfield</code> and <code>QME_sI_ansatz</code> solvers use delayed differential equations (DDE) and produce full coherent dynamics in the interaction picture. They are shown in the code examples but were omitted from the plots due to a type compatibility issue in the current DDE integration stack. These solvers work correctly when called from the main project environment (see the <a href="../dimer/#Dimer-examples">Dimer examples</a> tutorial).</p></div></div><h2 id="Full-Comparison-Script"><a class="docs-heading-anchor" href="#Full-Comparison-Script">Full Comparison Script</a><a id="Full-Comparison-Script-1"></a><a class="docs-heading-anchor-permalink" href="#Full-Comparison-Script" title="Permalink"></a></h2><p>This script runs all methods on a single dimer and collects the site-1 population for comparison:</p><pre><code class="language-julia hljs">using OpenQuantumSystems
+using LinearAlgebra
+
+S = 0.05
+J = 100.0
+T = 300.0
+nvib = 5
+
+mode = Mode(; omega=200.0, hr_factor=S)
+mol1 = Molecule([mode], nvib, [0.0, 12500.0])
+mol2 = Molecule([mode], nvib, [0.0, 12700.0])
+aggCore = AggregateCore([mol1, mol2])
+aggCore.coupling[2, 3] = J
+aggCore.coupling[3, 2] = J
+
+agg = setup_aggregate(aggCore)
+Ham = agg.operators.Ham
+elLen = aggCore.molCount + 1
+t_max = 0.5
+tspan = collect(0.0:0.001:t_max)
+
+# --- Exact ---
+W0 = thermal_state_composite(T, [0.0, 1.0, 0.0], agg)
+_, W_t = evolution_approximate(W0, tspan, Ham)
+rho11_exact = [real(trace_bath(W_t[i].data, agg)[2, 2]) for i in 1:length(tspan)]
+
+# --- Redfield ---
+W0 = thermal_state_composite(T, [0.0, 1.0, 0.0], agg)
+t_out_r, rho_int_r = QME_sI_Redfield(W0, tspan, agg)
+rho_sch_r = interaction_pic_to_schroedinger_pic(rho_int_r, agg.operators.Ham_0, t_out_r)
+rho11_redfield = [real(rho_sch_r[i].data[2, 2]) for i in 1:length(t_out_r)]
+
+# --- Ansatz ---
+W0 = thermal_state_composite(T, [0.0, 1.0, 0.0], agg)
+t_out_a, rho_int_a = QME_sI_ansatz(W0, tspan, agg; ansatz=:const_sch)
+rho_sch_a = interaction_pic_to_schroedinger_pic(rho_int_a, agg.operators.Ham_0, t_out_a)
+rho11_ansatz = [real(rho_sch_a[i].data[2, 2]) for i in 1:length(t_out_a)]
+
+# --- Modified Redfield (exciton → site) ---
+_, coeffs = let
+    at = AggregateTools(aggCore)
+    exciton_basis(aggCore, at)
+end
+_, pop_mr = modified_redfield_dynamics(aggCore, [1.0, 0.0], tspan; T=T)
+rho11_modred = [sum(coeffs[m, 1]^2 * pop_mr[i, m] for m in 1:2) for i in 1:length(tspan)]
+
+# --- Corrected memory kernel (zeroth + first order) ---
+t_corr, pop_corr, all_iters = corrected_qme_rdm(aggCore, [1.0, 0.0], tspan;
+    T=T, t_ref=0.1, max_iter=2, rtol=1e-3, atol=1e-5)
+rho11_corr0 = [sum(coeffs[m, 1]^2 * all_iters[1][i, m] for m in 1:2) for i in 1:length(tspan)]
+rho11_corr1 = [sum(coeffs[m, 1]^2 * all_iters[2][i, m] for m in 1:2) for i in 1:length(tspan)]
+
+# --- Förster ---
+K = forster_rate_matrix(aggCore; T=T, sigma=30.0)
+p = [1.0, 0.0]
+rho11_forster = zeros(Float64, length(tspan))
+rho11_forster[1] = 1.0
+for i in 2:length(tspan)
+    dt = tspan[i] - tspan[i-1]
+    dp = K * p
+    p .= p .+ dt .* dp
+    clamp!(p, 0.0, 1.0)
+    s = sum(p); s &gt; 0 &amp;&amp; (p ./= s)
+    rho11_forster[i] = p[1]
+end</code></pre><p>To visualize:</p><pre><code class="language-julia hljs">using Plots
+plot(tspan, rho11_exact, label=&quot;Exact&quot;, lw=2, color=:black)
+plot!(tspan, rho11_redfield, label=&quot;Redfield&quot;, ls=:dash, color=:blue)
+plot!(tspan, rho11_ansatz, label=&quot;Ansatz (const)&quot;, ls=:dash, color=:cyan)
+plot!(tspan, rho11_modred, label=&quot;Modified Redfield&quot;, ls=:dot, color=:red)
+plot!(tspan, rho11_corr0, label=&quot;Corrected (0th)&quot;, ls=:dashdot, color=:orange)
+plot!(tspan, rho11_corr1, label=&quot;Corrected (1st)&quot;, ls=:dashdot, color=:green)
+plot!(tspan, rho11_forster, label=&quot;Förster&quot;, ls=:dot, color=:purple)
+xlabel!(&quot;t (a.u.)&quot;)
+ylabel!(&quot;ρ₁₁(t)&quot;)
+title!(&quot;Dimer population dynamics — S = $S&quot;)
+ylims!(0.0, 1.0)</code></pre><h2 id="Method-Summary"><a class="docs-heading-anchor" href="#Method-Summary">Method Summary</a><a id="Method-Summary-1"></a><a class="docs-heading-anchor-permalink" href="#Method-Summary" title="Permalink"></a></h2><table><tr><th style="text-align: right">Method</th><th style="text-align: right">Coupling regime</th><th style="text-align: right">Basis</th><th style="text-align: right">Coherences</th><th style="text-align: right">Cost</th><th style="text-align: right">Key function</th></tr><tr><td style="text-align: right">Exact evolution</td><td style="text-align: right">Any</td><td style="text-align: right">Site</td><td style="text-align: right">Yes</td><td style="text-align: right">Very high</td><td style="text-align: right"><code>evolution_approximate</code></td></tr><tr><td style="text-align: right">QME Redfield</td><td style="text-align: right">Weak</td><td style="text-align: right">Site</td><td style="text-align: right">Yes</td><td style="text-align: right">Medium</td><td style="text-align: right"><code>QME_sI_Redfield</code></td></tr><tr><td style="text-align: right">QME Ansatz</td><td style="text-align: right">Moderate</td><td style="text-align: right">Site</td><td style="text-align: right">Yes</td><td style="text-align: right">Medium</td><td style="text-align: right"><code>QME_sI_ansatz</code></td></tr><tr><td style="text-align: right">Modified Redfield</td><td style="text-align: right">Intermediate</td><td style="text-align: right">Exciton</td><td style="text-align: right">No (pops only)</td><td style="text-align: right">Medium</td><td style="text-align: right"><code>modified_redfield_dynamics</code></td></tr><tr><td style="text-align: right">Förster</td><td style="text-align: right">Weak coupling</td><td style="text-align: right">Site</td><td style="text-align: right">No (rates only)</td><td style="text-align: right">Low</td><td style="text-align: right"><code>forster_rate_matrix</code></td></tr><tr><td style="text-align: right">Corrected kernel (0th)</td><td style="text-align: right">Weak-moderate</td><td style="text-align: right">Exciton</td><td style="text-align: right">No (pops only)</td><td style="text-align: right">Medium</td><td style="text-align: right"><code>corrected_rates_cf</code></td></tr><tr><td style="text-align: right">Corrected kernel (1st)</td><td style="text-align: right">Weak-moderate</td><td style="text-align: right">Exciton</td><td style="text-align: right">No (pops only)</td><td style="text-align: right">High</td><td style="text-align: right"><code>corrected_qme_rdm</code></td></tr></table><h2 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h2><ul><li>[Her23] D. Herman, <em>Open Quantum Systems in Molecular Aggregates</em>, Master&#39;s thesis (2023). Sections 3.4 (Numerical results for QME approaches) and 3.6-3.7 (Iterative QME and corrected memory kernel).</li></ul></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../forster/">« Förster Theory &amp; Dipole Couplings</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Monday 23 March 2026 22:57">Monday 23 March 2026</span>. Using Julia version 1.12.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
