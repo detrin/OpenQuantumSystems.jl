@@ -297,6 +297,12 @@ export
     # solve.jl
     solve,
 
+    # dipole.jl
+    DIPOLE_COUPLING_FACTOR,
+    TransitionDipole,
+    dipole_dipole_coupling,
+    coupling_from_dipoles,
+
     # convenience.jl
     setup_dimer,
     setup_trimer,
@@ -363,6 +369,7 @@ include("postprocessing.jl")
 include("scoring.jl")
 include("simulation_result.jl")
 include("solve.jl")
+include("dipole.jl")
 include("convenience.jl")
 include("deprecated_aliases.jl")
 
