@@ -143,7 +143,7 @@ These should be direct calls since they are within the same module.
 ---
 
 ### #66 - Standardize naming conventions across codebase
-**Status:** BACKLOG
+**Status:** IN PROGRESS (on devel)
 **Severity:** Minor (breaking change -- plan for major version)
 
 The codebase mixes camelCase and snake_case inconsistently:
@@ -183,7 +183,7 @@ The codebase mixes camelCase and snake_case inconsistently:
 | #63 | Remove Union{T, Nothing} from Aggregate struct | SOLID | Moderate | DONE |
 | #64 | Replace hardcoded 2-level system assumptions | Extensibility | Moderate | DONE |
 | #65 | Remove hardcoded module self-references | Code smell | Minor | DONE |
-| #66 | Standardize naming conventions | Convention | Minor | BACKLOG |
+| #66 | Standardize naming conventions | Convention | Minor | IN PROGRESS |
 
 ## Priority Order (Internal Quality)
 
