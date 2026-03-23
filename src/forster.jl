@@ -35,7 +35,7 @@ function _build_sticks(
             fc = get_mol_state_fc(mol, final_el, m_vib, init_el, n_vib)
             intensity = w * abs2(fc)
             intensity < 1e-15 && continue
-            push!(stick_freqs, final_energies[m_idx] - init_energies[n_idx])
+            push!(stick_freqs, abs(final_energies[m_idx] - init_energies[n_idx]))
             push!(stick_ints, intensity)
         end
     end
@@ -153,7 +153,7 @@ function _interp_spectrum(ls::LineshapeResult, freqs::Vector{Float64})::Vector{F
     dω = src[2] - src[1]
     result = zeros(Float64, length(freqs))
     for (i, ω) in enumerate(freqs)
-        ω < src[1] || ω > src[end] && continue
+        (ω < src[1] || ω > src[end]) && continue
         t = (ω - src[1]) / dω
         lo = max(1, floor(Int, t) + 1)
         hi = min(length(src), lo + 1)
@@ -213,4 +213,44 @@ function forster_rate(
     A_A = absorption_spectrum(mol_acceptor; T = T, sigma = sigma, n_points = n_points)
     S = spectral_overlap(I_D, A_A)
     return 2π * J^2 * S
+end
+
+"""
+    forster_rate_matrix(aggCore; T=0.0, sigma=50.0, n_points=2000)
+
+Compute the matrix of pairwise Förster excitation energy transfer rates for
+all molecules in an [`AggregateCore`](@ref).
+
+Returns an N×N matrix where entry (i,j) is the Förster rate from molecule i
+to molecule j. Diagonal entries are zero.
+
+The electronic coupling ``J_{ij}`` is read from `aggCore.coupling[i+1, j+1]`
+(the +1 offset accounts for the ground state row/column in the padded coupling matrix).
+
+# Arguments
+* `aggCore`: [`AggregateCore`](@ref) instance.
+* `T`: temperature in Kelvin (default 0).
+* `sigma`: Gaussian broadening width in cm⁻¹ (default 50).
+* `n_points`: frequency grid resolution (default 2000).
+"""
+function forster_rate_matrix(
+    aggCore::AggregateCore;
+    T::Real = 0.0,
+    sigma::Real = 50.0,
+    n_points::Int = 2000,
+)::Matrix{Float64}
+    N = aggCore.molCount
+    em_spectra = [emission_spectrum(aggCore.molecules[i]; T = T, sigma = sigma, n_points = n_points) for i in 1:N]
+    abs_spectra = [absorption_spectrum(aggCore.molecules[i]; T = T, sigma = sigma, n_points = n_points) for i in 1:N]
+
+    K = zeros(Float64, N, N)
+    for i in 1:N
+        for j in 1:N
+            i == j && continue
+            J_ij = aggCore.coupling[i+1, j+1]
+            S = spectral_overlap(em_spectra[i], abs_spectra[j])
+            K[i, j] = 2π * J_ij^2 * S
+        end
+    end
+    return K
 end
