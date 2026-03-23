@@ -25,7 +25,7 @@ aggCore = AggregateCore(mols)
 aggCore.coupling[2, 3] = 100
 aggCore.coupling[3, 2] = 100
 
-agg = setupAggregate(aggCore)
+agg = setup_aggregate(aggCore)
 Ham = agg.operators.Ham
 
 T = 100 # temperature
@@ -69,7 +69,7 @@ aggCore = AggregateCore(mols)
 aggCore.coupling[2, 3] = 100
 aggCore.coupling[3, 2] = 100
 
-agg = setupAggregate(aggCore)
+agg = setup_aggregate(aggCore)
 Ham = agg.operators.Ham
 
 Ham_sys = agg.operators.Ham_sys
@@ -90,7 +90,7 @@ Calculating dynamics in local basis.
 elLen = aggCore.molCount + 1
 rho_tr_t = zeros(ComplexF64, length(tspan), elLen, elLen)
 t_step = tspan[2] - tspan[1]
-U_op_step = evolutionOperator(Ham, t_step)
+U_op_step = evolution_operator(Ham, t_step)
 U_op_step_d = U_op_step'
 W = deepcopy(W0)
 p = Progress(t_count, barglyphs=BarGlyphs("[=> ]"), barlen=50)
@@ -113,7 +113,7 @@ Calculating dynamics in exciton basis.
 elLen = aggCore.molCount + 1
 rho_tr_t = zeros(ComplexF64, length(tspan), elLen, elLen)
 t_step = tspan[2] - tspan[1]
-U_op_step = evolutionOperator(Ham, t_step)
+U_op_step = evolution_operator(Ham, t_step)
 U_op_step_d = U_op_step'
 W = deepcopy(W0)
 p = Progress(t_count, barglyphs=BarGlyphs("[=> ]"), barlen=50)
@@ -141,7 +141,7 @@ bSize = agg.tools.bSize
 indicesMap = agg.tools.indicesMap
 W_bath_t = zeros(ComplexF64, length(tspan), bSize, bSize)
 t_step = tspan[2] - tspan[1]
-U_op_step = evolutionOperator(Ham, t_step)
+U_op_step = evolution_operator(Ham, t_step)
 U_op_step_d = U_op_step'
 W = deepcopy(W0)
 p = Progress(t_count, barglyphs=BarGlyphs("[=> ]"), barlen=50)
@@ -186,7 +186,7 @@ Plotting the diagonal of density matrix.
 bSize = agg.tools.bSize
 W_full_t = zeros(ComplexF64, length(tspan), bSize, bSize)
 t_step = tspan[2] - tspan[1]
-U_op_step = evolutionOperator(Ham, t_step)
+U_op_step = evolution_operator(Ham, t_step)
 U_op_step_d = U_op_step'
 W = deepcopy(W0)
 p = Progress(t_count, barglyphs=BarGlyphs("[=> ]"), barlen=50)
