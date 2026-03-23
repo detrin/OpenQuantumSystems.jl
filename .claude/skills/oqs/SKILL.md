@@ -16,6 +16,17 @@ OpenQuantumSystems.jl is a Julia numerical framework for simulating open quantum
 - **gh CLI:** authenticated as `detrin`
 - **Language:** Julia
 - **Main branch:** `master`
+- **Dev branch:** `devel` — commit fixes directly here, PRs merge devel → master
+
+---
+
+## Environment
+
+- **Julia path:** `~/.juliaup/bin/julia` (not in PATH — always use full path)
+- **Run tests:** `~/.juliaup/bin/julia --project=. -e "using Pkg; Pkg.test()"`
+- **Run specific test:** `~/.juliaup/bin/julia --project=. test/test_<module>.jl`
+- **Attribution:** Disabled — NO co-author lines in commits. Git hooks in `.githooks/` enforce this.
+- **Git hooks:** Set with `git config core.hooksPath .githooks`
 
 ---
 
@@ -23,21 +34,22 @@ OpenQuantumSystems.jl is a Julia numerical framework for simulating open quantum
 
 We are the repo owners — no fork needed. Work directly on `detrin/OpenQuantumSystems.jl`.
 
-- Feature branches off `master` with descriptive names
+- **Commit directly to `devel`** for all fixes and features
+- **Do NOT create feature branches** — commit straight to devel
 - One commit per logical change, issue ID at the start: `#NNN Description`
 - Never commit directly to `master`
-- Open PRs against `master` on the same repo
+- Open PRs from `devel` → `master` to merge batches of work
 
 ---
 
-## PR workflow
+## Subagent workflow
 
-1. Branch off `master` with a descriptive name
-2. One commit per logical change: `#NNN Short description`
-3. Test locally before pushing — never push a known red state
-4. Push branch and open PR against `master`
-5. Reference issues in PR body with `Addresses #NNN` — **never use `Closes #NNN`**
-6. Document findings in the relevant GitHub issues before and after fixing
+When dispatching subagents to work on issues:
+
+- Subagents must commit directly to `devel`, NOT create feature branches
+- Prompt subagents with the OQS skill context
+- Each subagent must run tests before exiting
+- NO co-author lines in commits
 
 ---
 
@@ -57,13 +69,27 @@ Issue ID always first. Every commit must have an issue ID.
 
 ```bash
 # Run full test suite
-julia --project=. -e "using Pkg; Pkg.test()"
+~/.juliaup/bin/julia --project=. -e "using Pkg; Pkg.test()"
 
 # Run specific test file
-julia --project=. test/test_<module>.jl
+~/.juliaup/bin/julia --project=. test/test_<module>.jl
 ```
 
 Test files live in `/test/` and mirror source files (e.g., `src/trace.jl` → `test/test_trace.jl`).
+
+---
+
+## ISSUES.md tracking
+
+All issues are tracked in `ISSUES.md` at the repo root with three states:
+
+- **BACKLOG** — Not started
+- **IN PROGRESS** — Committed in `devel` branch
+- **DONE** — Merged into `master`
+
+When working on an issue, update BOTH:
+1. The `**Status:**` line in the issue's section
+2. The Status column in the summary table
 
 ---
 
@@ -72,6 +98,8 @@ Test files live in `/test/` and mirror source files (e.g., `src/trace.jl` → `t
 | File | Purpose |
 |---|---|
 | `src/OpenQuantumSystems.jl` | Main module, exports |
+| `src/core.jl` | Shared constants and helpers (_SAFE_DIV_TOL, ELECTRONIC_GROUND/EXCITED) |
+| `src/timeevolution_base.jl` | Integration helpers (_setup_delayed_integration) |
 | `src/master_ansatz.jl` | QME ansatz solvers |
 | `src/master_iterative.jl` | Iterative QME solvers |
 | `src/evolution.jl` | Evolution operators |
@@ -79,6 +107,7 @@ Test files live in `/test/` and mirror source files (e.g., `src/trace.jl` → `t
 | `src/aggregateOperators.jl` | Hamiltonian and operator construction |
 | `test/runtests.jl` | Test suite entry point |
 | `Project.toml` | Julia project manifest |
+| `ISSUES.md` | Issue tracker with status (BACKLOG/IN PROGRESS/DONE) |
 
 ---
 
@@ -86,11 +115,11 @@ Test files live in `/test/` and mirror source files (e.g., `src/trace.jl` → `t
 
 Active tracking issue: **https://github.com/detrin/OpenQuantumSystems.jl/issues/49**
 
-Issues #50–#58 were resolved in v0.3.0 (PR #59). Remaining debt:
+Issues #50–#65 resolved in v0.3.0–v0.4.0. Remaining:
 
 - `test/test_memory_kernel.jl` commented out in `runtests.jl`
-- Docs say "under construction" — only one tutorial exists
-- 13 unresolved TODO comments in source
+- Docs say "under construction" — tutorial is broken (#67)
+- `OpenQuantumSystems.mul!` in schroedinger.jl — intentionally kept (from QuantumOpticsBase)
 
 ---
 
