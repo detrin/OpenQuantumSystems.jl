@@ -13,7 +13,7 @@ Tracking issue: [#49](https://github.com/detrin/OpenQuantumSystems.jl/issues/49)
 ## Existing Issues
 
 ### #60 - Fix unsafe divisions in trace.jl and rate_constant.jl
-**Status:** IN PROGRESS
+**Status:** DONE (v0.4.0)
 **Severity:** Correctness risk
 
 Issue #52 covers risky division in `master_iterative.jl:340`, but similar unsafe division patterns exist in other files:
@@ -37,7 +37,7 @@ Related: #52
 ## Additional Issues
 
 ### #61 - Extract shared integration setup boilerplate into helper function
-**Status:** IN PROGRESS
+**Status:** DONE (v0.4.0)
 **Severity:** Moderate (DRY -- ~150 duplicated lines)
 
 The integration setup pattern is duplicated across 4 files:
@@ -62,7 +62,7 @@ Related: #50, #51
 ---
 
 ### #62 - Refactor deeply nested getAggHamInteraction in aggregateOperators.jl
-**Status:** IN PROGRESS
+**Status:** DONE (v0.4.0)
 **Severity:** Moderate (readability/maintainability)
 
 `getAggHamInteraction` in `aggregateOperators.jl:206-312` is 107 lines long with 5 levels of nesting:
@@ -84,7 +84,7 @@ if vib_basis == :ground_ground
 ---
 
 ### #63 - Remove Union{T, Nothing} fields from Aggregate struct
-**Status:** IN PROGRESS
+**Status:** DONE (v0.4.0)
 **Severity:** Moderate (SOLID -- Liskov Substitution)
 
 The `Aggregate` struct (`aggregate.jl:6-16`) uses `Union{T, Nothing}` for its fields:
@@ -107,7 +107,7 @@ Every function that accepts `Aggregate` must check for `nothing` before accessin
 ---
 
 ### #64 - Replace hardcoded 2-level system assumptions in molecules.jl
-**Status:** IN PROGRESS
+**Status:** DONE (v0.4.0)
 **Severity:** Moderate (extensibility)
 
 `molecules.jl` and `aggregateOperators.jl` hardcode magic numbers assuming a 2-level system (ground + excited):
@@ -126,7 +126,7 @@ This prevents extension to 3-level or N-level systems.
 ---
 
 ### #65 - Remove hardcoded OpenQuantumSystems module self-references
-**Status:** IN PROGRESS
+**Status:** DONE (v0.4.0)
 **Severity:** Minor (code smell)
 
 Several files explicitly reference the module name instead of using direct function calls:
@@ -170,19 +170,19 @@ The codebase mixes camelCase and snake_case inconsistently:
 | #49 | Code quality tracking | Meta | -- | -- |
 | #50 | Refactor master_ansatz.jl: eliminate 8-way duplication | DRY | Critical | DONE |
 | #51 | Refactor master_iterative.jl: consolidate duplicated solvers | DRY | Critical | DONE |
-| #52 | Fix risky division in master_iterative.jl:340 | Correctness | Critical | IN PROGRESS |
+| #52 | Fix risky division in master_iterative.jl:340 | Correctness | Critical | DONE |
 | #53 | Replace typeof(rho) <: Operator anti-pattern with dispatch | SOLID | Moderate | DONE |
 | #54 | Replace bare parameter tuples with NamedTuple or struct | SOLID | Moderate | DONE |
 | #55 | Replace magic symbol strings with @enum | SOLID | Moderate | DONE |
 | #56 | Fix potential nothing return in trace.jl:71-79 | Correctness | Moderate | DONE |
 | #57 | Improve type annotations throughout | Quality | Moderate | DONE |
 | #58 | Clean up technical debt: TODOs, dead code, commented-out tests | Debt | Moderate | DONE |
-| #60 | Fix unsafe divisions in trace.jl and rate_constant.jl | Correctness | Moderate | IN PROGRESS |
-| #61 | Extract shared integration setup boilerplate | DRY | Moderate | IN PROGRESS |
-| #62 | Refactor deeply nested aggregateOperators.jl | Quality | Moderate | IN PROGRESS |
-| #63 | Remove Union{T, Nothing} from Aggregate struct | SOLID | Moderate | IN PROGRESS |
-| #64 | Replace hardcoded 2-level system assumptions | Extensibility | Moderate | IN PROGRESS |
-| #65 | Remove hardcoded module self-references | Code smell | Minor | IN PROGRESS |
+| #60 | Fix unsafe divisions in trace.jl and rate_constant.jl | Correctness | Moderate | DONE |
+| #61 | Extract shared integration setup boilerplate | DRY | Moderate | DONE |
+| #62 | Refactor deeply nested aggregateOperators.jl | Quality | Moderate | DONE |
+| #63 | Remove Union{T, Nothing} from Aggregate struct | SOLID | Moderate | DONE |
+| #64 | Replace hardcoded 2-level system assumptions | Extensibility | Moderate | DONE |
+| #65 | Remove hardcoded module self-references | Code smell | Minor | DONE |
 | #66 | Standardize naming conventions | Convention | Minor | BACKLOG |
 
 ## Priority Order (Internal Quality)
