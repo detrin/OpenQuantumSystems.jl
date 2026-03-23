@@ -40,7 +40,7 @@ function LvN_sI(
     x0 = rho0.data
     state = T(rho0.basis_l, rho0.basis_r, rho0.data)
     dstate = T(rho0.basis_l, rho0.basis_r, rho0.data)
-    OpenQuantumSystems.integrate(
+    integrate(
         tspan_,
         dLvN_,
         x0,
@@ -96,7 +96,7 @@ function LvN_sS(
     x0 = rho0.data
     state = T(rho0.basis_l, rho0.basis_r, rho0.data)
     dstate = T(rho0.basis_l, rho0.basis_r, rho0.data)
-    OpenQuantumSystems.integrate(
+    integrate(
         tspan_,
         dLvN_,
         x0,
@@ -147,7 +147,7 @@ function LvN_SI(
     state = T(W0.basis_l, W0.basis_r, W0.data)
     dstate = T(W0.basis_l, W0.basis_r, W0.data)
 
-    OpenQuantumSystems.integrate(
+    integrate(
         tspan_,
         dLvN_,
         x0,
@@ -197,7 +197,7 @@ function LvN_SS(
     state = T(W0.basis_l, W0.basis_r, W0.data)
     dstate = T(W0.basis_l, W0.basis_r, W0.data)
 
-    OpenQuantumSystems.integrate(
+    integrate(
         tspan_,
         dLvN_,
         x0,

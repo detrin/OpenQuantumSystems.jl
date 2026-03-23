@@ -24,11 +24,11 @@ function trace_bath_ground_excited(
 
     for I = 1:aggTools.bSize
         elind1, vibind1 = aggTools.indices[I]
-        elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
+        elOrder1 = elIndOrder(elind1)
 
         for J = 1:aggTools.bSize
             elind2, vibind2 = aggTools.indices[J]
-            elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
+            elOrder2 = elIndOrder(elind2)
 
             rho[elOrder1, elOrder2] += W[I, J] * aggTools.FCproduct[I, J]
         end
@@ -126,11 +126,11 @@ function trace_bath_slow(
 
     for I = 1:aggTools.bSize
         elind1, vibind1 = aggTools.indices[I]
-        elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
+        elOrder1 = elIndOrder(elind1)
 
         for J = 1:aggTools.bSize
             elind2, vibind2 = aggTools.indices[J]
-            elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
+            elOrder2 = elIndOrder(elind2)
 
             for m = 1:aggTools.bBathSize
                 # according to quantarhei, trace_over_vibrations()
@@ -354,11 +354,11 @@ function ad(
 
     for I = 1:aggTools.bSize
         elind1, vibind1 = aggTools.indices[I]
-        elOrder1 = OpenQuantumSystems.elIndOrder(elind1)
+        elOrder1 = elIndOrder(elind1)
 
         for J = 1:aggTools.bSize
             elind2, vibind2 = aggTools.indices[J]
-            elOrder2 = OpenQuantumSystems.elIndOrder(elind2)
+            elOrder2 = elIndOrder(elind2)
 
             W[I, J] = rho[elOrder1, elOrder2] * rho_bath[I, J]
         end

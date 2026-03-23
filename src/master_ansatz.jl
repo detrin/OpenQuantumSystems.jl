@@ -237,7 +237,7 @@ function QME_sI_ansatz(
     x0 = rho0.data
     state = T(rho0.basis_l, rho0.basis_r, rho0.data)
     dstate = T(rho0.basis_l, rho0.basis_r, rho0.data)
-    tspan, rho_t = OpenQuantumSystems.integrate_delayed(
+    tspan, rho_t = integrate_delayed(
         tspan_,
         dmaster_,
         history_fun,

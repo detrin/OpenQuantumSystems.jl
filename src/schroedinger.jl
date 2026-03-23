@@ -42,7 +42,7 @@ function schroedinger(
         state = copy(psi0)
         dstate = copy(psi0)
     end
-    OpenQuantumSystems.integrate(
+    integrate(
         tspan_,
         dschroedinger_,
         x0,
@@ -99,7 +99,7 @@ function schroedinger_dynamic(
         state = copy(psi0)
         dstate = copy(psi0)
     end
-    OpenQuantumSystems.integrate(
+    integrate(
         tspan_,
         dschroedinger_,
         x0,
