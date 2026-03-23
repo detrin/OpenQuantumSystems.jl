@@ -107,7 +107,7 @@ Every function that accepts `Aggregate` must check for `nothing` before accessin
 ---
 
 ### #64 - Replace hardcoded 2-level system assumptions in molecules.jl
-**Status:** BACKLOG
+**Status:** IN PROGRESS
 **Severity:** Moderate (extensibility)
 
 `molecules.jl` and `aggregateOperators.jl` hardcode magic numbers assuming a 2-level system (ground + excited):
@@ -181,7 +181,7 @@ The codebase mixes camelCase and snake_case inconsistently:
 | #61 | Extract shared integration setup boilerplate | DRY | Moderate | BACKLOG |
 | #62 | Refactor deeply nested aggregateOperators.jl | Quality | Moderate | BACKLOG |
 | #63 | Remove Union{T, Nothing} from Aggregate struct | SOLID | Moderate | BACKLOG |
-| #64 | Replace hardcoded 2-level system assumptions | Extensibility | Moderate | BACKLOG |
+| #64 | Replace hardcoded 2-level system assumptions | Extensibility | Moderate | IN PROGRESS |
 | #65 | Remove hardcoded module self-references | Code smell | Minor | IN PROGRESS |
 | #66 | Standardize naming conventions | Convention | Minor | BACKLOG |
 

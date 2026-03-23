@@ -214,9 +214,9 @@ function getMolStateFC(
     fc = 1.0::C2
     for mode_i = 1:length(mol.modes)
         fcFac = mol.fcFactors[mode_i]
-        if molElState1 == 2 && molElState2 == 1
+        if molElState1 == ELECTRONIC_EXCITED && molElState2 == ELECTRONIC_GROUND
             fc *= fcFac[molVibState1[mode_i], molVibState2[mode_i]]
-        elseif molElState1 == 1 && molElState2 == 2
+        elseif molElState1 == ELECTRONIC_GROUND && molElState2 == ELECTRONIC_EXCITED
             fc *= fcFac[molVibState2[mode_i], molVibState1[mode_i]]
         elseif molVibState1[mode_i] != molVibState2[mode_i]
             fc *= 0
