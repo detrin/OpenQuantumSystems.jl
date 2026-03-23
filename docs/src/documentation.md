@@ -11,6 +11,13 @@ Modules = [OpenQuantumSystems]
 Pages   = ["aggregate.jl"]
 ```
 
+## Aggregate Tools
+
+```@autodocs
+Modules = [OpenQuantumSystems]
+Pages   = ["aggregateTools.jl"]
+```
+
 ## Evolution
 
 ```@autodocs
