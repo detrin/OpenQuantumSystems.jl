@@ -326,6 +326,7 @@ export
     # corrected_memory_kernel.jl
     equilibrium_bath_state,
     zeroth_order_memory_kernel_cf,
+    first_order_memory_kernel_cf,
     site_to_exciton_kernel,
 
     # dipole.jl
