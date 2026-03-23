@@ -15,6 +15,7 @@ makedocs(
     linkcheck = !("skiplinks" in ARGS),
     pages = [
         "Home" => "index.md",
+        "Solver Guide" => "solver_guide.md",
         "Documentation" => "documentation.md",
         "Naming Conventions & Glossary" => "glossary.md",
         "Tutorials" => ["Dimer" => "tutorials/dimer.md"],
