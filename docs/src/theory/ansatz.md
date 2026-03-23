@@ -118,5 +118,5 @@ In the package: `ansatz=:upart2_sch` or `:upart2_int`.
 The constant ansatz performs similarly to Redfield equations. The L1, U1, and
 U2 ansatze do not systematically outperform Redfield for finite systems,
 though L2 with many corrections can. For best results in the weak-coupling
-regime, use the **iterative ansatz** (see [Iterative QME](@ref)) which
+regime, use the **iterative ansatz** (see [Iterative Quantum Master Equation](@ref)) which
 systematically improves the bath state.
