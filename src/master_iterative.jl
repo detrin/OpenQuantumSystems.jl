@@ -12,7 +12,9 @@ function normalize_bath(W_bath, aggCore, aggTools, aggOperators)
             a2 = indicesMap[a][end]
             b1 = indicesMap[b][1]
             b2 = indicesMap[b][end]
-            W_bath[a1:a2, b1:b2] /= W_bath_tr[a, b]
+            if abs(W_bath_tr[a, b]) >= _SAFE_DIV_TOL
+                W_bath[a1:a2, b1:b2] /= W_bath_tr[a, b]
+            end
         end
     end
     return W_bath
@@ -35,7 +37,7 @@ function W_abcd_1_bath_core(t, t1, t2, p, tmp1, tmp2)
     rho_t2 = OpenQuantumSystems.interpolate_with_tspan(rho_0_int_t_itp, tspan, t2)
     W_bath_t2 = OpenQuantumSystems.interpolate_with_tspan(W_0_bath_t_itp, tspan, t2)
     rho_t1 = OpenQuantumSystems.interpolate_with_tspan(rho_0_int_t_itp, tspan, t1)
-    rho_t1[:, :] = map(x -> abs(x) < 1e-10 ? zero(x) : 1 / x, rho_t1)
+    rho_t1[:, :] = map(_safe_inv, rho_t1)
 
     tmp1[:, :] = ad(rho_t2, W_bath_t2, aggCore, aggTools)
     tmp1[:, :] = W_bath_t2[:, :]
@@ -307,10 +309,10 @@ function W_1_markov0_bath(
         a2 = indicesMap[a][end]
         b1 = indicesMap[b][1]
         b2 = indicesMap[b][end]
-        if rho_t[a, b] == 0
+        if abs(rho_t[a, b]) < _SAFE_DIV_TOL
             tmp1[a1:a2, b1:b2] = W_1_diff[a1:a2, b1:b2]
         else
-            tmp1[a1:a2, b1:b2] = W_1_diff[a1:a2, b1:b2]  / rho_t[a, b]
+            tmp1[a1:a2, b1:b2] = W_1_diff[a1:a2, b1:b2] / rho_t[a, b]
         end
     end
     W_1_bath = deepcopy(W_bath_t) - tmp1
@@ -377,10 +379,10 @@ function W_1_markov1_bath(
         a2 = indicesMap[a][end]
         b1 = indicesMap[b][1]
         b2 = indicesMap[b][end]
-        if rho_t[a, b] == 0
+        if abs(rho_t[a, b]) < _SAFE_DIV_TOL
             tmp1[a1:a2, b1:b2] = W_1_diff[a1:a2, b1:b2]
         else
-            tmp1[a1:a2, b1:b2] = W_1_diff[a1:a2, b1:b2]  / rho_t[a, b]
+            tmp1[a1:a2, b1:b2] = W_1_diff[a1:a2, b1:b2] / rho_t[a, b]
         end
     end
     W_1_bath = deepcopy(W_bath_t) - tmp1
