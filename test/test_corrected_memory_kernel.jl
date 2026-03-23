@@ -278,6 +278,104 @@ using LinearAlgebra
         @test diff > 1e-10
     end
 
+    @testset "corrected_rates_cf — zeroth order" begin
+        mode = Mode(; omega = 200.0, hr_factor = 0.02)
+        mol1 = Molecule([mode], 3, [0.0, 12500.0])
+        mol2 = Molecule([mode], 3, [0.0, 12700.0])
+        aggCore = AggregateCore([mol1, mol2])
+        aggCore.coupling[2, 3] = 100.0
+        aggCore.coupling[3, 2] = 100.0
+
+        rates = corrected_rates_cf(aggCore;
+            T = 300.0, t_ref = 0.5, order = 0, rtol = 1e-3, atol = 1e-5)
+
+        @test size(rates) == (2, 2)
+        @test all(isfinite, rates)
+
+        for n in 1:2
+            @test abs(sum(rates[:, n])) < 1e-6
+        end
+
+        @test rates[1, 2] != 0.0
+        @test rates[2, 1] != 0.0
+    end
+
+    @testset "corrected_rates_cf — first order (monomer)" begin
+        mode = Mode(; omega = 200.0, hr_factor = 0.05)
+        mol = Molecule([mode], 2, [0.0, 12500.0])
+        aggCore = AggregateCore([mol])
+
+        rates = corrected_rates_cf(aggCore;
+            T = 300.0, t_ref = 0.05, order = 1, rtol = 1e-2, atol = 1e-4)
+
+        @test size(rates) == (1, 1)
+        @test all(isfinite, rates)
+        @test abs(rates[1, 1]) < 1e-6
+    end
+
+    @testset "corrected_rates_cf — first order differs from zeroth" begin
+        mode = Mode(; omega = 200.0, hr_factor = 0.05)
+        mol1 = Molecule([mode], 3, [0.0, 12500.0])
+        mol2 = Molecule([mode], 3, [0.0, 12700.0])
+        aggCore = AggregateCore([mol1, mol2])
+        aggCore.coupling[2, 3] = 100.0
+        aggCore.coupling[3, 2] = 100.0
+
+        r0 = corrected_rates_cf(aggCore;
+            T = 300.0, t_ref = 0.05, order = 0, rtol = 1e-3, atol = 1e-5)
+        r1 = corrected_rates_cf(aggCore;
+            T = 300.0, t_ref = 0.05, order = 1, rtol = 1e-2, atol = 1e-4)
+
+        @test size(r1) == (2, 2)
+        @test all(isfinite, r1)
+        @test maximum(abs.(r1 .- r0)) > 1e-10
+    end
+
+    @testset "corrected_qme_rdm — basic" begin
+        mode = Mode(; omega = 200.0, hr_factor = 0.02)
+        mol1 = Molecule([mode], 3, [0.0, 12500.0])
+        mol2 = Molecule([mode], 3, [0.0, 12700.0])
+        aggCore = AggregateCore([mol1, mol2])
+        aggCore.coupling[2, 3] = 100.0
+        aggCore.coupling[3, 2] = 100.0
+
+        rho0 = [1.0, 0.0]
+        tspan = collect(0.0:0.01:0.1)
+
+        t_out, pop_final, all_pops = corrected_qme_rdm(aggCore, rho0, tspan;
+            T = 300.0, t_ref = 0.05, max_iter = 2, rtol = 1e-2, atol = 1e-4)
+
+        @test length(t_out) == length(tspan)
+        @test size(pop_final) == (length(tspan), 2)
+        @test length(all_pops) == 2
+
+        @test pop_final[1, 1] ≈ 1.0 atol = 1e-10
+        @test pop_final[1, 2] ≈ 0.0 atol = 1e-10
+
+        for i in 1:length(tspan)
+            @test sum(pop_final[i, :]) ≈ 1.0 atol = 1e-6
+            @test all(pop_final[i, :] .>= 0.0)
+        end
+    end
+
+    @testset "corrected_qme_rdm — iterations differ" begin
+        mode = Mode(; omega = 200.0, hr_factor = 0.05)
+        mol1 = Molecule([mode], 3, [0.0, 12500.0])
+        mol2 = Molecule([mode], 3, [0.0, 12700.0])
+        aggCore = AggregateCore([mol1, mol2])
+        aggCore.coupling[2, 3] = 100.0
+        aggCore.coupling[3, 2] = 100.0
+
+        rho0 = [1.0, 0.0]
+        tspan = collect(0.0:0.01:0.1)
+
+        _, _, all_pops = corrected_qme_rdm(aggCore, rho0, tspan;
+            T = 300.0, t_ref = 0.05, max_iter = 2, rtol = 1e-2, atol = 1e-4)
+
+        diff = maximum(abs.(all_pops[2] .- all_pops[1]))
+        @test diff > 1e-10
+    end
+
     @testset "site_to_exciton_kernel — identity transform" begin
         M = zeros(ComplexF64, 3, 3, 3, 3)
         M[2, 2, 2, 2] = 1.0 + 0.5im

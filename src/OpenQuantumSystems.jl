@@ -327,6 +327,8 @@ export
     equilibrium_bath_state,
     zeroth_order_memory_kernel_cf,
     first_order_memory_kernel_cf,
+    corrected_rates_cf,
+    corrected_qme_rdm,
     site_to_exciton_kernel,
 
     # dipole.jl

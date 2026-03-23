@@ -225,6 +225,111 @@ function first_order_memory_kernel_cf(
     return M0 .- correction
 end
 
+function _thermal_rho_exciton(aggCore::AggregateCore, T::Real)
+    aggTools = AggregateTools(aggCore)
+    energies, _ = exciton_basis(aggCore, aggTools)
+    N = aggCore.molCount
+    elLen = N + 1
+    rho = zeros(ComplexF64, elLen, elLen)
+    rho[1, 1] = 1.0
+    boltz = [exp(-E / (BOLTZMANN_CM * T)) for E in energies]
+    Z = sum(boltz)
+    for i in 1:N
+        rho[i+1, i+1] = boltz[i] / Z
+    end
+    return rho
+end
+
+function corrected_rates_cf(
+    aggCore::AggregateCore;
+    T::Real = 300.0,
+    t_ref::Real = 1.0,
+    rho_I::Union{AbstractMatrix, Nothing} = nothing,
+    order::Int = 1,
+    rtol::Real = 1e-4,
+    atol::Real = 1e-6,
+)
+    N = aggCore.molCount
+    _rho = rho_I === nothing ? _thermal_rho_exciton(aggCore, T) : rho_I
+
+    val, _ = QuadGK.quadgk(0.0, t_ref; rtol = rtol, atol = atol) do t2
+        M = if order == 0
+            zeroth_order_memory_kernel_cf(t_ref, t2, aggCore; T = T)
+        else
+            first_order_memory_kernel_cf(t_ref, t2, aggCore, _rho;
+                T = T, rtol = rtol, atol = atol)
+        end
+        result = zeros(Float64, N, N)
+        for m in 1:N, n in 1:N
+            result[m, n] = real(M[m+1, m+1, n+1, n+1])
+        end
+        return result
+    end
+
+    rates = val
+    for n in 1:N
+        rates[n, n] = -sum(rates[m, n] for m in 1:N if m != n; init = 0.0)
+    end
+    return rates
+end
+
+function _propagate_populations(
+    rates::AbstractMatrix, rho0::AbstractVector, tspan::AbstractVector,
+)
+    N = length(rho0)
+    pop = Matrix{Float64}(undef, length(tspan), N)
+    p = collect(Float64, rho0)
+    pop[1, :] .= p
+    for i in 2:length(tspan)
+        dt = tspan[i] - tspan[i-1]
+        dp = rates * p
+        p .= p .+ dt .* dp
+        clamp!(p, 0.0, 1.0)
+        s = sum(p)
+        s > 0 && (p ./= s)
+        pop[i, :] .= p
+    end
+    return pop
+end
+
+function corrected_qme_rdm(
+    aggCore::AggregateCore,
+    rho0_exciton::AbstractVector{<:Real},
+    tspan::AbstractVector;
+    T::Real = 300.0,
+    t_ref::Real = 1.0,
+    max_iter::Int = 2,
+    rtol::Real = 1e-4,
+    atol::Real = 1e-6,
+)
+    N = aggCore.molCount
+    elLen = N + 1
+    length(rho0_exciton) == N || throw(
+        DimensionMismatch("rho0_exciton must have $N elements, got $(length(rho0_exciton))")
+    )
+
+    rho_I = _thermal_rho_exciton(aggCore, T)
+    all_pops = Matrix{Float64}[]
+
+    for iter in 0:max_iter-1
+        order = iter == 0 ? 0 : 1
+        rates = corrected_rates_cf(aggCore;
+            T = T, t_ref = t_ref, rho_I = rho_I, order = order,
+            rtol = rtol, atol = atol)
+
+        pop = _propagate_populations(rates, rho0_exciton, tspan)
+        push!(all_pops, pop)
+
+        rho_I = zeros(ComplexF64, elLen, elLen)
+        rho_I[1, 1] = 1.0
+        for i in 1:N
+            rho_I[i+1, i+1] = pop[end, i]
+        end
+    end
+
+    return collect(Float64, tspan), all_pops[end], all_pops
+end
+
 function equilibrium_bath_state(
     aggCore::AggregateCore,
     aggTools::AggregateTools,
