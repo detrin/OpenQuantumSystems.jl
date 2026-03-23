@@ -24,7 +24,8 @@ names = [
     "test_master_ansatz.jl",
     "test_master_iterative.jl",
     "test_postprocessing.jl",
-    "test_scoring.jl"
+    "test_scoring.jl",
+    "test_solve.jl"
 ]
 
 #=

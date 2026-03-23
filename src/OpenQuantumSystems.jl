@@ -290,7 +290,10 @@ export
     # scoring.jl
     get_rmse_in_time,
     compare_rho,
-    compare_rho_in_time
+    compare_rho_in_time,
+
+    # solve.jl
+    solve
 
 include("core.jl")
 include("operators_dense.jl")
@@ -316,6 +319,7 @@ include("redfield.jl")
 include("master_iterative.jl")
 include("postprocessing.jl")
 include("scoring.jl")
+include("solve.jl")
 
 end
 
