@@ -118,12 +118,9 @@ function QME_sI_iterative(
 ) where {B<:Basis,T<:Operator{B,B}}
     method ∈ (:default, :markov0, :markov1) ||
         throw(ArgumentError("method must be :default, :markov0, or :markov1, got :$method"))
-    history_fun(p, t) = T(rho0.basis_l, rho0.basis_r, zeros(ComplexF64, size(rho0.data)))
-    rho0 = trace_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
+    setup = _setup_delayed_integration(W0, tspan, agg)
+    (; rho0, history_fun, tmp1, tmp2, tspan_, x0, state, dstate) = setup
     W0_bath = get_rho_bath(W0, agg.core, agg.operators, agg.tools; vib_basis=agg.operators.vib_basis)
-
-    tmp1 = copy(W0.data)
-    tmp2 = copy(W0.data)
 
     # Calculate and interpolate rho_0_int_t, W_0_bath_t, W_1_bath_t
     if ndims(rho_0_int_t) == 1 && rho_0_int_t[1] isa Operator
@@ -176,10 +173,6 @@ function QME_sI_iterative(
         int_reltol,
         int_abstol,
     )
-    tspan_ = convert(Vector{float(eltype(tspan))}, tspan)
-    x0 = rho0.data
-    state = T(rho0.basis_l, rho0.basis_r, rho0.data)
-    dstate = T(rho0.basis_l, rho0.basis_r, rho0.data)
     tspan, rho_int_1_t = integrate_delayed(
         tspan_,
         dmaster_,
