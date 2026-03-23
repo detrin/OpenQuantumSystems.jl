@@ -141,67 +141,60 @@ export
     # molecules.jl
     Mode,
     convert_units,
-    franckCondonFactors,
-    vibrationalIndices,
-    electronicIndices,
+    franck_condon_factors,
+    vibrational_indices,
+    electronic_indices,
     Molecule,
-    updateMolecule!,
-    updateMolecule,
-    getMolStateEnergy,
-    getMolStateFC,
-    getMolShifts,
-    getMolFrequencies,
+    get_mol_state_energy,
+    get_mol_state_fc,
+    get_mol_shifts,
+    get_mol_frequencies,
 
     # aggregateCore.jl
     AggregateCore,
-    getNvib,
-    getShifts,
-    getFrequencies,
-    getAggStateEnergy,
+    get_nvib,
+    get_shifts,
+    get_frequencies,
+    get_agg_state_energy,
 
     # aggregateTools.jl
     AggregateTools,
-    vibrationalIndices,
-    electronicIndices,
-    getIndices,
-    getIndicesMap,
-    getFranckCondonFactors,
-    # getFranckCondonFactorsSparse,
-    getFCproduct,
+    get_indices,
+    get_indices_map,
+    get_franck_condon_factors,
+    get_fc_product,
     take_el_part,
 
     # aggregateOperators.jl
-    getAggHamSystemSmall,
-    getAggHamSystemBig,
-    getAggHamBathSmall,
-    getAggHamBathBig,
-    getAggHamSystemBath,
-    getAggHamInteraction,
-    getAggHamiltonian,
-    # getAggHamiltonianSparse,
+    get_agg_ham_system_small,
+    get_agg_ham_system_big,
+    get_agg_ham_bath_small,
+    get_agg_ham_bath_big,
+    get_agg_ham_system_bath,
+    get_agg_ham_interaction,
+    get_agg_hamiltonian,
     AggregateOperators,
 
     # aggregate.jl
     Aggregate,
-    setupAggregate,
-    setupAggregate!,
+    setup_aggregate,
+    setup_aggregate!,
 
     # evolution.jl
     get_tspan,
-    evolutionOperator,
-    evolutionOperatorA,
-    evolutionSuperOperator,
-    evolutionOperatorArray,
-    evolutionSuperOperatorArray,
-    evolutionOperatorIterator,
-    evolutionSuperOperatorIterator,
+    evolution_operator,
+    evolution_operator_a,
+    evolution_super_operator,
+    evolution_operator_array,
+    evolution_super_operator_array,
+    evolution_operator_iterator,
+    evolution_super_operator_iterator,
     evolutionExact,
     evolutionExact!,
     evolutionApproximate,
     evolutionApproximate!,
     evolution_exact,
     evolution_approximate,
-    evolutionOperatorExp,
     evolution_el_part,
     Evolution_SI_exact,
     Evolution_sI_exact,
@@ -219,8 +212,8 @@ export
     LvN_SS,
 
     # interaction_picture.jl
-    getInteractionHamIPicture,
-    getInteractionHamIPictureA,
+    get_interaction_ham_i_picture,
+    get_interaction_ham_i_picture_a,
 
     # master_exact.jl
     QME_SI_exact,
@@ -307,7 +300,42 @@ export
     # convenience.jl
     setup_dimer,
     setup_trimer,
-    setup_linear_chain
+    setup_linear_chain,
+
+    # deprecated_aliases.jl (backward-compatible camelCase names)
+    franckCondonFactors,
+    vibrationalIndices,
+    electronicIndices,
+    getMolStateEnergy,
+    getMolStateFC,
+    getMolShifts,
+    getMolFrequencies,
+    getNvib,
+    getShifts,
+    getFrequencies,
+    getAggStateEnergy,
+    getIndices,
+    getIndicesMap,
+    getFranckCondonFactors,
+    getFCproduct,
+    getAggHamSystemSmall,
+    getAggHamSystemBig,
+    getAggHamBathSmall,
+    getAggHamBathBig,
+    getAggHamSystemBath,
+    getAggHamInteraction,
+    getAggHamiltonian,
+    setupAggregate,
+    setupAggregate!,
+    evolutionOperator,
+    evolutionOperatorA,
+    evolutionSuperOperator,
+    evolutionOperatorArray,
+    evolutionSuperOperatorArray,
+    evolutionOperatorIterator,
+    evolutionSuperOperatorIterator,
+    getInteractionHamIPicture,
+    getInteractionHamIPictureA
 
 include("core.jl")
 include("operators_dense.jl")
@@ -336,6 +364,7 @@ include("scoring.jl")
 include("simulation_result.jl")
 include("solve.jl")
 include("convenience.jl")
+include("deprecated_aliases.jl")
 
 end
 

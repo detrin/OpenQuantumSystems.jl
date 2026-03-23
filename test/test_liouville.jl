@@ -23,7 +23,7 @@ import OrdinaryDiffEq
     aggCore = AggregateCore([mol1, mol2])
     aggCore.coupling[2, 3] = 50
     aggCore.coupling[3, 2] = 50
-    agg = setupAggregate(aggCore)
+    agg = setup_aggregate(aggCore)
     aggOperators = agg.operators
     aggTools = agg.tools
 
@@ -46,9 +46,9 @@ import OrdinaryDiffEq
     )
     for t_i = 1:length(tspan)
         t = tspan[t_i]
-        U_op = evolutionOperator(Ham, t)
+        U_op = evolution_operator(Ham, t)
         W = U_op * W0 * U_op'
-        U_0_op = evolutionOperator(Ham_0, t)
+        U_0_op = evolution_operator(Ham_0, t)
         W_int = U_0_op' * W * U_0_op
         rho_int = trace_bath(W_int, aggCore, aggOperators, aggTools)
         @test 1e-7 > D(rho_int, rho_int_t[t_i])
@@ -65,7 +65,7 @@ import OrdinaryDiffEq
     )
     for t_i = 1:length(tspan)
         t = tspan[t_i]
-        U_op = evolutionOperator(Ham, t)
+        U_op = evolution_operator(Ham, t)
         W = U_op * W0 * U_op'
         rho = trace_bath(W, aggCore, aggOperators, aggTools)
         @test 1e-7 > D(rho, rho_t[t_i])
@@ -82,9 +82,9 @@ import OrdinaryDiffEq
     )
     for t_i = 1:length(tspan)
         t = tspan[t_i]
-        U_op = evolutionOperator(Ham, t)
+        U_op = evolution_operator(Ham, t)
         W = U_op * W0 * U_op'
-        U_0_op = evolutionOperator(Ham_0, t)
+        U_0_op = evolution_operator(Ham_0, t)
         W_int = U_0_op' * W * U_0_op
         @test 1e-7 > D(W_int, W_int_t[t_i])
         # println(t_i, " ", D(W_int, W_int_t[t_i]))
@@ -100,7 +100,7 @@ import OrdinaryDiffEq
     )
     for t_i = 1:length(tspan)
         t = tspan[t_i]
-        U_op = evolutionOperator(Ham, t)
+        U_op = evolution_operator(Ham, t)
         W = U_op * W0 * U_op'
         @test 1e-7 > D(W, W_t[t_i])
         # println(t_i, " ", D(rho.data, rho_t[t_i].data))

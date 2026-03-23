@@ -20,7 +20,7 @@ function setup_dimer(;
     aggCore = AggregateCore([mol1, mol2])
     aggCore.coupling[2, 3] = J
     aggCore.coupling[3, 2] = J
-    return setupAggregate(aggCore)
+    return setup_aggregate(aggCore)
 end
 
 """
@@ -51,7 +51,7 @@ function setup_trimer(;
             aggCore.coupling[i+1, j+1] = J_matrix[i, j]
         end
     end
-    return setupAggregate(aggCore)
+    return setup_aggregate(aggCore)
 end
 
 """
@@ -81,5 +81,5 @@ function setup_linear_chain(;
         aggCore.coupling[i+1, i+2] = J_nearest
         aggCore.coupling[i+2, i+1] = J_nearest
     end
-    return setupAggregate(aggCore)
+    return setup_aggregate(aggCore)
 end

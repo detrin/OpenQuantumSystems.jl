@@ -58,15 +58,15 @@ end
     @test aggCore.coupling == [0.0 0.0 0.0; 0.0 0.0 50.0; 0.0 50.0 0.0]
     @test aggCore.molCount == 2
 
-    @test getNvib(aggCore) == [[3, 3], [3]]
-    @test getShifts(aggCore) == [[1.0, 2.0], [1.0]]
-    @test getFrequencies(aggCore) == [[0.2, 0.3], [0.2]]
+    @test get_nvib(aggCore) == [[3, 3], [3]]
+    @test get_shifts(aggCore) == [[1.0, 2.0], [1.0]]
+    @test get_frequencies(aggCore) == [[0.2, 0.3], [0.2]]
 
-    @test getAggStateEnergy(aggCore, [1, 1], [[1, 1], [1]]) == 5.35
-    @test getAggStateEnergy(aggCore, [1, 1], [[1, 2], [1]]) == 5.65
-    @test getAggStateEnergy(aggCore, [1, 1], [[2, 1], [1]]) == 5.55
-    @test getAggStateEnergy(aggCore, [1, 1], [[1, 1], [2]]) == 5.55
-    @test getAggStateEnergy(aggCore, [2, 1], [[1, 1], [1]]) == 203.35
+    @test get_agg_state_energy(aggCore, [1, 1], [[1, 1], [1]]) == 5.35
+    @test get_agg_state_energy(aggCore, [1, 1], [[1, 2], [1]]) == 5.65
+    @test get_agg_state_energy(aggCore, [1, 1], [[2, 1], [1]]) == 5.55
+    @test get_agg_state_energy(aggCore, [1, 1], [[1, 1], [2]]) == 5.55
+    @test get_agg_state_energy(aggCore, [2, 1], [[1, 1], [1]]) == 203.35
 
     @test OpenQuantumSystems.elIndOrder([1, 1, 1]) == 1
     @test OpenQuantumSystems.elIndOrder([2, 1, 1]) == 2
