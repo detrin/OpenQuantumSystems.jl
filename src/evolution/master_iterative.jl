@@ -40,7 +40,6 @@ function W_abcd_1_bath_core(t, t1, t2, p, tmp1, tmp2)
     rho_t1[:, :] = map(_safe_inv, rho_t1)
 
     tmp1[:, :] = ad(rho_t2, W_bath_t2, aggCore, aggTools)
-    tmp1[:, :] = W_bath_t2[:, :]
     tmp2[:, :] = Ham_II_t2.data * tmp1 - tmp1 * Ham_II_t2.data
     tmp1[:, :] = Ham_II_t1.data * tmp2 - tmp2 * Ham_II_t1.data
     W_1_bath[:, :] = ad(rho_t1, tmp1, aggCore, aggTools)

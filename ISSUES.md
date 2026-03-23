@@ -86,6 +86,30 @@ Currently, electronic couplings must be set manually in the coupling matrix. For
 
 ---
 
+## Bug Fixes
+
+### #86 - Fix missing rho factor in default iterative QME bath correction
+**Status:** IN PROGRESS
+**Severity:** Bug
+
+In `master_iterative.jl`, the default I ansatz (`method=:default`) had a line that overwrote the correctly computed `ad(rho_t2, W_bath_t2, ...)` with just `W_bath_t2`, dropping the ρ_{cd}(t₂) weighting required by thesis Eq. 3.28. The I.M1 and I.M2 variants were not affected (the overwrite was already commented out there).
+
+**Fix:** Removed the erroneous `tmp1[:, :] = W_bath_t2[:, :]` on line 43 of `W_abcd_1_bath_core`.
+
+---
+
+### #87 - Fix docstring labels and type parameters in memory_kernel.jl and master_exact.jl
+**Status:** IN PROGRESS
+**Severity:** Bug (minor)
+
+Two minor issues found during thesis verification:
+1. All four `MemoryKernel_*_traced` functions in `memory_kernel.jl` had the same LaTeX label `M_1` instead of `M_1`..`M_4`.
+2. `QME_sS_exact` in `master_exact.jl` declared unused type parameters `U` and `V`.
+
+**Fix:** Corrected docstring labels to `M_2`, `M_3`, `M_4` and removed unused type parameters.
+
+---
+
 ## Nice-to-Have Features
 
 ### #81 - Mixed state decomposition via linear programming
@@ -198,6 +222,8 @@ Enable data exchange with [quantarhei](https://github.com/tmancal74/quantarhei),
 | #83 | Anharmonic oscillators | Feature | Nice-to-have | BACKLOG |
 | #84 | Double excited states | Feature | Nice-to-have | BACKLOG |
 | #85 | quantarhei interoperability | Feature | Nice-to-have | BACKLOG |
+| #86 | Fix missing rho factor in iterative QME | Bug | Critical | IN PROGRESS |
+| #87 | Fix docstring labels and type params | Bug | Minor | IN PROGRESS |
 
 ## Priority Order
 
