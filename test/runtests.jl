@@ -29,7 +29,9 @@ names = [
     "test_solve.jl",
     "test_convenience.jl",
     "test_vib_basis.jl",
-    "test_dipole.jl"
+    "test_dipole.jl",
+    "test_spectral_density.jl",
+    "test_modified_redfield.jl"
 ]
 
 #=

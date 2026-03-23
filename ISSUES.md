@@ -13,7 +13,7 @@ Tracking issue: [#49](https://github.com/detrin/OpenQuantumSystems.jl/issues/49)
 ## Near-Future Features
 
 ### #78 - Implement Förster theory for excitation energy transfer rates
-**Status:** BACKLOG
+**Status:** DONE
 **Severity:** Feature (near-future roadmap)
 
 Förster theory provides excitation energy transfer (EET) rates in the weak electronic coupling regime. It is one of the two near-future items on the roadmap.
@@ -40,7 +40,7 @@ Förster theory provides excitation energy transfer (EET) rates in the weak elec
 ---
 
 ### #79 - Implement modified Redfield theory
-**Status:** BACKLOG
+**Status:** DONE
 **Severity:** Feature (near-future roadmap)
 
 Modified Redfield theory improves on standard Redfield by treating diagonal (population) fluctuations non-perturbatively, while keeping off-diagonal (coherence) elements perturbative. This gives better results for intermediate coupling regimes where standard Redfield breaks down.
@@ -69,7 +69,7 @@ Modified Redfield theory improves on standard Redfield by treating diagonal (pop
 ---
 
 ### #80 - Compute transition dipole moments from molecular coordinates
-**Status:** IN PROGRESS (on devel)
+**Status:** DONE
 **Severity:** Feature (near-future roadmap)
 
 Currently, electronic couplings must be set manually in the coupling matrix. For realistic simulations, dipole-dipole couplings should be computed automatically from molecular geometry.
@@ -190,9 +190,9 @@ Enable data exchange with [quantarhei](https://github.com/tmancal74/quantarhei),
 
 | # | Title | Category | Priority | Status |
 |---|-------|----------|----------|--------|
-| #78 | Förster theory for EET rates | Feature | Near-future | BACKLOG |
-| #79 | Modified Redfield theory | Feature | Near-future | BACKLOG |
-| #80 | Dipole moments from coordinates | Feature | Near-future | IN PROGRESS |
+| #78 | Förster theory for EET rates | Feature | Near-future | DONE |
+| #79 | Modified Redfield theory | Feature | Near-future | DONE |
+| #80 | Dipole moments from coordinates | Feature | Near-future | DONE |
 | #81 | Mixed state decomposition via LP | Feature | Nice-to-have | BACKLOG |
 | #82 | Hamiltonian loading/storage | Feature | Nice-to-have | BACKLOG |
 | #83 | Anharmonic oscillators | Feature | Nice-to-have | BACKLOG |
