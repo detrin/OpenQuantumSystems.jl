@@ -133,6 +133,20 @@ Modules = [OpenQuantumSystems]
 Pages   = ["aggregate/dipole.jl"]
 ```
 
+## Correlation Functions
+
+```@autodocs
+Modules = [OpenQuantumSystems]
+Pages   = ["evolution/correlation.jl"]
+```
+
+## Corrected Memory Kernel
+
+```@autodocs
+Modules = [OpenQuantumSystems]
+Pages   = ["evolution/corrected_memory_kernel.jl"]
+```
+
 ## Trace
 
 ```@autodocs
