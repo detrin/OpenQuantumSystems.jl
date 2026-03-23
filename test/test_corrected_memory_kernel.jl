@@ -161,6 +161,123 @@ using LinearAlgebra
         @test all(rho_diag .>= 0.0)
     end
 
+    @testset "first_order — basic properties" begin
+        mode = Mode(; omega = 200.0, hr_factor = 0.02)
+        mol1 = Molecule([mode], 3, [0.0, 12500.0])
+        mol2 = Molecule([mode], 3, [0.0, 12700.0])
+        aggCore = AggregateCore([mol1, mol2])
+        J = 100.0
+        aggCore.coupling[2, 3] = J
+        aggCore.coupling[3, 2] = J
+
+        elLen = 3
+        rho_I = zeros(ComplexF64, elLen, elLen)
+        rho_I[1, 1] = 1.0
+        rho_I[2, 2] = 0.6
+        rho_I[3, 3] = 0.4
+
+        t1, t2 = 0.05, 0.02
+        M = first_order_memory_kernel_cf(t1, t2, aggCore, rho_I;
+            T = 300.0, rtol = 1e-4, atol = 1e-6)
+
+        @test size(M) == (3, 3, 3, 3)
+        @test all(isfinite, M)
+
+        for i in 1:3
+            @test all(abs.(M[1, :, :, :]) .< 1e-12)
+            @test all(abs.(M[:, 1, :, :]) .< 1e-12)
+            @test all(abs.(M[:, :, 1, :]) .< 1e-12)
+            @test all(abs.(M[:, :, :, 1]) .< 1e-12)
+        end
+    end
+
+    @testset "first_order — hermiticity" begin
+        mode = Mode(; omega = 200.0, hr_factor = 0.02)
+        mol1 = Molecule([mode], 3, [0.0, 12500.0])
+        mol2 = Molecule([mode], 3, [0.0, 12700.0])
+        aggCore = AggregateCore([mol1, mol2])
+        aggCore.coupling[2, 3] = 100.0
+        aggCore.coupling[3, 2] = 100.0
+
+        elLen = 3
+        rho_I = zeros(ComplexF64, elLen, elLen)
+        rho_I[1, 1] = 1.0
+        rho_I[2, 2] = 0.6
+        rho_I[3, 3] = 0.4
+
+        M = first_order_memory_kernel_cf(0.05, 0.02, aggCore, rho_I;
+            T = 300.0, rtol = 1e-4, atol = 1e-6)
+        for a in 2:elLen, b in 2:elLen, c in 2:elLen, d in 2:elLen
+            @test M[a, b, c, d] ≈ conj(M[b, a, d, c]) atol = 1e-6
+        end
+    end
+
+    @testset "first_order — t2=0 recovers zeroth order" begin
+        mode = Mode(; omega = 200.0, hr_factor = 0.02)
+        mol1 = Molecule([mode], 3, [0.0, 12500.0])
+        mol2 = Molecule([mode], 3, [0.0, 12700.0])
+        aggCore = AggregateCore([mol1, mol2])
+        aggCore.coupling[2, 3] = 100.0
+        aggCore.coupling[3, 2] = 100.0
+
+        elLen = 3
+        rho_I = zeros(ComplexF64, elLen, elLen)
+        rho_I[1, 1] = 1.0
+        rho_I[2, 2] = 0.6
+        rho_I[3, 3] = 0.4
+
+        t1 = 0.1
+        M0 = zeroth_order_memory_kernel_cf(t1, 0.0, aggCore; T = 300.0)
+        M1 = first_order_memory_kernel_cf(t1, 0.0, aggCore, rho_I; T = 300.0)
+        @test M1 ≈ M0 atol = 1e-10
+    end
+
+    @testset "first_order — J=0 diagonal structure" begin
+        mode1 = Mode(; omega = 200.0, hr_factor = 0.02)
+        mode2 = Mode(; omega = 300.0, hr_factor = 0.01)
+        mol1 = Molecule([mode1], 2, [0.0, 12500.0])
+        mol2 = Molecule([mode2], 2, [0.0, 12700.0])
+        aggCore = AggregateCore([mol1, mol2])
+
+        elLen = 3
+        rho_I = zeros(ComplexF64, elLen, elLen)
+        rho_I[1, 1] = 1.0
+        rho_I[2, 2] = 0.55
+        rho_I[3, 3] = 0.45
+
+        M = first_order_memory_kernel_cf(0.05, 0.02, aggCore, rho_I;
+            T = 300.0, rtol = 1e-4, atol = 1e-6)
+
+        for a in 2:elLen, b in 2:elLen, c in 2:elLen, d in 2:elLen
+            if a != c || b != d
+                @test abs(M[a, b, c, d]) < 1e-8
+            end
+        end
+    end
+
+    @testset "first_order — differs from zeroth order" begin
+        mode = Mode(; omega = 200.0, hr_factor = 0.05)
+        mol1 = Molecule([mode], 3, [0.0, 12500.0])
+        mol2 = Molecule([mode], 3, [0.0, 12700.0])
+        aggCore = AggregateCore([mol1, mol2])
+        aggCore.coupling[2, 3] = 100.0
+        aggCore.coupling[3, 2] = 100.0
+
+        elLen = 3
+        rho_I = zeros(ComplexF64, elLen, elLen)
+        rho_I[1, 1] = 1.0
+        rho_I[2, 2] = 0.6
+        rho_I[3, 3] = 0.4
+
+        t1, t2 = 0.1, 0.05
+        M0 = zeroth_order_memory_kernel_cf(t1, t2, aggCore; T = 300.0)
+        M1 = first_order_memory_kernel_cf(t1, t2, aggCore, rho_I;
+            T = 300.0, rtol = 1e-4, atol = 1e-6)
+
+        diff = maximum(abs.(M1 .- M0))
+        @test diff > 1e-10
+    end
+
     @testset "site_to_exciton_kernel — identity transform" begin
         M = zeros(ComplexF64, 3, 3, 3, 3)
         M[2, 2, 2, 2] = 1.0 + 0.5im
