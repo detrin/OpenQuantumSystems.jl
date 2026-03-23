@@ -19,7 +19,7 @@ We use a homodimer with one vibrational mode per molecule:
 | Electronic coupling | ``J = 100`` cm⁻¹ |
 | Vibrational frequency | ``\omega = 200`` cm⁻¹ |
 | Temperature | ``T = 300`` K |
-| Huang-Rhys factor | varied: ``S = 0.01, 0.05, 0.1, 0.5`` |
+| Huang-Rhys factor | varied: ``S = 0.01, 0.05, 0.1`` |
 
 The Huang-Rhys factor ``S`` controls the system-bath coupling strength.
 Small ``S`` (weak coupling) favours Redfield-type approaches, while larger
@@ -217,38 +217,77 @@ t_out, pop_corr, all_iters = corrected_qme_rdm(aggCore, [1.0, 0.0], tspan;
 the cost of full QME. Especially useful when the bath is infinite (spectral
 density representation) and the RBP cannot be stored explicitly.
 
-## Comparing Results
+## Results
 
-Below is a summary of how the methods compare for the standard dimer at
-different coupling strengths:
+All simulations start from the **upper exciton eigenstate** ``|\psi_2\rangle``,
+which ensures all methods agree on the initial condition ``\rho_{22}^{\mathrm{exc}}(0) = 1``.
+For the exact evolution, the full system+bath initial state is
+``|\psi_2\rangle\langle\psi_2| \otimes \rho_{\mathrm{bath}}^{\mathrm{eq}}``.
 
 ### Weak coupling (``S = 0.01``)
 
-All methods agree well. Redfield and the zeroth-order corrected kernel give
-nearly identical results. Förster theory also works because the coupling is
-weak. The first-order correction provides a small but measurable improvement
-over zeroth order.
+![Comparison S=0.01](../assets/comparison_S0p01.png)
+
+At weak coupling the upper exciton is nearly stationary — there is very little
+population transfer. All methods agree that the population remains close to 1.
+The exact solution shows tiny oscillations from coherent beating. Förster
+shows slight spurious decay from the site-basis rate transformation.
 
 ### Moderate coupling (``S = 0.05``)
 
-Standard Redfield remains reasonable but shows small deviations from the
-exact result. Modified Redfield and the first-order corrected kernel both
-improve on this. The QME ansatz (`:const_sch`) is comparable to Redfield.
-Förster theory starts to deviate as coherent effects become relevant.
+![Comparison S=0.05](../assets/comparison_S0p05.png)
+
+At ``S = 0.05`` the dynamics become more interesting:
+- The **exact** evolution shows slow relaxation with coherent oscillations,
+  remaining near ``\rho_{22} \approx 0.95`` over the simulation window
+- **Modified Redfield** overestimates the decay rate, relaxing to ~0.5
+- **Förster** also decays too fast, reaching ~0.6
+- The **corrected kernel (0th order)** produces no transfer — the
+  zeroth-order rates are too small
+- The **corrected kernel (1st order)** overcorrects and decays unphysically fast
 
 ### Intermediate coupling (``S = 0.1``)
 
-Standard Redfield begins to break down — populations can become slightly
-negative or overshoot physical bounds. Modified Redfield handles this regime
-well. The corrected memory kernel with first-order correction provides a
-systematic improvement. Förster theory is unreliable here.
+![Comparison S=0.1](../assets/comparison_S0p1.png)
 
-### Strong coupling (``S = 0.5``)
+At ``S = 0.1``:
+- The **exact** solution shows damped oscillations relaxing to ~0.75
+- **Förster** captures the early relaxation well but settles to ~0.57
+  (close to the thermal equilibrium value)
+- **Modified Redfield** and **corrected (0th)** both show no significant transfer
+- **Corrected (1st)** again overshoots
 
-Only exact evolution and the iterative QME methods are reliable. Redfield
-fails qualitatively. Modified Redfield still captures the general trend but
-misses fine structure. The corrected memory kernel improvement is modest
-because the perturbative expansion converges slowly for strong coupling.
+### Discussion
+
+The comparison reveals several important points:
+
+1. **Rate-based methods only capture the envelope.** Methods that compute
+   population transfer rates (modified Redfield, Förster, corrected kernel)
+   solve ``d\mathbf{p}/dt = R\mathbf{p}`` and cannot reproduce the coherent
+   oscillations visible in the exact solution.
+
+2. **Förster theory works surprisingly well** for the relaxation timescale
+   at moderate-to-intermediate coupling, though it predicts too much transfer
+   (it doesn't account for the exciton delocalization that protects population).
+
+3. **The corrected memory kernel** is a perturbative correction. The zeroth-order
+   rates are very small for this system (the exciton eigenstates are nearly
+   stationary in the zeroth-order picture). The first-order correction overshoots,
+   which is typical of perturbative expansions at the boundary of their validity.
+   The `t_ref` parameter (here 0.1) controls the rate extraction timescale —
+   tuning it affects the rates significantly.
+
+4. **Modified Redfield** overestimates rates here because the system is in an
+   intermediate regime where the perturbative treatment of off-diagonal
+   fluctuations is not fully converged.
+
+!!! note "Redfield and QME Ansatz"
+    The `QME_sI_Redfield` and `QME_sI_ansatz` solvers use delayed
+    differential equations (DDE) and produce full coherent dynamics in the
+    interaction picture. They are shown in the code examples but were
+    omitted from the plots due to a type compatibility issue in the current
+    DDE integration stack. These solvers work correctly when called from
+    the main project environment (see the [Dimer examples](@ref) tutorial).
 
 ## Full Comparison Script
 
