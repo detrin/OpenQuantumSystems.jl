@@ -58,5 +58,6 @@ tspan = get_tspan(0.0, 0.5, 500)
 result = solve(W0, tspan, agg; method=:qme_ansatz)
 ```
 
-See the [Solver Selection Guide](@ref) for choosing the right solver, and the
+See the [Hamiltonian & Bath Model](@ref) for the underlying theory, the
+[Solver Selection Guide](@ref) for choosing the right solver, and the
 [Dimer examples](@ref) tutorial for worked examples.
