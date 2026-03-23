@@ -36,7 +36,7 @@ We are the repo owners — no fork needed. Work directly on `detrin/OpenQuantumS
 2. One commit per logical change: `#NNN Short description`
 3. Test locally before pushing — never push a known red state
 4. Push branch and open PR against `master`
-5. Link issues in PR body with `Closes #NNN`
+5. Reference issues in PR body with `Addresses #NNN` — **never use `Closes #NNN`**
 6. Document findings in the relevant GitHub issues before and after fixing
 
 ---
@@ -101,7 +101,8 @@ Issues #50–#58 were resolved in v0.3.0 (PR #59). Remaining debt:
 - Keep PRs focused — one concern per PR
 - Update the tracking issue (#49) when new issues or PRs are opened
 - Check off items in #49 only after the PR is merged into `master`
-- **Never close an issue until its PR is merged**
+- **Never close an issue until its PR is merged** — issues are closed manually after merge, not via `Closes` keywords
+- Use `Addresses #NNN` in PR bodies instead of `Closes #NNN`
 
 ---
 
