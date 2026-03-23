@@ -3,7 +3,7 @@
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'G-F12F2Y92VY', {'page_path': location.pathname + location.search + location.hash});
-</script><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">OpenQuantumSystems.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../documentation/">Documentation</a></li><li><span class="tocitem">Tutorials</span><ul><li class="is-active"><a class="tocitem" href>Dimer</a><ul class="internal"><li><a class="tocitem" href="#Simple-example"><span>Simple example</span></a></li><li><a class="tocitem" href="#Local-vs-exciton-basis"><span>Local vs exciton basis</span></a></li><li><a class="tocitem" href="#Animating-density-matrix"><span>Animating density matrix</span></a></li></ul></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Dimer</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Dimer</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/detrin/OpenQuantumSystems.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/detrin/OpenQuantumSystems.jl/blob/master/docs/src/tutorials/dimer.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Dimer-examples"><a class="docs-heading-anchor" href="#Dimer-examples">Dimer examples</a><a id="Dimer-examples-1"></a><a class="docs-heading-anchor-permalink" href="#Dimer-examples" title="Permalink"></a></h1><h2 id="Simple-example"><a class="docs-heading-anchor" href="#Simple-example">Simple example</a><a id="Simple-example-1"></a><a class="docs-heading-anchor-permalink" href="#Simple-example" title="Permalink"></a></h2><p>Running the basics dimer with ultra-fast laser excitation.</p><pre><code class="language-julia hljs">using Plots
+</script><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">OpenQuantumSystems.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Theory</span><ul><li><a class="tocitem" href="../../theory/hamiltonian/">Hamiltonian &amp; Bath Model</a></li><li><a class="tocitem" href="../../theory/qme/">Quantum Master Equation</a></li><li><a class="tocitem" href="../../theory/redfield/">Redfield Equations</a></li><li><a class="tocitem" href="../../theory/ansatz/">Bath State Ansatze</a></li><li><a class="tocitem" href="../../theory/iterative/">Iterative QME</a></li><li><a class="tocitem" href="../../theory/memory_kernel/">Corrected Memory Kernel</a></li></ul></li><li><a class="tocitem" href="../../solver_guide/">Solver Guide</a></li><li><a class="tocitem" href="../../documentation/">API Reference</a></li><li><a class="tocitem" href="../../glossary/">Naming Conventions &amp; Glossary</a></li><li><span class="tocitem">Tutorials</span><ul><li class="is-active"><a class="tocitem" href>Dimer</a><ul class="internal"><li><a class="tocitem" href="#Simple-example"><span>Simple example</span></a></li><li><a class="tocitem" href="#Local-vs-exciton-basis"><span>Local vs exciton basis</span></a></li><li><a class="tocitem" href="#Animating-density-matrix"><span>Animating density matrix</span></a></li></ul></li><li><a class="tocitem" href="../forster/">Förster Theory &amp; Dipole Couplings</a></li><li><a class="tocitem" href="../comparison/">Comparing Simulation Methods</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Dimer</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Dimer</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/detrin/OpenQuantumSystems.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/detrin/OpenQuantumSystems.jl/blob/master/docs/src/tutorials/dimer.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Dimer-examples"><a class="docs-heading-anchor" href="#Dimer-examples">Dimer examples</a><a id="Dimer-examples-1"></a><a class="docs-heading-anchor-permalink" href="#Dimer-examples" title="Permalink"></a></h1><h2 id="Simple-example"><a class="docs-heading-anchor" href="#Simple-example">Simple example</a><a id="Simple-example-1"></a><a class="docs-heading-anchor-permalink" href="#Simple-example" title="Permalink"></a></h2><p>Running the basics dimer with ultra-fast laser excitation.</p><pre><code class="language-julia hljs">using Plots
 using LaTeXStrings
 using OpenQuantumSystems
 
@@ -15,27 +15,28 @@ mols = [
     Molecule([mode], 5, [12500., 12800.])
 ]
 
-agg = Aggregate(mols)
+aggCore = AggregateCore(mols)
 # 1 is for el. ground state
-agg.coupling[2, 3] = 100
-agg.coupling[3, 2] = 100
+aggCore.coupling[2, 3] = 100
+aggCore.coupling[3, 2] = 100
 
-aggInds, vibindices, aggIndLen, basis, FCFact, FCProd, Ham, Ham_0, Ham_I = 
-    setupAggregate(agg; verbose=false)
+agg = setup_aggregate(aggCore)
+Ham = agg.operators.Ham
 
 T = 100 # temperature
-W0 = thermal_state_composite(T, [0.0, 0.5, 0.5], Ham, aggInds) # laser excitation
+W0 = thermal_state_composite(T, [0.0, 0.5, 0.5], agg) # laser excitation
 t_max = 0.2
 t_count = 250
 tspan=[0.0:t_max/t_count:t_max;]
 tspan, W_t = evolution_approximate(W0, tspan, Ham)
-rho_tr_t = zeros(ComplexF64, length(tspan), 2, 2)
+elLen = aggCore.molCount + 1
+rho_tr_t = zeros(ComplexF64, length(tspan), elLen, elLen)
 for t_i in 1:length(tspan)
-    rho_tr_t[t_i, :, :] = trace_bath(W_t[t_i].data, agg, FCProd, aggInds, vibindices)
+    rho_tr_t[t_i, :, :] = trace_bath(W_t[t_i].data, agg)
 end
 
-plot(tspan, real(rho_tr_t[:, 1, 1]), label=L&quot;\rho_{11}&quot;)
-plot!(tspan, real(rho_tr_t[:, 2, 2]), label=L&quot;\rho_{22}&quot;, 
+plot(tspan, real(rho_tr_t[:, 2, 2]), label=L&quot;\rho_{11}&quot;)
+plot!(tspan, real(rho_tr_t[:, 3, 3]), label=L&quot;\rho_{22}&quot;,
     ylim=(0.0,1.0), ylabel=L&quot;\rho_{nn}&quot;, xlabel=L&quot;t\:\:\mathrm{(a.u.)}&quot;)</code></pre><p><img src="../../assets/dimer_simple.png" alt="dimer simple"/></p><h2 id="Local-vs-exciton-basis"><a class="docs-heading-anchor" href="#Local-vs-exciton-basis">Local vs exciton basis</a><a id="Local-vs-exciton-basis-1"></a><a class="docs-heading-anchor-permalink" href="#Local-vs-exciton-basis" title="Permalink"></a></h2><p>Running the basics dimer with ultra-fast laser excitation.</p><pre><code class="language-julia hljs">using ProgressMeter
 using Plots
 using LaTeXStrings
@@ -49,119 +50,117 @@ mols = [
     Molecule([mode], 5, [12500., 12800.])
 ]
 
-agg = Aggregate(mols)
+aggCore = AggregateCore(mols)
 # 1 is for el. ground state
-agg.coupling[2, 3] = 100
-agg.coupling[3, 2] = 100
+aggCore.coupling[2, 3] = 100
+aggCore.coupling[3, 2] = 100
 
-aggInds, vibindices, aggIndLen, basis, FCFact, FCProd, Ham, Ham_0, Ham_I = 
-    setupAggregate(agg; verbose=false)
+agg = setup_aggregate(aggCore)
+Ham = agg.operators.Ham
 
-Ham_sys = getAggHamiltonianSystem(agg; groundState = false)
+Ham_sys = agg.operators.Ham_sys
 Ham_sys_lambda, Ham_sys_S = eigen(Ham_sys.data)
 Ham_sys_Sinv = inv(Ham_sys_S)
 Ham_sys_lambda = diagm(Ham_sys_lambda)
 
 T = 100 # temperature
-W0 = thermal_state_composite(T, [0.0, 0.5, 0.5], Ham, aggInds) # laser excitation
+W0 = thermal_state_composite(T, [0.0, 0.5, 0.5], agg) # laser excitation
 
 t_max = 0.2
 t_count = 500
-tspan=[0.0:t_max/t_count:t_max;]</code></pre><p>Calculating dynamics in local basis.</p><pre><code class="language-julia hljs">rho_tr_t = zeros(ComplexF64, length(tspan), 2, 2)
-t_i = 0
+tspan=[0.0:t_max/t_count:t_max;]</code></pre><p>Calculating dynamics in local basis.</p><pre><code class="language-julia hljs">elLen = aggCore.molCount + 1
+rho_tr_t = zeros(ComplexF64, length(tspan), elLen, elLen)
 t_step = tspan[2] - tspan[1]
-U_op_step = evolutionOperator(Ham, t_step)
+U_op_step = evolution_operator(Ham, t_step)
 U_op_step_d = U_op_step&#39;
 W = deepcopy(W0)
 p = Progress(t_count, barglyphs=BarGlyphs(&quot;[=&gt; ]&quot;), barlen=50)
 for t_i in 1:length(tspan)
-    rho_traced = trace_bath(W.data, agg, FCProd, aggInds, vibindices; groundState=false)
+    rho_traced = trace_bath(W.data, agg)
     rho_tr_t[t_i, :, :] = rho_traced
     W = U_op_step * W * U_op_step_d
     ProgressMeter.next!(p)
 end
 
-plot(tspan, real(rho_tr_t[:, 1, 1]), label=L&quot;\rho_{11}&quot;)
-plot!(tspan, real(rho_tr_t[:, 2, 2]), label=L&quot;\rho_{22}&quot;, 
-    ylim=(0.0,1.0), ylabel=L&quot;\rho_{nn}&quot;, xlabel=L&quot;t\:\:\mathrm{(a.u.)}&quot;)</code></pre><p><img src="../../assets/dimer_local.png" alt="dimer simple"/></p><p>Calculating dynamics in exciton basis.</p><pre><code class="language-julia hljs">rho_tr_t = zeros(ComplexF64, length(tspan), 2, 2)
-t_i = 0
+plot(tspan, real(rho_tr_t[:, 2, 2]), label=L&quot;\rho_{11}&quot;)
+plot!(tspan, real(rho_tr_t[:, 3, 3]), label=L&quot;\rho_{22}&quot;,
+    ylim=(0.0,1.0), ylabel=L&quot;\rho_{nn}&quot;, xlabel=L&quot;t\:\:\mathrm{(a.u.)}&quot;)</code></pre><p><img src="../../assets/dimer_local.png" alt="dimer simple"/></p><p>Calculating dynamics in exciton basis.</p><pre><code class="language-julia hljs">elLen = aggCore.molCount + 1
+rho_tr_t = zeros(ComplexF64, length(tspan), elLen, elLen)
 t_step = tspan[2] - tspan[1]
-U_op_step = evolutionOperator(Ham, t_step)
+U_op_step = evolution_operator(Ham, t_step)
 U_op_step_d = U_op_step&#39;
 W = deepcopy(W0)
 p = Progress(t_count, barglyphs=BarGlyphs(&quot;[=&gt; ]&quot;), barlen=50)
 for t_i in 1:length(tspan)
-    rho_traced = trace_bath(W.data, agg, FCProd, aggInds, vibindices; groundState=false)
-    rho_traced = Ham_sys_Sinv * rho_traced * Ham_sys_S
-    rho_tr_t[t_i, :, :] = rho_traced
+    rho_traced = trace_bath(W.data, agg)
+    rho_traced_exc = Ham_sys_Sinv * rho_traced * Ham_sys_S
+    rho_tr_t[t_i, :, :] = rho_traced_exc
     W = U_op_step * W * U_op_step_d
     ProgressMeter.next!(p)
 end
 
-plot(tspan, real(rho_tr_t[:, 1, 1]), label=L&quot;\rho_{11}&quot;)
-plot!(tspan, real(rho_tr_t[:, 2, 2]), label=L&quot;\rho_{22}&quot;, 
-    ylim=(0.0,1.0), ylabel=L&quot;\rho_{nn}&quot;, xlabel=L&quot;t\:\:\mathrm{(a.u.)}&quot;)</code></pre><p><img src="../../assets/dimer_exc.png" alt="dimer simple"/></p><h2 id="Animating-density-matrix"><a class="docs-heading-anchor" href="#Animating-density-matrix">Animating density matrix</a><a id="Animating-density-matrix-1"></a><a class="docs-heading-anchor-permalink" href="#Animating-density-matrix" title="Permalink"></a></h2><p>Plotting the diagonal of bath part of density matrix.</p><pre><code class="language-julia hljs">W_bath_t = zeros(ComplexF64, length(tspan), aggIndLen, aggIndLen)
-t_i = 0
+plot(tspan, real(rho_tr_t[:, 2, 2]), label=L&quot;\rho_{11}&quot;)
+plot!(tspan, real(rho_tr_t[:, 3, 3]), label=L&quot;\rho_{22}&quot;,
+    ylim=(0.0,1.0), ylabel=L&quot;\rho_{nn}&quot;, xlabel=L&quot;t\:\:\mathrm{(a.u.)}&quot;)</code></pre><p><img src="../../assets/dimer_exc.png" alt="dimer simple"/></p><h2 id="Animating-density-matrix"><a class="docs-heading-anchor" href="#Animating-density-matrix">Animating density matrix</a><a id="Animating-density-matrix-1"></a><a class="docs-heading-anchor-permalink" href="#Animating-density-matrix" title="Permalink"></a></h2><p>Plotting the diagonal of bath part of density matrix.</p><pre><code class="language-julia hljs">bSize = agg.tools.bSize
+indicesMap = agg.tools.indicesMap
+W_bath_t = zeros(ComplexF64, length(tspan), bSize, bSize)
 t_step = tspan[2] - tspan[1]
-U_op_step = evolutionOperator(Ham, t_step)
+U_op_step = evolution_operator(Ham, t_step)
 U_op_step_d = U_op_step&#39;
 W = deepcopy(W0)
 p = Progress(t_count, barglyphs=BarGlyphs(&quot;[=&gt; ]&quot;), barlen=50)
 for t_i in 1:length(tspan)
-    W_bath = get_rho_bath(W.data, agg, FCProd, aggInds, vibindices; 
-        groundState = false, justCopy=false)
+    W_bath = get_rho_bath(W.data, agg.core, agg.operators, agg.tools)
     W_bath_t[t_i, :, :] = W_bath
     W = U_op_step * W * U_op_step_d
     ProgressMeter.next!(p)
 end
 
 plot(tspan, real(W_bath_t[:, 1, 1]), label=L&quot;\rho_{\mathrm{B,}11}&quot;)
-println(aggIndLen)
-for i in 2:(length(vibindices[2]) - 1)
+for i in 2:(length(indicesMap[2]) - 1)
     plot!(tspan, real(W_bath_t[:, i, i]), label=L&quot;\rho_{\mathrm{B,}%$i%$i}&quot;)
 end
-i = length(vibindices[2])
-plot!(tspan, real(W_bath_t[:, i, i]), 
-    label=L&quot;\rho_{\mathrm{B,}%$i%$i}&quot;, ylim=(0.0,1.0), ylabel=L&quot;\rho_{nn}&quot;, 
+i = length(indicesMap[2])
+plot!(tspan, real(W_bath_t[:, i, i]),
+    label=L&quot;\rho_{\mathrm{B,}%$i%$i}&quot;, ylim=(0.0,1.0), ylabel=L&quot;\rho_{nn}&quot;,
     xlabel=L&quot;t\:\:\mathrm{(a.u.)}&quot;)</code></pre><p><img src="../../assets/dimer_bath_lineplot.png" alt="dimer simple"/></p><pre><code class="language-julia hljs">p = Progress(t_count, barglyphs=BarGlyphs(&quot;[=&gt; ]&quot;), barlen=50)
 anim = @animate for i = 1:length(tspan)
-    h_re = heatmap(real(rho_bath_t[i, :, :]), 
+    h_re = heatmap(real(W_bath_t[i, :, :]),
         aspect_ratio=:equal, title=&quot;Re &quot; * lpad(i, 4, &quot;0&quot;), c=:magma, clim=(-1.0,1.0))
-    h_im = heatmap(imag(rho_bath_t[i, :, :]), 
+    h_im = heatmap(imag(W_bath_t[i, :, :]),
         aspect_ratio=:equal, title=&quot;Im&quot; * lpad(i, 4, &quot;0&quot;), c=:magma, clim=(-1.0,1.0))
     ProgressMeter.next!(p)
     plot(h_re, h_im, layout = (1, 2), legend = false, axis = nothing)
 end
- 
-gif(anim, fps = 30)</code></pre><p><img src="../../assets/dimer_bath_part.gif" alt="dimer simple"/></p><p>Plotting the diagonal of density matrix.</p><pre><code class="language-julia hljs">W_t = zeros(ComplexF64, length(tspan), aggIndLen, aggIndLen)
-t_i = 0
+
+gif(anim, fps = 30)</code></pre><p><img src="../../assets/dimer_bath_part.gif" alt="dimer simple"/></p><p>Plotting the diagonal of density matrix.</p><pre><code class="language-julia hljs">bSize = agg.tools.bSize
+W_full_t = zeros(ComplexF64, length(tspan), bSize, bSize)
 t_step = tspan[2] - tspan[1]
-U_op_step = evolutionOperator(Ham, t_step)
+U_op_step = evolution_operator(Ham, t_step)
 U_op_step_d = U_op_step&#39;
 W = deepcopy(W0)
 p = Progress(t_count, barglyphs=BarGlyphs(&quot;[=&gt; ]&quot;), barlen=50)
 for t_i in 1:length(tspan)
-    W_t[t_i, :, :] = W.data
+    W_full_t[t_i, :, :] = W.data
     W = U_op_step * W * U_op_step_d
     ProgressMeter.next!(p)
 end
 
-plot(tspan, real(W_t[:, 1, 1]), label=L&quot;\rho_{\mathrm{B,}11}&quot;)
-println(aggIndLen)
-for i in 2:(length(vibindices[2]) - 1)
-    plot!(tspan, real(W_t[:, i, i]), label=L&quot;\rho_{\mathrm{B,}%$i%$i}&quot;)
+plot(tspan, real(W_full_t[:, 1, 1]), label=L&quot;\rho_{\mathrm{B,}11}&quot;)
+for i in 2:(length(indicesMap[2]) - 1)
+    plot!(tspan, real(W_full_t[:, i, i]), label=L&quot;\rho_{\mathrm{B,}%$i%$i}&quot;)
 end
-i = length(vibindices[2])
-plot!(tspan, real(W_t[:, i, i]), 
-    label=L&quot;\rho_{\mathrm{B,}%$i%$i}&quot;, ylim=(0.0,1.0), ylabel=L&quot;\rho_{nn}&quot;, 
+i = length(indicesMap[2])
+plot!(tspan, real(W_full_t[:, i, i]),
+    label=L&quot;\rho_{\mathrm{B,}%$i%$i}&quot;, ylim=(0.0,1.0), ylabel=L&quot;\rho_{nn}&quot;,
     xlabel=L&quot;t\:\:\mathrm{(a.u.)}&quot;)</code></pre><p><img src="../../assets/dimer_lineplot.png" alt="dimer simple"/></p><pre><code class="language-julia hljs">p = Progress(t_count, barglyphs=BarGlyphs(&quot;[=&gt; ]&quot;), barlen=50)
 anim = @animate for i = 1:length(tspan)
-    h_re = heatmap(real(W_t[i, :, :]), 
+    h_re = heatmap(real(W_full_t[i, :, :]),
         aspect_ratio=:equal, title=&quot;Re &quot; * lpad(i, 4, &quot;0&quot;), c=:magma, clim=(-1.0,1.0))
-    h_im = heatmap(imag(W_t[i, :, :]), 
+    h_im = heatmap(imag(W_full_t[i, :, :]),
         aspect_ratio=:equal, title=&quot;Im&quot; * lpad(i, 4, &quot;0&quot;), c=:magma, clim=(-1.0,1.0))
     ProgressMeter.next!(p)
     plot(h_re, h_im, layout = (1, 2), legend = false, axis = nothing)
 end
- 
-gif(anim, fps = 30)</code></pre><p><img src="../../assets/dimer.gif" alt="dimer simple"/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../documentation/">« Documentation</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Monday 23 March 2026 12:44">Monday 23 March 2026</span>. Using Julia version 1.12.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+
+gif(anim, fps = 30)</code></pre><p><img src="../../assets/dimer.gif" alt="dimer simple"/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../glossary/">« Naming Conventions &amp; Glossary</a><a class="docs-footer-nextpage" href="../forster/">Förster Theory &amp; Dipole Couplings »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Monday 23 March 2026 22:57">Monday 23 March 2026</span>. Using Julia version 1.12.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
