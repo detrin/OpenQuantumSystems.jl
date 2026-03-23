@@ -51,14 +51,8 @@ What is OpenQuantumSystems.jl capable of right now (v0.5.0)?
 - Convenience constructors for common systems (dimer, trimer, linear chain).
 - Solver selection guide and API glossary in documentation.
 
-What can we expect in the near future?
-- Calculation of dipole moments for molecules given coordinates.
-- Implementation of Förster and modified Redfield theories of excitation energy transfer.
-
 What would be nice to have?
-- Decomposition of mixed states into a linear combination of pure states using linear programming.
 - Loading Hamiltonian and data storage for aggregate.
-- GPU support for Schrödinger equation and possibly state decomposition.
 - Anharmonic oscillators.
 - Double excited states.
 - Interface with quantarhei, or creating an interface in quantarhei package.

@@ -15,10 +15,22 @@ makedocs(
     linkcheck = !("skiplinks" in ARGS),
     pages = [
         "Home" => "index.md",
+        "Theory" => [
+            "Hamiltonian & Bath Model" => "theory/hamiltonian.md",
+            "Quantum Master Equation" => "theory/qme.md",
+            "Redfield Equations" => "theory/redfield.md",
+            "Bath State Ansatze" => "theory/ansatz.md",
+            "Iterative QME" => "theory/iterative.md",
+            "Corrected Memory Kernel" => "theory/memory_kernel.md",
+        ],
         "Solver Guide" => "solver_guide.md",
-        "Documentation" => "documentation.md",
+        "API Reference" => "documentation.md",
         "Naming Conventions & Glossary" => "glossary.md",
-        "Tutorials" => ["Dimer" => "tutorials/dimer.md"],
+        "Tutorials" => [
+            "Dimer" => "tutorials/dimer.md",
+            "Förster Theory & Dipole Couplings" => "tutorials/forster.md",
+            "Comparing Simulation Methods" => "tutorials/comparison.md",
+        ],
     ],
 )
 

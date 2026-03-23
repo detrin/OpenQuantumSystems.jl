@@ -130,7 +130,7 @@ function QME_sS_exact(
     alg::Any = DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()),
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
-) where {B<:Basis,T<:Operator{B,B},U<:Operator{B,B},V<:Operator{B,B}}
+) where {B<:Basis,T<:Operator{B,B}}
     setup = _setup_delayed_integration(W0, tspan, agg)
     (; history_fun, tmp1, tmp2, tspan_, x0, state, dstate) = setup
     p = (aggCore=agg.core, aggTools=agg.tools, aggOperators=agg.operators, W0=W0, elementtype=eltype(W0))
