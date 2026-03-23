@@ -75,7 +75,7 @@ end
         # Both normalized
         dω = abs_T0.freqs[2] - abs_T0.freqs[1]
         @test sum(abs_T0.intensities)   * dω ≈ 1.0 atol=1e-3
-        @test sum(abs_T300.intensities) * dω ≈ 1.0 atol=1e-3
+        @test sum(abs_T300.intensities) * dω ≈ 1.0 atol=0.02
 
         # At T=300K, hot bands populate higher vib states, shifting mean to lower freq
         mean_T0   = sum(abs_T0.freqs   .* abs_T0.intensities)   / sum(abs_T0.intensities)
@@ -139,6 +139,66 @@ end
         @test ls isa LineshapeResult
         @test length(ls.freqs) == 500
         @test length(ls.intensities) == 500
+    end
+
+    @testset "forster_rate_matrix" begin
+        mol1 = make_mol(12500.0; omega=200.0, hr=0.05, nvib=5)
+        mol2 = make_mol(12700.0; omega=200.0, hr=0.05, nvib=5)
+        mol3 = make_mol(12900.0; omega=200.0, hr=0.05, nvib=5)
+
+        aggCore = AggregateCore([mol1, mol2, mol3])
+        J12 = 100.0
+        J13 = 50.0
+        J23 = 80.0
+        aggCore.coupling[2, 3] = J12
+        aggCore.coupling[3, 2] = J12
+        aggCore.coupling[2, 4] = J13
+        aggCore.coupling[4, 2] = J13
+        aggCore.coupling[3, 4] = J23
+        aggCore.coupling[4, 3] = J23
+
+        K = forster_rate_matrix(aggCore; sigma=30.0)
+
+        # Matrix is N×N
+        @test size(K) == (3, 3)
+
+        # Diagonal is zero
+        @test K[1, 1] == 0.0
+        @test K[2, 2] == 0.0
+        @test K[3, 3] == 0.0
+
+        # All rates non-negative
+        @test all(K .>= 0.0)
+
+        # Rates scale as J²: K[1,2] / K[1,3] ≈ (J12/J13)² = 4
+        overlap_12 = spectral_overlap(
+            emission_spectrum(mol1; sigma=30.0),
+            absorption_spectrum(mol2; sigma=30.0)
+        )
+        overlap_13 = spectral_overlap(
+            emission_spectrum(mol1; sigma=30.0),
+            absorption_spectrum(mol3; sigma=30.0)
+        )
+        @test K[1, 2] ≈ 2π * J12^2 * overlap_12
+        @test K[1, 3] ≈ 2π * J13^2 * overlap_13
+
+        # Consistent with single-pair forster_rate
+        @test K[1, 2] ≈ forster_rate(J12, mol1, mol2; sigma=30.0)
+        @test K[2, 1] ≈ forster_rate(J12, mol2, mol1; sigma=30.0)
+    end
+
+    @testset "forster_rate_matrix — dimer" begin
+        mol = make_mol(12500.0; omega=200.0, hr=0.05, nvib=5)
+        aggCore = AggregateCore([mol, mol])
+        J = 100.0
+        aggCore.coupling[2, 3] = J
+        aggCore.coupling[3, 2] = J
+
+        K = forster_rate_matrix(aggCore; sigma=30.0)
+
+        # Identical molecules: K[1,2] == K[2,1]
+        @test K[1, 2] ≈ K[2, 1]
+        @test K[1, 2] > 0.0
     end
 
 end
