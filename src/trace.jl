@@ -62,26 +62,20 @@ function trace_bath(
     aggCore::AggregateCore,
     aggOperators::AggregateOperators,
     aggTools::AggregateTools;
-    vib_basis::Symbol=:none
-) 
-    if vib_basis == :none
-        vib_basis = aggOperators.vib_basis
-    end
-
-    if vib_basis == :ground_excited
-        return trace_bath_ground_excited(W, aggCore, aggTools)
-    elseif vib_basis == :ground_ground
-        return trace_bath_ground_ground(W, aggCore, aggTools)
-    else
-        throw(ArgumentError("vib_basis must be :ground_excited or :ground_ground, got :$vib_basis"))
-    end
+    vib_basis::VibBasisLike=:none
+)
+    vb = vib_basis === :none ? aggOperators.vib_basis : _to_vib_basis(vib_basis)
+    return _trace_bath_dispatch(W, aggCore, aggTools, vb)
 end
+
+_trace_bath_dispatch(W, aggCore, aggTools, ::GroundExcited) = trace_bath_ground_excited(W, aggCore, aggTools)
+_trace_bath_dispatch(W, aggCore, aggTools, ::GroundGround) = trace_bath_ground_ground(W, aggCore, aggTools)
 
 function trace_bath(
     W::AbstractMatrix,
     agg::Aggregate;
-    vib_basis::Symbol=:none
-) 
+    vib_basis::VibBasisLike=:none
+)
     aggCore = agg.core
     aggOperators = agg.operators
     aggTools = agg.tools
@@ -93,8 +87,8 @@ function trace_bath(
     aggCore::AggregateCore,
     aggOperators::AggregateOperators,
     aggTools::AggregateTools;
-    vib_basis::Symbol=:none
-) 
+    vib_basis::VibBasisLike=:none
+)
     rho = trace_bath(W.data, aggCore, aggOperators, aggTools; vib_basis=vib_basis)
     return DenseOperator(aggTools.basisSystem, aggTools.basisSystem, rho)
 end
@@ -102,8 +96,8 @@ end
 function trace_bath(
     W::Operator,
     agg::Aggregate;
-    vib_basis::Symbol=:none
-) 
+    vib_basis::VibBasisLike=:none
+)
     aggCore = agg.core
     aggOperators = agg.operators
     aggTools = agg.tools
@@ -162,42 +156,41 @@ Trace out bath degrees of freedom from `rho` without the product of Franck-Condo
 The trace will be done only on the Hilber space for electric bra part `a` and ket part `b`.
 Input density matrix `rho` is for the whole Hilber space. This method returns number.
 """
-function trace_bath(    
-    W::AbstractMatrix, 
-    a::N, 
-    b::N, 
+function trace_bath(
+    W::AbstractMatrix,
+    a::N,
+    b::N,
     aggTools::AggregateTools;
-    vib_basis::Symbol=:ground_excited
+    vib_basis::VibBasisLike=GroundExcited()
 ) where {N <: Integer}
-    if vib_basis ∉ (:ground_ground, :ground_excited)
-        throw(ArgumentError("Optional argument vib_basis has to be selected from (:ground_ground, :ground_excited)"))
-    end
-    rho = eltype(W)(0)
+    vb = _to_vib_basis(vib_basis)
+    return _trace_bath_ab(W, a, b, aggTools, vb)
+end
 
-    if vib_basis == :ground_excited
-        for I in aggTools.indicesMap[a]
-            for J in aggTools.indicesMap[b]
-                rho += W[I, J] * aggTools.FCproduct[I, J]
-            end
+function _trace_bath_ab(W::AbstractMatrix, a, b, aggTools, ::GroundExcited)
+    rho = eltype(W)(0)
+    for I in aggTools.indicesMap[a]
+        for J in aggTools.indicesMap[b]
+            rho += W[I, J] * aggTools.FCproduct[I, J]
         end
     end
-    if vib_basis == :ground_ground
-        a1 = aggTools.indicesMap[a][1]
-        a2 = aggTools.indicesMap[a][end]
-        b1 = aggTools.indicesMap[b][1]
-        b2 = aggTools.indicesMap[b][end]
-        rho = tr(W[a1:a2, b1:b2])
-    end
-    
     rho
+end
+
+function _trace_bath_ab(W::AbstractMatrix, a, b, aggTools, ::GroundGround)
+    a1 = aggTools.indicesMap[a][1]
+    a2 = aggTools.indicesMap[a][end]
+    b1 = aggTools.indicesMap[b][1]
+    b2 = aggTools.indicesMap[b][end]
+    tr(W[a1:a2, b1:b2])
 end
 
 function trace_bath(
     W::Operator,
-    a::N, 
-    b::N, 
+    a::N,
+    b::N,
     aggTools::AggregateTools;
-    vib_basis::Symbol=:ground_excited
+    vib_basis::VibBasisLike=GroundExcited()
 ) where {N <: Integer}
     rho = trace_bath(W.data, a, b, aggTools; vib_basis=vib_basis)
     return rho
@@ -211,39 +204,37 @@ Input density matrix `rho` is only for the subspace. This method returns number.
 """
 function trace_bath_part(
     W::AbstractMatrix,
-    a::N, 
-    b::N, 
+    a::N,
+    b::N,
     aggTools::AggregateTools;
-    vib_basis::Symbol=:ground_ground
+    vib_basis::VibBasisLike=GroundGround()
 ) where {N <: Integer}
-    rho_traced = eltype(W)(0)
-    if vib_basis ∉ (:ground_ground, :ground_excited)
-        throw(ArgumentError("Optional argument vib_basis has to be selected from (:ground_ground, :ground_excited)"))
-    end
+    vb = _to_vib_basis(vib_basis)
+    return _trace_bath_part(W, a, b, aggTools, vb)
+end
 
-    if vib_basis == :ground_excited
-        for a_vib = 1:aggTools.bBathSize
-            I = aggTools.indicesMap[a][a_vib]
-            for b_vib = 1:aggTools.bBathSize
-                J = aggTools.indicesMap[b][b_vib]
-                rho_traced += W[a_vib, b_vib] * aggTools.FCproduct[I, J]
-            end
+function _trace_bath_part(W::AbstractMatrix, a, b, aggTools, ::GroundExcited)
+    rho_traced = eltype(W)(0)
+    for a_vib = 1:aggTools.bBathSize
+        I = aggTools.indicesMap[a][a_vib]
+        for b_vib = 1:aggTools.bBathSize
+            J = aggTools.indicesMap[b][b_vib]
+            rho_traced += W[a_vib, b_vib] * aggTools.FCproduct[I, J]
         end
     end
-
-    if vib_basis == :ground_ground && a == b
-        rho_traced = tr(W)
-    end
-    
     return rho_traced
+end
+
+function _trace_bath_part(W::AbstractMatrix, a, b, aggTools, ::GroundGround)
+    a == b ? tr(W) : eltype(W)(0)
 end
 
 function trace_bath_part(
     W::Operator,
-    a::N, 
-    b::N, 
+    a::N,
+    b::N,
     aggTools::AggregateTools;
-    vib_basis::Symbol=:ground_ground
+    vib_basis::VibBasisLike=GroundGround()
 ) where {N <: Integer}
     rho_traced = trace_bath_part(
         W.data,
@@ -272,7 +263,7 @@ function get_rho_bath(
     aggOperators::AggregateOperators,
     aggTools::AggregateTools;
     justCopy::Bool = false,
-    vib_basis::Symbol=:none
+    vib_basis::VibBasisLike=:none
 )
     rho = trace_bath(W, aggCore, aggOperators, aggTools; vib_basis=vib_basis)
     vibindices = aggTools.indicesMap
@@ -323,7 +314,7 @@ function get_rho_bath(
     aggOperators::AggregateOperators,
     aggTools::AggregateTools;
     justCopy = false,
-    vib_basis::Symbol=:none
+    vib_basis::VibBasisLike=:none
 )
     rho_data = get_rho_bath(
         W.data,
@@ -430,12 +421,9 @@ function correlation_function(
     aggCore::AggregateCore,
     aggOperators::AggregateOperators,
     aggTools::AggregateTools;
-    vib_basis::Symbol=:none
+    vib_basis::VibBasisLike=:none
 )
     Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
     prod = Ham_II_t * Ham_I * rho0_bath
-    if vib_basis == :none
-        vib_basis = aggOperators.vib_basis
-    end
     return trace_bath(prod, aggCore, aggOperators, aggTools; vib_basis=vib_basis)
 end

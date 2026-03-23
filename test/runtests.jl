@@ -27,7 +27,8 @@ names = [
     "test_scoring.jl",
     "test_simulation_result.jl",
     "test_solve.jl",
-    "test_convenience.jl"
+    "test_convenience.jl",
+    "test_vib_basis.jl"
 ]
 
 #=

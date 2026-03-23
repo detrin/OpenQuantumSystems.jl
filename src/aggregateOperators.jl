@@ -16,11 +16,19 @@ Get Hamiltonian of the system, ``H_S`` only for ``\\mathcal{H}_S``.
 function getAggHamSystemSmall(
     aggCore::AggregateCore,
     aggTools::AggregateTools;
-    vib_basis::Symbol=:ground_ground,
+    vib_basis::VibBasisLike=GroundGround(),
     groundEnergy::Bool = true,
 )
-    vib_basis ∈ (:ground_ground, :ground_excited) ||
-        throw(ArgumentError("vib_basis must be :ground_ground or :ground_excited, got :$vib_basis"))
+    vb = _to_vib_basis(vib_basis)
+    return _getAggHamSystemSmall(aggCore, aggTools, vb; groundEnergy=groundEnergy)
+end
+
+function _getAggHamSystemSmall(
+    aggCore::AggregateCore,
+    aggTools::AggregateTools,
+    vb::AbstractVibBasis;
+    groundEnergy::Bool = true,
+)
     Ham_sys = zeros(Float64, (aggCore.molCount + 1, aggCore.molCount + 1))
 
     agg_shifts = getShifts(aggCore)
@@ -45,12 +53,7 @@ function getAggHamSystemSmall(
         for mol_i = 1:aggCore.molCount
             E_state += E_agg[elInd[mol_i], mol_i]
         end
-        if vib_basis == :ground_ground
-            # add reorganisation energy
-            if ind > 1
-                E_state += reorganisation_energies[ind-1]
-            end
-        end
+        E_state = _apply_reorganisation(E_state, ind, reorganisation_energies, vb)
         Ham_sys[ind, ind] = E_state
     end
 
@@ -65,6 +68,10 @@ function getAggHamSystemSmall(
     return DenseOperator(aggTools.basisSystem, aggTools.basisSystem, Ham_sys)
 end
 
+_apply_reorganisation(E_state, ind, reorganisation_energies, ::GroundGround) =
+    ind > 1 ? E_state + reorganisation_energies[ind-1] : E_state
+_apply_reorganisation(E_state, ind, reorganisation_energies, ::GroundExcited) = E_state
+
 """
 getAggHamSystemBig(agg)
 
@@ -76,7 +83,7 @@ Get Hamiltonian of the system, ``H_S`` for ``\\mathcal{H}_S \\otimes \\mathcal{H
 function getAggHamSystemBig(
     aggCore::AggregateCore,
     aggTools::AggregateTools;
-    vib_basis::Symbol=:ground_ground,
+    vib_basis::VibBasisLike=GroundGround(),
     groundEnergy::Bool = true,
 )
     Ham_sys = getAggHamSystemSmall(aggCore, aggTools; vib_basis = vib_basis, groundEnergy = groundEnergy)
@@ -113,7 +120,7 @@ Get Hamiltonian of the bath, ``H_B`` only for ``\\mathcal{H}_B``.
 function getAggHamBathSmall(
     aggCore::AggregateCore,
     aggTools::AggregateTools;
-    vib_basis::Symbol=:ground_ground,
+    vib_basis::VibBasisLike=GroundGround(),
     groundEnergy::Bool = true,
 )
     Ham_bath = zeros(Float64, (aggTools.bBathSize, aggTools.bBathSize))
@@ -175,7 +182,7 @@ Get system and bath Hamiltonian of the [`Aggregate`](@ref) in a form of DenseOpe
 function getAggHamSystemBath(
     aggCore::AggregateCore,
     aggTools::AggregateTools;
-    vib_basis::Symbol=:ground_ground,
+    vib_basis::VibBasisLike=GroundGround(),
     groundEnergy::Bool = true,
 )
     Ham_B = getAggHamBathBig(aggCore, aggTools; groundEnergy = true)
@@ -229,11 +236,9 @@ function _ham_interaction_ground_ground!(Ham_I, I, J, elOrder1, vibind1, vibind2
     end
 end
 
-function getAggHamInteraction(aggCore::AggregateCore, aggTools::AggregateTools; vib_basis::Symbol=:ground_ground)
-    if vib_basis ∉ (:ground_ground, :ground_excited)
-        throw(ArgumentError("Optional argument vib_basis has to be selected from (:ground_ground, :ground_excited)"))
-    end
-    Ham_sys = getAggHamSystemSmall(aggCore, aggTools; vib_basis=vib_basis, groundEnergy = true)
+function getAggHamInteraction(aggCore::AggregateCore, aggTools::AggregateTools; vib_basis::VibBasisLike=GroundGround())
+    vb = _to_vib_basis(vib_basis)
+    Ham_sys = getAggHamSystemSmall(aggCore, aggTools; vib_basis=vb, groundEnergy = true)
 
     Ham_I = zeros(Float64, (aggTools.bSize, aggTools.bSize))
     agg_shifts = getShifts(aggCore)
@@ -252,19 +257,23 @@ function getAggHamInteraction(aggCore::AggregateCore, aggTools::AggregateTools; 
                 continue
             end
             if elOrder1 != elOrder2
-                if vib_basis == :ground_excited
-                    _ham_interaction_off_diagonal!(Ham_I, Ham_sys, aggTools, I, J, elOrder1, elOrder2, vibind1, vibind2)
-                end
+                _ham_interaction_off_diagonal_dispatch!(Ham_I, Ham_sys, aggTools, I, J, elOrder1, elOrder2, vibind1, vibind2, vb)
                 continue
             end
-            if vib_basis == :ground_ground
-                _ham_interaction_ground_ground!(Ham_I, I, J, elOrder1, vibind1, vibind2, aggCore, agg_frequencies, agg_shifts)
-            end
+            _ham_interaction_diagonal_dispatch!(Ham_I, I, J, elOrder1, vibind1, vibind2, aggCore, agg_frequencies, agg_shifts, vb)
         end
     end
 
     return DenseOperator(aggTools.basis, aggTools.basis, Ham_I)
 end
+
+_ham_interaction_off_diagonal_dispatch!(Ham_I, Ham_sys, aggTools, I, J, elOrder1, elOrder2, vibind1, vibind2, ::GroundExcited) =
+    _ham_interaction_off_diagonal!(Ham_I, Ham_sys, aggTools, I, J, elOrder1, elOrder2, vibind1, vibind2)
+_ham_interaction_off_diagonal_dispatch!(Ham_I, Ham_sys, aggTools, I, J, elOrder1, elOrder2, vibind1, vibind2, ::GroundGround) = nothing
+
+_ham_interaction_diagonal_dispatch!(Ham_I, I, J, elOrder1, vibind1, vibind2, aggCore, agg_frequencies, agg_shifts, ::GroundGround) =
+    _ham_interaction_ground_ground!(Ham_I, I, J, elOrder1, vibind1, vibind2, aggCore, agg_frequencies, agg_shifts)
+_ham_interaction_diagonal_dispatch!(Ham_I, I, J, elOrder1, vibind1, vibind2, aggCore, agg_frequencies, agg_shifts, ::GroundExcited) = nothing
 
 """
 getAggHamiltonian(agg, aggTools.indices, franckCondonFactors; 
@@ -283,7 +292,7 @@ function getAggHamiltonian(
     aggCore::AggregateCore,
     aggTools::AggregateTools;
     groundEnergy::Bool = true,
-    vib_basis::Symbol=:ground_excited
+    vib_basis::VibBasisLike=GroundExcited()
 )
     Ham_I = getAggHamInteraction(aggCore, aggTools; vib_basis = vib_basis)
     Ham_0 = getAggHamSystemBath(aggCore, aggTools; groundEnergy = groundEnergy)
@@ -360,7 +369,7 @@ nothing
 )
 =#
 
-struct AggregateOperators{O_sys,O_bath,O} <: AbstractAggregateOperators
+struct AggregateOperators{O_sys,O_bath,O,VB<:AbstractVibBasis} <: AbstractAggregateOperators
     Ham_sys::O_sys
     Ham_bath::O_bath
     Ham_S::O
@@ -369,8 +378,8 @@ struct AggregateOperators{O_sys,O_bath,O} <: AbstractAggregateOperators
     Ham_I::O
     Ham::O
     groundEnergy::Bool
-    vib_basis::Symbol
-    function AggregateOperators{O_sys,O_bath,O}(
+    vib_basis::VB
+    function AggregateOperators{O_sys,O_bath,O,VB}(
         Ham_sys::O_sys,
         Ham_bath::O_bath,
         Ham_S::O,
@@ -379,8 +388,8 @@ struct AggregateOperators{O_sys,O_bath,O} <: AbstractAggregateOperators
         Ham_I::O,
         Ham::O,
         groundEnergy::Bool,
-        vib_basis::Symbol,
-    ) where {O_sys<:Operator,O_bath<:Operator,O<:Operator}
+        vib_basis::VB,
+    ) where {O_sys<:Operator,O_bath<:Operator,O<:Operator,VB<:AbstractVibBasis}
         new(Ham_sys, Ham_bath, Ham_S, Ham_B, Ham_0, Ham_I, Ham, groundEnergy, vib_basis)
     end
 end
@@ -389,22 +398,24 @@ function AggregateOperators(
     aggCore::AggregateCore,
     aggTools::AggregateTools;
     groundEnergy::Bool = true,
-    vib_basis::Symbol=:ground_excited
+    vib_basis::VibBasisLike=GroundExcited()
 )
+    vb = _to_vib_basis(vib_basis)
 
-    Ham_sys = getAggHamSystemSmall(aggCore, aggTools; vib_basis = vib_basis, groundEnergy = true)
+    Ham_sys = getAggHamSystemSmall(aggCore, aggTools; vib_basis = vb, groundEnergy = true)
     Ham_bath = getAggHamBathSmall(aggCore, aggTools; groundEnergy = true)
-    Ham_S = getAggHamSystemBig(aggCore, aggTools; vib_basis = vib_basis, groundEnergy = groundEnergy)
+    Ham_S = getAggHamSystemBig(aggCore, aggTools; vib_basis = vb, groundEnergy = groundEnergy)
     Ham_B = getAggHamBathBig(aggCore, aggTools; groundEnergy = groundEnergy)
     Ham_0 = getAggHamSystemBath(aggCore, aggTools; groundEnergy = groundEnergy)
-    Ham_I = getAggHamInteraction(aggCore, aggTools; vib_basis = vib_basis)
-    Ham = getAggHamiltonian(aggCore, aggTools; groundEnergy = groundEnergy, vib_basis = vib_basis)
+    Ham_I = getAggHamInteraction(aggCore, aggTools; vib_basis = vb)
+    Ham = getAggHamiltonian(aggCore, aggTools; groundEnergy = groundEnergy, vib_basis = vb)
 
     O_sys = typeof(Ham_sys)
     O_bath = typeof(Ham_bath)
     O = typeof(Ham_S)
+    VB = typeof(vb)
 
-    return AggregateOperators{O_sys,O_bath,O}(
+    return AggregateOperators{O_sys,O_bath,O,VB}(
         Ham_sys,
         Ham_bath,
         Ham_S,
@@ -413,7 +424,7 @@ function AggregateOperators(
         Ham_I,
         Ham,
         groundEnergy,
-        vib_basis
+        vb
     )
 end
 
