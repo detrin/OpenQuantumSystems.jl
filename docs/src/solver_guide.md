@@ -227,6 +227,48 @@ tspan_out, rho_int_t = QME_sI_ansatz(W0, tspan, agg; ansatz=:const_sch)
 rho_sch_t = interaction_pic_to_schroedinger_pic(rho_int_t, agg.operators.Ham_0, tspan)
 ```
 
+### 7. Förster Theory
+
+Computes excitation energy transfer (EET) rates in the **weak electronic coupling** regime
+using the spectral overlap of donor emission and acceptor absorption lineshapes.
+
+```julia
+# Single pair
+k = forster_rate(J, mol_donor, mol_acceptor; T=300.0)
+
+# Full aggregate rate matrix
+K = forster_rate_matrix(aggCore; T=300.0)
+```
+
+The Förster rate is: ``k_{DA} = 2\pi |J_{DA}|^2 \int I_D(\omega) A_A(\omega)\, d\omega``
+
+Use when the electronic coupling is weak relative to the reorganization energy
+and the bath correlation time.
+
+### 8. Modified Redfield Theory
+
+Goes beyond standard Redfield by treating diagonal (population) fluctuations
+non-perturbatively. Works in the **exciton basis** and computes time-independent
+population transfer rates.
+
+```julia
+# Compute rate matrix and exciton basis
+rates, energies, coefficients = modified_redfield_rates(aggCore; T=300.0)
+
+# Propagate populations
+tspan = collect(0.0:0.01:10.0)
+ts, pop = modified_redfield_dynamics(aggCore, [1.0, 0.0], tspan; T=300.0)
+```
+
+Use for intermediate coupling regimes where standard Redfield breaks down but
+full QME is too expensive.
+
+| Solver | Coupling regime | Basis | Cost |
+|--------|----------------|-------|------|
+| `forster_rate` / `forster_rate_matrix` | Weak coupling | Site | Low |
+| `modified_redfield_rates` / `modified_redfield_dynamics` | Intermediate | Exciton | Medium |
+| `QME_sI_Redfield` | Weak coupling, Markovian | Site | Medium |
+
 ## Tips
 
 - **Start with `Evolution_sI_exact` or `LvN_sI`** to establish a reference solution
