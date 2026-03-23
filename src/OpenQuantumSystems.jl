@@ -365,38 +365,49 @@ export
     getInteractionHamIPicture,
     getInteractionHamIPictureA
 
-include("core.jl")
-include("operators_dense.jl")
-include("superoperators.jl")
-include("metrics.jl")
-include("molecules.jl")
-include("aggregateCore.jl")
-include("aggregateTools.jl")
-include("aggregateOperators.jl")
-include("aggregate.jl")
-include("timeevolution_base.jl")
-include("evolution.jl")
-include("schroedinger.jl")
-include("liouville.jl")
-include("interaction_picture.jl")
-include("master_exact.jl")
-include("trace.jl")
-include("initial_state.jl")
-include("memory_kernel.jl")
-include("rate_constant.jl")
-include("master_ansatz.jl")
-include("redfield.jl")
-include("master_iterative.jl")
-include("postprocessing.jl")
-include("scoring.jl")
-include("simulation_result.jl")
-include("solve.jl")
-include("forster.jl")
-include("spectral_density.jl")
-include("modified_redfield.jl")
-include("dipole.jl")
-include("convenience.jl")
-include("deprecated_aliases.jl")
+# base/
+include("base/core.jl")
+include("base/operators_dense.jl")
+include("base/superoperators.jl")
+include("base/metrics.jl")
+
+# aggregate/
+include("aggregate/molecules.jl")
+include("aggregate/aggregateCore.jl")
+include("aggregate/aggregateTools.jl")
+include("aggregate/aggregateOperators.jl")
+include("aggregate/aggregate.jl")
+include("aggregate/dipole.jl")
+include("aggregate/convenience.jl")
+
+# base/ (depends on aggregate types)
+include("base/timeevolution_base.jl")
+
+# evolution/
+include("evolution/evolution.jl")
+include("evolution/schroedinger.jl")
+include("evolution/liouville.jl")
+include("evolution/interaction_picture.jl")
+include("evolution/master_exact.jl")
+include("evolution/trace.jl")
+include("evolution/memory_kernel.jl")
+include("evolution/rate_constant.jl")
+include("evolution/master_ansatz.jl")
+include("evolution/redfield.jl")
+include("evolution/master_iterative.jl")
+
+# spectroscopy/
+include("spectroscopy/forster.jl")
+include("spectroscopy/spectral_density.jl")
+include("spectroscopy/modified_redfield.jl")
+
+# utils/
+include("utils/initial_state.jl")
+include("utils/postprocessing.jl")
+include("utils/scoring.jl")
+include("utils/simulation_result.jl")
+include("utils/solve.jl")
+include("utils/deprecated_aliases.jl")
 
 end
 
