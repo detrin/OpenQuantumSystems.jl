@@ -57,12 +57,12 @@ Base.:(==)(x::AggregateCore, y::AggregateCore) =
     x.molecules == y.molecules && x.coupling == y.coupling && x.molCount == y.molCount
 
 """
-    getNvib(aggCore)
+    get_nvib(aggCore)
 
 Get maximum number of vibrational states of each molecule in the [`Aggregate`](@ref).
 
 """
-function getNvib(aggCore::AggregateCore)
+function get_nvib(aggCore::AggregateCore)
 
     NvibMols = Array{Array{Int64,1},1}(undef, 0)
     for mol in aggCore.molecules
@@ -72,37 +72,37 @@ function getNvib(aggCore::AggregateCore)
 end
 
 """
-    getShifts(aggCore)
+    get_shifts(aggCore)
 
 Get shifts for every mode on each molecule in the [`Aggregate`](@ref).
 
 """
-function getShifts(aggCore::AggregateCore)
+function get_shifts(aggCore::AggregateCore)
 
     shifts = Array{Array{Float64,1},1}(undef, 0)
     for mol in aggCore.molecules
-        push!(shifts, getMolShifts(mol))
+        push!(shifts, get_mol_shifts(mol))
     end
     return shifts
 end
 
 """
-    getFrequencies(aggCore)
+    get_frequencies(aggCore)
 
 Get frequencies for every mode on each molecule in the [`Aggregate`](@ref).
 
 """
-function getFrequencies(aggCore::AggregateCore)
+function get_frequencies(aggCore::AggregateCore)
 
     frequencies = Array{Array{Float64,1},1}(undef, 0)
     for mol in aggCore.molecules
-        push!(frequencies, getMolFrequencies(mol))
+        push!(frequencies, get_mol_frequencies(mol))
     end
     return frequencies
 end
 
 """
-    getAggStateEnergy(agg, aggElState, aggVibState)
+    get_agg_state_energy(agg, aggElState, aggVibState)
 
 Get Hamiltonian of the [`Aggregate`](@ref) in a form of DenseOperator.
 
@@ -111,7 +111,7 @@ Get Hamiltonian of the [`Aggregate`](@ref) in a form of DenseOperator.
 * `aggElState`: Aggregate electric state (e.g. [1, 1, 2]).
 * `aggVibState`: Aggregate vibrational state (e.g. [[9, 1], [2, 5, 3], [10]]).
 """
-function getAggStateEnergy(
+function get_agg_state_energy(
     aggCore::AggregateCore,
     aggElState::Vector{U},
     aggVibState::Vector{Vector{U}},
@@ -120,7 +120,7 @@ function getAggStateEnergy(
     for mol_i = 1:length(aggCore.molecules)
         molElState = aggElState[mol_i]
         molVibState = aggVibState[mol_i]
-        energy += getMolStateEnergy(aggCore.molecules[mol_i], molElState, molVibState)
+        energy += get_mol_state_energy(aggCore.molecules[mol_i], molElState, molVibState)
     end
     return energy
 end

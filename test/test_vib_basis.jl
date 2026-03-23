@@ -31,20 +31,20 @@ using OpenQuantumSystems
         aggCore = AggregateCore([mol1, mol2])
         aggTools = AggregateTools(aggCore)
 
-        ham_sym = getAggHamSystemSmall(aggCore, aggTools; vib_basis=:ground_ground)
-        ham_type = getAggHamSystemSmall(aggCore, aggTools; vib_basis=GroundGround())
+        ham_sym = get_agg_ham_system_small(aggCore, aggTools; vib_basis=:ground_ground)
+        ham_type = get_agg_ham_system_small(aggCore, aggTools; vib_basis=GroundGround())
         @test ham_sym == ham_type
 
-        ham_sym2 = getAggHamSystemSmall(aggCore, aggTools; vib_basis=:ground_excited)
-        ham_type2 = getAggHamSystemSmall(aggCore, aggTools; vib_basis=GroundExcited())
+        ham_sym2 = get_agg_ham_system_small(aggCore, aggTools; vib_basis=:ground_excited)
+        ham_type2 = get_agg_ham_system_small(aggCore, aggTools; vib_basis=GroundExcited())
         @test ham_sym2 == ham_type2
 
-        ham_I_sym = getAggHamInteraction(aggCore, aggTools; vib_basis=:ground_ground)
-        ham_I_type = getAggHamInteraction(aggCore, aggTools; vib_basis=GroundGround())
+        ham_I_sym = get_agg_ham_interaction(aggCore, aggTools; vib_basis=:ground_ground)
+        ham_I_type = get_agg_ham_interaction(aggCore, aggTools; vib_basis=GroundGround())
         @test ham_I_sym == ham_I_type
 
-        ham_I_sym2 = getAggHamInteraction(aggCore, aggTools; vib_basis=:ground_excited)
-        ham_I_type2 = getAggHamInteraction(aggCore, aggTools; vib_basis=GroundExcited())
+        ham_I_sym2 = get_agg_ham_interaction(aggCore, aggTools; vib_basis=:ground_excited)
+        ham_I_type2 = get_agg_ham_interaction(aggCore, aggTools; vib_basis=GroundExcited())
         @test ham_I_sym2 == ham_I_type2
     end
 
@@ -66,17 +66,17 @@ using OpenQuantumSystems
         @test ops_ge.vib_basis isa GroundExcited
     end
 
-    @testset "setupAggregate with type" begin
+    @testset "setup_aggregate with type" begin
         Mode_a = Mode(0.2, 1.0)
         mol1 = Molecule([Mode_a], 3, [2.0, 200.0])
         mol2 = Molecule([Mode_a], 3, [3.0, 300.0])
         aggCore = AggregateCore([mol1, mol2])
 
-        agg_sym = setupAggregate(aggCore; vib_basis=:ground_ground)
-        agg_type = setupAggregate(aggCore; vib_basis=GroundGround())
+        agg_sym = setup_aggregate(aggCore; vib_basis=:ground_ground)
+        agg_type = setup_aggregate(aggCore; vib_basis=GroundGround())
         @test agg_sym == agg_type
 
-        agg_ge = setupAggregate(aggCore; vib_basis=:ground_excited)
+        agg_ge = setup_aggregate(aggCore; vib_basis=:ground_excited)
         @test agg_ge.operators.vib_basis isa GroundExcited
     end
 
@@ -85,7 +85,7 @@ using OpenQuantumSystems
         mol1 = Molecule([Mode_a], 3, [2.0, 200.0])
         mol2 = Molecule([Mode_a], 3, [3.0, 300.0])
         aggCore = AggregateCore([mol1, mol2])
-        agg = setupAggregate(aggCore; vib_basis=:ground_ground)
+        agg = setup_aggregate(aggCore; vib_basis=:ground_ground)
 
         W = DenseOperator(agg.tools.basis, agg.tools.basis, ones(agg.tools.bSize, agg.tools.bSize))
 

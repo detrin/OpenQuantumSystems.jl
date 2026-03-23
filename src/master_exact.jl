@@ -84,7 +84,7 @@ function dQME_sI_exact(
 ) where {B<:Basis,T<:Operator{B,B}}
     (; aggCore, aggTools, aggOperators, W0, elementtype) = p
     
-    Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
+    Ham_II_t = get_interaction_ham_i_picture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
     K_traced = trace_bath(K, aggCore, aggOperators, aggTools; vib_basis=aggOperators.vib_basis)
 
@@ -106,12 +106,12 @@ function kernel_sI_exact(t, s, h, p, tmp1, tmp2)
     Ham_0 = aggOperators.Ham_0
     Ham_I = aggOperators.Ham_I
     Ham = aggOperators.Ham
-    Ham_II_s = getInteractionHamIPicture(Ham_0, Ham_I, s)
-    Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
+    Ham_II_s = get_interaction_ham_i_picture(Ham_0, Ham_I, s)
+    Ham_II_t = get_interaction_ham_i_picture(Ham_0, Ham_I, t)
 
-    U_0_s = evolutionOperator(Ham, s)
+    U_0_s = evolution_operator(Ham, s)
     W_s = U_0_s * W0 * U_0_s'
-    U_0_op = evolutionOperator(Ham_0, s)
+    U_0_op = evolution_operator(Ham_0, s)
     W_int_s = U_0_op' * W_s * U_0_op
 
     tmp1[:, :] = Ham_II_s.data * W_int_s.data - W_int_s.data * Ham_II_s.data
@@ -197,7 +197,7 @@ function kernel_sS_exact(t, s, h, p, tmp1, tmp2)
     Ham_0 = aggOperators.Ham_0
     Ham = aggOperators.Ham
 
-    U_0_s = evolutionOperator(Ham, s)
+    U_0_s = evolution_operator(Ham, s)
     W_s = U_0_s * W0 * U_0_s'
 
     tmp1[:, :] = Ham.data * W_s.data - W_s.data * Ham.data
@@ -365,7 +365,7 @@ function dQME_SI_exact(
 
     Ham_0 = aggOperators.Ham_0.data
     Ham_I = aggOperators.Ham_I.data
-    Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
+    Ham_II_t = get_interaction_ham_i_picture(Ham_0, Ham_I, t)
 
     kernel_integrated, err = QuadGK.quadgk(
         s -> kernel_SI_exact(t, s, history_fun, p, tmp1, tmp2),
@@ -385,8 +385,8 @@ function kernel_SI_exact(t, s, h, p, tmp1, tmp2)
 
     Ham_0 = aggOperators.Ham_0.data
     Ham_I = aggOperators.Ham_I.data
-    Ham_II_s = getInteractionHamIPicture(Ham_0, Ham_I, s)
-    Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
+    Ham_II_s = get_interaction_ham_i_picture(Ham_0, Ham_I, s)
+    Ham_II_t = get_interaction_ham_i_picture(Ham_0, Ham_I, t)
 
     W_int = h(p, s)
     if (typeof(W_int) <: Operator)

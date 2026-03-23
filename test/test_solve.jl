@@ -19,7 +19,7 @@ import OrdinaryDiffEq
     aggCore = AggregateCore([mol1, mol2])
     aggCore.coupling[2, 3] = 50
     aggCore.coupling[3, 2] = 50
-    agg = setupAggregate(aggCore)
+    agg = setup_aggregate(aggCore)
 
     Ham = agg.operators.Ham
     basis = agg.tools.basis

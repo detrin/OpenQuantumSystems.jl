@@ -66,11 +66,11 @@ function dLvN_sI(
 
     Ham_0 = aggOperators.Ham_0
     Ham_I = aggOperators.Ham_I
-    Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
+    Ham_II_t = get_interaction_ham_i_picture(Ham_0, Ham_I, t)
 
-    U_t = evolutionOperator(Ham, t)
+    U_t = evolution_operator(Ham, t)
     W_t = U_t * W0 * U_t'
-    U_0_op = evolutionOperator(Ham_0, t)
+    U_0_op = evolution_operator(Ham_0, t)
     W_int_t = U_0_op' * W_t * U_0_op
 
     K = -elementtype(im) * (Ham_II_t.data * W_int_t.data - W_int_t.data * Ham_II_t.data)
@@ -120,7 +120,7 @@ function dLvN_sS(
     aggCore, aggTools, aggOperators, W0, elementtype = p
     Ham = aggOperators.Ham
 
-    U_t = evolutionOperator(Ham, t)
+    U_t = evolution_operator(Ham, t)
     W_t = U_t * W0 * U_t'
 
     K = -elementtype(im) * (Ham.data * W_t.data - W_t.data * Ham.data)
@@ -172,7 +172,7 @@ function dLvN_SI(
     
     Ham_0 = aggOperators.Ham_0.data
     Ham_I = aggOperators.Ham_I.data
-    Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
+    Ham_II_t = get_interaction_ham_i_picture(Ham_0, Ham_I, t)
 
     dW.data[:, :] = -elementtype(im) * (Ham_II_t * W.data - W.data * Ham_II_t)
     return dW

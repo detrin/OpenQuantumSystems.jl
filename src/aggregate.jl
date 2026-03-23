@@ -15,19 +15,19 @@ AggregateOperators(agg::Aggregate; groundEnergy::Bool = true, vib_basis::VibBasi
     AggregateOperators(agg.core, agg.tools; groundEnergy=groundEnergy, vib_basis=vib_basis)
 
 """
-    setupAggregate(agg; groundEnergy=true, verbose=false)
+    setup_aggregate(agg; groundEnergy=true, verbose=false)
 
 Generate all basic data from the [`Aggregate`](@ref). Returns
 `aggInds, vibindices, aggIndLen, basis, FCFact, FCProd, Ham, Ham_0, Ham_I`.
 
 """
-function setupAggregate(aggCore::AggregateCore; groundEnergy::Bool = true, vib_basis::VibBasisLike = GroundGround())::Aggregate
+function setup_aggregate(aggCore::AggregateCore; groundEnergy::Bool = true, vib_basis::VibBasisLike = GroundGround())::Aggregate
     aggTools = AggregateTools(aggCore)
     aggOperators = AggregateOperators(aggCore, aggTools; groundEnergy = groundEnergy, vib_basis = vib_basis)
     return Aggregate(aggCore, aggTools, aggOperators)
 end
 
-function setupAggregate!(agg::Aggregate; groundEnergy::Bool = true, vib_basis::VibBasisLike = GroundGround())::Aggregate
+function setup_aggregate!(agg::Aggregate; groundEnergy::Bool = true, vib_basis::VibBasisLike = GroundGround())::Aggregate
     agg.tools = AggregateTools(agg.core)
     agg.operators = AggregateOperators(agg.core, agg.tools; groundEnergy = groundEnergy, vib_basis = vib_basis)
     return agg

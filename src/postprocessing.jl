@@ -23,7 +23,7 @@ function interaction_pic_to_schroedinger_pic(rho_int::OperatorVectorArray, tspan
     Ham_sys = agg.operators.Ham_sys
     for t_i in 1:length(tspan)
         t = tspan[t_i]
-        U_op = evolutionOperator(Ham_sys, t)
+        U_op = evolution_operator(Ham_sys, t)
         rho_sch[t_i, :, :] = U_op.data * rho_int[t_i, :, :] * (U_op').data 
     end
     return rho_sch
@@ -39,7 +39,7 @@ function schroedinger_pic_to_interaction_pic(rho_sch::OperatorVectorArray, tspan
     Ham_sys = agg.operators.Ham_sys
     for t_i in 1:length(tspan)
         t = tspan[t_i]
-        U_op = evolutionOperator(Ham_sys, t)
+        U_op = evolution_operator(Ham_sys, t)
         rho_int[t_i, :, :] = (U_op').data * rho_sch[t_i, :, :] * U_op.data 
     end
     return rho_int

@@ -13,9 +13,9 @@ function _bath_state_test(s, p, rho)
     (; aggCore, aggTools, aggOperators, W0) = p
     Ham_0 = aggOperators.Ham_0
     Ham = aggOperators.Ham
-    U_0_s = evolutionOperator(Ham, s)
+    U_0_s = evolution_operator(Ham, s)
     W_s = U_0_s * W0 * U_0_s'
-    U_0_op = evolutionOperator(Ham_0, s)
+    U_0_op = evolution_operator(Ham_0, s)
     W_int_s = U_0_op' * W_s * U_0_op
     W_bath_s = get_rho_bath(W_int_s, aggCore, aggOperators, aggTools; vib_basis=aggOperators.vib_basis)
     rho_s = trace_bath(W_int_s, aggCore, aggOperators, aggTools; vib_basis=aggOperators.vib_basis)
@@ -29,7 +29,7 @@ end
 
 function _bath_state_const_sch(s, p, rho)
     (; aggOperators, W0_bath) = p
-    U_0_op = evolutionOperator(aggOperators.Ham_0, s)
+    U_0_op = evolution_operator(aggOperators.Ham_0, s)
     W0_int_s = U_0_op' * W0_bath * U_0_op
     return rho, W0_int_s.data
 end
@@ -37,7 +37,7 @@ end
 function _bath_state_linear_sch(s, p, rho)
     (; aggOperators, W0_bath, elementtype) = p
     Ham = aggOperators.Ham
-    U_0_op = evolutionOperator(aggOperators.Ham_0, s)
+    U_0_op = evolution_operator(aggOperators.Ham_0, s)
     W_bath_s = W0_bath - elementtype(im) * (Ham * W0_bath - W0_bath * Ham) * s
     W0_int_s = U_0_op' * W_bath_s * U_0_op
     return rho, W0_int_s.data
@@ -46,7 +46,7 @@ end
 function _bath_state_linear2_sch(s, p, rho)
     (; aggOperators, W0_bath, t_mk_bath_step, elementtype) = p
     Ham = aggOperators.Ham
-    U_0_op = evolutionOperator(aggOperators.Ham_0, s)
+    U_0_op = evolution_operator(aggOperators.Ham_0, s)
     W_bath_s = deepcopy(W0_bath)
     s_rest = s
     while s_rest > t_mk_bath_step
@@ -65,7 +65,7 @@ function _bath_state_upart1_sch(s, p, rho)
     indicesMap = aggTools.indicesMap
     Ham = aggOperators.Ham
     Ham_0 = aggOperators.Ham_0
-    U_0_op = evolutionOperator(Ham_0, s)
+    U_0_op = evolution_operator(Ham_0, s)
     W_bath_s = deepcopy(W0_bath)
     for el_st in 1:aggCore.molCount+1
         a1 = indicesMap[el_st][1]
@@ -96,7 +96,7 @@ function _bath_state_upart2_sch(s, p, rho)
     indicesMap = aggTools.indicesMap
     Ham = aggOperators.Ham
     Ham_0 = aggOperators.Ham_0
-    U_0_op = evolutionOperator(Ham_0, s)
+    U_0_op = evolution_operator(Ham_0, s)
     W_bath_s = deepcopy(W0_bath)
     for el_st1 in 1:aggCore.molCount+1
         a1 = indicesMap[el_st1][1]
@@ -155,7 +155,7 @@ end
 function kernel_sI_ansatz(t, s, h, p, tmp1, tmp2, Ham_II_t, ansatz::Symbol)
     (; aggCore, aggTools, aggOperators) = p
     rho = _to_matrix(h(p, s))
-    Ham_II_s = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, s)
+    Ham_II_s = get_interaction_ham_i_picture(aggOperators.Ham_0, aggOperators.Ham_I, s)
     bath_state_fn = _bath_state_fn(ansatz)
     rho_for_ad, W_bath_data = bath_state_fn(s, p, rho)
     tmp1[:, :] = ad(rho_for_ad, W_bath_data, aggCore, aggTools)
@@ -183,7 +183,7 @@ function dQME_sI_ansatz(
 ) where {B<:Basis,T<:Operator{B,B}}
     (; aggCore, aggTools, aggOperators, W0, elementtype) = p
 
-    Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
+    Ham_II_t = get_interaction_ham_i_picture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
     K_traced = trace_bath(K, aggCore, aggOperators, aggTools; vib_basis=aggOperators.vib_basis)
 
