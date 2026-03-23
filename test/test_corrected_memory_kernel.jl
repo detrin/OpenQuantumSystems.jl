@@ -376,6 +376,171 @@ using LinearAlgebra
         @test diff > 1e-10
     end
 
+    @testset "analytic_correlation_nn_high_T — real valued" begin
+        sd = SpectralDensity([200.0], [0.02])
+        T_high = 50000.0
+        tau = 0.1
+
+        C_ht = analytic_correlation_nn_high_T(sd, tau, T_high)
+        @test isa(C_ht, Float64)
+        @test isfinite(C_ht)
+
+        C_full = analytic_correlation_nn(sd, tau, T_high)
+        @test abs(imag(C_full)) / abs(real(C_full)) < 1e-2
+        @test abs(C_ht - real(C_full)) / abs(real(C_full)) < 0.005
+    end
+
+    @testset "analytic_correlation_nn_high_T — symmetry C(τ)=C(-τ)" begin
+        sd = SpectralDensity([200.0, 400.0], [0.02, 0.01])
+        T = 5000.0
+        tau = 0.1
+
+        C_fwd = analytic_correlation_nn_high_T(sd, tau, T)
+        C_bwd = analytic_correlation_nn_high_T(sd, -tau, T)
+        @test C_fwd ≈ C_bwd atol = 1e-12
+    end
+
+    @testset "is_high_temperature" begin
+        sd_low = SpectralDensity([1000.0], [0.1])
+        @test is_high_temperature(sd_low, 300.0) == false
+        @test is_high_temperature(sd_low, 10000.0) == true
+
+        sd_high = SpectralDensity([10.0], [0.1])
+        @test is_high_temperature(sd_high, 300.0) == true
+
+        @test is_high_temperature(sd_low, 0.0) == false
+    end
+
+    @testset "zeroth_order_memory_kernel_high_T — basic properties" begin
+        mode = Mode(; omega = 200.0, hr_factor = 0.02)
+        mol1 = Molecule([mode], 3, [0.0, 12500.0])
+        mol2 = Molecule([mode], 3, [0.0, 12700.0])
+        aggCore = AggregateCore([mol1, mol2])
+        aggCore.coupling[2, 3] = 100.0
+        aggCore.coupling[3, 2] = 100.0
+
+        t1, t2 = 0.1, 0.05
+        M = zeroth_order_memory_kernel_high_T(t1, t2, aggCore; T = 10000.0)
+        @test size(M) == (3, 3, 3, 3)
+        @test all(isfinite, M)
+
+        for i in 1:3
+            @test all(abs.(M[1, :, :, :]) .< 1e-15)
+            @test all(abs.(M[:, 1, :, :]) .< 1e-15)
+            @test all(abs.(M[:, :, 1, :]) .< 1e-15)
+            @test all(abs.(M[:, :, :, 1]) .< 1e-15)
+        end
+    end
+
+    @testset "zeroth_order — high-T hermiticity" begin
+        mode = Mode(; omega = 200.0, hr_factor = 0.02)
+        mol1 = Molecule([mode], 3, [0.0, 12500.0])
+        mol2 = Molecule([mode], 3, [0.0, 12700.0])
+        aggCore = AggregateCore([mol1, mol2])
+        aggCore.coupling[2, 3] = 100.0
+        aggCore.coupling[3, 2] = 100.0
+
+        M = zeroth_order_memory_kernel_high_T(0.1, 0.05, aggCore; T = 50000.0)
+        for a in 2:3, b in 2:3, c in 2:3, d in 2:3
+            @test M[a, b, c, d] ≈ conj(M[b, a, d, c]) atol = 1e-10
+        end
+    end
+
+    @testset "zeroth_order — high-T converges to full at extreme T" begin
+        mode = Mode(; omega = 200.0, hr_factor = 0.02)
+        mol1 = Molecule([mode], 3, [0.0, 12500.0])
+        mol2 = Molecule([mode], 3, [0.0, 12700.0])
+        aggCore = AggregateCore([mol1, mol2])
+        aggCore.coupling[2, 3] = 100.0
+        aggCore.coupling[3, 2] = 100.0
+
+        T_extreme = 500000.0
+        t1, t2 = 0.1, 0.05
+        M_full = zeroth_order_memory_kernel_cf(t1, t2, aggCore; T = T_extreme)
+        M_ht = zeroth_order_memory_kernel_high_T(t1, t2, aggCore; T = T_extreme)
+
+        max_err = maximum(abs.(M_ht .- M_full))
+        max_val = maximum(abs.(M_full))
+        @test max_err / max_val < 0.1
+    end
+
+    @testset "first_order_memory_kernel_high_T — basic properties" begin
+        mode = Mode(; omega = 200.0, hr_factor = 0.02)
+        mol1 = Molecule([mode], 3, [0.0, 12500.0])
+        mol2 = Molecule([mode], 3, [0.0, 12700.0])
+        aggCore = AggregateCore([mol1, mol2])
+        aggCore.coupling[2, 3] = 100.0
+        aggCore.coupling[3, 2] = 100.0
+
+        elLen = 3
+        rho_I = zeros(ComplexF64, elLen, elLen)
+        rho_I[1, 1] = 1.0
+        rho_I[2, 2] = 0.6
+        rho_I[3, 3] = 0.4
+
+        t1, t2 = 0.05, 0.02
+        M = first_order_memory_kernel_high_T(t1, t2, aggCore, rho_I;
+            T = 50000.0, rtol = 1e-4, atol = 1e-6)
+
+        @test size(M) == (3, 3, 3, 3)
+        @test all(isfinite, M)
+
+        for i in 1:3
+            @test all(abs.(M[1, :, :, :]) .< 1e-12)
+            @test all(abs.(M[:, 1, :, :]) .< 1e-12)
+            @test all(abs.(M[:, :, 1, :]) .< 1e-12)
+            @test all(abs.(M[:, :, :, 1]) .< 1e-12)
+        end
+    end
+
+    @testset "first_order — high-T t2=0 recovers zeroth order" begin
+        mode = Mode(; omega = 200.0, hr_factor = 0.02)
+        mol1 = Molecule([mode], 3, [0.0, 12500.0])
+        mol2 = Molecule([mode], 3, [0.0, 12700.0])
+        aggCore = AggregateCore([mol1, mol2])
+        aggCore.coupling[2, 3] = 100.0
+        aggCore.coupling[3, 2] = 100.0
+
+        elLen = 3
+        rho_I = zeros(ComplexF64, elLen, elLen)
+        rho_I[1, 1] = 1.0
+        rho_I[2, 2] = 0.6
+        rho_I[3, 3] = 0.4
+
+        t1 = 0.1
+        M0 = zeroth_order_memory_kernel_high_T(t1, 0.0, aggCore; T = 50000.0)
+        M1 = first_order_memory_kernel_high_T(t1, 0.0, aggCore, rho_I; T = 50000.0)
+        @test M1 ≈ M0 atol = 1e-10
+    end
+
+    @testset "first_order — high-T matches full at high temperature" begin
+        mode = Mode(; omega = 200.0, hr_factor = 0.02)
+        mol1 = Molecule([mode], 3, [0.0, 12500.0])
+        mol2 = Molecule([mode], 3, [0.0, 12700.0])
+        aggCore = AggregateCore([mol1, mol2])
+        aggCore.coupling[2, 3] = 100.0
+        aggCore.coupling[3, 2] = 100.0
+
+        elLen = 3
+        rho_I = zeros(ComplexF64, elLen, elLen)
+        rho_I[1, 1] = 1.0
+        rho_I[2, 2] = 0.6
+        rho_I[3, 3] = 0.4
+
+        T_high = 50000.0
+        t1, t2 = 0.05, 0.02
+        M_full = first_order_memory_kernel_cf(t1, t2, aggCore, rho_I;
+            T = T_high, rtol = 1e-4, atol = 1e-6)
+        M_ht = first_order_memory_kernel_high_T(t1, t2, aggCore, rho_I;
+            T = T_high, rtol = 1e-4, atol = 1e-6)
+
+        for a in 2:3, b in 2:3, c in 2:3, d in 2:3
+            ref = abs(M_full[a,b,c,d])
+            ref < 1e-12 && continue
+            @test abs(M_ht[a,b,c,d] - M_full[a,b,c,d]) / ref < 0.05
+        end
+    end
+
     @testset "site_to_exciton_kernel — identity transform" begin
         M = zeros(ComplexF64, 3, 3, 3, 3)
         M[2, 2, 2, 2] = 1.0 + 0.5im
