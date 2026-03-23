@@ -64,9 +64,8 @@ end
     @test agg.tools == aggTools
     @test agg.operators == aggOperators
 
-    agg = Aggregate(aggCore, nothing, nothing)
-    agg_ = Aggregate(aggCore)
-    @test agg_ == agg
+    agg2 = Aggregate(aggCore, aggTools, aggOperators)
+    @test agg == agg2
 
     agg = setupAggregate(aggCore; vib_basis=:ground_ground)
     aggTools_ = AggregateTools(agg)
@@ -76,7 +75,7 @@ end
     @test aggOperators_ == aggOperators
 
     agg = setupAggregate(aggCore)
-    agg_ = Aggregate(aggCore, nothing, nothing)
+    agg_ = setupAggregate(aggCore)
     setupAggregate!(agg_)
     @test agg_ == agg
 
