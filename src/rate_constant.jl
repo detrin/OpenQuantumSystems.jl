@@ -34,7 +34,7 @@ function M_aabb_W_bath_intp(t, s, p, tmp1, tmp2, Ham_II_t)
         M_tr = trace_bath(tmp1, aggCore, aggOperators, aggTools; vib_basis=aggOperators.vib_basis)
         
         for a=1:elLen
-            if rho_t[a, a] != 0.
+            if abs(rho_t[a, a]) >= _SAFE_DIV_TOL
                 M_aabb_[a, b] = M_tr[a, a] / rho_t[a, a]
             end
         end
@@ -86,7 +86,7 @@ function M_abcd_W_bath_intp(t, s, p, tmp1, tmp2, Ham_II_t)
         M_tr = trace_bath(tmp1, aggCore, aggOperators, aggTools; vib_basis=aggOperators.vib_basis)
         
         for a=1:elLen, b=1:elLen
-            if rho_t[a, b] != 0.
+            if abs(rho_t[a, b]) >= _SAFE_DIV_TOL
                 M_abcd_[a, b, c, d] = M_tr[a, b] / rho_t[a, b]
             end
         end

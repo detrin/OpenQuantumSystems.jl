@@ -284,23 +284,25 @@ function get_rho_bath(
     el1_p = 0
     el2_p = 0
     for el1 = 1:elLen, el2 = 1:elLen
-        if abs(rho[el1, el2]) != 0
+        if abs(rho[el1, el2]) >= _SAFE_DIV_TOL
             el1_p = el1
             el2_p = el2
             break
         end
     end
-    vib11 = vibindices[el1_p][1]
-    vib12 = vibindices[el1_p][end]
-    vib21 = vibindices[el2_p][1]
-    vib22 = vibindices[el2_p][end]
-    rho_bath_ref[:, :] = W[vib11:vib12, vib21:vib22] / rho[el1_p, el2_p]
+    if el1_p != 0
+        vib11 = vibindices[el1_p][1]
+        vib12 = vibindices[el1_p][end]
+        vib21 = vibindices[el2_p][1]
+        vib22 = vibindices[el2_p][end]
+        rho_bath_ref[:, :] = W[vib11:vib12, vib21:vib22] / rho[el1_p, el2_p]
+    end
     for el1 = 1:elLen, el2 = 1:elLen
         vib11 = vibindices[el1][1]
         vib12 = vibindices[el1][end]
         vib21 = vibindices[el2][1]
         vib22 = vibindices[el2][end]
-        if abs(rho[el1, el2]) != 0
+        if abs(rho[el1, el2]) >= _SAFE_DIV_TOL
             rho_bath[vib11:vib12, vib21:vib22] =
                 W[vib11:vib12, vib21:vib22] / rho[el1, el2]
         else
