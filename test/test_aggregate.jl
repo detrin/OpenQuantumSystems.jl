@@ -79,5 +79,23 @@ end
     setupAggregate!(agg_)
     @test agg_ == agg
 
+    mol_coupling = [0.0 50.0; 50.0 0.0]
+    aggCore_mol = AggregateCore([mol1, mol2], mol_coupling)
+    @test aggCore_mol == aggCore
+
+    full_coupling = zeros(Float64, (3, 3))
+    full_coupling[2, 3] = 50.0
+    full_coupling[3, 2] = 50.0
+    aggCore_full = AggregateCore([mol1, mol2], full_coupling)
+    @test aggCore_full == aggCore
+
+    @test aggCore_mol.coupling == full_coupling
+    @test size(aggCore_mol.coupling) == (3, 3)
+
+    agg_mol = setupAggregate(aggCore_mol)
+    @test agg_mol == agg
+
+    @test_throws DimensionMismatch AggregateCore([mol1, mol2], zeros(Float64, (4, 4)))
+    @test_throws DimensionMismatch AggregateCore([mol1, mol2], zeros(Float64, (1, 1)))
 
 end

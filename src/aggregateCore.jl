@@ -25,8 +25,26 @@ struct AggregateCore{T<:Integer,C1<:ComputableType,C2<:ComputableType} <:
     end
 end
 
-AggregateCore(molecules::Vector{Molecule{T,C1,C2}}, coupling::Matrix{C1}) where {T,C1,C2} =
-    AggregateCore{T,C1,C2}(molecules, coupling, length(molecules))
+function AggregateCore(
+    molecules::Vector{Molecule{T,C1,C2}},
+    coupling::Matrix{C1},
+) where {T,C1,C2}
+    molCount = length(molecules)
+    n = molCount + 1
+    if size(coupling) == (n, n)
+        return AggregateCore{T,C1,C2}(molecules, coupling, molCount)
+    elseif size(coupling) == (molCount, molCount)
+        padded = zeros(C1, (n, n))
+        padded[2:end, 2:end] .= coupling
+        return AggregateCore{T,C1,C2}(molecules, padded, molCount)
+    else
+        throw(
+            DimensionMismatch(
+                "Coupling matrix must be ($molCount, $molCount) or ($n, $n), got $(size(coupling))"
+            ),
+        )
+    end
+end
 AggregateCore(molecules::Vector{Molecule{T,C1,C2}}) where {T,C1,C2} =
     AggregateCore{T,C1,C2}(
         molecules,
