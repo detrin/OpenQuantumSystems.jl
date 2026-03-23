@@ -84,7 +84,7 @@ if vib_basis == :ground_ground
 ---
 
 ### #63 - Remove Union{T, Nothing} fields from Aggregate struct
-**Status:** BACKLOG
+**Status:** IN PROGRESS
 **Severity:** Moderate (SOLID -- Liskov Substitution)
 
 The `Aggregate` struct (`aggregate.jl:6-16`) uses `Union{T, Nothing}` for its fields:
@@ -180,7 +180,7 @@ The codebase mixes camelCase and snake_case inconsistently:
 | #60 | Fix unsafe divisions in trace.jl and rate_constant.jl | Correctness | Moderate | IN PROGRESS |
 | #61 | Extract shared integration setup boilerplate | DRY | Moderate | IN PROGRESS |
 | #62 | Refactor deeply nested aggregateOperators.jl | Quality | Moderate | IN PROGRESS |
-| #63 | Remove Union{T, Nothing} from Aggregate struct | SOLID | Moderate | BACKLOG |
+| #63 | Remove Union{T, Nothing} from Aggregate struct | SOLID | Moderate | IN PROGRESS |
 | #64 | Replace hardcoded 2-level system assumptions | Extensibility | Moderate | IN PROGRESS |
 | #65 | Remove hardcoded module self-references | Code smell | Minor | IN PROGRESS |
 | #66 | Standardize naming conventions | Convention | Minor | BACKLOG |
