@@ -25,7 +25,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     aggCore = AggregateCore([mol1, mol2])
     aggCore.coupling[2, 3] = 50
     aggCore.coupling[3, 2] = 50
-    agg = setupAggregate(aggCore)
+    agg = setup_aggregate(aggCore)
 
     Ham = agg.operators.Ham
     H_lambda, H_S = eigen(Ham.data)
@@ -34,92 +34,92 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
 
     t = 0.0
     U_op_ref = exp(-1im * Ham * t)
-    U_op = evolutionOperator(Ham, t)
+    U_op = evolution_operator(Ham, t)
     @test 1e-12 > D(U_op, U_op_ref)
-    U_op = evolutionOperatorA(H_lambda, H_S, H_Sinv, t)
+    U_op = evolution_operator_a(H_lambda, H_S, H_Sinv, t)
     @test 1e-12 > D(U_op, U_op_ref.data)
 
-    U_sop = evolutionSuperOperator(Ham, t)
+    U_sop = evolution_super_operator(Ham, t)
     U_sop_ref = spre(U_op_ref) * spost(U_op_ref')
     @test 1e-12 > D(U_sop, U_sop_ref)
 
     t = 1.0
     U_op_ref = exp(-1im * Ham * t)
-    U_op = evolutionOperator(Ham, t)
+    U_op = evolution_operator(Ham, t)
     @test 1e-12 > D(U_op, U_op_ref)
-    U_op = evolutionOperatorA(H_lambda, H_S, H_Sinv, t)
+    U_op = evolution_operator_a(H_lambda, H_S, H_Sinv, t)
     @test 1e-12 > D(U_op, U_op_ref.data)
 
-    U_sop = evolutionSuperOperator(Ham, t)
+    U_sop = evolution_super_operator(Ham, t)
     U_sop_ref = spre(U_op_ref) * spost(U_op_ref')
     @test 1e-12 > D(U_sop, U_sop_ref)
 
     tspan = [0.0:0.5:1.0;]
-    U_op_array = evolutionOperatorArray(Ham, tspan)
-    U_op1 = evolutionOperator(Ham, 0.0)
-    U_op2 = evolutionOperator(Ham, 0.5)
-    U_op3 = evolutionOperator(Ham, 1.0)
+    U_op_array = evolution_operator_array(Ham, tspan)
+    U_op1 = evolution_operator(Ham, 0.0)
+    U_op2 = evolution_operator(Ham, 0.5)
+    U_op3 = evolution_operator(Ham, 1.0)
     @test 1e-12 > D(U_op_array[1], U_op1)
     @test 1e-12 > D(U_op_array[2], U_op2)
     @test 1e-11 > D(U_op_array[3], U_op3)
 
-    U_sop_array = evolutionSuperOperatorArray(Ham, tspan)
-    U_sop1 = evolutionSuperOperator(Ham, 0.0)
-    U_sop2 = evolutionSuperOperator(Ham, 0.5)
-    U_sop3 = evolutionSuperOperator(Ham, 1.0)
+    U_sop_array = evolution_super_operator_array(Ham, tspan)
+    U_sop1 = evolution_super_operator(Ham, 0.0)
+    U_sop2 = evolution_super_operator(Ham, 0.5)
+    U_sop3 = evolution_super_operator(Ham, 1.0)
     @test 1e-11 > D(U_sop_array[1], U_sop1)
     @test 1e-10 > D(U_sop_array[2], U_sop2)
     @test 1e-10 > D(U_sop_array[3], U_sop3)
 
     t = 0.0
-    foreach(evolutionOperatorIterator(Ham, tspan; diagonalize = true, approximate = false)
+    foreach(evolution_operator_iterator(Ham, tspan; diagonalize = true, approximate = false)
     ) do U_op
-        U_op_ref = evolutionOperator(Ham, t)
+        U_op_ref = evolution_operator(Ham, t)
         @test 1e-11 > D(U_op, U_op_ref)
         t += 0.5
     end
 
     t = 0.0
     foreach(
-        evolutionOperatorIterator(Ham, tspan; diagonalize = false, approximate = false),
+        evolution_operator_iterator(Ham, tspan; diagonalize = false, approximate = false),
     ) do U_op
-        U_op_ref = evolutionOperator(Ham, t)
+        U_op_ref = evolution_operator(Ham, t)
         @test 1e-12 > D(U_op, U_op_ref)
         t += 0.5
     end
 
     t = 0.0
     foreach(
-        evolutionOperatorIterator(Ham, tspan; diagonalize = false, approximate = true),
+        evolution_operator_iterator(Ham, tspan; diagonalize = false, approximate = true),
     ) do U_op
-        U_op_ref = evolutionOperator(Ham, t)
+        U_op_ref = evolution_operator(Ham, t)
         @test 1e-12 > D(U_op, U_op_ref)
         t += 0.5
     end
 
     t = 0.0
     foreach(
-        evolutionSuperOperatorIterator(Ham, tspan; diagonalize = false, approximate = true)
+        evolution_super_operator_iterator(Ham, tspan; diagonalize = false, approximate = true)
     ) do U_sop
-        U_sop_ref = evolutionSuperOperator(Ham, t)
+        U_sop_ref = evolution_super_operator(Ham, t)
         @test 1e-10 > D(U_sop, U_sop_ref)
         t += 0.5
     end
 
     t = 0.0
     foreach(
-        evolutionSuperOperatorIterator(Ham, tspan; diagonalize = false, approximate = false),
+        evolution_super_operator_iterator(Ham, tspan; diagonalize = false, approximate = false),
     ) do U_op
-        U_op_ref = evolutionSuperOperator(Ham, t)
+        U_op_ref = evolution_super_operator(Ham, t)
         @test 1e-12 > D(U_op, U_op_ref)
         t += 0.5
     end
 
     t = 0.0
     foreach(
-        evolutionSuperOperatorIterator(Ham, tspan; diagonalize = false, approximate = true),
+        evolution_super_operator_iterator(Ham, tspan; diagonalize = false, approximate = true),
     ) do U_op
-        U_op_ref = evolutionSuperOperator(Ham, t)
+        U_op_ref = evolution_super_operator(Ham, t)
         @test 1e-12 > D(U_op, U_op_ref)
         t += 0.5
     end
@@ -184,7 +184,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     rho_t_ref = evolutionExact(rho0, tspan, Ham)
 
     T, rho_t = evolution_exact(rho0, tspan, Ham; diagonalize = false)
-    U_op_array = evolutionOperatorArray(Ham, tspan)
+    U_op_array = evolution_operator_array(Ham, tspan)
     for t_i = 1:length(tspan)
         U_op = U_op_array[t_i]
         rho_ref = U_op * rho0 * U_op'
@@ -217,7 +217,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     U_part = evolution_el_part(Ham, t, 2, 2, indicesMap)
     data = take_el_part(Ham.data, 2, 2, indicesMap)
     b = GenericBasis([size(data, 1)])
-    data = evolutionOperator(data, t)
+    data = evolution_operator(data, t)
     ref = DenseOperator(b, b, data)
     @test 1e-12 > D(ref, U_part)
 
@@ -230,7 +230,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     aggCore = AggregateCore([mol1, mol2])
     aggCore.coupling[2, 3] = 50
     aggCore.coupling[3, 2] = 50
-    agg = setupAggregate(aggCore)
+    agg = setup_aggregate(aggCore)
     aggTools = agg.tools
     aggOperators = agg.operators
 
@@ -251,9 +251,9 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     t = 1.
     tspan = get_tspan(0., t, 1)
     _, W_int_t_ = Evolution_SI_exact(W0, tspan, agg)
-    U_op = evolutionOperator(Ham, t)
+    U_op = evolution_operator(Ham, t)
     W = U_op * W0 * U_op'
-    U_0_op = evolutionOperator(Ham_0, t)
+    U_0_op = evolution_operator(Ham_0, t)
     W = U_0_op' * W * U_0_op
     W_int_t_ref = W.data
     @test 1e-12 > D(W_int_t_ref, W_int_t_[2, :, :])
@@ -263,7 +263,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     @test 1e-12 > D(rho_int_t_ref, rho_int_t_[2, :, :])
 
     _, W_t_ = Evolution_SS_exact(W0, tspan, agg)
-    U_op = evolutionOperator(Ham, t)
+    U_op = evolution_operator(Ham, t)
     W = U_op * W0 * U_op'
     W_t_ref = W.data
     @test 1e-12 > D(W_t_ref, W_t_[2, :, :])

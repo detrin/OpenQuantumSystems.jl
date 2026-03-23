@@ -24,7 +24,7 @@ import QuantumOpticsBase
     aggCore = AggregateCore([mol1, mol2])
     aggCore.coupling[2, 3] = 50
     aggCore.coupling[3, 2] = 50
-    agg = setupAggregate(aggCore; vib_basis=:ground_ground)
+    agg = setup_aggregate(aggCore; vib_basis=:ground_ground)
     aggTools = agg.tools
     aggOperators = agg.operators
 
@@ -67,8 +67,8 @@ import QuantumOpticsBase
             t = tspan[t_i]
             s = tspan[s_i]
             # println(t, " ", s)
-            H_II_t = getInteractionHamIPictureA(Ham_I.data, Ham_0_lambda, Ham_0_S, Ham_0_Sinv, t)
-            H_II_s = getInteractionHamIPictureA(Ham_I.data, Ham_0_lambda, Ham_0_S, Ham_0_Sinv, s)
+            H_II_t = get_interaction_ham_i_picture_a(Ham_I.data, Ham_0_lambda, Ham_0_S, Ham_0_Sinv, t)
+            H_II_s = get_interaction_ham_i_picture_a(Ham_I.data, Ham_0_lambda, Ham_0_S, Ham_0_Sinv, s)
 
             MemoryKernel_1 = MemoryKernel_1_traced(
                 H_II_t,
@@ -181,8 +181,8 @@ import QuantumOpticsBase
         for s_i = 1:t_i
             t = tspan[t_i]
             s = tspan[s_i]
-            H_II_t = getInteractionHamIPictureA(Ham_I.data, Ham_0_lambda, Ham_0_S, Ham_0_Sinv, t)
-            H_II_s = getInteractionHamIPictureA(Ham_I.data, Ham_0_lambda, Ham_0_S, Ham_0_Sinv, s)
+            H_II_t = get_interaction_ham_i_picture_a(Ham_I.data, Ham_0_lambda, Ham_0_S, Ham_0_Sinv, t)
+            H_II_s = get_interaction_ham_i_picture_a(Ham_I.data, Ham_0_lambda, Ham_0_S, Ham_0_Sinv, s)
 
             MemoryKernel = MemoryKernel_traced(
                 H_II_t,

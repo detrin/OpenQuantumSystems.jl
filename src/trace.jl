@@ -423,7 +423,7 @@ function correlation_function(
     aggTools::AggregateTools;
     vib_basis::VibBasisLike=:none
 )
-    Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
+    Ham_II_t = get_interaction_ham_i_picture(Ham_0, Ham_I, t)
     prod = Ham_II_t * Ham_I * rho0_bath
     return trace_bath(prod, aggCore, aggOperators, aggTools; vib_basis=vib_basis)
 end

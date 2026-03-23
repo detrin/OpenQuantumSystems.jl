@@ -58,7 +58,7 @@ end
     aggTools = AggregateTools(aggCore)
     aggOperators = AggregateOperators(aggCore, aggTools; groundEnergy=true, vib_basis=:ground_ground)
 
-    agg = setupAggregate(aggCore; groundEnergy=true, vib_basis=:ground_ground)
+    agg = setup_aggregate(aggCore; groundEnergy=true, vib_basis=:ground_ground)
 
     @test agg.core == aggCore
     @test agg.tools == aggTools
@@ -67,16 +67,16 @@ end
     agg2 = Aggregate(aggCore, aggTools, aggOperators)
     @test agg == agg2
 
-    agg = setupAggregate(aggCore; vib_basis=:ground_ground)
+    agg = setup_aggregate(aggCore; vib_basis=:ground_ground)
     aggTools_ = AggregateTools(agg)
     @test aggTools_ == aggTools
 
     aggOperators_ = AggregateOperators(agg; vib_basis=:ground_ground)
     @test aggOperators_ == aggOperators
 
-    agg = setupAggregate(aggCore)
-    agg_ = setupAggregate(aggCore)
-    setupAggregate!(agg_)
+    agg = setup_aggregate(aggCore)
+    agg_ = setup_aggregate(aggCore)
+    setup_aggregate!(agg_)
     @test agg_ == agg
 
     mol_coupling = [0.0 50.0; 50.0 0.0]
@@ -92,7 +92,7 @@ end
     @test aggCore_mol.coupling == full_coupling
     @test size(aggCore_mol.coupling) == (3, 3)
 
-    agg_mol = setupAggregate(aggCore_mol)
+    agg_mol = setup_aggregate(aggCore_mol)
     @test agg_mol == agg
 
     @test_throws DimensionMismatch AggregateCore([mol1, mol2], zeros(Float64, (4, 4)))

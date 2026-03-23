@@ -18,7 +18,7 @@ function M_aabb_W_bath_intp(t, s, p, tmp1, tmp2, Ham_II_t)
     
     Ham_0 = aggOperators.Ham_0
     Ham_I = aggOperators.Ham_I
-    Ham_II_s = getInteractionHamIPicture(Ham_0, Ham_I, s)
+    Ham_II_s = get_interaction_ham_i_picture(Ham_0, Ham_I, s)
     rho_t = interpolate_with_tspan(rho_0_int_t_itp, tspan, t)
     W_bath_s = interpolate_with_tspan(W_0_bath_t_itp, tspan, s)
     
@@ -44,7 +44,7 @@ end
 
 function K_aabb_W_bath_intp(t, p, tmp1, tmp2; rtol=1e-12, atol=1e-12)
     aggCore, aggTools, aggOperators, W0, W0_bath, tspan, rho_0_int_t_itp, W_0_bath_t_itp, elementtype = p
-    Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
+    Ham_II_t = get_interaction_ham_i_picture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     M_aabb_integrated, err = QuadGK.quadgk(
         s -> M_aabb_W_bath_intp(t, s, p, tmp1, tmp2, Ham_II_t),
         0,
@@ -70,7 +70,7 @@ function M_abcd_W_bath_intp(t, s, p, tmp1, tmp2, Ham_II_t)
     
     Ham_0 = aggOperators.Ham_0
     Ham_I = aggOperators.Ham_I
-    Ham_II_s = getInteractionHamIPicture(Ham_0, Ham_I, s)
+    Ham_II_s = get_interaction_ham_i_picture(Ham_0, Ham_I, s)
     rho_t = interpolate_with_tspan(rho_0_int_t_itp, tspan, t)
     W_bath_s = interpolate_with_tspan(W_0_bath_t_itp, tspan, s)
     
@@ -96,7 +96,7 @@ end
 
 function K_abcd_W_bath_intp(t, p, tmp1, tmp2; rtol=1e-12, atol=1e-12)
     aggCore, aggTools, aggOperators, W0, W0_bath, tspan, rho_0_int_t_itp, W_0_bath_t_itp, elementtype = p
-    Ham_II_t = getInteractionHamIPicture(aggOperators.Ham_0, aggOperators.Ham_I, t)
+    Ham_II_t = get_interaction_ham_i_picture(aggOperators.Ham_0, aggOperators.Ham_I, t)
     M_aabb_integrated, err = QuadGK.quadgk(
         s -> M_abcd_W_bath_intp(t, s, p, tmp1, tmp2, Ham_II_t),
         0,

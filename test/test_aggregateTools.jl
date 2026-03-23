@@ -84,7 +84,7 @@ end
     @test aggTools.basisBath == GenericBasis([4])
     @test aggTools.basis == GenericBasis([12])
 
-    FCfactors = getFranckCondonFactors(aggCore)
+    FCfactors = get_franck_condon_factors(aggCore)
     @test 1e-14 > D(aggTools.FCfactors, FCfactors)
 
 end

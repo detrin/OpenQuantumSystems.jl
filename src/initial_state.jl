@@ -33,10 +33,10 @@ Condon approximation.
 
 # Arguments
 * `T`: Temperature of the initial thermal state.
-* `mu_array`: Vector of electric states in local basis, see [`electronicIndices`](@ref). The first
+* `mu_array`: Vector of electric states in local basis, see [`electronic_indices`](@ref). The first
         index is for ground state of the aggregate the rest are first excited states in local basis.
 * `Ham`: Arbitrary operator specifying the Hamiltonian.
-* `aggIndices`: Aggregate indices, see [`getIndices`](@ref).
+* `aggIndices`: Aggregate indices, see [`get_indices`](@ref).
 * `boltzmann_const`: Boltzmann const in ``\\mathrm{cm^{-1}}``.
 * `diagonalize`: Decompose Hamiltonian into ``\\lambda_i, S, S^{-1}``
         and calculate the exponential using eigenvalue decomposition.
@@ -109,9 +109,9 @@ thermal_state_composite(T, [0.0, 0.8, 0.2], ...) = 0.8 * thermal_state(T, [1, 2,
 
 # Arguments
 * `T`: Temperature of the initial thermal state.
-* `mu_weighted`: Vector of weights of electric states in local basis, see [`electronicIndices`](@ref).
+* `mu_weighted`: Vector of weights of electric states in local basis, see [`electronic_indices`](@ref).
 * `Ham`: Arbitrary operator specifying the Hamiltonian.
-* `aggIndices`: Aggregate indices, see [`getIndices`](@ref).
+* `aggIndices`: Aggregate indices, see [`get_indices`](@ref).
 * `boltzmann_const`: Boltzmann const in ``\\mathrm{cm^{-1}}``.
 * `diagonalize`: Decompose Hamiltonian into ``\\lambda_i, S, S^{-1}``
         and calculate the exponential using eigenvalue decomposition.

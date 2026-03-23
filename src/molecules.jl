@@ -65,26 +65,26 @@ end
 
 
 """
-    franckCondonFactors(size, shift)
+    franck_condon_factors(size, shift)
 
 Get Franck-Condon factors for LHO mode calculated using [`ShiftOperator`](@ref).
 
 """
-function franckCondonFactors(size::T, shift::U) where {T<:Integer,U<:ComputableType}
+function franck_condon_factors(size::T, shift::U) where {T<:Integer,U<:ComputableType}
     b = GenericBasis([size + 200])
     shift_op = ShiftOperator(b, shift)
     return shift_op.data[1:size, 1:size]
 end
 
 """
-    vibrationalIndices(maxInds)
+    vibrational_indices(maxInds)
 
 Get the vibrational indices for all states on [`Molecule`](@ref).
 
 # Arguments
 * `maxInds`: Vector of maximum number of vibrational states.
 """
-function vibrationalIndices(maxInds::Vector{T}) where {T<:Integer}
+function vibrational_indices(maxInds::Vector{T}) where {T<:Integer}
     vibInds = Array{Array{T,1},1}(undef, 0)
     indLen = length(maxInds)
     currentInds = fill(1, (indLen))
@@ -106,14 +106,14 @@ end
 
 
 """
-electronicIndices(molCount)
+electronic_indices(molCount)
 
 Get the electric indices for all states on [`Aggregate`](@ref).
 
 # Arguments
 * `molCount`: Number of molecules in [`Aggregate`](@ref).
 """
-function electronicIndices(molCount::T) where {T<:Integer}
+function electronic_indices(molCount::T) where {T<:Integer}
     vibInds = Array{Array{T,1},1}(undef, 0)
     currentInds = fill(1, (molCount))
     push!(vibInds, copy(currentInds))
@@ -147,7 +147,7 @@ struct Molecule{T<:Integer,C1<:ComputableType,C2<:ComputableType}
     ) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
         fcFactors = Array{Array{C2,2},1}(undef, 0)
         for mode in modes
-            push!(fcFactors, franckCondonFactors(Nvib, mode.shift))
+            push!(fcFactors, franck_condon_factors(Nvib, mode.shift))
         end
         new(modes, Nvib, fcFactors, E)
     end
@@ -167,7 +167,7 @@ function convert_units(molecule::Molecule; from = "1/cm", to="1/fs")::Molecule
 end
 
 """
-    getMolStateEnergy(mol, molElState, molVibState)
+    get_mol_state_energy(mol, molElState, molVibState)
 
 Get the energy of the [`Molecule`](@ref) state.
 
@@ -176,7 +176,7 @@ Get the energy of the [`Molecule`](@ref) state.
 * `molElState`: Electric state of the molecule in local basis (i.e. 1 or 2, where 1 is ground state).
 * `molVibState`: Vibrational state of the molecule (e.g. [1, 5, 2, 2]).
 """
-function getMolStateEnergy(
+function get_mol_state_energy(
     mol::Molecule{T,C1,C2},
     molElState::U,
     molVibState::Vector{U},
@@ -191,7 +191,7 @@ function getMolStateEnergy(
 end
 
 """
-    getMolStateFC(mol, molElState1, molVibState1, molElState2, molVibState2)
+    get_mol_state_fc(mol, molElState1, molVibState1, molElState2, molVibState2)
 
 Get the energy of the [`Molecule`](@ref) state.
 
@@ -200,7 +200,7 @@ Get the energy of the [`Molecule`](@ref) state.
 * `molElState1`, `molElState2`: Electric state of the molecule in local basis (i.e. 1 or 2, where 1 is ground state).
 * `molVibState1`, `molVibState2`: Vibrational state of the molecule (e.g. [1, 5, 2, 2]).
 """
-function getMolStateFC(
+function get_mol_state_fc(
     mol::Molecule{T,C1,C2},
     molElState1::U,
     molVibState1::Vector{U},
@@ -222,14 +222,14 @@ function getMolStateFC(
 end
 
 """
-    getMolShifts(mol)
+    get_mol_shifts(mol)
 
 Get shifts of every mode on the [`Molecule`](@ref) state.
 
 # Arguments
 * `mol`: Instance of [`Molecule`](@ref).
 """
-function getMolShifts(
+function get_mol_shifts(
     mol::Molecule{T,C1,C2},
 ) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
     shifts = Array{C1,1}(undef, 0)
@@ -240,14 +240,14 @@ function getMolShifts(
 end
 
 """
-    getMolFrequencies(mol)
+    get_mol_frequencies(mol)
 
 Get shifts of every mode on the [`Molecule`](@ref) state.
 
 # Arguments
 * `mol`: Instance of [`Molecule`](@ref).
 """
-function getMolFrequencies(
+function get_mol_frequencies(
     mol::Molecule{T,C1,C2},
 ) where {T<:Integer,C1<:ComputableType,C2<:ComputableType}
     frquencies = Array{C1,1}(undef, 0)

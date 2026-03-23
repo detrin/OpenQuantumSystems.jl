@@ -22,7 +22,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     aggCore = AggregateCore([mol1, mol2])
     aggCore.coupling[2, 3] = 50
     aggCore.coupling[3, 2] = 50
-    agg = setupAggregate(aggCore)
+    agg = setup_aggregate(aggCore)
     aggOperators = agg.operators
     aggTools = agg.tools
 
@@ -46,7 +46,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     normalize!(rho0)
 
     t = 0.0
-    U_op = evolutionOperator(Ham, t)
+    U_op = evolution_operator(Ham, t)
     rho = U_op * rho0 * U_op'
     rho_traced_ref = ComplexF64[0.30545089951602383 + 0.0im 0.14375197756961597 + 0.21658981002618588im 0.09446278210921694 + 0.06885750587885092im; 0.14375197756961597 - 0.21658981002618588im 0.30379617012935617 + 1.5178830414797062e-18im 0.06403549575681955 + 0.0490347030584035im; 0.09446278210921695 - 0.06885750587885092im 0.06403549575681954 - 0.04903470305840349im 0.3601657072334817 - 1.1629184732212025e-18im]
     rho_traced = trace_bath_slow(rho, aggCore, aggTools)
@@ -75,7 +75,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     @test 1e-7 > D(rho0, rho0_ad)
     
     t = 1.0
-    U_op = evolutionOperator(Ham, t)
+    U_op = evolution_operator(Ham, t)
     rho = U_op * rho0 * U_op'
     rho_traced_ref = ComplexF64[0.2595039421087527 + 1.1102230246251565e-16im 0.6626972429778065 - 0.3034395850675509im 0.12521539202671672 - 0.4920188624519769im; 0.6626972429778069 + 0.3034395850675506im 0.21095069278599016 + 2.2730010622775303e-16im 0.29117337783386915 + 1.2392616289083571im; 0.12521539202671667 + 0.492018862451977im 0.29117337783386926 - 1.239261628908357im 1.3575702817649218 + 4.0047474713266894e-17im]
     rho_traced = trace_bath_slow(rho, aggCore, aggTools)
@@ -119,7 +119,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     rho_bath = get_rho_bath(rho0, aggCore, aggOperators, aggTools)
     
     t = 0.0
-    Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
+    Ham_II_t = get_interaction_ham_i_picture(Ham_0, Ham_I, t)
     prod = Ham_II_t * Ham_I * rho_bath
     corr_ref = trace_bath(prod, aggCore, aggOperators, aggTools)
     corr = correlation_function(
@@ -134,7 +134,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     @test 1e-7 > D(corr, corr_ref)
 
     t = 1.0
-    Ham_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
+    Ham_II_t = get_interaction_ham_i_picture(Ham_0, Ham_I, t)
     prod = Ham_II_t * Ham_I * rho_bath
     corr_ref = trace_bath(prod, aggCore, aggOperators, aggTools)
     corr = correlation_function(

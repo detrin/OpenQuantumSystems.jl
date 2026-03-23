@@ -109,7 +109,7 @@ import OrdinaryDiffEq
     aggCore = AggregateCore([mol1, mol2])
     aggCore.coupling[2, 3] = 50
     aggCore.coupling[3, 2] = 50
-    agg = setupAggregate(aggCore)
+    agg = setup_aggregate(aggCore)
 
     Ham = agg.operators.Ham
     basis = agg.tools.basis
@@ -132,7 +132,7 @@ import OrdinaryDiffEq
         alg = OrdinaryDiffEq.Tsit5(),
     )
     for t_i = 1:length(tspan)
-        U_op = evolutionOperator(Ham, tspan[t_i])
+        U_op = evolution_operator(Ham, tspan[t_i])
         ket = U_op * ket0
         @test 1e-8 > D(ket, rho_t[t_i])
         # println(t_i, " ", D(ket.data, rho_t[t_i].data))

@@ -20,7 +20,7 @@ using SparseArrays, LinearAlgebra
     aggCore = AggregateCore([mol1, mol2])
     aggCore.coupling[2, 3] = 50
     aggCore.coupling[3, 2] = 50
-    agg = setupAggregate(aggCore)
+    agg = setup_aggregate(aggCore)
 
     Ham = agg.operators.Ham
 
@@ -33,16 +33,16 @@ using SparseArrays, LinearAlgebra
     Ham_0_lambda = diagm(Ham_0_lambda)
 
     for t in [0.0, 1.0, 2.0]
-        U_op = evolutionOperator(Ham_0, t)
+        U_op = evolution_operator(Ham_0, t)
         U_II_t_ref = U_op' * Ham_I * U_op
 
-        U_II_t = getInteractionHamIPicture(Ham_0.data, Ham_I.data, t)
+        U_II_t = get_interaction_ham_i_picture(Ham_0.data, Ham_I.data, t)
         @test 1e-14 > D(U_II_t_ref.data, U_II_t)
-        U_II_t = getInteractionHamIPicture(Ham_0, Ham_I, t)
+        U_II_t = get_interaction_ham_i_picture(Ham_0, Ham_I, t)
         @test 1e-14 > D(U_II_t_ref, U_II_t)
-        U_II_t = getInteractionHamIPictureA(Ham_0, Ham_I, t)
+        U_II_t = get_interaction_ham_i_picture_a(Ham_0, Ham_I, t)
         @test 1e-14 > D(U_II_t_ref.data, U_II_t)
-        U_II_t = getInteractionHamIPictureA(Ham_I.data, Ham_0_lambda, Ham_0_S, Ham_0_Sinv, t)
+        U_II_t = get_interaction_ham_i_picture_a(Ham_I.data, Ham_0_lambda, Ham_0_S, Ham_0_Sinv, t)
         @test 1e-10 > D(U_II_t_ref.data, U_II_t)
     end
 

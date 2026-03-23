@@ -22,7 +22,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     aggCore = AggregateCore([mol1, mol2])
     aggCore.coupling[2, 3] = 50
     aggCore.coupling[3, 2] = 50
-    agg = setupAggregate(aggCore)
+    agg = setup_aggregate(aggCore)
     aggTools = agg.tools
     aggOperators = agg.operators
 
