@@ -203,7 +203,7 @@ The codebase mixes camelCase and snake_case inconsistently:
 The 17 issues above fix **internal** code quality. The issues below address the **external** experience -- how physicists and developers actually interact with the library.
 
 ### #67 / UX-1: Tutorial uses old API and does not work
-**Status:** BACKLOG
+**Status:** IN PROGRESS
 **Severity:** Critical (blocks all new users)
 
 The only tutorial (`docs/src/tutorials/dimer.md`) uses an API that no longer exists:
@@ -534,7 +534,7 @@ to_array(r::SimulationResult) = stack(s.data for s in r.states)
 
 | Priority | Issue | Impact | Status |
 |----------|-------|--------|--------|
-| 1 | **#67** Fix tutorial to use current API | Unblocks all new users | BACKLOG |
+| 1 | **#67** Fix tutorial to use current API | Unblocks all new users | IN PROGRESS |
 | 2 | **#76** Adopt Julia-idiomatic patterns | Architectural foundation for everything below | BACKLOG |
 | 3 | **#68** Add `SimulationResult` type | Eliminates overload explosion, consistent API | BACKLOG |
 | 4 | **#69** Molecule-count coupling matrix | Removes biggest physicist confusion | BACKLOG |
