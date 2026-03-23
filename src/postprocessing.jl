@@ -95,3 +95,61 @@ end
 function tspan_cm_to_fs(tspan_cm)
     return convert_units(convert(Vector{Float64}, tspan_cm); from="1/cm", to="1/fs")
 end
+
+###
+
+"""
+    validate_state(rho; tol=1e-6) -> Bool
+
+Check a density matrix (Operator) for physical validity.
+Warns (does not error) if trace deviates from 1 or if Inf/NaN values are found.
+Returns `true` if valid, `false` otherwise.
+"""
+function validate_state(rho::DataOperator; tol::Real=1e-6)
+    valid = true
+    data = rho.data
+
+    if any(x -> isinf(x) || isnan(x), data)
+        @warn "Density matrix contains Inf or NaN values"
+        valid = false
+    end
+
+    tr_val = real(tr(rho))
+    if abs(tr_val - 1.0) > tol
+        @warn "Density matrix trace deviates from 1: tr = $tr_val"
+        valid = false
+    end
+
+    return valid
+end
+
+"""
+    validate_trajectory(rho_t; tol=1e-6) -> Bool
+
+Check a vector of density matrices for physical validity.
+Applies `validate_state` to each element. Returns `true` if all valid, `false` otherwise.
+"""
+function validate_trajectory(rho_t::Vector{<:DataOperator}; tol::Real=1e-6)
+    valid = true
+    for (i, rho) in enumerate(rho_t)
+        if !validate_state(rho; tol=tol)
+            @warn "Invalid state at index $i"
+            valid = false
+        end
+    end
+    return valid
+end
+
+function validate_trajectory(rho_t::OperatorVectorArray; tol::Real=1e-6)
+    valid = true
+    N = size(rho_t, 1)
+    b = GenericBasis([size(rho_t, 2)])
+    for i in 1:N
+        op = Operator(b, b, rho_t[i, :, :])
+        if !validate_state(op; tol=tol)
+            @warn "Invalid state at index $i"
+            valid = false
+        end
+    end
+    return valid
+end

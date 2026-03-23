@@ -322,7 +322,7 @@ The individual functions remain for advanced use, but `solve` provides discovera
 ---
 
 ### #72 / UX-6: No physical validation
-**Status:** BACKLOG
+**Status:** IN PROGRESS
 **Severity:** Moderate (silent numerical errors)
 
 If a solver produces a non-physical state (trace != 1, not positive semidefinite), the user gets no warning. Silent `Inf`/`NaN` propagation is possible.
@@ -540,7 +540,7 @@ to_array(r::SimulationResult) = stack(s.data for s in r.states)
 | 4 | **#69** Molecule-count coupling matrix | Removes biggest physicist confusion | BACKLOG |
 | 5 | **#71** Unified `solve()` entry point | Discoverable API, reduced cognitive load | BACKLOG |
 | 6 | **#70** Document naming conventions + glossary | Helps existing users read the code | BACKLOG |
-| 7 | **#72** Physical validation | Catches silent numerical errors | BACKLOG |
+| 7 | **#72** Physical validation | Catches silent numerical errors | IN PROGRESS |
 | 8 | **#74** Solver selection guide in docs | Guides new users | BACKLOG |
 | 9 | **#73** Fix unit conversion | Small cleanup | IN PROGRESS |
 | 10 | **#75** Convenience constructors | Lowers barrier for common cases | BACKLOG |
