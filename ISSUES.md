@@ -156,7 +156,7 @@ Implement the first-order correction to the memory kernel M_abcd(t₁, t₂; ŵ�
 ---
 
 ### #90 - High-temperature limit of corrected memory kernel
-**Status:** IN PROGRESS
+**Status:** DONE
 **Severity:** Feature (thesis core contribution)
 **Blocked by:** #89
 
@@ -271,7 +271,7 @@ Enable data exchange with [quantarhei](https://github.com/tmancal74/quantarhei),
 | #87 | Fix docstring labels and type params | Bug | Minor | DONE |
 | #88 | Zeroth-order memory kernel via correlation functions | Feature | Near-future | DONE |
 | #89 | First-order corrected memory kernel | Feature | Near-future | DONE |
-| #90 | High-temperature limit of corrected memory kernel | Feature | Near-future | IN PROGRESS |
+| #90 | High-temperature limit of corrected memory kernel | Feature | Near-future | DONE |
 
 ## Priority Order
 
