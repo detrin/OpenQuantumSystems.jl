@@ -30,6 +30,7 @@ names = [
     "test_convenience.jl",
     "test_vib_basis.jl",
     "test_dipole.jl",
+    "test_forster.jl",
     "test_spectral_density.jl",
     "test_modified_redfield.jl",
     "test_corrected_memory_kernel.jl"
