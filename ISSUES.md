@@ -113,7 +113,7 @@ Two minor issues found during thesis verification:
 ## Corrected Memory Kernel (Thesis Section 3.7)
 
 ### #88 - Zeroth-order memory kernel via correlation functions
-**Status:** IN PROGRESS
+**Status:** DONE
 **Severity:** Feature (thesis core contribution)
 **Blocked by:** None
 
@@ -269,7 +269,7 @@ Enable data exchange with [quantarhei](https://github.com/tmancal74/quantarhei),
 | #85 | quantarhei interoperability | Feature | Nice-to-have | BACKLOG |
 | #86 | Fix missing rho factor in iterative QME | Bug | Critical | IN PROGRESS |
 | #87 | Fix docstring labels and type params | Bug | Minor | IN PROGRESS |
-| #88 | Zeroth-order memory kernel via correlation functions | Feature | Near-future | IN PROGRESS |
+| #88 | Zeroth-order memory kernel via correlation functions | Feature | Near-future | DONE |
 | #89 | First-order corrected memory kernel | Feature | Near-future | BACKLOG |
 | #90 | High-temperature limit of corrected memory kernel | Feature | Near-future | BACKLOG |
 
