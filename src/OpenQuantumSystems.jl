@@ -319,6 +319,15 @@ export
     modified_redfield_rates,
     modified_redfield_dynamics,
 
+    # correlation.jl
+    analytic_correlation_nn,
+    exciton_correlation,
+
+    # corrected_memory_kernel.jl
+    equilibrium_bath_state,
+    zeroth_order_memory_kernel_cf,
+    site_to_exciton_kernel,
+
     # dipole.jl
     DIPOLE_COUPLING_FACTOR,
     TransitionDipole,
@@ -400,6 +409,10 @@ include("evolution/master_iterative.jl")
 include("spectroscopy/forster.jl")
 include("spectroscopy/spectral_density.jl")
 include("spectroscopy/modified_redfield.jl")
+
+# corrected memory kernel (depends on spectroscopy types)
+include("evolution/correlation.jl")
+include("evolution/corrected_memory_kernel.jl")
 
 # utils/
 include("utils/initial_state.jl")
