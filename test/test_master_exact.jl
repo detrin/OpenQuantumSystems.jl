@@ -4,6 +4,7 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
 import QuantumOpticsBase
 
 import DelayDiffEq
+import OrdinaryDiffEq
 
 @testset "master" begin
 
@@ -64,7 +65,7 @@ import DelayDiffEq
         abstol = 1e-3,
         int_reltol = 1e-4,
         int_abstol = 1e-4,
-        alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
+        alg = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Tsit5()),
     )
 
     _, W_int_t = QME_SI_exact(
@@ -75,7 +76,7 @@ import DelayDiffEq
         abstol = 1e-3,
         int_reltol = 1e-4,
         int_abstol = 1e-4,
-        alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
+        alg = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Tsit5()),
     )
 
     _, rho_t = QME_sS_exact(
@@ -86,7 +87,7 @@ import DelayDiffEq
         abstol = 1.0e-3,
         int_reltol = 1.0e-4,
         int_abstol = 1.0e-4,
-        alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5())
+        alg = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Tsit5())
     )
 
     _, rho_int_t = QME_sI_exact(
@@ -97,7 +98,7 @@ import DelayDiffEq
         abstol = 1.0e-3,
         int_reltol = 1.0e-4,
         int_abstol = 1.0e-4,
-        alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5())
+        alg = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Tsit5())
     )
 
 
