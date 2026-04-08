@@ -2,6 +2,7 @@ using Test
 using Random, SparseArrays, LinearAlgebra, StableRNGs
 using OpenQuantumSystems
 import DelayDiffEq
+import OrdinaryDiffEq
 import QuantumOpticsBase
 
 @testset "redfield" begin
@@ -64,7 +65,7 @@ import QuantumOpticsBase
         abstol = 1e-3,
         int_reltol = 1e-4,
         int_abstol = 1e-4,
-        alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
+        alg = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Tsit5()),
     )
 
 end # testset
