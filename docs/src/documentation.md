@@ -140,7 +140,7 @@ Modules = [OpenQuantumSystems]
 Pages   = ["evolution/correlation.jl"]
 ```
 
-## Corrected Memory Kernel
+## Corrected Memory Kernel Functions
 
 ```@autodocs
 Modules = [OpenQuantumSystems]
