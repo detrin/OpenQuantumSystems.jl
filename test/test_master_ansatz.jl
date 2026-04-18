@@ -2,6 +2,7 @@ using Test
 using Random, SparseArrays, LinearAlgebra, StableRNGs
 using OpenQuantumSystems
 import DelayDiffEq
+import OrdinaryDiffEq
 import QuantumOpticsBase
 
 @testset "master ansatz" begin
@@ -63,7 +64,7 @@ import QuantumOpticsBase
         abstol = 1e-3,
         int_reltol = 1e-4,
         int_abstol = 1e-4,
-        alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
+        alg = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Tsit5()),
     )
 
     _, rho_t = QME_sI_ansatz_const_int(
@@ -74,7 +75,7 @@ import QuantumOpticsBase
         abstol = 1e-3,
         int_reltol = 1e-4,
         int_abstol = 1e-4,
-        alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
+        alg = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Tsit5()),
     )
 
     _, rho_t = QME_sI_ansatz_const_sch(
@@ -85,7 +86,7 @@ import QuantumOpticsBase
         abstol = 1e-3,
         int_reltol = 1e-4,
         int_abstol = 1e-4,
-        alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
+        alg = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Tsit5()),
     )
 
     _, rho_t = QME_sI_ansatz_linear_sch(
@@ -96,7 +97,7 @@ import QuantumOpticsBase
         abstol = 1e-3,
         int_reltol = 1e-4,
         int_abstol = 1e-4,
-        alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
+        alg = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Tsit5()),
     )
 
     _, rho_t = QME_sI_ansatz_linear2_sch(
@@ -107,7 +108,7 @@ import QuantumOpticsBase
         abstol = 1e-3,
         int_reltol = 1e-4,
         int_abstol = 1e-4,
-        alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
+        alg = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Tsit5()),
     )
 
     _, rho_t = QME_sI_ansatz_upart1_sch(
@@ -118,7 +119,7 @@ import QuantumOpticsBase
         abstol = 1e-3,
         int_reltol = 1e-4,
         int_abstol = 1e-4,
-        alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
+        alg = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Tsit5()),
     )
 
     _, rho_t = QME_sI_ansatz_upart1_int(
@@ -129,7 +130,7 @@ import QuantumOpticsBase
         abstol = 1e-3,
         int_reltol = 1e-4,
         int_abstol = 1e-4,
-        alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
+        alg = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Tsit5()),
     )
 
     _, rho_t = QME_sI_ansatz_upart2_sch(
@@ -140,7 +141,7 @@ import QuantumOpticsBase
         abstol = 1e-3,
         int_reltol = 1e-4,
         int_abstol = 1e-4,
-        alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
+        alg = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Tsit5()),
     )
 
     _, rho_t = QME_sI_ansatz_upart2_int(
@@ -151,7 +152,7 @@ import QuantumOpticsBase
         abstol = 1e-3,
         int_reltol = 1e-4,
         int_abstol = 1e-4,
-        alg = DelayDiffEq.MethodOfSteps(DelayDiffEq.Tsit5()),
+        alg = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Tsit5()),
     )
 
 end # testset
