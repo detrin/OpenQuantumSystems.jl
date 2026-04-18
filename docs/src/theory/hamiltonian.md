@@ -2,7 +2,7 @@
 CurrentModule=OpenQuantumSystems
 ```
 
-# Hamiltonian and Bath Model
+# Hamiltonian & Bath Model
 
 This page summarises the Hamiltonian structure, the linear harmonic oscillator
 (LHO) bath, correlation functions, and the initial-state preparation used
