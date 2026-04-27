@@ -18,7 +18,7 @@ SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 StableRNGs = "860ef19b-820b-49d6-a774-d7a799459cd3"
 
 [compat]
-DelayDiffEq = "5"
+DelayDiffEq = "5, 6"
 DiffEqCallbacks = "2, 3, 4"
 Interpolations = "0.13, 0.14, 0.15, 0.16"
 OrdinaryDiffEq = "6"
