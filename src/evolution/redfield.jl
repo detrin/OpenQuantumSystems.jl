@@ -58,12 +58,15 @@ function dQME_sI_Redfield(
 ) where {B<:Basis,T<:Operator{B,B}}
     (; aggCore, aggTools, aggOperators, W0, elementtype) = p
         
-    Ham_II_t = get_interaction_ham_i_picture(aggOperators.Ham_0, aggOperators.Ham_I, t)
+    Ham_II_t = _interaction_ham(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
     K_traced = trace_bath(K, aggCore, aggOperators, aggTools; vib_basis=aggOperators.vib_basis)
 
+    # Redfield: the state inside the memory integral is taken at time t, so the
+    # full-space operator ρ(t) ⊕ W_bath is the same for every node s.
+    W_t = ad(_to_matrix(history_fun(p, t)), p.W0_bath.data, aggCore, aggTools)
     kernel_integrated_traced, err = QuadGK.quadgk(
-        s -> kernel_sI_Redfield(t, s, history_fun, p, tmp1, tmp2, Ham_II_t),
+        s -> kernel_sI_Redfield(t, s, W_t, p, tmp1, tmp2, Ham_II_t),
         0,
         t,
         rtol = int_reltol,
@@ -74,23 +77,13 @@ function dQME_sI_Redfield(
     return drho
 end
 
-function kernel_sI_Redfield(t, s, h, p, tmp1, tmp2, Ham_II_t)
-    (; aggCore, aggTools, aggOperators, W0, W0_bath) = p
+function kernel_sI_Redfield(t, s, W_t, p, tmp1, tmp2, Ham_II_t)
+    (; aggCore, aggTools, aggOperators) = p
 
-    rho = h(p, t)
+    Ham_II_s = _interaction_ham(aggOperators.Ham_0.data, aggOperators.Ham_I.data, t-s)
 
-    if (typeof(rho) <: Operator)
-        rho = rho.data
-    end
-
-    Ham_0 = aggOperators.Ham_0
-    Ham_I = aggOperators.Ham_I
-    Ham_II_s = get_interaction_ham_i_picture(Ham_0, Ham_I, t-s)
-
-    tmp1[:, :] = ad(rho, W0_bath.data, aggCore, aggTools)
-
-    tmp2[:, :] = Ham_II_s.data * tmp1 - tmp1 * Ham_II_s.data
-    tmp1[:, :] = Ham_II_t.data * tmp2 - tmp2 * Ham_II_t.data
+    _commutator!(tmp2, Ham_II_s, W_t)
+    _commutator!(tmp1, Ham_II_t.data, tmp2)
 
     return trace_bath(tmp1, aggCore, aggOperators, aggTools; vib_basis=aggOperators.vib_basis)
 end

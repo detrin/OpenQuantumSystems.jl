@@ -271,4 +271,22 @@ using Random, SparseArrays, LinearAlgebra, StableRNGs
     _, rho_t_ = Evolution_sS_exact(W0, tspan, agg)
     rho_t_ref = trace_bath(W_t_ref, agg.core, agg.operators, agg.tools)
     @test 1e-12 > D(rho_t_ref, rho_t_[2, :, :])
+
+    @testset "cached propagators" begin
+        H = Matrix(agg.operators.Ham.data)
+        H0, HI = agg.operators.Ham_0.data, agg.operators.Ham_I.data
+        for t in (0.0, 0.3, 1.0)
+            @test OpenQuantumSystems._propagator(H, t) ≈ exp(-1im * H * t) atol = 1e-10
+            @test OpenQuantumSystems._interaction_ham(H0, HI, t) ≈
+                  get_interaction_ham_i_picture(H0, HI, t) atol = 1e-10
+        end
+        # an in-place change of the Hamiltonian must not hit the stale cache entry
+        H_mut = copy(H)
+        OpenQuantumSystems._propagator(H_mut, 0.5)
+        H_mut[1, 1] += 1.0
+        @test OpenQuantumSystems._propagator(H_mut, 0.5) ≈ exp(-1im * H_mut * 0.5) atol = 1e-10
+        # non-Hermitian input falls back to the matrix exponential
+        A = [0.0 1.0; 0.0 0.0]
+        @test OpenQuantumSystems._propagator(A, 1.0) ≈ exp(-1im * A)
+    end
 end

@@ -30,8 +30,8 @@ function W_abcd_1_bath_core(t, t1, t2, p, tmp1, tmp2)
     Ham_0 = aggOperators.Ham_0
     Ham_I = aggOperators.Ham_I
 
-    Ham_II_t1 = get_interaction_ham_i_picture(Ham_0, Ham_I, t1)
-    Ham_II_t2 = get_interaction_ham_i_picture(Ham_0, Ham_I, t2)
+    Ham_II_t1 = _interaction_ham(Ham_0, Ham_I, t1)
+    Ham_II_t2 = _interaction_ham(Ham_0, Ham_I, t2)
 
     W_1_bath = zeros(ComplexF64, aggTools.bSize, aggTools.bSize)
     rho_t2 = interpolate_with_tspan(rho_0_int_t_itp, tspan, t2)
@@ -40,8 +40,8 @@ function W_abcd_1_bath_core(t, t1, t2, p, tmp1, tmp2)
     rho_t1[:, :] = map(_safe_inv, rho_t1)
 
     tmp1[:, :] = ad(rho_t2, W_bath_t2, aggCore, aggTools)
-    tmp2[:, :] = Ham_II_t2.data * tmp1 - tmp1 * Ham_II_t2.data
-    tmp1[:, :] = Ham_II_t1.data * tmp2 - tmp2 * Ham_II_t1.data
+    _commutator!(tmp2, Ham_II_t2.data, tmp1)
+    _commutator!(tmp1, Ham_II_t1.data, tmp2)
     W_1_bath[:, :] = ad(rho_t1, tmp1, aggCore, aggTools)
     #=
     for a=2:elLen, b=1:elLen
@@ -210,7 +210,7 @@ function dQME_sI_iterative(
 ) where {B<:Basis,T<:Operator{B,B}}
     (; aggCore, aggTools, aggOperators, W0, elementtype) = p
 
-    Ham_II_t = get_interaction_ham_i_picture(aggOperators.Ham_0, aggOperators.Ham_I, t)
+    Ham_II_t = _interaction_ham(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
     K_traced = trace_bath(K, aggCore, aggOperators, aggTools; vib_basis=aggOperators.vib_basis)
     # println("dQME_sI_iterative", " ", t)
@@ -235,12 +235,12 @@ function kernel_sI_iterative(t, s, h, p, tmp1, tmp2, Ham_II_t)
 
     Ham_0 = aggOperators.Ham_0
     Ham_I = aggOperators.Ham_I
-    Ham_II_s = get_interaction_ham_i_picture(Ham_0, Ham_I, s)
+    Ham_II_s = _interaction_ham(Ham_0, Ham_I, s)
     W_bath_s = interpolate_with_tspan(W_1_bath_itp, tspan, s)
 
     tmp1[:, :] = ad(rho, W_bath_s, aggCore, aggTools)
-    tmp2[:, :] = Ham_II_s.data * tmp1 - tmp1 * Ham_II_s.data
-    tmp1[:, :] = Ham_II_t.data * tmp2 - tmp2 * Ham_II_t.data
+    _commutator!(tmp2, Ham_II_s.data, tmp1)
+    _commutator!(tmp1, Ham_II_t.data, tmp2)
 
     return trace_bath(tmp1, aggCore, aggOperators, aggTools; vib_basis=aggOperators.vib_basis)
 end
@@ -254,8 +254,8 @@ function W_abcd_1_markov0_bath_core(t, t1, t2, p, tmp1, tmp2)
     Ham_0 = aggOperators.Ham_0
     Ham_I = aggOperators.Ham_I
 
-    Ham_II_t1 = get_interaction_ham_i_picture(Ham_0, Ham_I, t1)
-    Ham_II_t2 = get_interaction_ham_i_picture(Ham_0, Ham_I, t2)
+    Ham_II_t1 = _interaction_ham(Ham_0, Ham_I, t1)
+    Ham_II_t2 = _interaction_ham(Ham_0, Ham_I, t2)
 
     W_1_bath = zeros(ComplexF64, aggTools.bSize, aggTools.bSize)
     rho_t2 = interpolate_with_tspan(rho_0_int_t_itp, tspan, t2)
@@ -263,8 +263,8 @@ function W_abcd_1_markov0_bath_core(t, t1, t2, p, tmp1, tmp2)
 
     tmp1[:, :] = ad(rho_t2, W_bath_t2, aggCore, aggTools)
     # tmp1[:, :] = W_bath_t2[:, :]
-    tmp2[:, :] = Ham_II_t2.data * tmp1 - tmp1 * Ham_II_t2.data
-    W_1_bath[:, :] = Ham_II_t1.data * tmp2 - tmp2 * Ham_II_t1.data
+    _commutator!(tmp2, Ham_II_t2.data, tmp1)
+    _commutator!(W_1_bath, Ham_II_t1.data, tmp2)
 
     return W_1_bath
 end
@@ -323,8 +323,8 @@ function W_abcd_1_markov1_bath_core(t, t1, t2, p, tmp1, tmp2)
     Ham_0 = aggOperators.Ham_0
     Ham_I = aggOperators.Ham_I
 
-    Ham_II_t1 = get_interaction_ham_i_picture(Ham_0, Ham_I, t1)
-    Ham_II_t2 = get_interaction_ham_i_picture(Ham_0, Ham_I, t2)
+    Ham_II_t1 = _interaction_ham(Ham_0, Ham_I, t1)
+    Ham_II_t2 = _interaction_ham(Ham_0, Ham_I, t2)
 
     W_1_bath = zeros(ComplexF64, aggTools.bSize, aggTools.bSize)
     rho_t2 = interpolate_with_tspan(rho_0_int_t_itp, tspan, t2)
@@ -333,8 +333,8 @@ function W_abcd_1_markov1_bath_core(t, t1, t2, p, tmp1, tmp2)
 
     tmp1[:, :] = ad(rho_t2, W_bath_t1, aggCore, aggTools)
     # tmp1[:, :] = W_bath_t2[:, :]
-    tmp2[:, :] = Ham_II_t2.data * tmp1 - tmp1 * Ham_II_t2.data
-    W_1_bath[:, :] = Ham_II_t1.data * tmp2 - tmp2 * Ham_II_t1.data
+    _commutator!(tmp2, Ham_II_t2.data, tmp1)
+    _commutator!(W_1_bath, Ham_II_t1.data, tmp2)
 
     return W_1_bath
 end

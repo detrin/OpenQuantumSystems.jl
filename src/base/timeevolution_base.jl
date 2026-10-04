@@ -2,6 +2,13 @@ import OrdinaryDiffEq, DiffEqCallbacks, DelayDiffEq
 
 function recast! end
 
+# out = A B - B A without temporaries; `out` must not alias A or B.
+function _commutator!(out::AbstractMatrix, A::AbstractMatrix, B::AbstractMatrix)
+    LinearAlgebra.mul!(out, A, B)
+    LinearAlgebra.mul!(out, B, A, -1, 1)
+    return out
+end
+
 """
     integrate(tspan, df::Function, x0::Vector{ComplexF64},
             state::T, dstate::T, fout::Function; kwargs...)
