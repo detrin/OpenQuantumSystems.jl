@@ -92,14 +92,15 @@ well for weak coupling (small ``S``).
 agg = setup_aggregate(aggCore)
 W0 = thermal_state_composite(T, [0.0, 1.0, 0.0], agg)
 
-tspan = collect(0.0:0.001:0.5)
-tspan_out, rho_int_t = QME_sI_Redfield(W0, tspan, agg)
+# memory-kernel solvers: keep t_max short (cost grows faster than linearly)
+tspan = collect(0.0:0.001:0.05)
+tspan_out, rho_int_t = QME_sI_Redfield(W0, tspan, agg; reltol=1e-6, abstol=1e-8)
 
 rho_redfield = zeros(Float64, length(tspan_out), elLen)
-rho_sch_t = interaction_pic_to_schroedinger_pic(rho_int_t, agg.operators.Ham_0, tspan_out)
+rho_sch_t = interaction_pic_to_schroedinger_pic(rho_int_t, tspan_out, agg)
 for t_i in 1:length(tspan_out)
     for n in 1:elLen
-        rho_redfield[t_i, n] = real(rho_sch_t[t_i].data[n, n])
+        rho_redfield[t_i, n] = real(rho_sch_t[t_i, n, n])
     end
 end
 ```
@@ -110,23 +111,25 @@ end
 ## Method 3: QME with Bath Ansatz
 
 The ansatz approach approximates the bath state inside the memory integral
-with various levels of sophistication. The simplest ansatz (`:const_sch`)
-freezes the bath at its initial value.
+with various levels of sophistication. The simplest ansatz (`:const_int`)
+freezes the bath at its initial value in the interaction picture.
 
 ```julia
-tspan_out, rho_int_t = QME_sI_ansatz(W0, tspan, agg; ansatz=:const_sch)
+tspan_out, rho_int_t = QME_sI_ansatz(W0, tspan, agg; ansatz=:const_int,
+    reltol=1e-6, abstol=1e-8)
 
 rho_ansatz = zeros(Float64, length(tspan_out), elLen)
-rho_sch_t = interaction_pic_to_schroedinger_pic(rho_int_t, agg.operators.Ham_0, tspan_out)
+rho_sch_t = interaction_pic_to_schroedinger_pic(rho_int_t, tspan_out, agg)
 for t_i in 1:length(tspan_out)
     for n in 1:elLen
-        rho_ansatz[t_i, n] = real(rho_sch_t[t_i].data[n, n])
+        rho_ansatz[t_i, n] = real(rho_sch_t[t_i, n, n])
     end
 end
 ```
 
-**When to use:** General-purpose; the `:const_sch` ansatz is the cheapest
-nontrivial option. For better accuracy, try `:upart1_sch` or `:upart2_sch`.
+**When to use:** General-purpose; the `:const_int` ansatz is the cheapest
+nontrivial option. For better accuracy, try `:upart1_int` or `:upart2_int`.
+The Schrödinger-picture variants (`:*_sch`) are considerably less accurate.
 
 ## Method 4: Modified Redfield Theory
 
@@ -282,12 +285,13 @@ The comparison reveals several important points:
    fluctuations is not fully converged.
 
 !!! note "Redfield and QME Ansatz"
-    The `QME_sI_Redfield` and `QME_sI_ansatz` solvers use delayed
-    differential equations (DDE) and produce full coherent dynamics in the
-    interaction picture. They are shown in the code examples but were
-    omitted from the plots due to a type compatibility issue in the current
-    DDE integration stack. These solvers work correctly when called from
-    the main project environment (see the [Dimer examples](@ref) tutorial).
+    The `QME_sI_Redfield` and `QME_sI_ansatz` solvers integrate a delay
+    differential equation whose memory integral runs over the whole history,
+    so their cost grows faster than linearly with ``t_\text{max}``. On this
+    benchmark (`nvib = 5`, ``t_\text{max} = 0.5``) a single run takes on the
+    order of an hour, so they are not part of the plots above. Use them on
+    shorter time windows, or see the [Solver Selection Guide](@ref) for
+    integrator and tolerance settings.
 
 ## Full Comparison Script
 
@@ -321,17 +325,19 @@ W0 = thermal_state_composite(T, [0.0, 1.0, 0.0], agg)
 _, W_t = evolution_approximate(W0, tspan, Ham)
 rho11_exact = [real(trace_bath(W_t[i].data, agg)[2, 2]) for i in 1:length(tspan)]
 
-# --- Redfield ---
+# --- Redfield (memory-kernel solvers on a shorter window) ---
+tspan_qme = collect(0.0:0.001:0.05)
 W0 = thermal_state_composite(T, [0.0, 1.0, 0.0], agg)
-t_out_r, rho_int_r = QME_sI_Redfield(W0, tspan, agg)
-rho_sch_r = interaction_pic_to_schroedinger_pic(rho_int_r, agg.operators.Ham_0, t_out_r)
-rho11_redfield = [real(rho_sch_r[i].data[2, 2]) for i in 1:length(t_out_r)]
+t_out_r, rho_int_r = QME_sI_Redfield(W0, tspan_qme, agg; reltol=1e-6, abstol=1e-8)
+rho_sch_r = interaction_pic_to_schroedinger_pic(rho_int_r, t_out_r, agg)
+rho11_redfield = [real(rho_sch_r[i, 2, 2]) for i in 1:length(t_out_r)]
 
 # --- Ansatz ---
 W0 = thermal_state_composite(T, [0.0, 1.0, 0.0], agg)
-t_out_a, rho_int_a = QME_sI_ansatz(W0, tspan, agg; ansatz=:const_sch)
-rho_sch_a = interaction_pic_to_schroedinger_pic(rho_int_a, agg.operators.Ham_0, t_out_a)
-rho11_ansatz = [real(rho_sch_a[i].data[2, 2]) for i in 1:length(t_out_a)]
+t_out_a, rho_int_a = QME_sI_ansatz(W0, tspan_qme, agg; ansatz=:const_int,
+    reltol=1e-6, abstol=1e-8)
+rho_sch_a = interaction_pic_to_schroedinger_pic(rho_int_a, t_out_a, agg)
+rho11_ansatz = [real(rho_sch_a[i, 2, 2]) for i in 1:length(t_out_a)]
 
 # --- Modified Redfield (exciton → site) ---
 _, coeffs = let
@@ -367,8 +373,8 @@ To visualize:
 ```julia
 using Plots
 plot(tspan, rho11_exact, label="Exact", lw=2, color=:black)
-plot!(tspan, rho11_redfield, label="Redfield", ls=:dash, color=:blue)
-plot!(tspan, rho11_ansatz, label="Ansatz (const)", ls=:dash, color=:cyan)
+plot!(t_out_r, rho11_redfield, label="Redfield", ls=:dash, color=:blue)
+plot!(t_out_a, rho11_ansatz, label="Ansatz (const)", ls=:dash, color=:cyan)
 plot!(tspan, rho11_modred, label="Modified Redfield", ls=:dot, color=:red)
 plot!(tspan, rho11_corr0, label="Corrected (0th)", ls=:dashdot, color=:orange)
 plot!(tspan, rho11_corr1, label="Corrected (1st)", ls=:dashdot, color=:green)
