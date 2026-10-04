@@ -111,7 +111,7 @@ function QME_sI_iterative(
     int_abstol::AbstractFloat = 1.0e-4,
     W_1_rtol::AbstractFloat = 1e-12,
     W_1_atol::AbstractFloat = 1e-12,
-    alg::Any = DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()),
+    alg::Any = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Vern6()),
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}

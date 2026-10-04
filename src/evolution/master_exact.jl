@@ -4,7 +4,7 @@ import QuantumOpticsBase, LinearAlgebra, OrdinaryDiffEq, QuadGK, DelayDiffEq
 """
     master_int(W0, tspan, Ham_0, Ham_I; 
     \treltol=1.0e-12, abstol=1.0e-12, int_reltol=1.0e-8, int_abstol=0.0, 
-    \tfout=nothing, alg=DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()))
+    \tfout=nothing, alg=DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Vern6()))
 
 Integrate Quantum Master equation 
 
@@ -36,7 +36,7 @@ function QME_sI_exact(
     abstol::AbstractFloat = 1.0e-12,
     int_reltol::AbstractFloat = 1.0e-4,
     int_abstol::AbstractFloat = 1.0e-4,
-    alg::Any = DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()),
+    alg::Any = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Vern6()),
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
@@ -127,7 +127,7 @@ function QME_sS_exact(
     abstol::AbstractFloat = 1.0e-12,
     int_reltol::AbstractFloat = 1.0e-4,
     int_abstol::AbstractFloat = 1.0e-4,
-    alg::Any = DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()),
+    alg::Any = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Vern6()),
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
@@ -209,7 +209,7 @@ end
 """
     master(W0, tspan, Ham; 
     \treltol=1.0e-12, abstol=1.0e-12, int_reltol=1.0e-8, int_abstol=0.0, 
-    \tfout=nothing, alg=DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()))
+    \tfout=nothing, alg=DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Vern6()))
 
 Integrate Quantum Master equation 
 
@@ -239,7 +239,7 @@ function QME_SS_exact(
     abstol::Float64 = 1.0e-12,
     int_reltol::AbstractFloat = 1.0e-8,
     int_abstol::AbstractFloat = 0.0,
-    alg::Any = DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()),
+    alg::Any = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Vern6()),
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
@@ -319,7 +319,7 @@ function QME_SI_exact(
     abstol::Float64 = 1.0e-12,
     int_reltol::AbstractFloat = 1.0e-8,
     int_abstol::AbstractFloat = 0.0,
-    alg::Any = DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()),
+    alg::Any = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Vern6()),
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}

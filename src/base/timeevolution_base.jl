@@ -110,7 +110,7 @@ function integrate_delayed(
     p = nothing,
     reltol::Float64 = 1.0e-6,
     abstol::Float64 = 1.0e-6,
-    alg::Any = DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()),
+    alg::Any = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Vern6()),
     steady_state = false,
     tol = 1e-3,
     save_everystep = false,
