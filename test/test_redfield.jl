@@ -1,72 +1,42 @@
 using Test
-using Random, SparseArrays, LinearAlgebra, StableRNGs
-using OpenQuantumSystems
-import DelayDiffEq
-import OrdinaryDiffEq
-import QuantumOpticsBase
+include("helpers_qme.jl")
 
 @testset "redfield" begin
 
-    Random.seed!(StableRNG(0), 1)
+    tspan = QME_TEST_TSPAN
+    kw = qme_test_kwargs()
 
-    D(op1::Array, op2::Array) = abs(norm(op1 - op2))
-    D(x1::StateVector, x2::StateVector) = norm(x2 - x1)
-    D(op1::AbstractOperator, op2::AbstractOperator) =
-        abs(tracedistance_nh(dense(op1), dense(op2)))
-    D(op1::AbstractSuperOperator, op2::AbstractSuperOperator) =
-        abs(tracedistance_nh(dense(op1), dense(op2)))
+    @testset "no system-bath coupling: no dynamics in interaction picture" begin
+        agg, W0 = qme_test_dimer(0.0)
+        _, rho_t = QME_sI_Redfield(W0, tspan, agg; kw...)
+        @test maximum(norm(rho.data - rho_t[1].data) for rho in rho_t) < 1e-12
+    end
 
-    # TODO: change to macro
-    mode1 = Mode(0.2, 1.0)
-    mode2 = Mode(0.3, 2.0)
-    Energy = [0.0, 200.0]
-    mol1 = Molecule([mode1], 3, [2.0, 200.0])
-    mol2 = Molecule([mode2], 3, [3.0, 300.0])
-    aggCore = AggregateCore([mol1, mol2])
-    aggCore.coupling[2, 3] = 50
-    aggCore.coupling[3, 2] = 50
-    agg = setup_aggregate(aggCore)
-    aggTools = agg.tools
-    aggOperators = agg.operators
+    @testset "weak coupling: close to exact, trace and hermiticity preserved" begin
+        agg, W0 = qme_test_dimer(0.05)
+        _, rho_t = QME_sI_Redfield(W0, tspan, agg; kw...)
+        ref = qme_exact(agg, W0, tspan)
+        @test qme_relative_error(rho_t, ref) < 0.1
+        @test qme_trace_drift(rho_t) < 1e-10
+        @test qme_hermiticity(rho_t) < 1e-10
+    end
 
-    Ham_B = agg.operators.Ham_B
-    Ham_I = agg.operators.Ham_I
-    Ham_0 = agg.operators.Ham_0
-    Ham = agg.operators.Ham
+    @testset "default DDE algorithm is constructible" begin
+        agg, W0 = qme_test_dimer(0.05)
+        (; reltol, abstol, int_reltol, int_abstol) = kw
+        _, rho_t = QME_sI_Redfield(W0, tspan[1:2], agg;
+            reltol = reltol, abstol = abstol, int_reltol = int_reltol, int_abstol = int_abstol)
+        @test length(rho_t) == 2
+    end
 
-    Ham_0_lambda, Ham_0_S = eigen(Ham_0.data)
-    Ham_0_Sinv = inv(Ham_0_S)
-    Ham_0_lambda = diagm(Ham_0_lambda)
-
-    basis = agg.tools.basis
-    indicesLen = agg.tools.bSize
-    indices = agg.tools.indices
-    indicesMap = agg.tools.indicesMap
-    FCFact = agg.tools.FCfactors
-    FCProd = agg.tools.FCproduct
-
-    data = Matrix(Hermitian(rand(ComplexF64, indicesLen, indicesLen)))
-    W0 = DenseOperator(basis, basis, data)
-    rho0 = trace_bath(W0, aggCore, aggOperators, aggTools)
-    W0_bath = get_rho_bath(W0, aggCore, aggOperators, aggTools)
-    normalize!(rho0)
-    # tests have to be quick enough
-    t_max = 0.001
-    t_count = 10
-    t0 = 0.
-    t_step = (t_max - t0) / (t_count)
-    tspan = [t0:t_step:t_max;]
-
-    _, rho_t = QME_sI_Redfield(
-        W0,
-        tspan,
-        agg;
-        reltol = 1e-3,
-        abstol = 1e-3,
-        int_reltol = 1e-4,
-        int_abstol = 1e-4,
-        alg = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Tsit5()),
-    )
+    # Second-order theory: relative error ∝ S (observed ratio 4.1 for S → S/4).
+    @testset "error scales linearly with Huang-Rhys factor" begin
+        errs = map((0.05, 0.0125)) do S
+            agg, W0 = qme_test_dimer(S)
+            _, rho_t = QME_sI_Redfield(W0, tspan, agg; kw...)
+            qme_relative_error(rho_t, qme_exact(agg, W0, tspan))
+        end
+        @test 3.0 < errs[1] / errs[2] < 5.0
+    end
 
 end # testset
-

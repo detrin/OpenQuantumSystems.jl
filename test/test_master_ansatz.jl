@@ -1,159 +1,63 @@
 using Test
-using Random, SparseArrays, LinearAlgebra, StableRNGs
-using OpenQuantumSystems
-import DelayDiffEq
-import OrdinaryDiffEq
-import QuantumOpticsBase
+include("helpers_qme.jl")
 
 @testset "master ansatz" begin
 
-    Random.seed!(StableRNG(0), 1)
+    agg, W0 = qme_test_dimer(0.05)
+    tspan = QME_TEST_TSPAN
+    kw = qme_test_kwargs()
+    ref = qme_exact(agg, W0, tspan)
 
-    D(op1::Array, op2::Array) = abs(norm(op1 - op2))
-    D(x1::StateVector, x2::StateVector) = norm(x2 - x1)
-    D(op1::AbstractOperator, op2::AbstractOperator) =
-        abs(tracedistance_nh(dense(op1), dense(op2)))
-    D(op1::AbstractSuperOperator, op2::AbstractSuperOperator) =
-        abs(tracedistance_nh(dense(op1), dense(op2)))
+    # :test feeds the exact bath part into the kernel, so the QME is exact.
+    @testset ":test ansatz equals exact dynamics" begin
+        _, rho_t = QME_sI_ansatz(W0, tspan, agg; ansatz = :test, kw...)
+        @test qme_relative_error(rho_t, ref) < 1e-3
+    end
 
-    mode1 = Mode(0.2, 1.0)
-    mode2 = Mode(0.3, 2.0)
-    Energy = [0.0, 200.0]
-    mol1 = Molecule([mode1], 3, [2.0, 200.0])
-    mol2 = Molecule([mode2], 3, [3.0, 300.0])
-    aggCore = AggregateCore([mol1, mol2])
-    aggCore.coupling[2, 3] = 50
-    aggCore.coupling[3, 2] = 50
-    agg = setup_aggregate(aggCore)
-    aggTools = agg.tools
-    aggOperators = agg.operators
+    # Observed relative errors at S = 0.05: const_int 0.06, linear2_sch 0.06,
+    # upart*_int 0.01; the Schrödinger-picture ansatzes are much worse (0.2–0.33).
+    accurate = (:const_int, :linear2_sch, :upart1_int, :upart2_int)
+    rough = (:const_sch, :linear_sch, :upart1_sch, :upart2_sch)
+    for ansatz in (accurate..., rough...)
+        @testset "$ansatz ansatz" begin
+            _, rho_t = QME_sI_ansatz(W0, tspan, agg; ansatz = ansatz, kw...)
+            @test qme_relative_error(rho_t, ref) < (ansatz in accurate ? 0.1 : 0.5)
+            @test qme_trace_drift(rho_t) < 1e-10
+            @test qme_hermiticity(rho_t) < 1e-10
+        end
+    end
 
-    Ham_B = agg.operators.Ham_B
-    Ham_I = agg.operators.Ham_I
-    Ham_0 = agg.operators.Ham_0
-    Ham = agg.operators.Ham
+    @testset "const_int error scales linearly with Huang-Rhys factor" begin
+        agg_w, W0_w = qme_test_dimer(0.0125)
+        _, rho_strong = QME_sI_ansatz(W0, tspan, agg; ansatz = :const_int, kw...)
+        _, rho_weak = QME_sI_ansatz(W0_w, tspan, agg_w; ansatz = :const_int, kw...)
+        ratio = qme_relative_error(rho_strong, ref) /
+                qme_relative_error(rho_weak, qme_exact(agg_w, W0_w, tspan))
+        @test 3.0 < ratio < 5.0
+    end
 
-    Ham_0_lambda, Ham_0_S = eigen(Ham_0.data)
-    Ham_0_Sinv = inv(Ham_0_S)
-    Ham_0_lambda = diagm(Ham_0_lambda)
+    @testset "named wrappers match QME_sI_ansatz" begin
+        wrappers = (
+            QME_sI_ansatz_test => :test,
+            QME_sI_ansatz_const_int => :const_int,
+            QME_sI_ansatz_const_sch => :const_sch,
+            QME_sI_ansatz_linear_sch => :linear_sch,
+            QME_sI_ansatz_linear2_sch => :linear2_sch,
+            QME_sI_ansatz_upart1_sch => :upart1_sch,
+            QME_sI_ansatz_upart1_int => :upart1_int,
+            QME_sI_ansatz_upart2_sch => :upart2_sch,
+            QME_sI_ansatz_upart2_int => :upart2_int,
+        )
+        short = tspan[1:2]
+        for (f, ansatz) in wrappers
+            _, a = f(W0, short, agg; kw...)
+            _, b = QME_sI_ansatz(W0, short, agg; ansatz = ansatz, kw...)
+            @test a[end].data ≈ b[end].data
+        end
+    end
 
-    basis = agg.tools.basis
-    indicesLen = agg.tools.bSize
-    indices = agg.tools.indices
-    indicesMap = agg.tools.indicesMap
-    FCFact = agg.tools.FCfactors
-    FCProd = agg.tools.FCproduct
-
-    data = Matrix(Hermitian(rand(ComplexF64, indicesLen, indicesLen)))
-    W0 = DenseOperator(basis, basis, data)
-    rho0 = trace_bath(W0, aggCore, aggOperators, aggTools)
-    W0_bath = get_rho_bath(W0, aggCore, aggOperators, aggTools)
-    normalize!(rho0)
-    # tests have to be quick enough
-    t_max = 0.001
-    t_count = 10
-    t0 = 0.
-    t_step = (t_max - t0) / (t_count)
-    tspan = [t0:t_step:t_max;]
-
-    _, rho_t = QME_sI_ansatz_test(
-        W0,
-        tspan,
-        agg;
-        reltol = 1e-3,
-        abstol = 1e-3,
-        int_reltol = 1e-4,
-        int_abstol = 1e-4,
-        alg = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Tsit5()),
-    )
-
-    _, rho_t = QME_sI_ansatz_const_int(
-        W0,
-        tspan,
-        agg;
-        reltol = 1e-3,
-        abstol = 1e-3,
-        int_reltol = 1e-4,
-        int_abstol = 1e-4,
-        alg = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Tsit5()),
-    )
-
-    _, rho_t = QME_sI_ansatz_const_sch(
-        W0,
-        tspan,
-        agg;
-        reltol = 1e-3,
-        abstol = 1e-3,
-        int_reltol = 1e-4,
-        int_abstol = 1e-4,
-        alg = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Tsit5()),
-    )
-
-    _, rho_t = QME_sI_ansatz_linear_sch(
-        W0,
-        tspan,
-        agg;
-        reltol = 1e-3,
-        abstol = 1e-3,
-        int_reltol = 1e-4,
-        int_abstol = 1e-4,
-        alg = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Tsit5()),
-    )
-
-    _, rho_t = QME_sI_ansatz_linear2_sch(
-        W0,
-        tspan,
-        agg;
-        reltol = 1e-3,
-        abstol = 1e-3,
-        int_reltol = 1e-4,
-        int_abstol = 1e-4,
-        alg = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Tsit5()),
-    )
-
-    _, rho_t = QME_sI_ansatz_upart1_sch(
-        W0,
-        tspan,
-        agg;
-        reltol = 1e-3,
-        abstol = 1e-3,
-        int_reltol = 1e-4,
-        int_abstol = 1e-4,
-        alg = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Tsit5()),
-    )
-
-    _, rho_t = QME_sI_ansatz_upart1_int(
-        W0,
-        tspan,
-        agg;
-        reltol = 1e-3,
-        abstol = 1e-3,
-        int_reltol = 1e-4,
-        int_abstol = 1e-4,
-        alg = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Tsit5()),
-    )
-
-    _, rho_t = QME_sI_ansatz_upart2_sch(
-        W0,
-        tspan,
-        agg;
-        reltol = 1e-3,
-        abstol = 1e-3,
-        int_reltol = 1e-4,
-        int_abstol = 1e-4,
-        alg = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Tsit5()),
-    )
-
-    _, rho_t = QME_sI_ansatz_upart2_int(
-        W0,
-        tspan,
-        agg;
-        reltol = 1e-3,
-        abstol = 1e-3,
-        int_reltol = 1e-4,
-        int_abstol = 1e-4,
-        alg = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Tsit5()),
-    )
+    @testset "unknown ansatz throws" begin
+        @test_throws ArgumentError QME_sI_ansatz(W0, tspan, agg; ansatz = :nonexistent)
+    end
 
 end # testset
-
