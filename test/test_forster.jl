@@ -3,7 +3,7 @@ using OpenQuantumSystems
 
 # Helper: build a simple single-mode molecule
 function make_mol(E_excited; omega=200.0, hr=0.02, nvib=5)
-    modes = [Mode(omega, 2*hr)]  # shift = 2*hr_factor
+    modes = [Mode(omega, sqrt(2*hr))]  # S = shift^2 / 2
     Molecule(modes, nvib, [0.0, E_excited])
 end
 
@@ -73,9 +73,11 @@ end
         abs_T300 = absorption_spectrum(mol; T=300.0, sigma=20.0)
 
         # Both normalized
-        dω = abs_T0.freqs[2] - abs_T0.freqs[1]
-        @test sum(abs_T0.intensities)   * dω ≈ 1.0 atol=1e-3
-        @test sum(abs_T300.intensities) * dω ≈ 1.0 atol=0.02
+        # each spectrum has its own automatic frequency grid
+        dω_T0   = abs_T0.freqs[2]   - abs_T0.freqs[1]
+        dω_T300 = abs_T300.freqs[2] - abs_T300.freqs[1]
+        @test sum(abs_T0.intensities)   * dω_T0   ≈ 1.0 atol=1e-3
+        @test sum(abs_T300.intensities) * dω_T300 ≈ 1.0 atol=0.02
 
         # At T=300K, hot bands populate higher vib states, shifting mean to lower freq
         mean_T0   = sum(abs_T0.freqs   .* abs_T0.intensities)   / sum(abs_T0.intensities)

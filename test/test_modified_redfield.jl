@@ -22,8 +22,8 @@ using LinearAlgebra
         # Coefficients are orthonormal
         @test coefficients * coefficients' ≈ I atol=1e-10
 
-        # Eigenvalues: account for reorganization energy shift (ω × shift²/2 per mode)
-        reorg = 200.0 * (2 * 0.02)^2 / 2.0
+        # Eigenvalues: account for reorganization energy shift (λ = ω S per mode)
+        reorg = 200.0 * 0.02
         H_exc = [12500.0+reorg J; J 12700.0+reorg]
         vals_ref = eigvals(Hermitian(H_exc))
         @test energies ≈ vals_ref atol=1e-10
@@ -38,7 +38,7 @@ using LinearAlgebra
         aggTools = AggregateTools(aggCore)
         energies, coefficients = exciton_basis(aggCore, aggTools)
 
-        reorg = 200.0 * (2 * 0.02)^2 / 2.0
+        reorg = 200.0 * 0.02
         @test energies ≈ [12500.0 + reorg, 12700.0 + reorg] atol=1e-10
         @test abs(coefficients[1, 1]) ≈ 1.0 atol=1e-10
         @test abs(coefficients[2, 2]) ≈ 1.0 atol=1e-10

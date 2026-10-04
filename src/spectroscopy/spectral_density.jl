@@ -24,11 +24,11 @@ end
     spectral_density(mol::Molecule)
 
 Extract a [`SpectralDensity`](@ref) from a [`Molecule`](@ref) by reading the
-frequency and Huang-Rhys factor (shift/2) from each mode.
+frequency and Huang-Rhys factor ``S = d^2/2`` (with `d = shift`) from each mode.
 """
 function spectral_density(mol::Molecule)::SpectralDensity
     freqs = [mode.omega for mode in mol.modes]
-    hrs = [mode.shift / 2.0 for mode in mol.modes]
+    hrs = [mode.shift^2 / 2.0 for mode in mol.modes]
     return SpectralDensity(freqs, hrs)
 end
 
