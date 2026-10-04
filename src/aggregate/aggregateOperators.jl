@@ -221,6 +221,11 @@ function _ham_interaction_ground_ground!(Ham_I, I, J, elOrder1, vibind1, vibind2
     coeff = 0.0
     diff_vib_sum = 0
     mol_i = elOrder1 - 1
+    # ΔV of molecule mol_i acts as identity on modes of all other molecules
+    for mol_j = 1:aggCore.molCount
+        mol_j == mol_i && continue
+        vibind1[mol_j] == vibind2[mol_j] || return
+    end
     mol = aggCore.molecules[mol_i]
     for mode_i = 1:length(mol.modes)
         diff_vib = abs(vibind1[mol_i][mode_i] - vibind2[mol_i][mode_i])
