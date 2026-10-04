@@ -1,6 +1,7 @@
 using Test
 using OpenQuantumSystems
 using LinearAlgebra
+import QuadGK
 
 # Exact finite-basis memory kernel, built without any package helpers:
 # M_abcd(t1, t2) = tr_B <a| [H_I(t1), [H_I(t2), |c><d| ⊗ w_eq]] |b>
@@ -14,6 +15,48 @@ function _brute_memory_kernel(H1, H2, w_eq, indicesMap, elLen)
         Z = H1 * Y - Y * H1
         for a in 1:elLen, b in 1:elLen
             M[a, b, c, d] = tr(Z[indicesMap[a], indicesMap[b]])
+        end
+    end
+    return M
+end
+
+# Rotate the electronic part of a full-space operator from site to exciton basis
+function _exciton_rotation(indicesMap, coefficients)
+    n = indicesMap[end][end]
+    nb = length(indicesMap[1])
+    N = size(coefficients, 1)
+    U = zeros(ComplexF64, n, n)
+    U[indicesMap[1], indicesMap[1]] .= Matrix(I, nb, nb)
+    for α in 1:N, k in 1:N
+        U[indicesMap[α+1], indicesMap[k+1]] .= coefficients[α, k] .* Matrix(I, nb, nb)
+    end
+    return U
+end
+
+# Exact first-order kernel in exciton basis for a constant exciton-basis RDM R:
+# M1_abcd = M0_abcd - tr_B <a|[H1,[H2, |c><d| ⊗ Σ_ef (R_ef/R_cd) ∫∫ <c|[H3,[H4, |e><f| ⊗ w]]|d>]]|b>
+function _brute_first_order_kernel(agg, w_eq, U, R, t1, t2; rtol = 1e-7)
+    ops, im_ = agg.operators, agg.tools.indicesMap
+    n = size(U, 1)
+    elLen = length(im_)
+    HI(t) = U * get_interaction_ham_i_picture(ops.Ham_0.data, ops.Ham_I.data, t) * U'
+    dc(H, X) = H * X - X * H
+    lift(e, f, B) = (X = zeros(ComplexF64, n, n); X[im_[e], im_[f]] .= B; X)
+    Z = Dict{Tuple{Int,Int},Matrix{ComplexF64}}()
+    for e in 2:elLen, f in 2:elLen
+        Z[(e, f)], _ = QuadGK.quadgk(0.0, t2; rtol = rtol) do t3
+            H3 = HI(t3)
+            inner, _ = QuadGK.quadgk(t4 -> dc(H3, dc(HI(t4), lift(e, f, w_eq))), 0.0, t3; rtol = rtol)
+            inner
+        end
+    end
+    H1, H2 = HI(t1), HI(t2)
+    M = zeros(ComplexF64, elLen, elLen, elLen, elLen)
+    for c in 2:elLen, d in 2:elLen
+        corr = sum(R[e, f] / R[c, d] .* Z[(e, f)][im_[c], im_[d]] for e in 2:elLen, f in 2:elLen)
+        Y = dc(H1, dc(H2, lift(c, d, w_eq .- corr)))
+        for a in 2:elLen, b in 2:elLen
+            M[a, b, c, d] = tr(Y[im_[a], im_[b]])
         end
     end
     return M
@@ -111,6 +154,29 @@ end
                 scale = maximum(abs.(M_exact[ex, ex, ex, ex]))
                 @test maximum(abs.(M_cf[ex, ex, ex, ex] .- M_exact[ex, ex, ex, ex])) < 1e-9 * scale
             end
+        end
+    end
+
+    @testset "first_order_memory_kernel_cf matches exact finite-basis kernel" begin
+        T = 10.0
+        ex = 2:3
+        for J in (0.0, 50.0)
+            agg = _validation_dimer(3; S = 0.05, J = J)
+            ops, tools = agg.operators, agg.tools
+            W_eq = equilibrium_bath_state(agg.core, tools, ops, T)
+            i1 = tools.indicesMap[1]
+            _, c = exciton_basis(agg.core, tools)
+            U = _exciton_rotation(tools.indicesMap, c)
+            R = zeros(ComplexF64, 3, 3)
+            R[1, 1] = 1.0
+            R[2:3, 2:3] .= [0.6 0.2+0.1im; 0.2-0.1im 0.4]
+            t1, t2 = 0.003, 0.002
+            M_exact = _brute_first_order_kernel(agg, W_eq[i1, i1], U, R, t1, t2)
+            M_cf = first_order_memory_kernel_cf(t1, t2, agg.core, R; T = T, rtol = 1e-8, atol = 1e-10)
+            M0 = zeroth_order_memory_kernel_cf(t1, t2, agg.core; T = T)
+            corr_scale = maximum(abs.(M_exact[ex, ex, ex, ex] .- M0[ex, ex, ex, ex]))
+            @test corr_scale > 1.0
+            @test maximum(abs.(M_cf[ex, ex, ex, ex] .- M_exact[ex, ex, ex, ex])) < 1e-6 * corr_scale
         end
     end
 
