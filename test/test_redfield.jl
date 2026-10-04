@@ -29,6 +29,13 @@ include("helpers_qme.jl")
         @test length(rho_t) == 2
     end
 
+    @testset "accepts thermal_state_composite initial state" begin
+        agg, _ = qme_test_dimer(0.05)
+        W0 = thermal_state_composite(300.0, [0.0, 1.0, 0.0], agg)
+        _, rho_t = QME_sI_Redfield(W0, tspan[1:2], agg; kw...)
+        @test qme_trace_drift(rho_t) < 1e-10
+    end
+
     # Second-order theory: relative error ∝ S (observed ratio 4.1 for S → S/4).
     @testset "error scales linearly with Huang-Rhys factor" begin
         errs = map((0.05, 0.0125)) do S

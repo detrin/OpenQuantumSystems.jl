@@ -68,7 +68,7 @@ function thermal_state(
         H_lambda = diagm(H_lambda)
         data = H_S * exp(H_lambda) * inv(H_S)
     end
-    W0 = DenseOperator(Ham.basis_r, Ham.basis_l, zero(Ham.data))
+    W0 = DenseOperator(Ham.basis_r, Ham.basis_l, complex(zero(Ham.data)))
     excitedElInd = 0
     for elInd in 1:length(vibindices)
         excitedElInd += elInd * (mu_array[1][elInd] - 1)
@@ -144,7 +144,7 @@ function thermal_state_composite(
         H_lambda = diagm(H_lambda)
         data = H_S * exp(H_lambda) * inv(H_S)
     end
-    W0 = DenseOperator(Ham.basis_r, Ham.basis_l, zero(Ham.data))
+    W0 = DenseOperator(Ham.basis_r, Ham.basis_l, complex(zero(Ham.data)))
 
     for excitedElInd = 1:length(mu_weighted)
         a1 = vibindices[excitedElInd][1]

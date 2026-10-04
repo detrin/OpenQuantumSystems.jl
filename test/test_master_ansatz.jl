@@ -56,6 +56,12 @@ include("helpers_qme.jl")
         end
     end
 
+    @testset "accepts thermal_state_composite initial state" begin
+        W0_th = thermal_state_composite(300.0, [0.0, 1.0, 0.0], agg)
+        _, rho_t = QME_sI_ansatz(W0_th, tspan[1:2], agg; ansatz = :const_int, kw...)
+        @test qme_trace_drift(rho_t) < 1e-10
+    end
+
     @testset "unknown ansatz throws" begin
         @test_throws ArgumentError QME_sI_ansatz(W0, tspan, agg; ansatz = :nonexistent)
     end

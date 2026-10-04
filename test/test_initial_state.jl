@@ -129,4 +129,8 @@ import QuantumOpticsBase
     @test 1e-15 > D(rho0_ref, rho0)
     @test 1e-15 > D(W0_bath_ref, W0_bath)
 
+
+    # density matrices must be complex so the time-evolution solvers accept them
+    @test eltype(thermal_state(T, mu_array, agg).data) <: Complex
+    @test eltype(thermal_state_composite(T, [0.0, 0.8, 0.2], agg).data) <: Complex
 end # testset
