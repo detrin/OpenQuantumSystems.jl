@@ -32,6 +32,19 @@ end
 
 @testset "kernel_validation" begin
 
+    @testset "Huang-Rhys convention S = d^2/2" begin
+        mode = Mode(; omega = 200.0, hr_factor = 0.05)
+        @test mode.shift ≈ sqrt(2 * 0.05)
+
+        mol = Molecule([mode], 3, [0.0, 12500.0])
+        sd = spectral_density(mol)
+        @test sd.huang_rhys[1] ≈ 0.05
+
+        # <0|ΔV|1> = ω d / sqrt(2) = ω sqrt(S)
+        agg = setup_aggregate(AggregateCore([mol]); vib_basis = GroundGround())
+        i2 = agg.tools.indicesMap[2]
+        @test agg.operators.Ham_I.data[i2[1], i2[2]] ≈ 200.0 * sqrt(0.05)
+    end
 
     @testset "GroundGround ΔV leaves spectator modes untouched" begin
         agg = _validation_dimer(3; S = 0.05)
@@ -78,6 +91,27 @@ end
         M = MemoryKernel_traced(H1, H2, W_eq, agg.core, ops, tools)
         M_ref = _brute_memory_kernel(H1, H2, W_eq[i1, i1], tools.indicesMap, 3)
         @test M ≈ M_ref atol = 1e-9
+    end
+
+    @testset "zeroth_order_memory_kernel_cf matches exact finite-basis kernel" begin
+        T = 10.0
+        ex = 2:3
+        for J in (0.0, 50.0), nvib in (3, 4)
+            agg = _validation_dimer(nvib; J = J)
+            ops, tools = agg.operators, agg.tools
+            W_eq = equilibrium_bath_state(agg.core, tools, ops, T)
+            i1 = tools.indicesMap[1]
+            for (t1, t2) in ((0.003, 0.001), (0.01, 0.004))
+                H1 = get_interaction_ham_i_picture(ops.Ham_0.data, ops.Ham_I.data, t1)
+                H2 = get_interaction_ham_i_picture(ops.Ham_0.data, ops.Ham_I.data, t2)
+                M_site = _brute_memory_kernel(H1, H2, W_eq[i1, i1], tools.indicesMap, 3)
+                _, c = exciton_basis(agg.core, tools)
+                M_exact = site_to_exciton_kernel(M_site, c)
+                M_cf = zeroth_order_memory_kernel_cf(t1, t2, agg.core; T = T)
+                scale = maximum(abs.(M_exact[ex, ex, ex, ex]))
+                @test maximum(abs.(M_cf[ex, ex, ex, ex] .- M_exact[ex, ex, ex, ex])) < 1e-9 * scale
+            end
+        end
     end
 
 end
