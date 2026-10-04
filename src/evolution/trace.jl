@@ -226,7 +226,8 @@ function _trace_bath_part(W::AbstractMatrix, a, b, aggTools, ::GroundExcited)
 end
 
 function _trace_bath_part(W::AbstractMatrix, a, b, aggTools, ::GroundGround)
-    a == b ? tr(W) : eltype(W)(0)
+    # all electronic blocks share the same vibrational basis
+    tr(W)
 end
 
 function trace_bath_part(

@@ -62,4 +62,22 @@ end
         @test e_gg .- e_gg[1] ≈ e_ge .- e_ge[1] atol = 1e-3
     end
 
+    @testset "trace_bath_part keeps coherences in GroundGround" begin
+        agg = _validation_dimer(2)
+        W = rand(ComplexF64, 4, 4)
+        @test trace_bath_part(W, 2, 3, agg.tools; vib_basis = GroundGround()) ≈ tr(W)
+    end
+
+    @testset "MemoryKernel_traced matches brute force" begin
+        agg = _validation_dimer(3)
+        ops, tools = agg.operators, agg.tools
+        W_eq = equilibrium_bath_state(agg.core, tools, ops, 10.0)
+        i1 = tools.indicesMap[1]
+        H1 = get_interaction_ham_i_picture(ops.Ham_0.data, ops.Ham_I.data, 0.003)
+        H2 = get_interaction_ham_i_picture(ops.Ham_0.data, ops.Ham_I.data, 0.001)
+        M = MemoryKernel_traced(H1, H2, W_eq, agg.core, ops, tools)
+        M_ref = _brute_memory_kernel(H1, H2, W_eq[i1, i1], tools.indicesMap, 3)
+        @test M ≈ M_ref atol = 1e-9
+    end
+
 end
