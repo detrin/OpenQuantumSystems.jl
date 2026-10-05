@@ -85,36 +85,80 @@ distinct groups of second-order correlation functions in the memory kernel
 simplify. The corrected memory kernel in the high-temperature limit (Eq. 3.76)
 is more compact but retains the same structure of corrections.
 
-## Corrected Redfield iteration
+## Iterative QME with the corrected kernel
 
-The corrected memory kernel enables a new iterative scheme that avoids
-explicitly computing the RBP:
+The corrected kernel gives an iterative scheme that never stores the RBP:
 
 ```math
-\hat{w}^{0,(I)}(t) \xrightarrow{\text{QME-RDM}} \hat{\rho}^{1,(I)}(t)
-\xrightarrow{\text{QME-RDM}} \hat{\rho}^{2,(I)}(t)
-\xrightarrow{\text{QME-RDM}} \hat{\rho}^{3,(I)}(t) \to \ldots
+\hat{w}^{0} \xrightarrow{\text{QME-RDM}} \hat{\rho}^{1}
+\xrightarrow{M(\,\cdot\,;\hat w^{1}[\rho^{1}])} \hat{\rho}^{2} \to \ldots
 ```
 
-At each step, the corrected memory kernel
-``M_{abcd}(t_1,t_2; \hat{\rho}^{k,(I)})`` from the previous iteration is used.
-The RBP never needs to be explicitly stored or propagated -- it is implicit in
-the corrected kernel. This makes the approach feasible for infinite baths
-(via the spectral density function), where the RBP cannot be represented
-explicitly.
+``\hat\rho^1`` solves the second-order QME with the equilibrium bath; ``\hat\rho^2``
+solves the QME whose kernel contains the first bath correction evaluated with
+``\hat\rho^1``. Only bath correlation functions enter, so the scheme works for
+infinite baths. It is implemented in [`QME_cf_iterative`](@ref) for an
+[`ExcitonModel`](@ref) with one [`ExponentialCorrelation`](@ref) per site: discrete
+modes ([`bath_correlation`](@ref) of a `SpectralDensity`) or a Drude-Lorentz bath
+([`DrudeLorentz`](@ref)). Because every correlation function is a sum of
+exponentials, all history integrals, including the nested ``t_3, t_4`` integrals
+of the correction, are propagated recursively in time; the sixteen operator
+orderings and the Wick pairings are generated mechanically.
 
-## Limitations
+Three forms of the correction are available (`correction` keyword):
 
-While the corrected memory kernel provides a principled improvement over
-standard Redfield, numerical experiments show:
+| `correction` | kernel correction | weight |
+|---|---|---|
+| `:thesis` | as derived in the thesis, all Wick pairings | ``\rho^1_{ef}(t_4)/\rho^1_{cd}(t_3)``, acts on ``\rho_{cd}(t_2)`` |
+| `:projected` | thesis + quotient-rule term: disconnected pairing removed | same |
+| `:nz` | connected pairings, ``\rho_{cd}(t_2)/\rho^1_{cd}(t_3) \to 1`` | ``\rho^1_{ef}(t_4)`` |
 
-- The improvement is modest for finite systems -- typically less than one
-  order of magnitude in the scoring function.
-- The corrected kernel is significantly more complex (involving double
-  integrals over ``t_3, t_4``), increasing computational cost.
-- For the population-only case (diagonal elements in the excitonic basis),
-  two of the sixteen terms in the correction vanish, simplifying the
-  expression.
+The `:nz` form is exactly the fourth-order Nakajima-Zwanzig (time-convolution)
+term ``\int \operatorname{tr}_B L(t)L(t_2)\,\mathcal{Q}\,L(t_3)L(t_4)\,
+\rho^1(t_4)\otimes w_{eq}`` with ``\rho^1`` in place of ``\rho``, which makes the
+first iteration a fourth-order theory.
 
-The approach is most promising for weak interactions where the spectral
-density can be modelled by many weakly-coupled modes.
+## Checking the derivation
+
+All statements below are verified numerically on a dimer, either against the exact
+finite-bath dynamics obtained by diagonalisation or against HEOM.
+
+- **Second-order kernel** (Eq. MF_w_0_2) and the **Wick decomposition** of the
+  sixteen fourth-order terms are correct: the correlation-function kernels agree
+  with the exact finite-basis kernels to ``10^{-12}`` (second order) and
+  ``10^{-6}`` of the correction (first order, after the fixes of issues #102–#106).
+- **Odd numbers of** ``H_I`` vanish under ``\operatorname{tr}_B`` for the
+  equilibrium bath, so dropping the ``\mathcal{K}_w`` term is correct.
+- **The QME-RBP misses the quotient-rule term** (see
+  [Iterative Quantum Master Equation](@ref)). Consequence for the kernel: the
+  thesis correction contains the disconnected pairing
+  ``\langle H(t_1)H(t_2)\rangle\langle H(t_3)H(t_4)\rangle``, which evaluates to
+  ``-M^0_{abcd}(t,\tau)\,\ln[\rho^1_{cd}(\tau)/\rho^1_{cd}(0)]``. It is not a
+  small fourth-order correction but the second-order kernel times an
+  ``\mathcal{O}(1)`` factor, and it diverges for density-matrix elements that
+  start at zero.
+- **The ratio** ``\rho^1_{ef}(t_4)/\rho^1_{cd}(t_3)`` is singular whenever
+  ``\rho^1_{cd}`` passes through zero, e.g. for an initially unpopulated exciton.
+  The `:nz` form avoids the division entirely.
+
+## Accuracy
+
+Relative error ``\max_t\|\rho-\rho_\text{exact}\|/\max_t\|\rho_\text{exact}-\rho(0)\|``
+against the exact dynamics of a dimer with one 200 cm⁻¹ mode per molecule
+(6 levels, ``J = 50`` cm⁻¹, ``\Delta E = 200`` cm⁻¹, 10 K, ``t \le 0.1``):
+
+| Huang-Rhys ``S`` | 0.00625 | 0.0125 | 0.025 | 0.05 | 0.1 | order |
+|---|---|---|---|---|---|---|
+| Redfield (TCL2) | 0.053 | 0.105 | 0.21 | 0.39 | 0.67 | 1.00 |
+| Born QME (``M^0``, constant ansatz) | 0.119 | 0.250 | 0.55 | 1.13 | 2.12 | 1.07 |
+| IQME `:thesis` | 0.025 | 0.064 | 0.18 | 0.47 | 1.24 | 1.34 |
+| IQME `:projected` | 0.0088 | 0.035 | 0.13 | 0.39 | 0.94 | 1.98 |
+| IQME `:nz` | 0.0068 | 0.029 | 0.13 | 0.54 | 2.02 | 2.08 |
+
+"Order" is the slope of the error against ``S`` between the two weakest couplings:
+second-order theories have relative error ``\propto S``, a fourth-order theory
+``\propto S^2``. The corrected iteration (`:projected`, `:nz`) is fourth order and
+an order of magnitude more accurate than the Born QME at weak coupling; the
+thesis form improves on Born but loses an order to the disconnected term. With a
+single undamped mode per molecule the memory never decays, so every
+perturbative scheme fails at ``S \gtrsim 0.05``.

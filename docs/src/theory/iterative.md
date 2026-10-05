@@ -35,17 +35,36 @@ the QME splits into coupled equations:
   \right\}.
 ```
 
-**QME-RBP** (for the relative bath part):
+**QME-RBP** (for the relative bath part). Since
+``\hat{w}_{ab} = \hat{W}_{ab}/\rho_{ab}`` is a quotient, its time derivative is
 
 ```math
 \frac{\partial}{\partial t}\hat{w}_{ab}^{(I)}(t) =
-  -\frac{i}{\hbar\rho_{ab}^{(I)}(t)}
+  \frac{1}{\rho_{ab}^{(I)}(t)}\frac{\partial}{\partial t}\hat{W}_{ab}^{(I)}(t)
+  - \hat{w}_{ab}^{(I)}(t)\,\frac{\dot\rho_{ab}^{(I)}(t)}{\rho_{ab}^{(I)}(t)},
+```
+
+with ``\partial_t \hat{W}_{ab}`` given by the second-order QME for the whole system,
+
+```math
+\frac{\partial}{\partial t}\hat{W}_{ab}^{(I)}(t) =
+  -\frac{i}{\hbar}
   \bigl[\hat{H}_I^{(I)}(t), \hat{W}^{(I)}(0)\bigr]_{ab}
-  -\frac{1}{\hbar^2\rho_{ab}^{(I)}(t)}\int_0^{t}\mathrm{d}\tau\,
+  -\frac{1}{\hbar^2}\int_0^{t}\mathrm{d}\tau\,
   \bigl[\hat{H}_I^{(I)}(t),
   [\hat{H}_I^{(I)}(\tau), \hat{\rho}^{(I)}(\tau) \oplus \hat{w}^{(I)}(\tau)]
   \bigr]_{ab}.
 ```
+
+!!! warning "Correction to the thesis"
+    The thesis (Eq. `RBP_diff_eq`) obtains the QME-RBP by dividing the QME for
+    ``\hat{W}_{ab}`` by ``\rho_{ab}``, i.e. it keeps only the first term above and
+    drops ``-\hat{w}_{ab}\dot\rho_{ab}/\rho_{ab}``. The dropped term is what keeps
+    ``\operatorname{tr}_B \hat{w}_{ab} = 1``. Checked on the exact finite-bath
+    dynamics (dimer, 4 levels per mode): the thesis form misses ``\dot{\hat w}``
+    by 2–60 %, the full form reproduces it to ``10^{-9}``. In the first
+    correction of the memory kernel the dropped term removes the *disconnected*
+    Wick pairing; see [Corrected Memory Kernel](@ref).
 
 ## Iterative scheme
 
