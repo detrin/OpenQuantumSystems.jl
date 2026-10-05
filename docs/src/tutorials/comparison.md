@@ -231,67 +231,74 @@ For the exact evolution, the full system+bath initial state is
 
 ![Comparison S=0.01](../assets/comparison_S0p01.png)
 
-At weak coupling the upper exciton is nearly stationary — there is very little
-population transfer. All methods agree that the population remains close to 1.
-The exact solution shows tiny oscillations from coherent beating. Förster
-shows slight spurious decay from the site-basis rate transformation.
+At weak coupling the upper exciton is nearly stationary: the **exact**
+population oscillates between ``\approx 0.92`` and 1 (vibronic beating) and
+slowly dephases.
+- **Redfield** and the **QME ansatz** (`:const_int`) reproduce these
+  oscillations, with a small phase drift and without the slow damping.
+- **Modified Redfield** and the **corrected kernel** (both orders) predict
+  no transfer at all.
+- **Förster** decays spuriously to ``\approx 0.58``.
 
 ### Moderate coupling (``S = 0.05``)
 
 ![Comparison S=0.05](../assets/comparison_S0p05.png)
 
-At ``S = 0.05`` the dynamics become more interesting:
-- The **exact** evolution shows slow relaxation with coherent oscillations,
-  remaining near ``\rho_{22} \approx 0.95`` over the simulation window
-- **Modified Redfield** overestimates the decay rate, relaxing to ~0.5
-- **Förster** also decays too fast, reaching ~0.6
-- The **corrected kernel (0th order)** produces no transfer — the
-  zeroth-order rates are too small
-- The **corrected kernel (1st order)** overcorrects and decays unphysically fast
+- The **exact** population drops to ``\approx 0.7`` within ``t \approx 0.03``
+  and then oscillates, damped, around ``\approx 0.85``.
+- **Redfield** and the **QME ansatz** follow the initial drop and the first
+  minimum closely, but afterwards keep oscillating with undamped amplitude
+  (Redfield between ``\approx 0.68`` and 1, the ansatz between
+  ``\approx 0.58`` and 1).
+- **Modified Redfield** relaxes to ``\approx 0.51`` and **Förster** to
+  ``\approx 0.58``; neither shows the oscillations.
+- The **corrected kernel** gives no transfer at zeroth order, and at first
+  order a linear decay that crosses zero (unphysical).
 
 ### Intermediate coupling (``S = 0.1``)
 
 ![Comparison S=0.1](../assets/comparison_S0p1.png)
 
-At ``S = 0.1``:
-- The **exact** solution shows damped oscillations relaxing to ~0.75
-- **Förster** captures the early relaxation well but settles to ~0.57
-  (close to the thermal equilibrium value)
-- **Modified Redfield** and **corrected (0th)** both show no significant transfer
-- **Corrected (1st)** again overshoots
+- The **exact** population drops to ``\approx 0.53`` and oscillates around
+  ``\approx 0.75``.
+- **Redfield** still captures the first drop and oscillates between
+  ``\approx 0.5`` and 1; the **QME ansatz** overshoots strongly (down to
+  ``\approx 0.24``).
+- **Förster** relaxes to ``\approx 0.58``; **modified Redfield** and the
+  zeroth-order corrected kernel show no transfer; the first-order corrected
+  kernel drops below zero almost immediately.
 
 ### Discussion
 
-The comparison reveals several important points:
+1. **Rate-based methods only capture an envelope.** Modified Redfield,
+   Förster and the corrected kernel solve ``d\mathbf{p}/dt = R\mathbf{p}``
+   and cannot reproduce the coherent oscillations of the exact solution.
+   Their predicted transfer is also qualitatively off here: either none, or
+   relaxation to a fixed value regardless of ``S``.
 
-1. **Rate-based methods only capture the envelope.** Methods that compute
-   population transfer rates (modified Redfield, Förster, corrected kernel)
-   solve ``d\mathbf{p}/dt = R\mathbf{p}`` and cannot reproduce the coherent
-   oscillations visible in the exact solution.
+2. **The second-order QMEs are accurate at short times.** Redfield and the
+   `:const_int` ansatz follow the exact dynamics through the first
+   oscillation at every coupling strength. Their error grows with ``S``, as
+   expected for second-order theories, and the time-nonlocal ansatz degrades
+   faster than Redfield at ``S = 0.1``.
 
-2. **Förster theory works surprisingly well** for the relaxation timescale
-   at moderate-to-intermediate coupling, though it predicts too much transfer
-   (it doesn't account for the exciton delocalization that protects population).
+3. **No dephasing from a single mode.** Each molecule couples to one undamped
+   vibrational mode. With the bath frozen at equilibrium, the second-order
+   memory kernel never decays, so the QMEs oscillate indefinitely, while the
+   exact dynamics dephase through the vibronic structure of the finite bath.
+   A continuous spectral density (an infinite bath) would damp the memory.
 
-3. **The corrected memory kernel** is a perturbative correction. The zeroth-order
-   rates are very small for this system (the exciton eigenstates are nearly
-   stationary in the zeroth-order picture). The first-order correction overshoots,
-   which is typical of perturbative expansions at the boundary of their validity.
-   The `t_ref` parameter (here 0.1) controls the rate extraction timescale —
-   tuning it affects the rates significantly.
+4. **The corrected kernel** is currently evaluated as a rate model at a fixed
+   reference time `t_ref` (here 0.1). The zeroth-order rates vanish for this
+   system and the first-order correction overshoots into negative
+   populations. The time-nonlocal iterative QME with the corrected kernel
+   (thesis, Ch. 3) is not yet implemented.
 
-4. **Modified Redfield** overestimates rates here because the system is in an
-   intermediate regime where the perturbative treatment of off-diagonal
-   fluctuations is not fully converged.
-
-!!! note "Redfield and QME Ansatz"
-    The `QME_sI_Redfield` and `QME_sI_ansatz` solvers integrate a delay
-    differential equation whose memory integral runs over the whole history,
-    so their cost grows faster than linearly with ``t_\text{max}``. On this
-    benchmark (`nvib = 5`, ``t_\text{max} = 0.5``) a single run takes on the
-    order of an hour, so they are not part of the plots above. Use them on
-    shorter time windows, or see the [Solver Selection Guide](@ref) for
-    integrator and tolerance settings.
+!!! note "Runtime"
+    The memory-kernel solvers re-integrate the whole history at every step,
+    so their cost grows roughly as ``t_\text{max}^2``. Generating these plots
+    (`docs/generate_comparison_plots.jl`, `nvib = 5`, ``t_\text{max} = 0.5``)
+    takes about 30–80 minutes per coupling strength.
 
 ## Full Comparison Script
 
