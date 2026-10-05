@@ -335,6 +335,20 @@ export
     corrected_qme_rdm,
     site_to_exciton_kernel,
 
+    # bath_correlation.jl
+    ExponentialCorrelation,
+    bath_correlation,
+    DrudeLorentz,
+    ExcitonModel,
+    site_to_exciton,
+    exciton_to_site,
+
+    # iterative_qme.jl
+    QME_cf_born,
+    QME_cf_redfield,
+    QME_cf_iterative,
+    exciton_to_schroedinger,
+
     # dipole.jl
     DIPOLE_COUPLING_FACTOR,
     TransitionDipole,
@@ -420,6 +434,8 @@ include("spectroscopy/modified_redfield.jl")
 # corrected memory kernel (depends on spectroscopy types)
 include("evolution/correlation.jl")
 include("evolution/corrected_memory_kernel.jl")
+include("evolution/bath_correlation.jl")
+include("evolution/iterative_qme.jl")
 
 # utils/
 include("utils/initial_state.jl")

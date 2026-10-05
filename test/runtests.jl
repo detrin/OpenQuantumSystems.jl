@@ -34,7 +34,8 @@ names = [
     "test_spectral_density.jl",
     "test_modified_redfield.jl",
     "test_corrected_memory_kernel.jl",
-    "test_kernel_validation.jl"
+    "test_kernel_validation.jl",
+    "test_iterative_qme.jl"
 ]
 
 #=
