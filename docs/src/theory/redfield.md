@@ -104,7 +104,7 @@ baseline:
 - **Constant ansatz** (``\hat{w}^{(I)}_{ab}(t) = \hat{w}_{eq}``) gives the
   same bath approximation but keeps ``\hat{\rho}^{(I)}(\tau)`` inside the
   integral (no Markov approximation). This is the `QME_sI_ansatz` solver with
-  `ansatz=:const_sch`.
+  `ansatz=:const_int`.
 - **Iterative QME** systematically improves beyond Redfield by refining the
   bath state.
 - **Modified Redfield** treats diagonal fluctuations non-perturbatively.

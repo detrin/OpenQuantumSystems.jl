@@ -108,6 +108,18 @@ function run_comparison(S; J=100.0, T=300.0, nvib=5, t_max=0.5, dt=0.001,
     end
     results["Förster"] = pop_forster_exc[:, 2]
 
+    # --- Redfield and QME ansatz (delay differential equations) ---
+    # H_S is diagonal in the exciton basis, so exciton populations are the
+    # same in the interaction and Schrödinger pictures.
+    exciton_pop(rho) = real(sum(coeffs[2, k] * coeffs[2, l] * rho[k+1, l+1] for k in 1:2, l in 1:2))
+    dde_kw = (reltol=1e-4, abstol=1e-6, int_reltol=1e-4, int_abstol=1e-6)
+    println("  Redfield...")
+    _, rho_red = QME_sI_Redfield(W0, tspan, agg; dde_kw...)
+    results["Redfield"] = [exciton_pop(r.data) for r in rho_red]
+    println("  QME ansatz (const_int)...")
+    _, rho_ans = QME_sI_ansatz(W0, tspan, agg; ansatz=:const_int, dde_kw...)
+    results["Ansatz (const_int)"] = [exciton_pop(r.data) for r in rho_ans]
+
     # --- Corrected kernel (exciton basis natively) ---
     if include_corrected
         println("  Corrected kernel (iterative)...")
@@ -129,6 +141,10 @@ function make_plot(results, S; include_corrected=true)
         label="Mod. Redfield", ls=:dot, lw=2, color=:red)
     plot!(plt, tspan, results["Förster"],
         label="Förster", ls=:dot, lw=2, color=:purple)
+    plot!(plt, tspan, results["Redfield"],
+        label="Redfield", ls=:dash, lw=2, color=:blue)
+    plot!(plt, tspan, results["Ansatz (const_int)"],
+        label="QME ansatz (const_int)", ls=:dash, lw=1.5, color=:cyan)
 
     if include_corrected && haskey(results, "Corrected (0th)")
         plot!(plt, tspan, results["Corrected (0th)"],

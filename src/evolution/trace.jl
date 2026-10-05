@@ -226,7 +226,8 @@ function _trace_bath_part(W::AbstractMatrix, a, b, aggTools, ::GroundExcited)
 end
 
 function _trace_bath_part(W::AbstractMatrix, a, b, aggTools, ::GroundGround)
-    a == b ? tr(W) : eltype(W)(0)
+    # all electronic blocks share the same vibrational basis
+    tr(W)
 end
 
 function trace_bath_part(
@@ -343,18 +344,12 @@ function ad(
     aggCore::AggregateCore,
     aggTools::AggregateTools
 )
-    W = zero(rho_bath)
-
-    for I = 1:aggTools.bSize
-        elind1, vibind1 = aggTools.indices[I]
-        elOrder1 = elIndOrder(elind1)
-
-        for J = 1:aggTools.bSize
-            elind2, vibind2 = aggTools.indices[J]
-            elOrder2 = elIndOrder(elind2)
-
-            W[I, J] = rho[elOrder1, elOrder2] * rho_bath[I, J]
-        end
+    W = similar(rho_bath, promote_type(eltype(rho), eltype(rho_bath)))
+    indicesMap = aggTools.indicesMap
+    elLen = length(indicesMap)
+    for b = 1:elLen, a = 1:elLen
+        Ia, Ib = indicesMap[a], indicesMap[b]
+        W[Ia, Ib] .= rho[a, b] .* view(rho_bath, Ia, Ib)
     end
     return W
 end
@@ -423,7 +418,7 @@ function correlation_function(
     aggTools::AggregateTools;
     vib_basis::VibBasisLike=:none
 )
-    Ham_II_t = get_interaction_ham_i_picture(Ham_0, Ham_I, t)
+    Ham_II_t = _interaction_ham(Ham_0, Ham_I, t)
     prod = Ham_II_t * Ham_I * rho0_bath
     return trace_bath(prod, aggCore, aggOperators, aggTools; vib_basis=vib_basis)
 end

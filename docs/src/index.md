@@ -52,10 +52,11 @@ agg = setup_dimer(E1=12500.0, E2=12700.0, J=100.0)
 W0 = thermal_state_composite(300.0, [0.0, 0.5, 0.5], agg)
 
 # Time grid
-tspan = get_tspan(0.0, 0.5, 500)
+tspan = get_tspan(0.0, 0.05, 50)
 
-# Solve with QME ansatz
-result = solve(W0, tspan, agg; method=:qme_ansatz)
+# Solve with QME ansatz (bath frozen in the interaction picture)
+result = solve(W0, tspan, agg; method=:qme_ansatz, ansatz=:const_int,
+               reltol=1e-6, abstol=1e-8)
 ```
 
 See the [Hamiltonian & Bath Model](@ref) for the underlying theory, the

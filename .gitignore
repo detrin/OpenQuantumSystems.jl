@@ -29,3 +29,7 @@ test/hamiltonian.csv
 # test/local_test.ipynb
 # test/local.ipynb
 thesis.pdf
+
+# benchmark outputs
+benchmark/**/*.jls
+benchmark/**/*.log

@@ -147,6 +147,14 @@ Modules = [OpenQuantumSystems]
 Pages   = ["evolution/corrected_memory_kernel.jl"]
 ```
 
+## Bath Correlation Functions and Iterative QME
+
+```@autodocs
+Modules = [OpenQuantumSystems]
+Pages   = ["evolution/bath_correlation.jl", "evolution/iterative_qme.jl"]
+Private = false
+```
+
 ## Trace
 
 ```@autodocs

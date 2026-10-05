@@ -118,8 +118,9 @@ function ``F`` that uses previously computed values
 ```
 
 where ``F`` is evaluated using Gauss--Kronrod quadrature (QuadGK.jl). The DDE
-is then solved with a standard adaptive ODE solver (Tsit5 from
-DifferentialEquations.jl). This approach handles the cold-start problem
+is then solved with an adaptive method-of-steps DDE integrator (by default
+`DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Vern6())`, selectable with the `alg`
+keyword, see [Integrator and tolerances](@ref)). This approach handles the cold-start problem
 gracefully and controls the integration error through tolerance parameters
 `int_reltol` and `int_abstol`.
 

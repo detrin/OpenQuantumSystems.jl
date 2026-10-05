@@ -18,7 +18,7 @@ names = [
     "test_master_exact.jl",
     "test_trace.jl",
     "test_initial_state.jl",
-    # "test_memory_kernel.jl",
+    "test_memory_kernel.jl",
     "test_rate_constant.jl",
     "test_redfield.jl",
     "test_master_ansatz.jl",
@@ -33,7 +33,9 @@ names = [
     "test_forster.jl",
     "test_spectral_density.jl",
     "test_modified_redfield.jl",
-    "test_corrected_memory_kernel.jl"
+    "test_corrected_memory_kernel.jl",
+    "test_kernel_validation.jl",
+    "test_iterative_qme.jl"
 ]
 
 #=
