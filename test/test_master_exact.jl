@@ -1,106 +1,46 @@
 using Test
-using OpenQuantumSystems
-using Random, SparseArrays, LinearAlgebra, StableRNGs
-import QuantumOpticsBase
+include("helpers_qme.jl")
 
-import DelayDiffEq
-import OrdinaryDiffEq
-
+# With the exact W(s) inside the memory integral, the second-order QME is an
+# identity, so every *_exact solver must reproduce the exact dynamics.
 @testset "master" begin
 
-    Random.seed!(StableRNG(0), 1)
+    agg, W0 = qme_test_dimer(0.05)
+    tspan = QME_TEST_TSPAN
+    kw = qme_test_kwargs()
 
-    D(op1::Array, op2::Array) = abs(norm(op1 - op2))
-    D(x1::StateVector, x2::StateVector) = norm(x2 - x1)
-    D(op1::AbstractOperator, op2::AbstractOperator) =
-        abs(tracedistance_nh(dense(op1), dense(op2)))
-    D(op1::AbstractSuperOperator, op2::AbstractSuperOperator) =
-        abs(tracedistance_nh(dense(op1), dense(op2)))
+    @testset "QME_sI_exact equals exact reduced dynamics" begin
+        _, rho_t = QME_sI_exact(W0, tspan, agg; kw...)
+        ref = qme_exact(agg, W0, tspan; picture = :interaction)
+        @test qme_relative_error(rho_t, ref) < 1e-3
+        @test qme_trace_drift(rho_t) < 1e-10
+        @test qme_hermiticity(rho_t) < 1e-10
+    end
 
-    mode1 = Mode(0.2, 1.0)
-    mode2 = Mode(0.3, 2.0)
-    Energy = [0.0, 200.0]
-    mol1 = Molecule([mode1], 3, [2.0, 200.0])
-    mol2 = Molecule([mode2], 3, [3.0, 300.0])
-    aggCore = AggregateCore([mol1, mol2])
-    aggCore.coupling[2, 3] = 50
-    aggCore.coupling[3, 2] = 50
-    agg = setup_aggregate(aggCore)
-    aggTools = agg.tools
-    aggOperators = agg.operators
+    @testset "QME_sS_exact equals exact reduced dynamics" begin
+        _, rho_t = QME_sS_exact(W0, tspan, agg; kw...)
+        ref = qme_exact(agg, W0, tspan; picture = :schrodinger)
+        @test qme_relative_error(rho_t, ref) < 1e-3
+        @test qme_trace_drift(rho_t) < 1e-10
+        @test qme_hermiticity(rho_t) < 1e-10
+    end
 
-    Ham_B = agg.operators.Ham_B
-    Ham_I = agg.operators.Ham_I
-    Ham_0 = agg.operators.Ham_0
-    Ham = agg.operators.Ham
+    # The full-state solvers feed their own history back into the integral, so
+    # their accuracy is limited by the solver tolerance (≈ 3e-3 at 1e-4).
+    @testset "QME_SI_exact equals exact full dynamics" begin
+        _, W_t = QME_SI_exact(W0, tspan, agg; kw...)
+        ref = qme_exact(agg, W0, tspan; picture = :interaction, reduced = false)
+        @test qme_relative_error(W_t, ref) < 2e-2
+        @test qme_trace_drift(W_t) < 1e-10
+        @test qme_hermiticity(W_t) < 1e-10
+    end
 
-    Ham_0_lambda, Ham_0_S = eigen(Ham_0.data)
-    Ham_0_Sinv = inv(Ham_0_S)
-    Ham_0_lambda = diagm(Ham_0_lambda)
-
-    basis = agg.tools.basis
-    indicesLen = agg.tools.bSize
-    indices = agg.tools.indices
-    indicesMap = agg.tools.indicesMap
-    FCFact = agg.tools.FCfactors
-    FCProd = agg.tools.FCproduct
-
-    data = Matrix(Hermitian(rand(ComplexF64, indicesLen, indicesLen)))
-    W0 = DenseOperator(basis, basis, data)
-    rho0 = trace_bath(W0, aggCore, aggOperators, aggTools)
-    W0_bath = get_rho_bath(W0, aggCore, aggOperators, aggTools)
-    normalize!(rho0)
-    # tests have to be quick enough
-    t_max = 0.001
-    t_count = 10
-    t0 = 0.
-    t_step = (t_max - t0) / (t_count)
-    tspan = [t0:t_step:t_max;]
-
-    _, W_t = QME_SS_exact(
-        W0,
-        tspan,
-        agg;
-        reltol = 1e-3,
-        abstol = 1e-3,
-        int_reltol = 1e-4,
-        int_abstol = 1e-4,
-        alg = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Tsit5()),
-    )
-
-    _, W_int_t = QME_SI_exact(
-        W0,
-        tspan,
-        agg;
-        reltol = 1e-3,
-        abstol = 1e-3,
-        int_reltol = 1e-4,
-        int_abstol = 1e-4,
-        alg = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Tsit5()),
-    )
-
-    _, rho_t = QME_sS_exact(
-        W0,
-        tspan,
-        agg;
-        reltol = 1.0e-3,
-        abstol = 1.0e-3,
-        int_reltol = 1.0e-4,
-        int_abstol = 1.0e-4,
-        alg = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Tsit5())
-    )
-
-    _, rho_int_t = QME_sI_exact(
-        W0,
-        tspan,
-        agg;
-        reltol = 1.0e-3,
-        abstol = 1.0e-3,
-        int_reltol = 1.0e-4,
-        int_abstol = 1.0e-4,
-        alg = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Tsit5())
-    )
-
-
+    @testset "QME_SS_exact equals exact full dynamics" begin
+        _, W_t = QME_SS_exact(W0, tspan, agg; kw...)
+        ref = qme_exact(agg, W0, tspan; picture = :schrodinger, reduced = false)
+        @test qme_relative_error(W_t, ref) < 2e-2
+        @test qme_trace_drift(W_t) < 1e-10
+        @test qme_hermiticity(W_t) < 1e-10
+    end
 
 end # testset

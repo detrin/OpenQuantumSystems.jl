@@ -4,7 +4,7 @@ import QuantumOpticsBase, LinearAlgebra, OrdinaryDiffEq, QuadGK, DelayDiffEq
 """
     master_int(W0, tspan, Ham_0, Ham_I; 
     \treltol=1.0e-12, abstol=1.0e-12, int_reltol=1.0e-8, int_abstol=0.0, 
-    \tfout=nothing, alg=DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()))
+    \tfout=nothing, alg=DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Vern6()))
 
 Integrate Quantum Master equation 
 
@@ -36,7 +36,7 @@ function QME_sI_exact(
     abstol::AbstractFloat = 1.0e-12,
     int_reltol::AbstractFloat = 1.0e-4,
     int_abstol::AbstractFloat = 1.0e-4,
-    alg::Any = DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()),
+    alg::Any = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Vern6()),
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
@@ -84,7 +84,7 @@ function dQME_sI_exact(
 ) where {B<:Basis,T<:Operator{B,B}}
     (; aggCore, aggTools, aggOperators, W0, elementtype) = p
     
-    Ham_II_t = get_interaction_ham_i_picture(aggOperators.Ham_0, aggOperators.Ham_I, t)
+    Ham_II_t = _interaction_ham(aggOperators.Ham_0, aggOperators.Ham_I, t)
     K = Ham_II_t.data * W0.data - W0.data * Ham_II_t.data
     K_traced = trace_bath(K, aggCore, aggOperators, aggTools; vib_basis=aggOperators.vib_basis)
 
@@ -106,16 +106,16 @@ function kernel_sI_exact(t, s, h, p, tmp1, tmp2)
     Ham_0 = aggOperators.Ham_0
     Ham_I = aggOperators.Ham_I
     Ham = aggOperators.Ham
-    Ham_II_s = get_interaction_ham_i_picture(Ham_0, Ham_I, s)
-    Ham_II_t = get_interaction_ham_i_picture(Ham_0, Ham_I, t)
+    Ham_II_s = _interaction_ham(Ham_0, Ham_I, s)
+    Ham_II_t = _interaction_ham(Ham_0, Ham_I, t)
 
-    U_0_s = evolution_operator(Ham, s)
+    U_0_s = _propagator(Ham, s)
     W_s = U_0_s * W0 * U_0_s'
-    U_0_op = evolution_operator(Ham_0, s)
+    U_0_op = _propagator(Ham_0, s)
     W_int_s = U_0_op' * W_s * U_0_op
 
-    tmp1[:, :] = Ham_II_s.data * W_int_s.data - W_int_s.data * Ham_II_s.data
-    tmp2[:, :] = Ham_II_t.data * tmp1 - tmp1 * Ham_II_t.data
+    _commutator!(tmp1, Ham_II_s.data, W_int_s.data)
+    _commutator!(tmp2, Ham_II_t.data, tmp1)
     return trace_bath(tmp2, aggCore, aggOperators, aggTools; vib_basis=aggOperators.vib_basis)
 end
 
@@ -127,7 +127,7 @@ function QME_sS_exact(
     abstol::AbstractFloat = 1.0e-12,
     int_reltol::AbstractFloat = 1.0e-4,
     int_abstol::AbstractFloat = 1.0e-4,
-    alg::Any = DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()),
+    alg::Any = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Vern6()),
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
@@ -197,11 +197,11 @@ function kernel_sS_exact(t, s, h, p, tmp1, tmp2)
     Ham_0 = aggOperators.Ham_0
     Ham = aggOperators.Ham
 
-    U_0_s = evolution_operator(Ham, s)
+    U_0_s = _propagator(Ham, s)
     W_s = U_0_s * W0 * U_0_s'
 
-    tmp1[:, :] = Ham.data * W_s.data - W_s.data * Ham.data
-    tmp2[:, :] = Ham.data * tmp1 - tmp1 * Ham.data
+    _commutator!(tmp1, Ham.data, W_s.data)
+    _commutator!(tmp2, Ham.data, tmp1)
 
     return trace_bath(tmp2, aggCore, aggOperators, aggTools; vib_basis=aggOperators.vib_basis)
 end
@@ -209,7 +209,7 @@ end
 """
     master(W0, tspan, Ham; 
     \treltol=1.0e-12, abstol=1.0e-12, int_reltol=1.0e-8, int_abstol=0.0, 
-    \tfout=nothing, alg=DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()))
+    \tfout=nothing, alg=DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Vern6()))
 
 Integrate Quantum Master equation 
 
@@ -239,7 +239,7 @@ function QME_SS_exact(
     abstol::Float64 = 1.0e-12,
     int_reltol::AbstractFloat = 1.0e-8,
     int_abstol::AbstractFloat = 0.0,
-    alg::Any = DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()),
+    alg::Any = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Vern6()),
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
@@ -305,8 +305,8 @@ function kernel_SS_exact(t, s, h, p, tmp1, tmp2)
         W = W.data
     end
 
-    tmp1[:, :] = Ham * W - W * Ham
-    tmp2[:, :] = Ham * tmp1 - tmp1 * Ham
+    _commutator!(tmp1, Ham, W)
+    _commutator!(tmp2, Ham, tmp1)
 
     return tmp2
 end
@@ -319,7 +319,7 @@ function QME_SI_exact(
     abstol::Float64 = 1.0e-12,
     int_reltol::AbstractFloat = 1.0e-8,
     int_abstol::AbstractFloat = 0.0,
-    alg::Any = DelayDiffEq.MethodOfSteps(DelayDiffEq.Vern6()),
+    alg::Any = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Vern6()),
     fout::Union{Function,Nothing} = nothing,
     kwargs...,
 ) where {B<:Basis,T<:Operator{B,B}}
@@ -365,7 +365,7 @@ function dQME_SI_exact(
 
     Ham_0 = aggOperators.Ham_0.data
     Ham_I = aggOperators.Ham_I.data
-    Ham_II_t = get_interaction_ham_i_picture(Ham_0, Ham_I, t)
+    Ham_II_t = _interaction_ham(Ham_0, Ham_I, t)
 
     kernel_integrated, err = QuadGK.quadgk(
         s -> kernel_SI_exact(t, s, history_fun, p, tmp1, tmp2),
@@ -385,16 +385,16 @@ function kernel_SI_exact(t, s, h, p, tmp1, tmp2)
 
     Ham_0 = aggOperators.Ham_0.data
     Ham_I = aggOperators.Ham_I.data
-    Ham_II_s = get_interaction_ham_i_picture(Ham_0, Ham_I, s)
-    Ham_II_t = get_interaction_ham_i_picture(Ham_0, Ham_I, t)
+    Ham_II_s = _interaction_ham(Ham_0, Ham_I, s)
+    Ham_II_t = _interaction_ham(Ham_0, Ham_I, t)
 
     W_int = h(p, s)
     if (typeof(W_int) <: Operator)
         W_int = W_int.data
     end
 
-    tmp1[:, :] = Ham_II_s * W_int - W_int * Ham_II_s
-    tmp2[:, :] = Ham_II_t * tmp1 - tmp1 * Ham_II_t
+    _commutator!(tmp1, Ham_II_s, W_int)
+    _commutator!(tmp2, Ham_II_t, tmp1)
 
     return tmp2
 end

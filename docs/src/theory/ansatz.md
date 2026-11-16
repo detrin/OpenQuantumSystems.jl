@@ -25,8 +25,9 @@ the bath is infinite and initially in equilibrium -- any effect of the system
 on the bath is negligible. For finite systems, this is accurate only for short
 times (typically ``t < 400`` fs for weak coupling).
 
-In the package: `QME_sI_ansatz(W0, tspan, agg; ansatz=:const_sch)` or
-`:const_int`.
+In the package: `QME_sI_ansatz(W0, tspan, agg; ansatz=:const_int)`. The
+variant `:const_sch` instead freezes the bath in the Schrödinger picture,
+``\hat{w}_{ab}(t) = \hat{w}_{eq}``, and is considerably less accurate.
 
 ## Linear ansatz (L1)
 

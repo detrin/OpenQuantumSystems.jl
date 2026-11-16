@@ -123,7 +123,7 @@ reduces the cost. Different ansatze offer different accuracy/cost trade-offs.
 Use the unified interface:
 
 ```julia
-QME_sI_ansatz(W0, tspan, agg; ansatz=:const_sch)
+QME_sI_ansatz(W0, tspan, agg; ansatz=:const_int)
 ```
 
 Available ansatze (passed as the `ansatz` keyword):
@@ -201,30 +201,34 @@ using OpenQuantumSystems
 
 # --- Define the aggregate ---
 HR = 0.01
-shift = sqrt(2.0 * HR)
+shift = sqrt(2.0 * HR)  # Huang-Rhys factor S = shift^2 / 2
 mode = Mode(300.0, shift)
 mols = [
     Molecule([mode], 5, [12500.0, 12750.0]),
     Molecule([mode], 5, [12500.0, 12800.0]),
 ]
-agg = Aggregate(mols)
-agg.coupling[2, 3] = 100.0
-agg.coupling[3, 2] = 100.0
-setup_aggregate!(agg)
+aggCore = AggregateCore(mols)
+aggCore.coupling[2, 3] = 100.0
+aggCore.coupling[3, 2] = 100.0
+agg = setup_aggregate(aggCore)
 
 # --- Initial state ---
 T = 300.0  # temperature in K
-W0 = thermal_state_composite(T, [0.0, 0.5, 0.5], agg.operators.Ham, agg.tools)
+W0 = thermal_state_composite(T, [0.0, 0.5, 0.5], agg)
 
 # --- Time grid ---
-t_max = 0.5
-tspan = get_tspan(0.0, t_max, 500)
+# Memory-kernel solvers re-integrate the whole history at every step,
+# so their cost grows faster than linearly with t_max.
+t_max = 0.05
+tspan = get_tspan(0.0, t_max, 50)
 
-# --- Solve with QME ansatz (good default for production) ---
-tspan_out, rho_int_t = QME_sI_ansatz(W0, tspan, agg; ansatz=:const_sch)
+# --- Solve with QME ansatz ---
+tspan_out, rho_int_t = QME_sI_ansatz(W0, tspan, agg; ansatz=:const_int,
+    reltol=1e-6, abstol=1e-8)
 
 # --- Convert from interaction picture to Schroedinger picture ---
-rho_sch_t = interaction_pic_to_schroedinger_pic(rho_int_t, agg.operators.Ham_0, tspan)
+# returns an array indexed as rho_sch_t[t_i, a, b]
+rho_sch_t = interaction_pic_to_schroedinger_pic(rho_int_t, tspan_out, agg)
 ```
 
 ### 7. Förster Theory
@@ -278,6 +282,38 @@ full QME is too expensive.
 - **Tolerance tuning:** The `int_reltol` and `int_abstol` parameters control the
   accuracy of the memory-kernel quadrature. Tighten them for benchmarks, loosen for
   speed.
-- **Ansatz choice:** Start with `:const_sch` (cheapest nontrivial ansatz). If accuracy
-  is insufficient, move to `:upart1_sch` or `:upart2_sch`, or switch to the iterative
-  solver.
+- **Ansatz choice:** Start with `:const_int` (bath frozen in the interaction
+  picture, the thesis' constant ansatz). On a weakly coupled dimer the
+  interaction-picture ansatze are the most accurate (`:upart1_int` / `:upart2_int`
+  ≈ 1 %, `:const_int` ≈ 6 % relative error), while the Schrödinger-picture ones
+  (`:const_sch`, `:linear_sch`, `:upart*_sch`) are markedly worse (20–33 %).
+  For validation, `:test` uses the exact bath state and reproduces the exact dynamics.
+
+## Integrator and tolerances
+
+All memory-kernel solvers (`QME_*`, `QME_sI_Redfield`, `QME_sI_ansatz`,
+`QME_sI_iterative`) solve a delay differential equation. The defaults are
+
+| Keyword | Default | Meaning |
+|---------|---------|---------|
+| `alg` | `DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Vern6())` | DDE integrator |
+| `reltol`, `abstol` | `1e-12` | integrator tolerances |
+| `int_reltol`, `int_abstol` | `1e-4` | memory-integral (QuadGK) tolerances |
+
+The default integrator tolerances are tight and slow; `reltol = 1e-4` to `1e-6`
+is usually enough. To choose another integrator, take the method from
+`OrdinaryDiffEq` and wrap it in `DelayDiffEq.MethodOfSteps` (recent versions of
+DelayDiffEq no longer re-export `Tsit5`, `Vern6`, …). Both packages must be in
+your environment (`Pkg.add(["DelayDiffEq", "OrdinaryDiffEq"])`):
+
+```julia
+import DelayDiffEq, OrdinaryDiffEq
+
+tspan_out, rho_int_t = QME_sI_Redfield(W0, tspan, agg;
+    alg = DelayDiffEq.MethodOfSteps(OrdinaryDiffEq.Tsit5()),
+    reltol = 1e-6, abstol = 1e-8)
+```
+
+Initial states must be complex density matrices; `thermal_state`,
+`thermal_state_composite` and `ultrafast_laser_excitation` return complex
+operators. For a hand-built `W0`, use `DenseOperator(basis, basis, complex(data))`.

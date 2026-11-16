@@ -24,6 +24,27 @@ function _wick_second_order_cf(
     return val
 end
 
+# [H_x, [H_y, O]] = H_x H_y O - H_x O H_y - H_y O H_x + O H_y H_x,
+# each term as (sign, time slots left of O, time slots right of O)
+_double_commutator_terms(x::Int, y::Int) = (
+    (+1, (x, y), ()),
+    (-1, (x,), (y,)),
+    (-1, (y,), (x,)),
+    (+1, (), (y, x)),
+)
+
+# Electronic paths α → β through `nops` single-exciton operators.
+function _exciton_paths(α::Int, β::Int, nops::Int, elLen::Int)
+    nops == 0 && return α == β ? [(α,)] : NTuple{1,Int}[]
+    nops == 1 && return [(α, β)]
+    return [(α, g, β) for g in 2:elLen]
+end
+
+# Integrand of the first-order correction of the memory kernel,
+#   tr_B <a| [H(t1), [H(t2), (1/ρ_cd) <c|[H(t3), [H(t4), ρ ⊕ w_eq]]|d> |c><d|]] |b>,
+# for all exciton indices (a, b, c, d) of the excited manifold. The sixteen operator
+# orderings are generated from both double commutators; the four bath operators enter
+# `wk` in cyclic trace order tr{L_o L_i w R_i R_o} = <R_i R_o L_o L_i>.
 function _first_order_integrand!(
     result::Array{ComplexF64, 4},
     t1::Real, t2::Real, t3::Real, t4::Real,
@@ -32,153 +53,47 @@ function _first_order_integrand!(
     elLen::Int,
     wk::Function,
 )
-    for a in 2:elLen, b in 2:elLen, ci in 2:elLen, d in 2:elLen
-        ai, bi, cci, di = a-1, b-1, ci-1, d-1
-        rho_cd = rho_I[ci, d]
-        abs(rho_cd) < _SAFE_DIV_TOL && continue
+    times = (t1, t2, t3, t4)
+    phase(tslot, α, β) = exp(im * (E[α] - E[β]) * times[tslot])
+    outer = _double_commutator_terms(1, 2)
+    inner = _double_commutator_terms(3, 4)
+    ops = Vector{NTuple{3,Int}}(undef, 4)
+
+    for a in 2:elLen, b in 2:elLen, c in 2:elLen, d in 2:elLen
+        rho_cd = rho_I[c, d]
+        if abs(rho_cd) < _SAFE_DIV_TOL
+            result[a, b, c, d] = zero(ComplexF64)
+            continue
+        end
         val = zero(ComplexF64)
+        for e in 2:elLen, f in 2:elLen
+            rho_ef = rho_I[e, f]
+            abs(rho_ef) < _SAFE_DIV_TOL && continue
+            val_ef = zero(ComplexF64)
+            for (s_o, L_o, R_o) in outer, (s_i, L_i, R_i) in inner
+                for p_Lo in _exciton_paths(a, c, length(L_o), elLen),
+                    p_Li in _exciton_paths(c, e, length(L_i), elLen),
+                    p_Ri in _exciton_paths(f, d, length(R_i), elLen),
+                    p_Ro in _exciton_paths(d, b, length(R_o), elLen)
 
-        # --- Outer term 1: +H(t1)H(t2)O ---
-
-        # 1a: +, efg, delta_db
-        if d == b
-            for e in 2:elLen, f in 2:elLen, g in 2:elLen
-                ei, fi, gi = e-1, f-1, g-1
-                rd = rho_I[f, d]; abs(rd) < _SAFE_DIV_TOL && continue
-                ph = exp(im*((E[a]-E[e])*t1 + (E[e]-E[f])*t2 + (E[f]-E[g])*t3 + (E[g]-E[ci])*t4))
-                val += ph * (rho_cd/rd) * wk(ai,ei, ei,fi, fi,gi, gi,cci, t1,t2,t3,t4)
+                    k = 0
+                    for (slots, path) in ((R_i, p_Ri), (R_o, p_Ro), (L_o, p_Lo), (L_i, p_Li))
+                        for (j, tslot) in enumerate(slots)
+                            k += 1
+                            ops[k] = (tslot, path[j], path[j+1])
+                        end
+                    end
+                    ph = prod(phase(op...) for op in ops)
+                    (o1, o2, o3, o4) = ops
+                    val_ef += s_o * s_i * ph * wk(
+                        o1[2]-1, o1[3]-1, o2[2]-1, o2[3]-1, o3[2]-1, o3[3]-1, o4[2]-1, o4[3]-1,
+                        times[o1[1]], times[o2[1]], times[o3[1]], times[o4[1]],
+                    )
+                end
             end
+            val += (rho_ef / rho_cd) * val_ef
         end
-
-        # 1b: -, ef
-        for e in 2:elLen, f in 2:elLen
-            ei, fi = e-1, f-1
-            rd = rho_I[f, b]; abs(rd) < _SAFE_DIV_TOL && continue
-            ph = exp(im*((E[a]-E[e])*t1 + (E[e]-E[f])*t2 + (E[f]-E[ci])*t3 + (E[d]-E[b])*t4))
-            val -= ph * (rho_cd/rd) * wk(di,bi, ai,ei, ei,fi, fi,cci, t4,t1,t2,t3)
-        end
-
-        # 1c: -, ef
-        for e in 2:elLen, f in 2:elLen
-            ei, fi = e-1, f-1
-            rd = rho_I[f, b]; abs(rd) < _SAFE_DIV_TOL && continue
-            ph = exp(im*((E[a]-E[e])*t1 + (E[e]-E[f])*t2 + (E[d]-E[b])*t3 + (E[f]-E[ci])*t4))
-            val -= ph * (rho_cd/rd) * wk(di,bi, ai,ei, ei,fi, fi,cci, t3,t1,t2,t4)
-        end
-
-        # 1d: +, eg (f->c)
-        for e in 2:elLen, g in 2:elLen
-            ei, gi = e-1, g-1
-            rd = rho_I[ci, b]; abs(rd) < _SAFE_DIV_TOL && continue
-            ph = exp(im*((E[a]-E[e])*t1 + (E[e]-E[ci])*t2 + (E[g]-E[b])*t3 + (E[d]-E[g])*t4))
-            val += ph * (rho_cd/rd) * wk(di,gi, gi,bi, ai,ei, ei,cci, t4,t3,t1,t2)
-        end
-
-        # --- Outer term 2: -H(t1)OH(t2) ---
-
-        # 2a: -, eg (f->d)
-        for e in 2:elLen, g in 2:elLen
-            ei, gi = e-1, g-1
-            rd = rho_I[e, d]; abs(rd) < _SAFE_DIV_TOL && continue
-            ph = exp(im*((E[a]-E[e])*t1 + (E[d]-E[b])*t2 + (E[e]-E[g])*t3 + (E[g]-E[ci])*t4))
-            val -= ph * (rho_cd/rd) * wk(di,bi, ai,ei, ei,gi, gi,cci, t2,t1,t3,t4)
-        end
-
-        # 2b: +, ef
-        for e in 2:elLen, f in 2:elLen
-            ei, fi = e-1, f-1
-            rd = rho_I[e, f]; abs(rd) < _SAFE_DIV_TOL && continue
-            ph = exp(im*((E[a]-E[e])*t1 + (E[f]-E[b])*t2 + (E[e]-E[ci])*t3 + (E[d]-E[f])*t4))
-            val += ph * (rho_cd/rd) * wk(di,fi, fi,bi, ai,ei, ei,cci, t4,t2,t1,t3)
-        end
-
-        # 2c: +, ef
-        for e in 2:elLen, f in 2:elLen
-            ei, fi = e-1, f-1
-            rd = rho_I[e, f]; abs(rd) < _SAFE_DIV_TOL && continue
-            ph = exp(im*((E[a]-E[e])*t1 + (E[f]-E[b])*t2 + (E[d]-E[f])*t3 + (E[e]-E[ci])*t4))
-            val += ph * (rho_cd/rd) * wk(di,fi, fi,bi, ai,ei, ei,cci, t3,t2,t1,t4)
-        end
-
-        # 2d: -, fg (e->c)
-        for f in 2:elLen, g in 2:elLen
-            fi, gi = f-1, g-1
-            rd = rho_I[ci, f]; abs(rd) < _SAFE_DIV_TOL && continue
-            ph = exp(im*((E[a]-E[ci])*t1 + (E[f]-E[b])*t2 + (E[g]-E[f])*t3 + (E[d]-E[g])*t4))
-            val -= ph * (rho_cd/rd) * wk(di,gi, gi,fi, fi,bi, ai,cci, t4,t3,t2,t1)
-        end
-
-        # --- Outer term 3: -H(t2)OH(t1) ---
-
-        # 3a: -, eg (f->d)
-        for e in 2:elLen, g in 2:elLen
-            ei, gi = e-1, g-1
-            rd = rho_I[e, d]; abs(rd) < _SAFE_DIV_TOL && continue
-            ph = exp(im*((E[d]-E[b])*t1 + (E[a]-E[e])*t2 + (E[e]-E[g])*t3 + (E[g]-E[ci])*t4))
-            val -= ph * (rho_cd/rd) * wk(di,bi, ai,ei, ei,gi, gi,cci, t1,t2,t3,t4)
-        end
-
-        # 3b: +, ef
-        for e in 2:elLen, f in 2:elLen
-            ei, fi = e-1, f-1
-            rd = rho_I[e, f]; abs(rd) < _SAFE_DIV_TOL && continue
-            ph = exp(im*((E[f]-E[b])*t1 + (E[a]-E[e])*t2 + (E[e]-E[ci])*t3 + (E[d]-E[f])*t4))
-            val += ph * (rho_cd/rd) * wk(di,fi, fi,bi, ai,ei, ei,cci, t4,t1,t2,t3)
-        end
-
-        # 3c: +, ef
-        for e in 2:elLen, f in 2:elLen
-            ei, fi = e-1, f-1
-            rd = rho_I[e, f]; abs(rd) < _SAFE_DIV_TOL && continue
-            ph = exp(im*((E[f]-E[b])*t1 + (E[a]-E[e])*t2 + (E[d]-E[f])*t3 + (E[e]-E[ci])*t4))
-            val += ph * (rho_cd/rd) * wk(di,fi, fi,bi, ai,ei, ei,cci, t3,t1,t2,t4)
-        end
-
-        # 3d: -, fg (e->c)
-        for f in 2:elLen, g in 2:elLen
-            fi, gi = f-1, g-1
-            rd = rho_I[ci, f]; abs(rd) < _SAFE_DIV_TOL && continue
-            ph = exp(im*((E[f]-E[b])*t1 + (E[a]-E[ci])*t2 + (E[g]-E[f])*t3 + (E[d]-E[g])*t4))
-            val -= ph * (rho_cd/rd) * wk(di,gi, gi,fi, fi,bi, ai,cci, t4,t3,t1,t2)
-        end
-
-        # --- Outer term 4: +OH(t2)H(t1) ---
-
-        # 4a: +, fg (e->d)
-        for f in 2:elLen, g in 2:elLen
-            fi, gi = f-1, g-1
-            rd = rho_I[a, d]; abs(rd) < _SAFE_DIV_TOL && continue
-            ph = exp(im*((E[f]-E[b])*t1 + (E[d]-E[f])*t2 + (E[a]-E[g])*t3 + (E[g]-E[ci])*t4))
-            val += ph * (rho_cd/rd) * wk(di,fi, fi,bi, ai,gi, gi,cci, t2,t1,t3,t4)
-        end
-
-        # 4b: -, ef
-        for e in 2:elLen, f in 2:elLen
-            ei, fi = e-1, f-1
-            rd = rho_I[a, e]; abs(rd) < _SAFE_DIV_TOL && continue
-            ph = exp(im*((E[f]-E[b])*t1 + (E[e]-E[f])*t2 + (E[a]-E[ci])*t3 + (E[d]-E[e])*t4))
-            val -= ph * (rho_cd/rd) * wk(di,ei, ei,fi, fi,bi, ai,cci, t4,t2,t1,t3)
-        end
-
-        # 4c: -, ef
-        for e in 2:elLen, f in 2:elLen
-            ei, fi = e-1, f-1
-            rd = rho_I[a, e]; abs(rd) < _SAFE_DIV_TOL && continue
-            ph = exp(im*((E[f]-E[b])*t1 + (E[e]-E[f])*t2 + (E[d]-E[e])*t3 + (E[a]-E[ci])*t4))
-            val -= ph * (rho_cd/rd) * wk(di,ei, ei,fi, fi,bi, ai,cci, t3,t2,t1,t4)
-        end
-
-        # 4d: +, efg, delta_ac
-        if a == ci
-            for e in 2:elLen, f in 2:elLen, g in 2:elLen
-                ei, fi, gi = e-1, f-1, g-1
-                rd = rho_I[ci, e]; abs(rd) < _SAFE_DIV_TOL && continue
-                ph = exp(im*((E[f]-E[b])*t1 + (E[e]-E[f])*t2 + (E[g]-E[e])*t3 + (E[d]-E[g])*t4))
-                val += ph * (rho_cd/rd) * wk(di,gi, gi,ei, ei,fi, fi,bi, t4,t3,t2,t1)
-            end
-        end
-
-        result[a, b, ci, d] = val
+        result[a, b, c, d] = val
     end
 end
 

@@ -25,6 +25,53 @@ function evolution_operator(Hamiltonian::AbstractMatrix, t::AbstractFloat)::Abst
     return exp(-1im * Hamiltonian * t)
 end
 
+# Same as `evolution_operator`, but reuses a cached eigendecomposition of a
+# Hermitian Hamiltonian; used inside solvers that need U(t) at many times.
+function _propagator(Hamiltonian::Operator, t::Real)::Operator
+    U = _propagator(Hamiltonian.data, t)
+    return DenseOperator(Hamiltonian.basis_l, Hamiltonian.basis_r, U)
+end
+
+function _propagator(Hamiltonian::AbstractMatrix, t::Real)::AbstractMatrix
+    eig = _hermitian_eigen(Hamiltonian)
+    eig === nothing && return exp(-1im * Hamiltonian * t)
+    return _eigen_propagator(eig, t)
+end
+
+# Eigendecomposition cache for Hermitian Hamiltonians. Solvers request U(t) and
+# H_I(t) for the same Hamiltonian at thousands of times; diagonalising once
+# replaces a matrix exponential per call by matrix products. Each entry keeps a
+# copy of its matrix and is used only if the requested matrix is still equal
+# to it, so mutated or recycled arrays never hit a stale entry.
+struct _HermitianEigen
+    H::Matrix
+    values::Vector{Float64}
+    vectors::Matrix{ComplexF64}
+end
+
+const _EIGEN_CACHE = Dict{UInt,_HermitianEigen}()
+const _EIGEN_CACHE_LOCK = ReentrantLock()
+const _EIGEN_CACHE_SIZE = 16
+
+function _hermitian_eigen(H::AbstractMatrix)
+    key = objectid(H)
+    lock(_EIGEN_CACHE_LOCK) do
+        entry = get(_EIGEN_CACHE, key, nothing)
+        entry !== nothing && entry.H == H && return entry
+        ishermitian(H) || return nothing
+        F = eigen(Hermitian(Matrix{ComplexF64}(H)))
+        entry = _HermitianEigen(copy(H), F.values, F.vectors)
+        length(_EIGEN_CACHE) >= _EIGEN_CACHE_SIZE && empty!(_EIGEN_CACHE)
+        _EIGEN_CACHE[key] = entry
+        return entry
+    end
+end
+
+function _eigen_propagator(eig::_HermitianEigen, t::Real)
+    V = eig.vectors
+    return (V .* transpose(cis.(-eig.values .* t))) * V'
+end
+
 """
     evolution_operator_a(H_lambda, S, Sinv, t)
 
